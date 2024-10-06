@@ -39,7 +39,7 @@ namespace MyPostgresApp.Controllers
             if (!ValidationHelper.ValidateEmail(email))
                 return BadRequest(new { error = "Invalid email" });
 
-            var existing_user = await _context.Users.SingleOrDefaultAsync(u => u.email == email);
+            var existing_user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
             if (existing_user != null)
                 return Conflict(new { error = "Email already exists" });
 
@@ -52,14 +52,19 @@ namespace MyPostgresApp.Controllers
                     _cache.Set("random_discriminators", randomDiscriminators);
                 }
 
-                var discriminator = randomDiscriminators.ContainsKey(nickname) ? randomDiscriminators[nickname] : null;
+                var discriminator = randomDiscriminators.ContainsKey(nickname) ? randomDiscriminators[nickname] : "0000";
                 string user_id = Utils.CreateRandomId();
+                DateTime currentDate = DateTime.Now;
                 var newUser = new User
                 {
-                    user_id = user_id,
-                    email = email,
-                    password = password,
-                    nickname = nickname
+                    UserId = user_id,
+                    Email = email,
+                    Password = password,
+                    Nickname = nickname,
+                    Discriminator = discriminator,
+                    Bot = 0,
+                    Status = "offline"
+                    
                 };
                 
                 await _context.Users.AddAsync(newUser);
@@ -73,9 +78,13 @@ namespace MyPostgresApp.Controllers
 
                 return Ok(new { message = "Registration successful" });
             }
-            catch (DbUpdateException)
+            catch (Exception ex)
             {
-                return Conflict(new { error = "Email already exists" });
+                var errorDetails = ex.InnerException != null ? 
+                ex.InnerException.Message : 
+                ex.Message;
+
+                return StatusCode(500, new { error = "An unexpected error occurred", details = errorDetails });
             }
         }
     }

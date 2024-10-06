@@ -12,10 +12,10 @@ namespace MyPostgresApp.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("users");
-            modelBuilder.Entity<User>().HasKey(u => u.user_id);
-            modelBuilder.Entity<User>().Property(u => u.email).IsRequired().HasMaxLength(128);
-            modelBuilder.Entity<User>().Property(u => u.password).IsRequired().HasMaxLength(128);
-            modelBuilder.Entity<User>().Property(u => u.nickname).HasMaxLength(128);
+            modelBuilder.Entity<User>().HasKey(u => u.UserId);
+            modelBuilder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(128);
+            modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(128);
+            modelBuilder.Entity<User>().Property(u => u.Nickname).HasMaxLength(128);
             
         }
     }
