@@ -37,8 +37,8 @@ namespace MyPostgresApp.Controllers
             {
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Email, email),
-                    new Claim(ClaimTypes.NameIdentifier, user.user_id.ToString())
+                    new(ClaimTypes.Email, email),
+                    new(ClaimTypes.NameIdentifier, user.UserId.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -54,15 +54,15 @@ namespace MyPostgresApp.Controllers
             return Unauthorized(new { message = "Authentication failed!" });
         }
 
-        private bool IsEmailInvalid(string email) => 
+        private static bool IsEmailInvalid(string email) => 
             email.Length < 5 || email.Length > 128;
 
-        private bool IsPasswordInvalid(string password) => 
+        private static bool IsPasswordInvalid(string password) => 
             password.Length < 5 || password.Length > 128;
 
         private async Task<User> AuthenticateUser(string email, string password)
         {
-            return await _context.Users.SingleOrDefaultAsync(u => u.email == email && u.password == password);
+            return await _context.Users.SingleOrDefaultAsync(u => u.Email == email && u.Password == password);
         }
 
         [HttpPost("logout")]

@@ -26,7 +26,7 @@ namespace MyPostgresApp.Controllers
             if (string.IsNullOrWhiteSpace(nick))
                 return BadRequest(new { error = "Invalid parameters" });
 
-            bool isUnique = !_context.Users.Any(u => u.nickname == nick);
+            bool isUnique = !_context.Users.Any(u => u.Nickname == nick);
             _cache.TryGetValue("random_discriminators", out Dictionary<string, string> randomDiscriminators);
             if (randomDiscriminators == null)
             {
