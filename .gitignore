@@ -1,3 +1,5 @@
+liventcordenv/
+
 # Build directories
 bin/
 obj/
@@ -22,6 +24,8 @@ appsettings.json
 *.dSYM/
 *.db
 *.pdb
+
+
 
 # Other potential files
 global.json
