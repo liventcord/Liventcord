@@ -7,11 +7,16 @@ namespace MyPostgresApp.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
-        public DbSet<Product> Products { get; set; }
+        public DbSet<User> Users { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Product>().ToTable("products"); 
+            modelBuilder.Entity<User>().ToTable("users");
+            modelBuilder.Entity<User>().HasKey(u => u.user_id);
+            modelBuilder.Entity<User>().Property(u => u.email).IsRequired().HasMaxLength(128);
+            modelBuilder.Entity<User>().Property(u => u.password).IsRequired().HasMaxLength(128);
+            modelBuilder.Entity<User>().Property(u => u.nickname).HasMaxLength(128);
+            
         }
     }
 }
