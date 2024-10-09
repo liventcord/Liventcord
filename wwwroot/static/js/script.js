@@ -635,8 +635,8 @@ function initialiseUserInput() {
         }
     });
 }
-document.addEventListener('DOMContentLoaded', function () {
 
+document.addEventListener('DOMContentLoaded', function () {
     assignElements();
     
     getId('globalSearchInput').addEventListener('click', function(){
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function () {
         enableBorderMovement();
     }
     
-    getId("variableScript").remove();
+    getId("data-script").remove();
 
 
 

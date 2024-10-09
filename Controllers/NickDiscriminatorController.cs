@@ -1,9 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using MyPostgresApp.Data;
-using MyPostgresApp.Models;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace MyPostgresApp.Controllers
 {
@@ -47,9 +44,7 @@ namespace MyPostgresApp.Controllers
 
         private string CreateDiscriminator(string nick)
         {
-            // Here you can implement your logic to create a discriminator
-            // For demonstration, returning a simple hash code as a string
-            return (nick.GetHashCode() % 10000).ToString("D4"); // Ensures 4-digit format
+            return (nick.GetHashCode() % 10000).ToString("D4");
         }
     }
 }

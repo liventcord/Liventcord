@@ -19,6 +19,9 @@ let fetchUsersTimeout = null;
 
 
 function getId(string) { return document.getElementById(string);}
+
+
+
 function activateDmContainer(friend_id) {
     getId('friend-container-item').classList.remove('dm-selected');
     if(!existingUsersDmContainers || existingUsersDmContainers.size < 1) { return }
@@ -203,7 +206,6 @@ function selectFriendMenuStatus(status) {
         selectFriendMenu(blockedButton);
     }
 }
-
 
 
 
