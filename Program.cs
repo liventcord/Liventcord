@@ -2,16 +2,17 @@ using MyPostgresApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json;
-using System.Security.Claims;
 using MyPostgresApp.Helpers;
-using MyPostgresApp.Controllers;
 using MyPostgresApp.Services;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.StaticFiles;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
+builder.Services.AddScoped<AppLogic>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
@@ -41,8 +42,15 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 
-void MapRoute(string path, string fileName, string contentType)
+
+
+
+void MapRoute(string path, string fileName)
 {
+    var provider = new FileExtensionContentTypeProvider();
+    provider.TryGetContentType(fileName, out var contentType);
+    contentType ??= "application/octet-stream";
+
     app.MapGet(path, async context =>
     {
         var filePath = Path.Combine(app.Environment.WebRootPath, fileName);
@@ -51,10 +59,17 @@ void MapRoute(string path, string fileName, string contentType)
     });
 }
 
-MapRoute("/", "newdc.html", "text/html");
-MapRoute("/download", "download.html", "text/html");
-MapRoute("/register", "register.html", "text/html");
-MapRoute("/w/loader/loader.js", "static/js/loader.js", "application/javascript");
+MapRoute("/", "newdc.html");
+MapRoute("/download", "download.html");
+MapRoute("/register", "register.html");
+MapRoute("/w/loader/loader.js", "static/js/loader.js");
+MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/index-react.js", "static/w/assets/index-react.js");
+MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/styles.css", "static/w/assets/b960ac7f559c3a04d18e7cce9de42c4b94a33dd4/styles.css");
+MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/styles.js", "static/w/assets/b960ac7f559c3a04d18e7cce9de42c4b94a33dd4/styles.css");
+MapRoute("/assets/532.423e048cce31881cf30d.css", "static/404/532.423e048cce31881cf30d.css");
+MapRoute("/assets/oneTrust/v4/scripttemplates/otSDKStub.js", "static/404/otSDKStub.js");
+MapRoute("/assets/5cb4337fbb45898bd5dce9a7a1a5a6c1.svg", "static/404/5cb4337fbb45898bd5dce9a7a1a5a6c1.svg");
+
 
 app.MapGet("/login", async context =>
 {
@@ -73,109 +88,21 @@ app.MapGet("/app", context => {
     context.Response.Redirect("/channels/@me");
     return Task.CompletedTask;
 });
-async Task HandleChannelRequest(HttpContext context, AppDbContext dbContext, TypingService typingService, GuildService guildService, FriendHelper friendHelper,string guildId, string channelId, string friendId = null)
+
+app.MapGet("/channels/{guildId}/{channelId}", async (HttpContext context, AppLogic appLogic, string guildId, string channelId) =>
 {
-    var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (string.IsNullOrEmpty(userId)) { context.Response.Redirect("/login"); return; }
-
-    var user = await dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-    if (user == null) { context.Response.Redirect("/login"); return; }
-
-    var email = user.Email ?? "";
-    var maskedEmail = user.MaskedEmail ?? "";
-    var userName = user.Nickname ?? "";
-    var userDiscriminator = user.Discriminator ?? "";
-
-    var guilds = await dbContext.GuildUsers
-        .Where(gu => gu.UserId == userId)
-        .Include(gu => gu.Guild)
-        .Select(gu => gu.Guild)
-        .ToListAsync();
-
-    var guild = await dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
-    var guildName = guild?.GuildName ?? "";
-    var authorId = guild?.OwnerId ?? "";
-
-    var typingUsers = new List<string>();
-    var sharedGuildsMap = new List<string>();
-    var permissionsMap = new List<string>();
-
-    if (!string.IsNullOrEmpty(guildId)) {
-        typingUsers = await typingService.GetTypingUsers(guildId, channelId) ?? new List<string>();
-        sharedGuildsMap = await guildService.GetSharedGuilds(guildId, userId) ?? new List<string>();
-        permissionsMap = getPermissionsMap(guildId, userId) ?? new List<string>();
-    }
-
-
-
-    var friendsStatus = await friendHelper.GetFriendsStatus(userId) ?? new List<string>();
-
-    var dmUsers = await dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
-
-    var jsonData = new
-    {
-        email,
-        maskedEmail,
-        userId,
-        userName,
-        userDiscriminator,
-        guildId,
-        channelId,
-        guildName,
-        authorId,
-        typingUsers,
-        sharedGuildsMap,
-        permissionsMap,
-        friendsStatus,
-        dmUsers,
-        guildsJson = guilds
-    };
-
-    string jsonDataScript = $@"
-        <script id='data-script' type='application/json'>
-            {JsonSerializer.Serialize(jsonData)}
-        </script>";
-
-    var filePath = Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath, "app.html");
-    var htmlContent = await File.ReadAllTextAsync(filePath);
-    var bodyCloseTagIndex = htmlContent.LastIndexOf("</body>");
-
-    if (bodyCloseTagIndex >= 0)
-    {
-        htmlContent = htmlContent.Insert(bodyCloseTagIndex, jsonDataScript);
-    }
-
-    context.Response.ContentType = "text/html";
-    await context.Response.WriteAsync(htmlContent);
-}
-
-app.MapGet("/channels/{guildId}/{channelId}", async (HttpContext context, AppDbContext dbContext, TypingService typingService, GuildService guildService,FriendHelper friendHelper, string guildId, string channelId) =>
-{
-    await HandleChannelRequest(context, dbContext, typingService, guildService,friendHelper, guildId, channelId);
+    await appLogic.HandleChannelRequest(context, guildId, channelId);
 });
 
-app.MapGet("/channels/{friendId}", async (HttpContext context, AppDbContext dbContext, TypingService typingService, GuildService guildService,FriendHelper friendHelper,string friendId) =>
-    await HandleChannelRequest(context, dbContext, typingService, null,friendHelper, null,null, friendId));
-
-
-
-
-
-List<string> getPermissionsMap(string guildId, string userId)
+app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic, string friendId) =>
 {
-    return new List<string>();
-}
-
-
-
-
-
-
+    await appLogic.HandleChannelRequest(context, null, null, friendId);
+});
 
 app.MapFallback(async context =>
 {
     context.Response.ContentType = "text/html";
-    var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
+    var filePath = Path.Combine(app.Environment.WebRootPath, "4042.html");
     await context.Response.SendFileAsync(filePath);
 });
 

@@ -354,6 +354,7 @@
                             </div>
                             <div class="div-block-4">
                                 <a href="/download" data-track-nav="download" class="nav-link w-nav-link">Download</a>
+                                <div class="download-other" style="display: none !important;"> </div>
                                 
                             </div>
                             <div class="div-block-absol">
@@ -526,97 +527,49 @@
             });
         </script>
         <script src="https://discord.com/webflow-scripts/bodyEnd.js" defer async></script>
-        <script type="text/javascript" src="https://discord.com/webflow-scripts/w/loader/loader.js" async defer></script>
+        <script type="text/javascript" src="/static/js/loader.js" async defer></script>
+        
         <script>
-
             const domain = window.location.hostname;
-
-
             function initDownloadButton() {
-                let userAgent = window.navigator.userAgent
-                  , platform = window.navigator.platform
-                  , macosPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"]
-                  , windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"]
-                  , iosPlatforms = ["iPhone", "iPad", "iPod"]
-                  , buttonAttributes = null;
-
-                if (macosPlatforms.indexOf(platform) !== -1) {
-                    buttonAttributes = {
-                        text: "Download for Mac",
-                        href: "/download?platform=osx",
-                    };
-                } else if (windowsPlatforms.indexOf(platform) !== -1) {
-                    buttonAttributes = {
-                        text: "Download for Windows",
-                        href: "/download?platform=win",
-                    };
-                } else if (!os && /Linux/.test(platform)) {
-                    buttonAttributes = {
-                        text: "Download for Linux",
-                        href: "/download?platform=linux",
-                    };
-                }
-
-                let downloadEl = document.querySelectorAll < HTMLAnchorElement > ".download-button";
-                if (downloadEl) {
-                    downloadEl.forEach(function(el) {
-                        el.innerText = buttonAttributes.text;
-                        el.href = buttonAttributes.href;
-                    });
-                }
-
-                let downloadSidebarEl = document.querySelectorAll(".download-sidebar");
-                if (downloadSidebarEl) {
-                    downloadSidebarEl.forEach(function(el) {
-                        el.href = buttonAttributes.href;
-                    });
-                }
+            let userAgent = window.navigator.userAgent, platform = window.navigator.platform, macosPlatforms = ["Macintosh", "MacIntel", "MacPPC", "Mac68K"], windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"], iosPlatforms = ["iPhone", "iPad", "iPod"], buttonAttributes = null;
+            
+            if (macosPlatforms.indexOf(platform) !== -1) {
+            buttonAttributes = {text: "Download for Mac", href: "/download?platform=osx",};
+            } else if (windowsPlatforms.indexOf(platform) !== -1) {
+            buttonAttributes = {text: "Download for Windows", href: "/download?platform=win",};
+            } else if (/Linux/.test(platform)) {
+            buttonAttributes = {text: "Download for Linux", href: "/download?platform=linux",};
             }
-
+            
+            let downloadEl = document.querySelectorAll(".download-button");
+            if (downloadEl) {
+            downloadEl.forEach(function(el) {
+            el.innerText = buttonAttributes.text;
+            el.href = buttonAttributes.href;
+            });
+            }
+            
+            let downloadSidebarEl = document.querySelectorAll(".download-sidebar");
+            if (downloadSidebarEl) {
+            downloadSidebarEl.forEach(function(el) {
+            el.href = buttonAttributes.href;
+            });
+            }
+            }
             function initLogInOrOpenDiscordButton() {
-                
             }
-
             function initSignUpOrOpenButtons() {
             }
-
             initSignUpOrOpenButtons();
             initLogInOrOpenDiscordButton();
             initDownloadButton();
         </script>
-        <!-- build:inlineScriptNonceTag -->
-        <script>
-            <!-- endbuild -->
-        </script>
-        <!-- section:dataLayer -->
-        <script src="//discord.com/assets/oneTrust/v4/scripttemplates/otSDKStub.js" type="text/javascript" charset="UTF-8" data-domain-script="04da1d72-0626-4fff-b3c6-150c719cc115"></script>
-        <!-- build:inlineScriptNonceTag -->
-        <script>
-            <!-- endbuild -->
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                'allCookiesOK': false
-            });
-        </script>
-        <!-- endsection -->
-        <!-- section:gtm -->
-        <!-- build:inlineScriptNonceTag -->
-        <script>
-            (function(w, d, s, l, i) {
-                w[l] = w[l] || [];
-                w[l].push({
-                    'gtm.start': new Date().getTime(),
-                    event: 'gtm.js'
-                });
-                var f = d.getElementsByTagName(s)[0]
-                  , j = d.createElement(s)
-                  , dl = l != 'dataLayer' ? '&l=' + l : '';
-                j.async = true;
-                j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl + '&gtm_auth=GI0g9O-54_SitcgmxQKxlA&gtm_preview=env-2&gtm_cookies_win=x';
-                f.parentNode.insertBefore(j, f);
-            }
-            )(window, document, 'script', 'dataLayer', 'GTM-N7BVC2W');
-        </script>
+            
+
+
+
+
         <!-- endsection -->
         <!--script>
   !function(e){var t={};function n(r){if(t[r])return t[r].exports;var i=t[r]={i:r,l:!1,exports:{}};e[r].call(i.exports,i,i.exports,n);i.l=!0;return i.exports}n.m=e;n.c=t;n.d=function(e,t,r){n.o(e,t)||Object.defineProperty(e,t,{enumerable:!0,get:r})};n.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"});Object.defineProperty(e,"__esModule",{value:!0})};n.t=function(e,t){1&t&&(e=n(e));if(8&t)return e;if(4&t&&"object"==typeof e&&e&&e.__esModule)return e;var r=Object.create(null);n.r(r);Object.defineProperty(r,"default",{enumerable:!0,value:e});if(2&t&&"string"!=typeof e)for(var i in e)n.d(r,i,function(t){return e[t]}.bind(null,i));return r};n.n=function(e){var t=e&&e.__esModule?function(){return e.default}:function(){return e};n.d(t,"a",t);return t};n.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)};n.p="/assets/";n(n.s=352)}({352:function(e,t,n){e.exports=n(353)},353:function(e,t,n){"use strict"
