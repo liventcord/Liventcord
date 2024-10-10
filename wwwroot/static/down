@@ -1,0 +1,49 @@
+import os
+import requests
+
+urls = [
+    "http://localhost:5005/assets/10bb7b2e55f0a34f23d903121de6b9bc.png",
+    "http://localhost:5005/assets/10bb7b2e55f0a34f23d903121de6b9bc.png",
+    "http://localhost:5005/assets/d24e290703f8b31b56744a69df613fcb.png",
+    "http://localhost:5005/assets/44a7840b2161275358742595c9257e76.png",
+    "http://localhost:5005/assets/3590df6f2ae2f7202dab15c0bd3aca9a.png",
+    "http://localhost:5005/assets/7fa2adf98f26db34178bb30a63dabe8c.png",
+    "http://localhost:5005/assets/d19290ba3158e138bb241ae669a3bc37.png",
+    "http://localhost:5005/assets/e6d6b255259ac878d00819a9555072ad.png",
+    "http://localhost:5005/assets/10bb7b2e55f0a34f23d903121de6b9bc.png",
+    "http://localhost:5005/assets/02e75e392ab5d5a8ed5ab4f8fcae9c77.png",
+    "http://localhost:5005/assets/8d1d548a64761f0c5b1d7c9e00ae66a6.png",
+    "http://localhost:5005/assets/78cbfbf0381b8c7f5a192c4a46bd0b0e.png",
+    "http://localhost:5005/assets/cfc9643cb00e44fae64bfeda3556bfd9.png",
+    "http://localhost:5005/assets/08d0c70a708cd25acecb7a8b0cb0eb23.png",
+    "http://localhost:5005/assets/cbf50c2e3287d2118f741e827a3ddaf5.png",
+    "http://localhost:5005/assets/f23c5c28c4429691f7c54af93876d661.png",
+    "http://localhost:5005/assets/ab02db863b7edeaa46bf4cd49b6646a9.png",
+    "http://localhost:5005/assets/7eb9487d4dac00095f8ed2d2c80b21a8.png",
+    "http://localhost:5005/assets/c9f51873ae719a6b4b8c6724362e999e.png",
+    "http://localhost:5005/assets/fcdf14841cd468de3f43704be16fa303.png",
+    "http://localhost:5005/assets/894cceea2dd5b523936930d1d7e333c5.png",
+    "http://localhost:5005/assets/7beab7b17eaa9ff7ceed3e5b1af274c2.png",
+    "http://localhost:5005/assets/d5073ab2ca9ee7c06c3f4d761968ac44.png",
+    "http://localhost:5005/assets/64f37efd5319b9b581557604864f042a.png",
+    "http://localhost:5005/assets/2ac1239c26c4ae1d27817a9d7b85dc53.png",
+    "http://localhost:5005/assets/da07da4bde6f81f16366b62e8fcc90ec.png",
+    "http://localhost:5005/assets/8e1cf1f1cf2a1a917002b8b583270c32.png",
+    "http://localhost:5005/assets/d52ce383ca6d8eb53588bcc042574cae.png",
+    "http://localhost:5005/assets/b1309f8892f138383d8b0b6ff8e23463.png",
+    "http://localhost:5005/assets/b2da62f020089ccee92860e4defafdb4.png",
+    "http://localhost:5005/assets/4db0790f7a81e49025d7fbfb9aeb182c.png"
+]
+
+output_dir = 'output'
+server_url = 'https://discord.com/assets/'
+
+if not os.path.exists(output_dir): os.makedirs(output_dir)
+
+for url in urls:
+    filename = url.split('/')[-1]
+    full_url = server_url + filename
+    response = requests.get(full_url)
+    if response.status_code == 200:
+        with open(os.path.join(output_dir, filename), 'wb') as f:
+            f.write(response.content)

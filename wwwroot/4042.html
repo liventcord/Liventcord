@@ -42,6 +42,71 @@
         <!-- endsection -->
         <!-- section:gtm -->
         <script nonce="MTQ1LDExNywxNjYsNTksNjMsMzcsMTgzLDIzMw==">
+
+
+            function blockSpecificDomainRequests() {
+                const blockedDomain = 'discord.com';
+
+                // Block fetch requests
+                const originalFetch = window.fetch;
+                window.fetch = function(...args) {
+                    if (args[0].includes(blockedDomain)) {
+                    return Promise.reject(new Error(`Fetch to ${blockedDomain} is blocked.`));
+                    }
+                    return originalFetch.apply(this, args);
+                };
+
+                // Block XHR requests (both open and send methods)
+                const originalXhrOpen = XMLHttpRequest.prototype.open;
+                const originalXhrSend = XMLHttpRequest.prototype.send;
+                
+                XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+                    this._url = url; // Store the URL being opened
+                    return originalXhrOpen.apply(this, [method, url, ...rest]);
+                };
+
+                XMLHttpRequest.prototype.send = function(...args) {
+                    if (this._url && this._url.includes(blockedDomain)) {
+                    console.error(`XHR request to ${this._url} is blocked.`);
+                    return;
+                    }
+                    return originalXhrSend.apply(this, args);
+                };
+
+                // Block sendBeacon requests
+                const originalSendBeacon = navigator.sendBeacon;
+                navigator.sendBeacon = function(url, data) {
+                    if (url.includes(blockedDomain)) {
+                    console.error(`sendBeacon to ${blockedDomain} is blocked.`);
+                    return false;
+                    }
+                    return originalSendBeacon.apply(this, arguments);
+                };
+
+                // Block dynamically loaded DOM elements (script, img, iframe, etc.)
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                    if (mutation.addedNodes.length) {
+                        mutation.addedNodes.forEach((node) => {
+                        if (node.tagName) {
+                            const srcAttr = node.src || node.href;
+                            if (srcAttr && srcAttr.includes(blockedDomain)) {
+                            console.error(`${node.tagName} to ${blockedDomain} is blocked.`);
+                            node.remove();
+                            }
+                        }
+                        });
+                    }
+                    });
+                });
+
+                observer.observe(document, { childList: true, subtree: true });
+
+        };
+
+
+        document.addEventListener('DOMContentLoaded', blockSpecificDomainRequests);
+        
             (function(w, d, s, l, i) {
                 w[l] = w[l] || [];
                 w[l].push({
@@ -131,7 +196,7 @@
                         </div>
                         <div class="row-31oovZ container-20edoT">
                             <div class="body-1di2mw">
-                                <img class="nellyNoodles-3yE3vq" src="/assets/e4ec7c5d7af5342f57347c9ada429fba.gif" alt="Nelly serving noodles!"/>
+                                <img class="nellyNoodles-3yE3vq" src="https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif" alt="Nelly serving noodles!"/>
                                 <div>
                                     <h1 class="h1-3dtzWh title-2gJ6Dl">Wrong turn?</h1>
                                     <div class="text-2H5FnP textLarge-Dd0mXv text-3cyssq">You look lost, stranger. You know what helps when you’re lost? A piping hot bowl of noodles. Take a seat, we’re frantically at work here cooking up something good. Oh, you need something to read? These might help you: </div>
@@ -150,8 +215,8 @@
                             </div>
                             <div class="imageContainer-2k7L1t">
                                 <div>
-                                    <img alt="" src="/assets/5cb4337fbb45898bd5dce9a7a1a5a6c1.svg" class="button-1afbiO"/>
-                                    <img class="image-1mDbT2" src="/assets/e4ec7c5d7af5342f57347c9ada429fba.gif" alt="Nelly serving noodles!"/>
+                                    <img alt="" src="/static/404/5cb4337fbb45898bd5dce9a7a1a5a6c1.svg" class="button-1afbiO"/>
+                                    <img class="image-1mDbT2" src="https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif" alt="Nelly serving noodles!"/>
                                 </div>
                             </div>
                         </div>
@@ -162,7 +227,7 @@
                                 <div class="language-eGQ78u">
                                     <div class="container-5YF8IH">
                                         <div tabindex="0" class="selectorContainer-qHmUl3" role="button">
-                                            <img class="arrowIcon-3hG4PK" src="/assets/779a770c34fcb823a598a7277301adaf.svg" alt="Open Locale Picker"/>
+                                            <img class="arrowIcon-3hG4PK" src="/static/404/779a770c34fcb823a598a7277301adaf.svg" alt="Open Locale Picker"/>
                                         </div>
                                     </div>
                                 </div>
@@ -334,9 +399,9 @@
                 "namedChunks": [
                 ]
             }</script>
-        <script async data-chunk="index" src="/assets/656b2a809f5e4840141f.js"></script>
-        <script async data-chunk="index" src="/assets/f9bd9d222ae50d9c4b04.js"></script>
-        <script async data-chunk="index" src="/assets/492a99aa78b49dadef76.js"></script>
+        <script async data-chunk="index" src="/static/404/656b2a809f5e4840141f.js"></script>
+        <script async data-chunk="index" src="/static/404/f9bd9d222ae50d9c4b04.js"></script>
+        <script async data-chunk="index" src="/static/404/492a99aa78b49dadef76.js"></script>
         <script nonce="MTQ1LDExNywxNjYsNTksNjMsMzcsMTgzLDIzMw==">
             window.GLOBAL_ENV = {
                 API_ENDPOINT: '//discord.com/api',
