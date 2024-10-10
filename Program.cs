@@ -66,7 +66,8 @@ void MapRoute(string path, string fileName)
     });
 }
 
-MapRoute("/", "newdc.html");
+MapRoute("/", "mainpage.html");
+MapRoute("/beta", "beta.html");
 MapRoute("/download", "download.html");
 MapRoute("/register", "register.html");
 
@@ -138,41 +139,41 @@ MapRoute("/assets/847541504914fd33810e70a0ea73177e.ico", "static/images/icons/fa
 
 MapRoute("/assets/58f8e0ecf25f53dec19a.js", "static/404/58f8e0ecf25f53dec19a.js");
 
-MapRoute("/assets/8857dcdebff6c45e7520.js" ,"static/8857dcdebff6c45e7520.js");
-MapRoute("/assets/e2da2847207d551757ed.js" ,"static/e2da2847207d551757ed.js");
-MapRoute("/assets/1b2cf71cb7b204c39c1d.js" ,"static/1b2cf71cb7b204c39c1d.js");
-MapRoute("/assets/1793a0a8eed8b4b93cce.js" ,"static/1793a0a8eed8b4b93cce.js");
-MapRoute("/assets/15715574cc27ad6a8fd4.js" ,"static/15715574cc27ad6a8fd4.js");
-MapRoute("/assets/bee87546919a0d6706fd.js" ,"static/bee87546919a0d6706fd.js");
-MapRoute("/assets/9052f8012f6bc01e3428.js" ,"static/9052f8012f6bc01e3428.js");
-MapRoute("/assets/7e166837033f5a0d5605.js" ,"static/7e166837033f5a0d5605.js");
-MapRoute("/assets/f65ae4a181d71f0f228b.js" ,"static/f65ae4a181d71f0f228b.js");
-MapRoute("/assets/117bb37978692314989c.js" ,"static/117bb37978692314989c.js");
-MapRoute("/assets/3e7a5606b1fe9c3670aa.js" ,"static/3e7a5606b1fe9c3670aa.js");
-MapRoute("/assets/ff7c61e43efdc4db149f.js" ,"static/ff7c61e43efdc4db149f.js");
-MapRoute("/assets/385abefa8127a53733e5.js" ,"static/385abefa8127a53733e5.js");
-MapRoute("/assets/9052f8012f6bc01e3428.js" ,"static/9052f8012f6bc01e3428.js");
-MapRoute("/assets/114fde1ca1b65f359804.js" ,"static/114fde1ca1b65f359804.js");
-MapRoute("/assets/08a803f6f5418b47ab79.js" ,"static/08a803f6f5418b47ab79.js");
-MapRoute("/assets/a83df5bf121ba6348ea4.js" ,"static/a83df5bf121ba6348ea4.js");
-MapRoute("/assets/d9815571aea841d19d40.js" ,"static/d9815571aea841d19d40.js");
-MapRoute("/assets/03f49385698d3e304f48.js" ,"static/03f49385698d3e304f48.js");
-MapRoute("/assets/53c1b19a8d26ff118620.js" ,"static/53c1b19a8d26ff118620.js");
-MapRoute("/assets/08a803f6f5418b47ab79.js" ,"static/08a803f6f5418b47ab79.js");
-MapRoute("/assets/a83df5bf121ba6348ea4.js" ,"static/a83df5bf121ba6348ea4.js");
-MapRoute("/assets/d9815571aea841d19d40.js" ,"static/d9815571aea841d19d40.js");
-MapRoute("/assets/b0f8fbfc13b86a0ad39f.js" ,"static/b0f8fbfc13b86a0ad39f.js");
-MapRoute("/assets/c1308bcab7021e780b5f.js" ,"static/c1308bcab7021e780b5f.js");
-MapRoute("/assets/665d9479017e1d9d259a.js" ,"static/665d9479017e1d9d259a.js");
-MapRoute("/assets/c2abebfcbb49cd828cd6.js" ,"static/c2abebfcbb49cd828cd6.js");
-MapRoute("/assets/04cb8e6fac0296266c6f.js" ,"static/04cb8e6fac0296266c6f.js");
-MapRoute("/assets/ce3f9ee01df48c67a4d4.js" ,"static/ce3f9ee01df48c67a4d4.js");
-MapRoute("/assets/943632481bf5a2ac65f4.js" ,"static/943632481bf5a2ac65f4.js");
-MapRoute("/assets/714a56bc82ca57749b92.js" ,"static/714a56bc82ca57749b92.js");
-MapRoute("/assets/871fab9ff4f7acf7aee4.js" ,"static/871fab9ff4f7acf7aee4.js");
-MapRoute("/assets/0be804690e444e9af377.js" ,"static/0be804690e444e9af377.js");
-MapRoute("/assets/17cd7ab0e09827337c7e.js" ,"static/17cd7ab0e09827337c7e.js");
-MapRoute("/assets/54fb5393665165d7bd1d.js" ,"static/54fb5393665165d7bd1d.js");
+MapRoute("/assets/8857dcdebff6c45e7520.js" ,"static/404/8857dcdebff6c45e7520.js");
+MapRoute("/assets/e2da2847207d551757ed.js" ,"static/404/e2da2847207d551757ed.js");
+MapRoute("/assets/1b2cf71cb7b204c39c1d.js" ,"static/404/1b2cf71cb7b204c39c1d.js");
+MapRoute("/assets/1793a0a8eed8b4b93cce.js" ,"static/404/1793a0a8eed8b4b93cce.js");
+MapRoute("/assets/15715574cc27ad6a8fd4.js" ,"static/404/15715574cc27ad6a8fd4.js");
+MapRoute("/assets/bee87546919a0d6706fd.js" ,"static/404/bee87546919a0d6706fd.js");
+MapRoute("/assets/9052f8012f6bc01e3428.js" ,"static/404/9052f8012f6bc01e3428.js");
+MapRoute("/assets/7e166837033f5a0d5605.js" ,"static/404/7e166837033f5a0d5605.js");
+MapRoute("/assets/f65ae4a181d71f0f228b.js" ,"static/404/f65ae4a181d71f0f228b.js");
+MapRoute("/assets/117bb37978692314989c.js" ,"static/404/117bb37978692314989c.js");
+MapRoute("/assets/3e7a5606b1fe9c3670aa.js" ,"static/404/3e7a5606b1fe9c3670aa.js");
+MapRoute("/assets/ff7c61e43efdc4db149f.js" ,"static/404/ff7c61e43efdc4db149f.js");
+MapRoute("/assets/385abefa8127a53733e5.js" ,"static/404/385abefa8127a53733e5.js");
+MapRoute("/assets/9052f8012f6bc01e3428.js" ,"static/404/9052f8012f6bc01e3428.js");
+MapRoute("/assets/114fde1ca1b65f359804.js" ,"static/404/114fde1ca1b65f359804.js");
+MapRoute("/assets/08a803f6f5418b47ab79.js" ,"static/404/08a803f6f5418b47ab79.js");
+MapRoute("/assets/a83df5bf121ba6348ea4.js" ,"static/404/a83df5bf121ba6348ea4.js");
+MapRoute("/assets/d9815571aea841d19d40.js" ,"static/404/d9815571aea841d19d40.js");
+MapRoute("/assets/03f49385698d3e304f48.js" ,"static/404/03f49385698d3e304f48.js");
+MapRoute("/assets/53c1b19a8d26ff118620.js" ,"static/404/53c1b19a8d26ff118620.js");
+MapRoute("/assets/08a803f6f5418b47ab79.js" ,"static/404/08a803f6f5418b47ab79.js");
+MapRoute("/assets/a83df5bf121ba6348ea4.js" ,"static/404/a83df5bf121ba6348ea4.js");
+MapRoute("/assets/d9815571aea841d19d40.js" ,"static/404/d9815571aea841d19d40.js");
+MapRoute("/assets/b0f8fbfc13b86a0ad39f.js" ,"static/404/b0f8fbfc13b86a0ad39f.js");
+MapRoute("/assets/c1308bcab7021e780b5f.js" ,"static/404/c1308bcab7021e780b5f.js");
+MapRoute("/assets/665d9479017e1d9d259a.js" ,"static/404/665d9479017e1d9d259a.js");
+MapRoute("/assets/c2abebfcbb49cd828cd6.js" ,"static/404/c2abebfcbb49cd828cd6.js");
+MapRoute("/assets/04cb8e6fac0296266c6f.js" ,"static/404/04cb8e6fac0296266c6f.js");
+MapRoute("/assets/ce3f9ee01df48c67a4d4.js" ,"static/404/ce3f9ee01df48c67a4d4.js");
+MapRoute("/assets/943632481bf5a2ac65f4.js" ,"static/404/943632481bf5a2ac65f4.js");
+MapRoute("/assets/714a56bc82ca57749b92.js" ,"static/404/714a56bc82ca57749b92.js");
+MapRoute("/assets/871fab9ff4f7acf7aee4.js" ,"static/404/871fab9ff4f7acf7aee4.js");
+MapRoute("/assets/0be804690e444e9af377.js" ,"static/404/0be804690e444e9af377.js");
+MapRoute("/assets/17cd7ab0e09827337c7e.js" ,"static/404/17cd7ab0e09827337c7e.js");
+MapRoute("/assets/54fb5393665165d7bd1d.js" ,"static/404/54fb5393665165d7bd1d.js");
 
 
 MapRoute("/cdn-cgi/challenge-platform/scripts/jsd/main.js", "static/404/main.js");
@@ -180,6 +181,9 @@ MapRoute("/assets/oneTrust/v4/consent/04da1d72-0626-4fff-b3c6-150c719cc115/40451
 
 MapRoute("/assets/oneTrust/v4/scripttemplates/6.33.0/otBannerSdk.js", "static/404/otBannerSdk.js");
 MapRoute("/assets/oneTrust/v4/scripttemplates/6.33.0/assets/otCommonStyles.css","static/404/otCommonStyles.css");
+
+MapRoute("/static/w/assets/otSDKStub.js/consent/04da1d72-0626-4fff-b3c6-150c719cc115/04da1d72-0626-4fff-b3c6-150c719cc115.json","static/404/04da1d72-0626-4fff-b3c6-150c719cc115.json");
+MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js","static/w/assets/otSDKStub.js");
 
 
 app.MapGet("/login", async context =>
@@ -213,7 +217,7 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
 app.MapFallback(async context =>
 {
     context.Response.ContentType = "text/html";
-    var filePath = Path.Combine(app.Environment.WebRootPath, "4042.html");
+    var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
     await context.Response.SendFileAsync(filePath);
 });
 
