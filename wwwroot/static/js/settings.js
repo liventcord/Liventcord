@@ -1,3 +1,72 @@
+class CustomWebSocket {
+    constructor(url) {
+        this.url = url;
+        this.socket = null;
+        this.listeners = {};
+        this.connect();
+    }
+
+    connect() {
+        this.socket = new WebSocket(this.url);
+        this.socket.onmessage = (event) => this.handleMessage(event);
+        this.socket.onopen = () => this.onOpen();
+        this.socket.onclose = () => this.onClose();
+    }
+
+    onOpen() {
+        isDisconnected = false;
+        console.log('Connected to server');
+        this.emit('keep-alive');
+        if (disconnectTimer) {
+            clearTimeout(disconnectTimer);
+            disconnectTimer = null;
+        }
+    }
+
+    onClose() {
+        isDisconnected = true;
+        console.log("Disconnected from the server. Attempting to reconnect...");
+        disconnectTimer = setTimeout(() => this.reconnect(), 5000);
+    }
+
+    reconnect() {
+        if (isDisconnected) {
+            console.log("Reconnecting...");
+            this.connect();
+        }
+    }
+
+    on(event, callback) {
+        if (!this.listeners[event]) {
+            this.listeners[event] = [];
+        }
+        this.listeners[event].push(callback);
+    }
+
+    emit(event, data = {}) {
+        const message = JSON.stringify({ Type: event, ...data });
+        if (this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(message);
+        }
+    }
+
+    handleMessage(event) {
+        const msg = JSON.parse(event.data);
+        const eventType = msg.Type;
+        if (this.listeners[eventType]) {
+            this.listeners[eventType].forEach(callback => callback(msg.Data));
+        }
+    }
+}
+
+const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
+let connection;
+
+let isDisconnected = false;
+let disconnectTimer = null;
+let currentTimeout;
+const socket = new CustomWebSocket(serverUrl);
+
 
 let isUnread = false;
 let wasNotChangingUrl = false;
@@ -13,7 +82,6 @@ const SoundAndVideo = "SoundAndVideo";
 const Notifications = "Notifications";
 const ActivityPresence = "ActivityPresence";
 const Appearance = "Appearance";
-const socket = io();
 let isSettingsOpen = false;
 let isUnsaved = false;
 let isChangedProfile = false;
@@ -949,10 +1017,21 @@ document.addEventListener('visibilitychange', function() {
 
 
 
+socket.on('connect', function() {
+    console.log('Connected to server');
+    socket.emit('keep-alive');
+});
 
-let isDisconnected = false;
-let disconnectTimer = null;
-let currentTimeout;
+socket.on('update_guilds', function(data) {
+    updateGuildList(data);
+});
+
+function updateGuildList(data) {
+    console.log('Guilds Updated:', data);
+}
+
+socket.connect();
+
 socket.on('connect', function() {
     console.log('Connected to server');
     socket.emit('keep-alive');
