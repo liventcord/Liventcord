@@ -50,6 +50,7 @@ namespace MyPostgresApp.Routes
             MapRoute("/beta", "beta.html");
             MapRoute("/download", "download.html");
             MapRoute("/register", "register.html");
+            MapRoute("/test","test.html");
 
             List<string> urls = new List<string>
             {

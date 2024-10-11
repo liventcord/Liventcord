@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type a message..."/>
+    <button id="sendButton">Send</button>
+
+    <script>
+        const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
+        const connection = new WebSocket(serverUrl);
+        const messagesDiv = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+
+        connection.onopen = () => {
+            console.log("Connected to the server");
+            messagesDiv.innerHTML += "<div>Connected to the server</div>";
+        };
+
+        connection.onmessage = (event) => {
+            console.log("Message from server:", event.data);
+            messagesDiv.innerHTML += `<div>${event.data}</div>`;
+        };
+
+        connection.onclose = () => {
+            console.log("Disconnected from the server");
+            messagesDiv.innerHTML += "<div>Disconnected from the server</div>";
+        };
+
+        sendButton.onclick = () => {
+            const message = messageInput.value;
+            if (message) {
+                connection.send(message);
+                messageInput.value = ""; // Clear input field
+            }
+        };
+    </script>
+</body>
+</html>
