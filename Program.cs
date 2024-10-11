@@ -66,7 +66,7 @@ void MapRoute(string path, string fileName)
     });
 }
 
-MapRoute("/", "mainpage.html");
+MapRoute("/", "beta.html"); //mainpage.html
 MapRoute("/beta", "beta.html");
 MapRoute("/download", "download.html");
 MapRoute("/register", "register.html");
@@ -183,9 +183,10 @@ MapRoute("/assets/oneTrust/v4/scripttemplates/6.33.0/otBannerSdk.js", "static/40
 MapRoute("/assets/oneTrust/v4/scripttemplates/6.33.0/assets/otCommonStyles.css","static/404/otCommonStyles.css");
 
 MapRoute("/static/w/assets/otSDKStub.js/consent/04da1d72-0626-4fff-b3c6-150c719cc115/04da1d72-0626-4fff-b3c6-150c719cc115.json","static/404/04da1d72-0626-4fff-b3c6-150c719cc115.json");
-MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js","static/w/assets/otSDKStub.js");
-
-
+MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js/consent/.json","static/w/assets/otSDKStub.js");
+MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js/consent/{*rest}", "static/w/assets/otSDKStub.js");
+MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js", "static/w/assets/otBannerSdk.js");
+MapRoute("/static/w/assets/otSDKStub.js/consent/04da1d72-0626-4fff-b3c6-150c719cc115/40451c6c-36d5-41b4-a718-aca26f058456/en.json","static/404/en.json");
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
