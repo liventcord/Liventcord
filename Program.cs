@@ -13,6 +13,7 @@ builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
 builder.Services.AddScoped<AppLogic>();
+builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
@@ -187,6 +188,8 @@ MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js/co
 MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js/consent/{*rest}", "static/w/assets/otSDKStub.js");
 MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js", "static/w/assets/otBannerSdk.js");
 MapRoute("/static/w/assets/otSDKStub.js/consent/04da1d72-0626-4fff-b3c6-150c719cc115/40451c6c-36d5-41b4-a718-aca26f058456/en.json","static/404/en.json");
+
+
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
@@ -214,13 +217,14 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
-
 app.MapFallback(async context =>
 {
+    context.Response.StatusCode = StatusCodes.Status404NotFound;
     context.Response.ContentType = "text/html";
     var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
     await context.Response.SendFileAsync(filePath);
 });
+
 
 app.MapControllers();
 

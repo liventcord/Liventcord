@@ -14,6 +14,11 @@ namespace MyPostgresApp.Data
         public DbSet<TypingStatus> TypingStatuses { get; set; }
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; } 
+        public DbSet<AttachmentFile> AttachmentFiles { get; set; }
+        public DbSet<EmojiFile> EmojiFiles { get; set; }
+        public DbSet<ProfileFile> ProfileFiles { get; set; }
+        public DbSet<GuildFile> GuildFiles { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -65,6 +70,56 @@ namespace MyPostgresApp.Data
                 .HasOne(gu => gu.User)
                 .WithMany(u => u.GuildUsers)
                 .HasForeignKey(gu => gu.UserId);
+
+
+
+            
+            modelBuilder.Entity<AttachmentFile>().ToTable("attachment_files");
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.FileId).HasColumnName("file_id").IsRequired();
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.FileName).HasColumnName("file_name").IsRequired();
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.GuildId).HasColumnName("guild_id").IsRequired(false);
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.ChannelId).HasColumnName("channel_id").IsRequired(false);
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.Content).HasColumnName("content").IsRequired();
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.Extension).HasColumnName("extension").IsRequired();
+            modelBuilder.Entity<AttachmentFile>().Property(a => a.UserId).HasColumnName("user_id").IsRequired(false);
+
+            modelBuilder.Entity<EmojiFile>().ToTable("emoji_files");
+            modelBuilder.Entity<EmojiFile>().Property(e => e.FileId).HasColumnName("file_id").IsRequired();
+            modelBuilder.Entity<EmojiFile>().Property(e => e.FileName).HasColumnName("file_name").IsRequired();
+            modelBuilder.Entity<EmojiFile>().Property(e => e.GuildId).HasColumnName("guild_id").IsRequired(false);
+            modelBuilder.Entity<EmojiFile>().Property(e => e.Content).HasColumnName("content").IsRequired();
+            modelBuilder.Entity<EmojiFile>().Property(e => e.Extension).HasColumnName("extension").IsRequired();
+
+            modelBuilder.Entity<ProfileFile>().ToTable("profile_files");
+            modelBuilder.Entity<ProfileFile>().Property(p => p.FileId).HasColumnName("file_id").IsRequired();
+            modelBuilder.Entity<ProfileFile>().Property(p => p.FileName).HasColumnName("file_name").IsRequired();
+            modelBuilder.Entity<ProfileFile>().Property(p => p.GuildId).HasColumnName("guild_id").IsRequired(false);
+            modelBuilder.Entity<ProfileFile>().Property(p => p.Content).HasColumnName("content").IsRequired();
+            modelBuilder.Entity<ProfileFile>().Property(p => p.Extension).HasColumnName("extension").IsRequired();
+            modelBuilder.Entity<ProfileFile>().Property(p => p.UserId).HasColumnName("user_id").IsRequired(false);
+
+            modelBuilder.Entity<GuildFile>().ToTable("guilds_files");
+            modelBuilder.Entity<GuildFile>().Property(g => g.FileId).HasColumnName("file_id").IsRequired();
+            modelBuilder.Entity<GuildFile>().Property(g => g.FileName).HasColumnName("file_name").IsRequired();
+            modelBuilder.Entity<GuildFile>().Property(g => g.GuildId).HasColumnName("guild_id").IsRequired(false);
+            modelBuilder.Entity<GuildFile>().Property(g => g.ChannelId).HasColumnName("channel_id").IsRequired(false);
+            modelBuilder.Entity<GuildFile>().Property(g => g.UserId).HasColumnName("user_id").IsRequired(false);
+            modelBuilder.Entity<GuildFile>().Property(g => g.Content).HasColumnName("content").IsRequired();
+        modelBuilder.Entity<GuildFile>().Property(g => g.Extension).HasColumnName("extension").IsRequired();
+
+
+            modelBuilder.Entity<AttachmentFile>()
+                .HasKey(a => a.FileId);
+
+            modelBuilder.Entity<EmojiFile>()
+                .HasKey(e => e.FileId);
+
+            modelBuilder.Entity<ProfileFile>()
+                .HasKey(p => p.FileId);
+
+            modelBuilder.Entity<GuildFile>()
+                .HasKey(g => g.FileId);
+                
         }
     }
 }

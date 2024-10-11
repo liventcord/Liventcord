@@ -314,7 +314,7 @@ function uploadImage(isGuild) {
             
             console.log("Sending req...");
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload_img');
+            xhr.open('POST', '/api/upload_img');
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     updateGuild(uploadedGuildId);
