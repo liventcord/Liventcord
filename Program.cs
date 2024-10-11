@@ -7,6 +7,29 @@ using MyPostgresApp.Services;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.StaticFiles;
 using MyPostgresApp.Routes;
+using Fleck;
+
+var server = new WebSocketServer("ws://0.0.0.0:8181");
+var clients = new List<IWebSocketConnection>();
+server.Start(socket =>
+{
+    socket.OnOpen = () => 
+    {
+        clients.Add(socket);
+        Console.WriteLine("Open!");
+    };
+    socket.OnClose = () => 
+    {
+        clients.Remove(socket);
+        Console.WriteLine("Close!");
+    };
+    socket.OnMessage = message => 
+    {
+        Console.WriteLine("Received: " + message);
+        foreach (var client in clients)
+            client.Send("Echo: " + message);
+    };
+});
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
