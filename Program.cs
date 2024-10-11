@@ -18,18 +18,95 @@ server.Start(socket =>
         clients.Add(socket);
         Console.WriteLine("Open!");
     };
+    
     socket.OnClose = () => 
     {
         clients.Remove(socket);
         Console.WriteLine("Close!");
     };
+    
     socket.OnMessage = message => 
     {
         Console.WriteLine("Received: " + message);
-        foreach (var client in clients)
-            client.Send("Echo: " + message);
+        Message msg = null;
+        
+        try
+        {
+            msg = JsonSerializer.Deserialize<Message>(message);
+        }
+        catch (JsonException ex)
+        {
+            Console.WriteLine($"JSON Deserialization error: {ex.Message}");
+            return;
+        }
+        
+        if (msg == null)
+        {
+            Console.WriteLine("Received a null message.");
+            return;
+        }
+        
+        HandleMessage(socket, msg);
     };
 });
+
+void HandleMessage(IWebSocketConnection socket, Message msg)
+{
+    if (msg == null)
+    {
+        Console.WriteLine("Received a null message in HandleMessage.");
+        return;
+    }
+
+    switch (msg.Type)
+    {
+        case "keep-alive":
+            Console.WriteLine("Keep-alive received from client.");
+            break;
+
+        case "create_channel":
+            Console.WriteLine("Create channel request received.");
+            break;
+
+        case "update_guilds":
+            var guildData = GetUpdatedGuilds(); // Assume this method retrieves the updated guilds
+            foreach (var client in clients)
+            {
+                if (client != null)
+                {
+                    client.Send(JsonSerializer.Serialize(new { Type = "update_guilds", Data = guildData }));
+                }
+            }
+            break;
+
+        default:
+            Console.WriteLine($"Unknown message type: {msg.Type}");
+            break;
+    }
+}
+
+List<Guild1> GetUpdatedGuilds() 
+{
+    return new List<Guild1>
+    {
+        new Guild1 { Id = 1, Name = "Guild One" },
+        new Guild1 { Id = 2, Name = "Guild Two" }
+    };
+}
+
+void HandleCreateChannel(IWebSocketConnection socket, Dictionary<string, object> data)
+{
+    Console.WriteLine("Creating channel with data: " + JsonSerializer.Serialize(data));
+    
+    foreach (var client in clients)
+    {
+        if (client != null)
+        {
+            client.Send(JsonSerializer.Serialize(new { Type = "update_guilds", Data = data }));
+        }
+    }
+}
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
@@ -109,3 +186,14 @@ app.MapFallback(async context =>
 app.MapControllers();
 
 app.Run();
+public class Message
+{
+    public string Type { get; set; }
+    public string Key { get; set; }  // If applicable
+    public string Content { get; set; } // If applicable
+}
+public class Guild1
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
