@@ -39,40 +39,59 @@ namespace MyPostgresApp.Controllers
                 return BadRequest("No file uploaded.");
 
             var extension = Path.GetExtension(photo.FileName).ToLowerInvariant();
-
             if (!FileExtensions.IsValidImageExtension(extension))
                 return BadRequest("Invalid file type. Only images are allowed.");
 
             using var memoryStream = new MemoryStream();
             await photo.CopyToAsync(memoryStream);
             var content = memoryStream.ToArray();
-            var fileId = Utils.CreateRandomId(); // Ensure this generates a string of digits
+            var fileId = Utils.CreateRandomId();
 
             if (!string.IsNullOrEmpty(guild_id))
             {
-                var guildFile = new GuildFile
+                var existingFile = await _context.GuildFiles.FirstOrDefaultAsync(f => f.FileName == photo.FileName && f.GuildId == guild_id);
+                if (existingFile != null)
                 {
-                    FileId = fileId,
-                    FileName = photo.FileName,
-                    GuildId = guild_id,
-                    Content = content,
-                    Extension = extension
-                };
-                _logger.LogInformation("Saving GuildFile: {FileId}, {FileName}, {GuildId}, {Extension}", fileId, photo.FileName, guild_id, extension);
-                _context.GuildFiles.Add(guildFile);
+                    existingFile.Content = content;
+                    existingFile.Extension = extension;
+                    _logger.LogInformation("Updating existing GuildFile: {FileId}, {FileName}, {GuildId}, {Extension}", existingFile.FileId, photo.FileName, guild_id, extension);
+                }
+                else
+                {
+                    var guildFile = new GuildFile
+                    {
+                        FileId = fileId,
+                        FileName = photo.FileName,
+                        GuildId = guild_id,
+                        Content = content,
+                        Extension = extension
+                    };
+                    _logger.LogInformation("Saving new GuildFile: {FileId}, {FileName}, {GuildId}, {Extension}", fileId, photo.FileName, guild_id, extension);
+                    _context.GuildFiles.Add(guildFile);
+                }
             }
             else
             {
-                var profileFile = new ProfileFile
+                var existingFile = await _context.ProfileFiles.FirstOrDefaultAsync(f => f.UserId == userId);
+                if (existingFile != null)
                 {
-                    FileId = fileId,
-                    FileName = photo.FileName,
-                    UserId = userId,
-                    Content = content,
-                    Extension = extension
-                };
-                _logger.LogInformation("Saving ProfileFile: {FileId}, {FileName}, {UserId}, {Extension}", fileId, photo.FileName, userId, extension);
-                _context.ProfileFiles.Add(profileFile);
+                    existingFile.Content = content;
+                    existingFile.Extension = extension;
+                    _logger.LogInformation("Updating existing ProfileFile: {FileId}, {FileName}, {UserId}, {Extension}", existingFile.FileId, photo.FileName, userId, extension);
+                }
+                else
+                {
+                    var profileFile = new ProfileFile
+                    {
+                        FileId = fileId,
+                        FileName = photo.FileName,
+                        UserId = userId,
+                        Content = content,
+                        Extension = extension
+                    };
+                    _logger.LogInformation("Saving new ProfileFile: {FileId}, {FileName}, {UserId}, {Extension}", fileId, photo.FileName, userId, extension);
+                    _context.ProfileFiles.Add(profileFile);
+                }
             }
 
             await _context.SaveChangesAsync();
