@@ -6,6 +6,7 @@ using MyPostgresApp.Services;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace MyPostgresApp.Helpers
 {
@@ -33,15 +34,10 @@ namespace MyPostgresApp.Helpers
             if (user == null) { context.Response.Redirect("/login"); return; }
 
             var email = user.Email ?? "";
-            var maskedEmail = user.MaskedEmail ?? "";
             var userName = user.Nickname ?? "";
             var userDiscriminator = user.Discriminator ?? "";
 
-            var guilds = await _dbContext.GuildUsers
-                .Where(gu => gu.UserId == userId)
-                .Include(gu => gu.Guild)
-                .Select(gu => gu.Guild)
-                .ToListAsync();
+            var guilds = await _guildService.GetUserGuilds(userId); // Fetch the user's guilds
 
             var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
             var guildName = guild?.GuildName ?? "";
@@ -58,14 +54,13 @@ namespace MyPostgresApp.Helpers
                 permissionsMap = getPermissionsMap(guildId, userId) ?? new List<string>();
             }
 
-            var friendsStatus = await _friendHelper.GetFriendsStatus(userId) ?? new List<string>();
+            var friendsStatus = await _friendHelper.GetFriendsStatus(userId) ?? null;
 
             var dmUsers = await _dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
 
             var jsonData = new
             {
                 email,
-                maskedEmail,
                 userId,
                 userName,
                 userDiscriminator,

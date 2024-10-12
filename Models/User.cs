@@ -25,46 +25,26 @@ namespace MyPostgresApp.Models
     //UNIQUE (nickname, discriminator)
 
 
-
     public class User
     {
         [Key][Column("user_id")]
         public required string UserId { get; set; }
         public virtual ICollection<GuildUser> GuildUsers { get; set; } 
         
-        [Required]
-        [StringLength(128)][Column("email")]
+        [Required][StringLength(128)][Column("email")]
         [NotMapped]
         public required string Email { get; set; }
-        public string MaskedEmail => GetMaskedEmail(); 
 
-        private string GetMaskedEmail()
-        {
-            var parts = Email.Split('@');
-            if (parts.Length != 2) return Email;
-
-            var username = parts[0];
-            var domain = parts[1];
-            var hiddenUsername = new string('*', username.Length); 
-
-            return $"{hiddenUsername}@{domain}";
-        }
-
-
-        [Required]
-        [StringLength(4)][Column("discriminator")]
+        [Required][StringLength(4)][Column("discriminator")]
         public required string Discriminator { get; set; }
         
-        [Required]
-        [StringLength(128)] [Column("password")]
+        [Required][StringLength(128)][Column("password")]
         public required string Password { get; set; }
-        [Required]
-        [StringLength(32)][Column("nickname")]
+        [Required][StringLength(32)][Column("nickname")]
         public string? Nickname { get; set; }
-        [Required] [Column("bot")]
+        [Required][Column("bot")]
         public int Bot { get; set; }
-        [Required]
-        [StringLength(128)] [Column("status")]
+        [Required][StringLength(128)][Column("status")]
         public string? Status { get; set; }
         
         [StringLength(256)][Column("description")]
@@ -77,9 +57,9 @@ namespace MyPostgresApp.Models
         public DateTime? DateOfBirth { get; set; }
         [Column("verified")]
         public int Verified { get; set; }
-        [StringLength(256)] [Column("location")]
+        [StringLength(256)][Column("location")]
         public string? Location { get; set; }
-        [StringLength(10)] [Column("language")]
+        [StringLength(10)][Column("language")]
         public string? Language { get; set; }
         
         [StringLength(15)][Column("phone_number")]
@@ -89,6 +69,26 @@ namespace MyPostgresApp.Models
         public string? SocialMediaLinks { get; set; }
         [Column("preferences")]
         public JsonElement? Preferences { get; set; }
+
+        public PublicUser GetPublicUser()
+        {
+            return new PublicUser
+            {
+                UserId = UserId,
+                Nickname = Nickname,
+                Status = Status,
+                CreatedAt = CreatedAt,
+                Location = Location
+            };
+        }
     }
 
+    public class PublicUser
+    {
+        public required string UserId { get; set; }
+        public string Nickname { get; set; }
+        public string Status { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string? Location { get; set; }
+    }
 }

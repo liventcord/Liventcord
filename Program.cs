@@ -7,6 +7,7 @@ using MyPostgresApp.Services;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.StaticFiles;
 using MyPostgresApp.Routes;
+using MyPostgresApp.Controllers;
 using Fleck;
 
 var server = new WebSocketServer("ws://0.0.0.0:8181");
@@ -28,11 +29,11 @@ server.Start(socket =>
     socket.OnMessage = message => 
     {
         Console.WriteLine("Received: " + message);
-        Message msg = null;
+        SocketMessage? msg = null;
         
         try
         {
-            msg = JsonSerializer.Deserialize<Message>(message);
+            msg = JsonSerializer.Deserialize<SocketMessage>(message);
         }
         catch (JsonException ex)
         {
@@ -50,7 +51,7 @@ server.Start(socket =>
     };
 });
 
-void HandleMessage(IWebSocketConnection socket, Message msg)
+static void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
 {
     if (msg == null)
     {
@@ -74,27 +75,13 @@ void HandleMessage(IWebSocketConnection socket, Message msg)
     }
 }
 
-
-void HandleCreateChannel(IWebSocketConnection socket, Dictionary<string, object> data)
-{
-    Console.WriteLine("Creating channel with data: " + JsonSerializer.Serialize(data));
-    
-    foreach (var client in clients)
-    {
-        if (client != null)
-        {
-            client.Send(JsonSerializer.Serialize(new { Type = "update_guilds", Data = data }));
-        }
-    }
-}
-
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
 builder.Services.AddScoped<AppLogic>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
+builder.Services.AddScoped<UploadController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
@@ -167,9 +154,9 @@ app.MapFallback(async context =>
 app.MapControllers();
 
 app.Run();
-public class Message
+public class SocketMessage
 {
-    public string Type { get; set; }
-    public string Key { get; set; }  // If applicable
-    public string Content { get; set; } // If applicable
+    public required string Type { get; set; }
+    public required string Key { get; set; } 
+    public string? Content { get; set; }
 }

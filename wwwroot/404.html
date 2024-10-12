@@ -43,19 +43,6 @@
         <!-- section:gtm -->
         <script nonce="MTQ1LDExNywxNjYsNTksNjMsMzcsMTgzLDIzMw==">
 
-            document.addEventListener("DOMContentLoaded",function() {
-                setTimeout(() => {
-                    const linksParent=document.querySelector('.links-DGfZfm');
-                    if(linksParent){
-                        if(linksParent.children[3])linksParent.children[3].remove();
-                        if(linksParent.children[4])linksParent.children[4].remove();
-                        if(linksParent.children[5])linksParent.children[5].remove();
-                        if(linksParent.children[6])linksParent.children[6].remove();
-                    }
-                }, 50);
-            })
-
-
             function blockSpecificDomainRequests() {
                 const blockedDomain = 'discord.com';
 
@@ -410,7 +397,23 @@
         <script async data-chunk="index" src="/static/404/492a99aa78b49dadef76.js"></script>
         <script nonce="MTQ1LDExNywxNjYsNTksNjMsMzcsMTgzLDIzMw==">
             document.addEventListener('DOMContentLoaded', () => {
-                setTimeout(() => {
+                function removeElements() {
+                    const linksParent = document.querySelector('.links-DGfZfm');
+                    if (linksParent) {
+                        while (linksParent.children.length > 1) {
+                            linksParent.lastChild.remove();
+                        }
+                    }
+
+                    const linksSection = document.querySelector('.linksSection-FvrBKN');
+                    if (linksSection) {
+                        linksSection.querySelectorAll('li').forEach(li => {
+                            li.childNodes.forEach(node => {
+                                node.remove();
+                            });
+                        });
+                    }
+
                     const sections = document.querySelectorAll('.routeSection-33w3lS');
 
                     const firstElement = sections[0];
@@ -420,20 +423,26 @@
                         const link = node;
                         console.log(node, (link.href === 'http://localhost:5005/nitro' || link.href === 'https://discordstatus.com' || link.href === 'http://localhost:5005/application-directory'));
                         if (link && (link.href === 'http://localhost:5005/nitro' || link.href === 'https://discordstatus.com' || link.href === 'http://localhost:5005/application-directory')) {
-                        node.remove(); // Remove the node if the href matches
+                        node.remove();
                         }
                     
                     });
                     
                         
-                    if (sections.length > 1) sections[1].remove(); // Remove 2nd element
-                    if (sections.length > 2) sections[2].remove(); // Remove 2nd element
-                    if (sections.length > 3) sections[3].remove(); // Remove 2nd element
+                    if (sections.length > 1) sections[1].remove();
+                    if (sections.length > 2) sections[2].remove();
+                    if (sections.length > 3) sections[3].remove();
     
                     const socilamed = document.querySelector(".social-3RuOPP");
                     if(socilamed) socilamed.remove();
-                    
+                }
+                setTimeout(() => {
+                    removeElements();
                 }, 50);
+                setTimeout(() => {
+                    removeElements();
+                }, 500);
+
             });
 
             let port = window.location.port ? ':' + window.location.port : '';

@@ -57,7 +57,17 @@ class CustomWebSocket {
             this.listeners[eventType].forEach(callback => callback(msg.Data));
         }
     }
+
+    disconnect() {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            console.log("Closing the WebSocket connection...");
+            this.socket.close();
+        } else {
+            console.log("WebSocket is already closed or not initialized.");
+        }
+    }
 }
+
 
 const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
 let connection;

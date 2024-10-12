@@ -41,17 +41,18 @@ namespace MyPostgresApp.Helpers
             return friendsNames;
         }
 
-        public async Task<List<string>> GetFriendsStatus(string userId)
+        public async Task<List<PublicUser>> GetFriendsStatus(string userId)
         {
-            var friendsStatus = await _dbContext.Friends
+            var publicFriend = await _dbContext.Friends
                 .Where(f => f.UserId == userId)
                 .Join(_dbContext.Users,
-                      friend => friend.FriendId,
-                      user => user.UserId,
-                      (friend, user) => user.Status)
+                    friend => friend.FriendId,
+                    user => user.UserId,
+                    (friend, user) => user.GetPublicUser())
                 .ToListAsync();
                 
-            return friendsStatus;
+            return publicFriend;
         }
+
     }
 }

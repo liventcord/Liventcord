@@ -397,6 +397,35 @@
     let guildNames = {};
     let keybindHandlers = {}; 
     let isGuildKeyDown = false;
+    function createBlackImage() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 50;
+        canvas.height = 50;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        return canvas.toDataURL('image/png');
+    }
+
+    function renderGuilds(guilds) {
+        return guilds.map(guild => {
+            const imgSrc = guild.src && guild.src !== 'black' ? guild.src : createBlackImage();
+            guildAuthorIds[guild.GuildId] = guild.owner_id;
+            const guildId = String(guild.GuildId);
+            const firstChannelId = guild.FirstChannelId ? String(guild.FirstChannelId) : '';
+            const guildName = guild.name ? String(guild.name) : '';
+    
+            return `
+                <li>
+                    <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+                    onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
+                    <div class="white-rod"></div>
+                </li>
+            `;
+        }).join('');
+    }
+        
+
     
 
     function clearKeybinds() {
@@ -405,41 +434,74 @@
         }
         keybindHandlers = {};
     }
+    function getMaskedEmail(email) {
+        const parts = email.split('@');
+        if (parts.length !== 2) return email;
+        const username = parts[0];
+        const domain = parts[1];
+        const hiddenUsername = '*'.repeat(username.length);
+        return `${hiddenUsername}@${domain}`;
+    }
+
+
     const dataScript = document.getElementById('data-script');
     if (dataScript) {
 
         const dataScript = document.getElementById('data-script');
-        if (dataScript) {
-            const jsonData = JSON.parse(dataScript.textContent);
-            
-            var email = jsonData.email;
-            var masked_email = jsonData.maskedEmail;
-            var passed_user_id = jsonData.userId;
-            var user_name = jsonData.userName;
-            var user_discriminator = jsonData.userDiscriminator;
-            var passed_guild_id = jsonData.guildId;
-            var passed_channel_id = jsonData.channelId;
-            var passed_guild_name = jsonData.guildName;
-            var passed_author_id = jsonData.authorId;
-            var typing_users = jsonData.typingUsers;
-            var shared_guilds_map = jsonData.sharedGuildsMap;
-            var permissions_map = jsonData.permissionsMap;
-            var friends_status = jsonData.friendsStatus;
-            var dm_users = jsonData.dmUsers || [];
-            var guilds_data = jsonData.guildsJson;
+        const jsonData = JSON.parse(dataScript.textContent);
+        
+        var email = jsonData.email;
+        var masked_email = getMaskedEmail(email);
+        var passed_user_id = jsonData.userId;
+        var user_name = jsonData.userName;
+        var user_discriminator = jsonData.userDiscriminator;
+        var passed_guild_id = jsonData.guildId;
+        var passed_channel_id = jsonData.channelId;
+        var passed_guild_name = jsonData.guildName;
+        var passed_author_id = jsonData.authorId;
+        var typing_users = jsonData.typingUsers;
+        var shared_guilds_map = jsonData.sharedGuildsMap;
+        var permissions_map = jsonData.permissionsMap;
+        var friends_status = jsonData.friendsStatus;
+        var dm_users = jsonData.dmUsers || [];
+        var guilds_data = jsonData.guildsJson;
 
-            console.log('Data loaded:', jsonData);
-            console.log('Script executed with data:', user_name);
-            console.log('DM Users:', dm_users);
+        console.log('Data loaded:', jsonData);
 
-            if (dm_users.length > 0) {
-                dm_users.forEach(dmUser => {
-                    console.log('DM User:', dmUser);
-                });
-            } else {
-                console.log('No DM users found.');
-            }
+        const guildsList = document.getElementById('guilds-list');
+        if(guilds_data) {
+            guilds_data.forEach(guild => {
+                currentGuildData[guild.GuildId] = guild;
+                guildNames[guild.GuildId] = guild.name;
+            });
+
         }
+
+        if (guildsList && guilds_data) {
+            guildsList.innerHTML += renderGuilds(guilds_data);
+            const images = guildsList.querySelectorAll("img");
+            images.forEach(img => {
+                if (img.id == currentGuildId) {
+                    img.parentNode.classList.add('selected-guild');
+                }
+            });
+        }
+
+
+        const preventDrag = (elementId) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.addEventListener('dragstart', function(event) {
+                    event.preventDefault();
+                });
+            }
+        };
+
+        preventDrag('main-logo');
+        preventDrag('preview-image');
+        addKeybinds();
+
+        
 
 
     }
@@ -489,77 +551,6 @@
             event.preventDefault(); 
         });
     }
-
-
-    document.addEventListener('DOMContentLoaded', function () {
-        getId('self-name').textContent = user_name;
-        getId('self-discriminator').textContent = user_discriminator;
-
-        const guildsData = ''
-        function createBlackImage() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 50;
-            canvas.height = 50;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            return canvas.toDataURL('image/png');
-        }
-
-        function renderGuilds(guilds) {
-            return guilds.map(guild => {
-                const imgSrc = guild.src && guild.src !== 'black' ? guild.src : createBlackImage();
-                guildAuthorIds[guild.id] = guild.owner_id;
-                const guildId = String(guild.id);
-                const firstChannelId = guild.first_channel_id ? String(guild.first_channel_id) : '';
-                const guildName = guild.name ? String(guild.name) : '';
-        
-                return `
-                    <li>
-                        <img id="${guildId}" 
-                             data-src="${imgSrc}" 
-                             style="width: 50px; height: 50px; border: none;" 
-                             onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
-                        <div class="white-rod"></div>
-                    </li>
-                `;
-            }).join('');
-        }
-        
-        
-        const guildsList = document.getElementById('guilds-list');
-        if(guildsData) {
-            guildsData.forEach(guild => {
-                currentGuildData[guild.id] = guild;
-                guildNames[guild.id] = guild.name;
-            });
-
-        }
-
-        if (guildsList && guildsData) {
-            guildsList.innerHTML += renderGuilds(guildsData);
-            const images = guildsList.querySelectorAll("img");
-            images.forEach(img => {
-                img.src = img.getAttribute("data-src");
-                if (img.id == currentGuildId) {
-                    img.parentNode.classList.add('selected-guild');
-                }
-            });
-        }
-        const preventDrag = (elementId) => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.addEventListener('dragstart', function(event) {
-                    event.preventDefault();
-                });
-            }
-        };
-
-        preventDrag('main-logo');
-        preventDrag('preview-image');
-        addKeybinds();
-    });
-
 
 </script>
 

@@ -687,6 +687,10 @@ document.addEventListener('DOMContentLoaded', function () {
     currentUserId = passed_user_id;
     currentUserName = user_name;
     currentDiscriminator = user_discriminator;
+
+    getId('self-name').textContent = user_name;
+    getId('self-discriminator').textContent = user_discriminator;
+    
     
     getId('tb-showprofile').addEventListener('click', toggleUsersList);
     selectSettingCategory(MyAccount);
@@ -2421,12 +2425,12 @@ function uploadImage(isGuild) {
     }
 }
 
-
 function createGuild() {
     const guildName = getId('guild-name-input').value;
     const guildPhotoFile = getId('guildImageInput').files[0];
 
-    if (guildPhotoFile !== undefined) {
+    // Validate file type and size if a file is selected
+    if (guildPhotoFile) {
         const allowedTypes = ['image/jpeg', 'image/jpg', 'image/gif', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml'];
         if (!allowedTypes.includes(guildPhotoFile.type)) {
             alertUser('Yalnızca resim dosyaları yükleyebilirsiniz (JPG, PNG veya GIF)!');
@@ -2444,14 +2448,12 @@ function createGuild() {
     }
 
     let formData = new FormData();
-
-    if (guildPhotoFile !== undefined) {
-        formData.append('photo', guildPhotoFile);
+    if (guildPhotoFile) {
+        formData.append('Photo', guildPhotoFile);
     }
-    formData.append('guild_name', guildName);
-    getId('guildImg').style.class = "";
+    formData.append('GuildName', guildName);
 
-    fetch('/create_guild', {
+    fetch('/api/guild/create_guild', {
         method: 'POST',
         body: formData
     }).then(response => {
@@ -2461,22 +2463,20 @@ function createGuild() {
         return response.text();
     }).then(data => {
         console.log('Guild creation response:', data);
-        if(typeof(data) == 'object') {
+        if (typeof(data) === 'object') {
             const popup = getId('guild-pop-up');
             if (popup) {
                 popup.parentNode.remove();
             }
-            changeUrlWithFireWorks(data.new_guild_id,data.new_channel_id,data.new_guild_name);
+            changeUrlWithFireWorks(data.new_guild_id, data.new_channel_id, data.new_guild_name);
         } else {
-            alertUser('Sunucu oluşturma hatası',data);
+            alertUser('Sunucu oluşturma hatası', data);
         }
-        
     }).catch(error => {
-       console.error('Error:', error);
-       
-        
+        console.error('Error:', error);
     });
 }
+
     
 
 

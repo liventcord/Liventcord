@@ -19,9 +19,6 @@ namespace MyPostgresApp.Controllers
         private readonly FileExtensionContentTypeProvider _fileTypeProvider;
         private readonly ILogger<UploadController> _logger; 
 
-        // Define allowed image extensions
-
-
 
         public UploadController(AppDbContext context, FileExtensionContentTypeProvider fileTypeProvider, ILogger<UploadController> logger)
         {
