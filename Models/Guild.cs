@@ -55,7 +55,7 @@ namespace MyPostgresApp.Models
                     ChannelId = rootChannel,
                     ChannelName = "general",
                     ChannelDescription = "",
-                    ChannelType = false,
+                    IsVoiceChannel = false,
                     Order = 0,
                     GuildId = GuildId
                 }
@@ -76,7 +76,7 @@ namespace MyPostgresApp.Models
         public string? ChannelDescription { get; set; }
 
         [Column("channel_type")]
-        public bool ChannelType { get; set; } = false;
+        public bool IsVoiceChannel { get; set; } = false;
 
         [ForeignKey("Guild")]
         [Column("guild_id")]

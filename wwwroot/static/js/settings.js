@@ -44,11 +44,12 @@ class CustomWebSocket {
     }
 
     emit(event, data = {}) {
-        const message = JSON.stringify({ Type: event, ...data });
+        const message = JSON.stringify({ Type: event, Data: data });
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(message);
         }
     }
+    
 
     handleMessage(event) {
         const msg = JSON.parse(event.data);
