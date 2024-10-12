@@ -60,7 +60,6 @@ namespace MyPostgresApp.Controllers
                 }
             }
 
-            // Map to DTO before returning
             var guildDto = new GuildDto
             {
                 GuildId = newGuild.GuildId,

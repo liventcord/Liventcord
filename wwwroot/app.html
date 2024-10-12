@@ -413,7 +413,7 @@
             guildAuthorIds[guild.GuildId] = guild.owner_id;
             const guildId = String(guild.GuildId);
             const firstChannelId = guild.FirstChannelId ? String(guild.FirstChannelId) : '';
-            const guildName = guild.name ? String(guild.name) : '';
+            const guildName = guild.GuildName ? String(guild.GuildName) : '';
     
             return `
                 <li>

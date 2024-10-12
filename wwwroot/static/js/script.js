@@ -2468,7 +2468,7 @@ function createGuild() {
             if (popup) {
                 popup.parentNode.remove();
             }
-            changeUrlWithFireWorks(data.new_guild_id, data.new_channel_id, data.new_guild_name);
+            changeUrlWithFireWorks(data.guildId, data.rootChannel, data.guildName);
         } else {
             alertUser('Sunucu oluşturma hatası', data);
         }

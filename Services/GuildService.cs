@@ -1,32 +1,27 @@
-//Services/GuildService.cs
+// Services/GuildService.cs
 using Microsoft.EntityFrameworkCore;
 using MyPostgresApp.Data;
 using MyPostgresApp.Helpers;
 using MyPostgresApp.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
 public class GuildService
 {
     private readonly AppDbContext _dbContext;
 
     public GuildService(AppDbContext dbContext) => _dbContext = dbContext;
+
     public async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
     {
         var guildId = Utils.CreateRandomId();
-        var guild = new Guild
+        var guild = new Guild(ownerId, rootChannel)
         {
             GuildId = guildId,
-            OwnerId = ownerId,
             GuildName = guildName,
-            RootChannel = rootChannel,
             Region = region,
-            IsGuildUploadedImg = false,
-            GuildUsers = new List<GuildUser> 
-            {
-                new GuildUser 
-                {
-                    GuildId = guildId,
-                    UserId = ownerId
-                }
-            }
+            IsGuildUploadedImg = false
         };
 
         _dbContext.Guilds.Add(guild);
@@ -34,17 +29,11 @@ public class GuildService
         return guild;
     }
 
-
-
-
-
-
-
     public async Task<List<string>> GetSharedGuilds(string guildId, string userId)
     {
-        if(string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(userId)) 
+        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(userId))
             return new List<string>();
-        
+
         var sharedGuilds = await _dbContext.GuildUsers
             .Where(gu => gu.UserId == userId)
             .Select(gu => gu.GuildId)
@@ -60,7 +49,6 @@ public class GuildService
             .Select(g => g.OwnerId)
             .FirstOrDefaultAsync();
     }
-
 
     public async Task<List<Guild>> GetUserGuilds(string userId)
     {
