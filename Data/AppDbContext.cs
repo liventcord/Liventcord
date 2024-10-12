@@ -13,6 +13,7 @@ namespace MyPostgresApp.Data
         public DbSet<UserDm> UserDms { get; set; } 
         public DbSet<TypingStatus> TypingStatuses { get; set; }
         public DbSet<Guild> Guilds { get; set; }
+        public DbSet<Channel> Channels { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; } 
         public DbSet<AttachmentFile> AttachmentFiles { get; set; }
         public DbSet<EmojiFile> EmojiFiles { get; set; }
@@ -41,6 +42,17 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.UserId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.GuildId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.ChannelId).IsRequired();
+
+
+            modelBuilder.Entity<Channel>()
+                .HasKey(c => c.ChannelId);
+
+            modelBuilder.Entity<Channel>()
+                .HasOne(c => c.Guild)
+                .WithMany(g => g.Channels)
+                .HasForeignKey(c => c.GuildId);
+
+
 
             modelBuilder.Entity<UserDm>()
                 .ToTable("user_dms")
