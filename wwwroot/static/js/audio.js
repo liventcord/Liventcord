@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
     microphoneButton = getId("microphone-button");
     earphoneButton = getId("earphone-button");
 
-    initializeMp3Yt();
+    //initializeMp3Yt();
 
 });
 
@@ -592,7 +592,29 @@ function initializeMusic() {
     });
 }
 
-
+socket.on('voice_users_response',function(data) {
+    const channel_id = data.channel_id;
+    playAudio('/static/sounds/joinvoice.mp3');
+    clearVoiceChannel(currentVoiceChannelId);
+    const sp = getId('sound-panel');
+    sp.style.display = 'flex';
+    currentVoiceChannelId = channel_id;
+    if(isOnGuild) {
+        currentVoiceChannelGuild = data.guild_id;
+    }
+    const soundInfoIcon = getId('sound-info-icon');
+    soundInfoIcon.innerText = `${currentChannelName} / ${currentGuildName}`;
+    if (!usersInVoice[channel_id]) {
+        usersInVoice[channel_id] = [];
+    }
+    const buttonContainer = channelsUl.querySelector(`li[id="${currentVoiceChannelId}"]`);
+    const channelSpan = buttonContainer.querySelector('.channelSpan');
+    channelSpan.style.marginRight = '30px';
+    if(!usersInVoice[channel_id].includes(currentUserId)) {
+        usersInVoice[channel_id].push(currentUserId);
+    }
+    usersInVoice[channel_id] = data.users_list;
+});
 socket.on('incoming_audio', async data => {
 
     if (data && data.byteLength > 0) {

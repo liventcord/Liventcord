@@ -1561,7 +1561,6 @@ th {
     height: 30px;
     border: 10px solid #313338;
     -webkit-user-drag: none;
-    transition: transform 0.2s ease;
 }
 
 

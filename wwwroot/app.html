@@ -384,7 +384,7 @@
 
     <ul id="guilds-list" class="guilds-list">
         <li class='selected-guild'>
-            <img id="main-logo" data-src="/static/images/icons/icon.png" style="width: 30px; height: 30px; border: 10px solid #313338;" alt="Main Logo" onclick="clickMainLogo() ">
+            <img id="main-logo" src="/static/images/icons/icon.png" style="width: 30px; height: 30px; border: 10px solid #313338;" alt="Main Logo" onclick="clickMainLogo() ">
             <div class="white-rod"></div>
         </li>
     </ul>
@@ -412,7 +412,6 @@
         if (dataScript) {
             const jsonData = JSON.parse(dataScript.textContent);
             
-            // Define variables here
             var email = jsonData.email;
             var masked_email = jsonData.maskedEmail;
             var passed_user_id = jsonData.userId;
@@ -426,14 +425,13 @@
             var shared_guilds_map = jsonData.sharedGuildsMap;
             var permissions_map = jsonData.permissionsMap;
             var friends_status = jsonData.friendsStatus;
-            var dm_users = jsonData.dmUsers || []; // Ensure dm_users is an array
+            var dm_users = jsonData.dmUsers || [];
             var guilds_data = jsonData.guildsJson;
 
             console.log('Data loaded:', jsonData);
             console.log('Script executed with data:', user_name);
             console.log('DM Users:', dm_users);
 
-            // Process DM users
             if (dm_users.length > 0) {
                 dm_users.forEach(dmUser => {
                     console.log('DM User:', dmUser);

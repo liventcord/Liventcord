@@ -941,7 +941,7 @@ function changePopUpToGuildCreation(newPopParent, popButtonContainer, newPopCont
     newPopParent.appendChild(guildNameTitle);
     newPopParent.appendChild(newInput);
     newPopParent.appendChild(createButton);
-    newPopParent.appendChild(backButtn);
+    newPopParent.appendChild(backButton);
 }
 function ChangePopUpToGuildJoining(newPopParent, popButtonContainer, newPopContent, newPopSubject,closeCallback) {
 
@@ -2540,3 +2540,483 @@ function popKeyboardConfetti() {
     }, 0);
 }
 
+function getFormattedDate(messageDate) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (messageDate.toDateString() === today.toDateString()) {
+        return "ㅤBugün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    } else if (messageDate.toDateString() === yesterday.toDateString()) {
+        return "ㅤDün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    } else {
+        return 'ㅤ' + messageDate.toLocaleDateString('tr-TR') + ' ' + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    }
+}
+function getFormattedDateForSmall(messageDate) {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    return messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+}
+
+function isImageURL(url) {
+    const imageUrlRegex = /\.(gif|jpe?g|png|bmp|webp|tiff|svg|ico)(\?.*)?$/i;
+    return imageUrlRegex.test(url);
+}
+function isAttachmentUrl(url) {
+    const pattern = /attachments\/\d+/;
+    return pattern.test(url);
+}
+
+function isYouTubeURL(url) {
+    return /^(?:(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/|m\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11}))$/i.test(url);
+}
+
+
+function getYouTubeEmbedURL(url) {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:shorts\/|(?:v|e(?:mbed)?|watch\?v=))|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+
+    if (match) {
+        const videoId = match[1];
+        return `https://www.youtube.com/embed/${videoId}`;
+    } else {
+        return null; 
+    }
+}
+
+
+function isTenorURL(url) {
+    return /(?:tenor\.com|media\.tenor\.com)\/(?:[^\/]+\/)+[^\/]+(?:-\w+\.(?:gif|mp4)|$)/.test(url);
+}
+
+
+function isAudioURL(url) {
+    const audioExtensions = ['.mp3', '.wav', '.ogg', '.aac', '.flac'];
+    const urlWithoutQueryParams = url.split('?')[0];
+    const fileExtension = urlWithoutQueryParams.split('.').pop().toLowerCase();
+    
+    return audioExtensions.includes(`.${fileExtension}`);
+}
+
+
+
+function isJsonUrl(url) {  return url.toLowerCase().includes('.json'); }
+function isVideoUrl(url) {
+    const videoPatterns = [
+        /\.mp4/i, /\.avi/i, /\.mov/i, /\.wmv/i, /\.mkv/i, /\.flv/i, /\.webm/i // Video file extensions
+    ];
+
+    return videoPatterns.some(pattern => pattern.test(url));
+}
+function beautifyJson(jsonData) {
+    try {
+        const beautifiedJson = JSON.stringify(jsonData, null, '\t'); // Use tab character for indentation
+        return beautifiedJson;
+    } catch (error) {
+        console.error('Error beautifying JSON:', error);
+        return null;
+    }
+}
+
+
+
+
+
+function displayImagePreview(sourceimage) {
+    imagePreviewContainer.style.display = 'flex';
+    previewImage.style.animation = 'preview-image-animation 0.2s forwards';
+    previewImage.src = sourceimage;
+    currentSelectedImg = sourceimage;
+    const previewBtn  = getId('preview-image-button')
+    if (!sourceimage.startsWith('data:')) { 
+        previewBtn.href = sourceimage;
+        previewBtn.target = sourceimage;
+    } else {
+        previewBtn.href = sourceimage;
+        previewBtn.target = sourceimage;
+    }
+
+}
+
+function displayJsonPreview(sourceJson) {
+    jsonPreviewContainer.style.display = 'flex';
+    jsonPreviewElement.dataset.content_observe = sourceJson;
+    jsonPreviewElement.style.userSelect = 'text';
+    jsonPreviewElement.style.whiteSpace = 'pre-wrap';
+    observer.observe(jsonPreviewElement);
+}
+
+
+function loadObservedContent(entry) {
+    const jsonData = entry.target.dataset.content_observe;
+
+    const sanitizedHTML = sanitizeHTML(jsonData);
+
+    // Append sanitized HTML to avoid removing existing children like the media element or dummy image
+    const tempDiv = createEl('div');
+    tempDiv.innerHTML = sanitizedHTML;
+
+    while (tempDiv.firstChild) {
+        entry.target.appendChild(tempDiv.firstChild);
+    }
+
+    observer.unobserve(entry.target);
+}
+
+function sanitizeHTML(html) {
+    function isValidForColoring(content) {
+        return /^[a-zA-Z0-9\s\-_.,!?]+$/.test(content.trim());
+    }
+
+    html = html.replace(/-red\s(.*?)\sred-/gi, (match, content) => {
+        if (isValidForColoring(content)) {
+            return `<red>${content}</red>`;
+        } else {
+            return `&lt;-red ${content} red-&gt;`;
+        }
+    });
+
+    html = html.replace(/-blu\s(.*?)\sblu-/gi, (match, content) => {
+        if (isValidForColoring(content)) {
+            return `<blu>${content}</blu>`;
+        } else {
+            return `&lt;-blu ${content} blu-&gt;`;
+        }
+    });
+
+    html = html.replace(/-yellow\s(.*?)\syellow-/gi, (match, content) => {
+        if (isValidForColoring(content)) {
+            return `<yellow>${content}</yellow>`;
+        } else {
+            return `&lt;-yellow ${content} yellow-&gt;`; 
+        }
+    });
+
+    html = html.replace(/<br>/gi, '&lt;br&gt;');
+    html = html.replace(/\n/g, '<br>');
+    const sanitizedString = html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>?/gi, (tag) => {
+        const allowedTags = ['br', 'red', 'blu', 'yellow'];
+        const tagMatch = tag.match(/<\/?([a-z][a-z0-9]*)\b[^>]*>?/i);
+        const tagName = tagMatch ? tagMatch[1].toLowerCase() : '';
+
+        if (allowedTags.includes(tagName)) {
+            return tag;
+        } else {
+            return tag.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+    });
+    const validHtml = sanitizedString.replace(/<[^>]*$/g, (match) => {
+        return match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    });
+
+    return applyCustomStyles(validHtml);
+}
+
+
+
+function applyCustomStyles(html) {
+    const styles = {
+        'red': 'color: red;',
+        'blu': 'color: blue;',
+        'yellow': 'color: yellow;' 
+    };
+    const styledHTML = html.replace(/<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/gi, (match, tag, content) => {
+        if (styles[tag]) {
+            if (content.trim()) {
+                return `<span style="${styles[tag]}">${content}</span>`;
+            } else {
+                return `&lt;${tag}&gt;`;
+            }
+        } else {
+
+            return `&lt;${tag}&gt;`;
+        }
+    });
+
+    return styledHTML.replace(/&lt;br&gt;/g, '&lt;br&gt;');
+}
+
+
+
+function hideImagePreviewRequest(event) {
+    if(event.target.id ==='image-preview-container') {
+        hideImagePreview();
+    }
+}
+function hideImagePreview() {
+    previewImage.style.animation = 'preview-image-disappear-animation 0.15s forwards';
+    setTimeout(() => {
+        imagePreviewContainer.style.display = 'none';
+        previewImage.src = '';
+    }, 150);
+
+}
+
+
+function hideJsonPreview(event) {
+    if(event.target.id ==='json-preview-container') {
+        
+        jsonPreviewContainer.style.display = 'none';
+    }
+}
+
+
+function createTenorElement(msgContentElement, inputText, url) {
+    let tenorURL = '';
+    if (url.includes("media1.tenor.com/m/") || url.includes("c.tenor.com/")) {
+        tenorURL = url;
+    } else if (url.startsWith("tenor.com") || url.startsWith("https://tenor.com")) {
+        tenorURL = url.endsWith(".gif") ? url : `${url}.gif`;
+    }
+
+    let imgElement = createEl('img');
+    imgElement.src = defaultMediaImageUrl; // Placeholder image
+    imgElement.style.cursor = 'pointer';
+    imgElement.style.maxWidth = `${maxTenorWidth}px`;
+    imgElement.style.maxHeight = `${maxTenorHeight}px`;
+
+    // Create a new Image object to preload the GIF
+    const actualImage = new Image();
+    actualImage.src = tenorURL;
+    actualImage.onload = function () {
+        imgElement.src = actualImage.src; // Update src with the actual GIF
+    };
+    actualImage.onerror = function () {
+        imgElement.src = defaultErrorImageUrl; // Optional: Set an error image
+        imgElement.remove();
+        msgContentElement.textContent = inputText;
+    };
+
+    imgElement.addEventListener('click', function () {
+        displayImagePreview(imgElement.src);
+    });
+
+    return imgElement;
+}
+
+
+
+function createImageElement(msgContentElement, inputText, url_src) {
+    const imgElement = createEl('img', { class: 'imageElement' });
+    imgElement.src = defaultMediaImageUrl;
+    imgElement.style.maxWidth = `${maxWidth}px`;
+    imgElement.style.maxHeight = `${maxHeight}px`;
+
+    const actualImage = new Image();
+    actualImage.src = url_src;
+    actualImage.onload = function () {
+        imgElement.src = url_src;
+    };
+    actualImage.onerror = function () {
+        imgElement.remove();
+        msgContentElement.textContent = inputText;
+    };
+
+    imgElement.addEventListener('click', function () {
+        displayImagePreview(imgElement.src);
+    });
+
+    return imgElement;
+}
+
+
+
+function createAudioElement(audioURL) {
+    const audioElement = createEl('audio');
+    audioElement.src = audioURL;
+    audioElement.controls = true; 
+    return audioElement;
+}
+async function createJsonElement(url) {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Failed to fetch JSON data');
+        }
+        let jsonData = await response.json();
+        const beautifiedData = beautifyJson(jsonData);
+        const truncatedJsonLines = beautifiedData.split('\n').slice(0, 15).join('\n');
+        const jsonContainer = createEl('div');
+        jsonContainer.classList.add('jsonContainer');
+        const jsonElement = createEl('pre');
+        jsonElement.textContent = truncatedJsonLines;
+        jsonElement.style.userSelect = 'text';
+        jsonElement.style.whiteSpace = 'pre-wrap';
+        jsonContainer.appendChild(jsonElement);
+        jsonContainer.addEventListener('click', function () {
+            displayJsonPreview(beautifiedData); 
+        });
+        return jsonContainer;
+    } catch (error) {
+        console.error('Error creating JSON element:', error);
+        return null;
+    }
+}
+
+
+function createYouTubeElement(url) {
+    const youtubeURL = getYouTubeEmbedURL(url);
+    const iframeElement = createEl('iframe');
+    iframeElement.src = youtubeURL;
+    iframeElement.frameborder = '0';
+    iframeElement.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframeElement.allowFullscreen = true;
+    iframeElement.setAttribute("allowfullscreen", "true");
+    iframeElement.setAttribute("mozallowfullscreen", "true");
+    iframeElement.setAttribute("msallowfullscreen", "true");
+    iframeElement.setAttribute("oallowfullscreen", "true");
+    iframeElement.setAttribute("webkitallowfullscreen", "true");
+    iframeElement.className = 'youtube-element';
+    return iframeElement;
+}
+
+
+function createVideoElement(url) {
+    const videoElement = createEl('video');
+    videoElement.src = url;
+    videoElement.width = '560';
+    videoElement.height = '315';
+    videoElement.controls = true; 
+    return videoElement;
+}
+
+
+
+function displayGIFs(gifDatas) {
+    gifsMenuContainer.innerHTML = ''; 
+
+    gifDatas.forEach(gifData => {
+        const img = createEl('img',{className:'gif-content',src:gifData.preview});
+        gifsMenuContainer.appendChild(img);
+
+        img.addEventListener('click',function() {
+            toggleGifs();
+            sendMessage(gifData.gif);
+        });
+
+
+    });
+}
+async function loadGifContent() {
+    const query = gifsMenuSearchBar.value;
+    if(!query) {
+        gifsMenuContainer.innerHTML = '';
+        return;
+    } 
+
+    const url = `https://liventcord-gif-worker.efekantunc0.workers.dev?q=${encodeURIComponent(query)}`;
+
+    try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+            throw new Error(`API error: ${data.error}`);
+        }
+        console.warn(data.results);
+
+        const gifElements = data.results.map(result => ({
+            gif: result.media_formats.gif.url,
+            preview: result.media_formats.tinygif.url,
+        }));
+
+        displayGIFs(gifElements);
+    } catch (error) {
+        console.error('Error fetching or parsing GIFs:', error);
+    }
+}
+
+function toggleEmojis() {
+    if(isGifsOpen) {
+        closeGifs();
+    } else {
+        gifMenu.style.display = 'block';
+    }
+    isGifsOpen = !isGifsOpen;
+}
+function closeGifs() {
+    gifMenu.style.display = 'none';
+}
+async function toggleGifs() {
+    if (isGifsOpen) {
+        closeGifs();
+    } else {
+        gifMenu.style.display = 'block';
+    }
+    isGifsOpen = !isGifsOpen;
+}
+
+function togglePin() {
+    console.log("Toggle pin!");
+}
+function clickMainLogo() {
+    logoClicked ++;
+    if(logoClicked >= 14) {
+        logoClicked = 0;
+        const audioUrl = "https://github.com/TheLp281/LiventCord/raw/main/liventocordolowpitch.mp3";
+        try {
+            let audio = new Audio(audioUrl);
+            audio.play();
+        }
+        catch(error) {
+            console.log(error);
+        }
+    } 
+    loadMainMenu();
+}
+
+
+function logOutPrompt() {
+    askUser('Çıkış Yap','Çıkış yapmak istediğine emin misin?','Çıkış Yap',logOut,color=isRed=true);
+}
+
+
+
+function drawVoiceChannelUser(index,user_id,channel_id,channelButton,allUsersContainer,isTextChannel) {
+    
+    const userName = getUserNick(user_id);
+    const userContainer = createEl('li', { className: 'channel-button',id : user_id });
+    userContainer.addEventListener('mouseover', function(event) {
+        //mouseHoverChannelButton(userContainer, isTextChannel,channel_id);
+    });
+    userContainer.addEventListener('mouseleave', function(event) {
+        //mouseLeaveChannelButton(userContainer, isTextChannel,channel_id);
+    });
+
+
+    createUserContext(user_id);
+    
+    userContainer.id = `user-${user_id}`;
+    const userElement = createEl('img', { style: 'width: 25px; height: 25px; border-radius: 50px; position:fixed; margin-right: 170px;' });
+    setProfilePic(userElement,user_id);
+    userContainer.appendChild(userElement);
+    userContainer.style.marginTop = index == 0 ? '30px' : '10px';
+    userContainer.style.marginLeft = '-220px'; 
+    userContainer.style.width = '90%';
+    userContainer.style.justifyContent = 'center';
+    userContainer.style.alignItems = 'center';
+
+    const contentWrapper = createEl('div', { className: 'content-wrapper' });
+    const userSpan = createEl('span', { className: 'channelSpan', textContent: userName ,style:'position: fixed;'});
+    userSpan.style.color = 'rgb(128, 132, 142)';
+    userSpan.style.border = 'none';
+    userSpan.style.width = 'auto';
+
+    const muteSpan = createEl('span', { innerHTML: muteHtml });
+    const inviteVoiceSpan = createEl('span', { innerHTML: inviteVoiceHtml });
+    contentWrapper.appendChild(muteSpan);
+    contentWrapper.appendChild(inviteVoiceSpan);
+    contentWrapper.style.marginRight = '-115px';
+    userContainer.appendChild(userSpan);
+    userContainer.appendChild(contentWrapper);
+    allUsersContainer.appendChild(userContainer)
+    channelButton.appendChild(allUsersContainer);
+}

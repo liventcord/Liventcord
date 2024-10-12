@@ -1,4 +1,3 @@
-
 let isDomLoaded = false;
 let chatContainer;
 let chatContent;
@@ -786,46 +785,6 @@ async function changeChannel(newChannel) {
     });
 }
 
-function drawVoiceChannelUser(index,user_id,channel_id,channelButton,allUsersContainer,isTextChannel) {
-    
-    const userName = getUserNick(user_id);
-    const userContainer = createEl('li', { className: 'channel-button',id : user_id });
-    userContainer.addEventListener('mouseover', function(event) {
-        //mouseHoverChannelButton(userContainer, isTextChannel,channel_id);
-    });
-    userContainer.addEventListener('mouseleave', function(event) {
-        //mouseLeaveChannelButton(userContainer, isTextChannel,channel_id);
-    });
-
-
-    createUserContext(user_id);
-    
-    userContainer.id = `user-${user_id}`;
-    const userElement = createEl('img', { style: 'width: 25px; height: 25px; border-radius: 50px; position:fixed; margin-right: 170px;' });
-    setProfilePic(userElement,user_id);
-    userContainer.appendChild(userElement);
-    userContainer.style.marginTop = index == 0 ? '30px' : '10px';
-    userContainer.style.marginLeft = '-220px'; 
-    userContainer.style.width = '90%';
-    userContainer.style.justifyContent = 'center';
-    userContainer.style.alignItems = 'center';
-
-    const contentWrapper = createEl('div', { className: 'content-wrapper' });
-    const userSpan = createEl('span', { className: 'channelSpan', textContent: userName ,style:'position: fixed;'});
-    userSpan.style.color = 'rgb(128, 132, 142)';
-    userSpan.style.border = 'none';
-    userSpan.style.width = 'auto';
-
-    const muteSpan = createEl('span', { innerHTML: muteHtml });
-    const inviteVoiceSpan = createEl('span', { innerHTML: inviteVoiceHtml });
-    contentWrapper.appendChild(muteSpan);
-    contentWrapper.appendChild(inviteVoiceSpan);
-    contentWrapper.style.marginRight = '-115px';
-    userContainer.appendChild(userSpan);
-    userContainer.appendChild(contentWrapper);
-    allUsersContainer.appendChild(userContainer)
-    channelButton.appendChild(allUsersContainer);
-}
 
 
 
@@ -2132,349 +2091,6 @@ async function sendMessage(value, user_ids) {
 };
 
 
-function getFormattedDate(messageDate) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    if (messageDate.toDateString() === today.toDateString()) {
-        return "ㅤBugün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-    } else if (messageDate.toDateString() === yesterday.toDateString()) {
-        return "ㅤDün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-    } else {
-        return 'ㅤ' + messageDate.toLocaleDateString('tr-TR') + ' ' + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-    }
-}
-function getFormattedDateForSmall(messageDate) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    return messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-}
-
-function isImageURL(url) {
-    const imageUrlRegex = /\.(gif|jpe?g|png|bmp|webp|tiff|svg|ico)(\?.*)?$/i;
-    return imageUrlRegex.test(url);
-}
-function isAttachmentUrl(url) {
-    const pattern = /attachments\/\d+/;
-    return pattern.test(url);
-}
-
-function isYouTubeURL(url) {
-    return /^(?:(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/|m\.youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11}))$/i.test(url);
-}
-
-
-function getYouTubeEmbedURL(url) {
-    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:shorts\/|(?:v|e(?:mbed)?|watch\?v=))|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
-
-    if (match) {
-        const videoId = match[1];
-        return `https://www.youtube.com/embed/${videoId}`;
-    } else {
-        return null; 
-    }
-}
-
-
-function isTenorURL(url) {
-    return /(?:tenor\.com|media\.tenor\.com)\/(?:[^\/]+\/)+[^\/]+(?:-\w+\.(?:gif|mp4)|$)/.test(url);
-}
-
-
-function isAudioURL(url) {
-    const audioExtensions = ['.mp3', '.wav', '.ogg', '.aac', '.flac'];
-    const urlWithoutQueryParams = url.split('?')[0];
-    const fileExtension = urlWithoutQueryParams.split('.').pop().toLowerCase();
-    
-    return audioExtensions.includes(`.${fileExtension}`);
-}
-
-
-
-function isJsonUrl(url) {  return url.toLowerCase().includes('.json'); }
-function isVideoUrl(url) {
-    const videoPatterns = [
-        /\.mp4/i, /\.avi/i, /\.mov/i, /\.wmv/i, /\.mkv/i, /\.flv/i, /\.webm/i // Video file extensions
-    ];
-
-    return videoPatterns.some(pattern => pattern.test(url));
-}
-function beautifyJson(jsonData) {
-    try {
-        const beautifiedJson = JSON.stringify(jsonData, null, '\t'); // Use tab character for indentation
-        return beautifiedJson;
-    } catch (error) {
-        console.error('Error beautifying JSON:', error);
-        return null;
-    }
-}
-
-
-
-
-
-function displayImagePreview(sourceimage) {
-    imagePreviewContainer.style.display = 'flex';
-    previewImage.style.animation = 'preview-image-animation 0.2s forwards';
-    previewImage.src = sourceimage;
-    currentSelectedImg = sourceimage;
-    const previewBtn  = getId('preview-image-button')
-    if (!sourceimage.startsWith('data:')) { 
-        previewBtn.href = sourceimage;
-        previewBtn.target = sourceimage;
-    } else {
-        previewBtn.href = sourceimage;
-        previewBtn.target = sourceimage;
-    }
-
-}
-
-function displayJsonPreview(sourceJson) {
-    jsonPreviewContainer.style.display = 'flex';
-    jsonPreviewElement.dataset.content_observe = sourceJson;
-    jsonPreviewElement.style.userSelect = 'text';
-    jsonPreviewElement.style.whiteSpace = 'pre-wrap';
-    observer.observe(jsonPreviewElement);
-}
-
-
-function loadObservedContent(entry) {
-    const jsonData = entry.target.dataset.content_observe;
-
-    const sanitizedHTML = sanitizeHTML(jsonData);
-
-    // Append sanitized HTML to avoid removing existing children like the media element or dummy image
-    const tempDiv = createEl('div');
-    tempDiv.innerHTML = sanitizedHTML;
-
-    while (tempDiv.firstChild) {
-        entry.target.appendChild(tempDiv.firstChild);
-    }
-
-    observer.unobserve(entry.target);
-}
-
-function sanitizeHTML(html) {
-    function isValidForColoring(content) {
-        return /^[a-zA-Z0-9\s\-_.,!?]+$/.test(content.trim());
-    }
-
-    html = html.replace(/-red\s(.*?)\sred-/gi, (match, content) => {
-        if (isValidForColoring(content)) {
-            return `<red>${content}</red>`;
-        } else {
-            return `&lt;-red ${content} red-&gt;`;
-        }
-    });
-
-    html = html.replace(/-blu\s(.*?)\sblu-/gi, (match, content) => {
-        if (isValidForColoring(content)) {
-            return `<blu>${content}</blu>`;
-        } else {
-            return `&lt;-blu ${content} blu-&gt;`;
-        }
-    });
-
-    html = html.replace(/-yellow\s(.*?)\syellow-/gi, (match, content) => {
-        if (isValidForColoring(content)) {
-            return `<yellow>${content}</yellow>`;
-        } else {
-            return `&lt;-yellow ${content} yellow-&gt;`; 
-        }
-    });
-
-    html = html.replace(/<br>/gi, '&lt;br&gt;');
-    html = html.replace(/\n/g, '<br>');
-    const sanitizedString = html.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>?/gi, (tag) => {
-        const allowedTags = ['br', 'red', 'blu', 'yellow'];
-        const tagMatch = tag.match(/<\/?([a-z][a-z0-9]*)\b[^>]*>?/i);
-        const tagName = tagMatch ? tagMatch[1].toLowerCase() : '';
-
-        if (allowedTags.includes(tagName)) {
-            return tag;
-        } else {
-            return tag.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }
-    });
-    const validHtml = sanitizedString.replace(/<[^>]*$/g, (match) => {
-        return match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    });
-
-    return applyCustomStyles(validHtml);
-}
-
-
-
-function applyCustomStyles(html) {
-    const styles = {
-        'red': 'color: red;',
-        'blu': 'color: blue;',
-        'yellow': 'color: yellow;' 
-    };
-    const styledHTML = html.replace(/<([a-z][a-z0-9]*)\b[^>]*>(.*?)<\/\1>/gi, (match, tag, content) => {
-        if (styles[tag]) {
-            if (content.trim()) {
-                return `<span style="${styles[tag]}">${content}</span>`;
-            } else {
-                return `&lt;${tag}&gt;`;
-            }
-        } else {
-
-            return `&lt;${tag}&gt;`;
-        }
-    });
-
-    return styledHTML.replace(/&lt;br&gt;/g, '&lt;br&gt;');
-}
-
-
-
-function hideImagePreviewRequest(event) {
-    if(event.target.id ==='image-preview-container') {
-        hideImagePreview();
-    }
-}
-function hideImagePreview() {
-    previewImage.style.animation = 'preview-image-disappear-animation 0.15s forwards';
-    setTimeout(() => {
-        imagePreviewContainer.style.display = 'none';
-        previewImage.src = '';
-    }, 150);
-
-}
-
-
-function hideJsonPreview(event) {
-    if(event.target.id ==='json-preview-container') {
-        
-        jsonPreviewContainer.style.display = 'none';
-    }
-}
-
-
-function createTenorElement(msgContentElement, inputText, url) {
-    let tenorURL = '';
-    if (url.includes("media1.tenor.com/m/") || url.includes("c.tenor.com/")) {
-        tenorURL = url;
-    } else if (url.startsWith("tenor.com") || url.startsWith("https://tenor.com")) {
-        tenorURL = url.endsWith(".gif") ? url : `${url}.gif`;
-    }
-
-    let imgElement = createEl('img');
-    imgElement.src = defaultMediaImageUrl; // Placeholder image
-    imgElement.style.cursor = 'pointer';
-    imgElement.style.maxWidth = `${maxTenorWidth}px`;
-    imgElement.style.maxHeight = `${maxTenorHeight}px`;
-
-    // Create a new Image object to preload the GIF
-    const actualImage = new Image();
-    actualImage.src = tenorURL;
-    actualImage.onload = function () {
-        imgElement.src = actualImage.src; // Update src with the actual GIF
-    };
-    actualImage.onerror = function () {
-        imgElement.src = defaultErrorImageUrl; // Optional: Set an error image
-        imgElement.remove();
-        msgContentElement.textContent = inputText;
-    };
-
-    imgElement.addEventListener('click', function () {
-        displayImagePreview(imgElement.src);
-    });
-
-    return imgElement;
-}
-
-
-
-function createImageElement(msgContentElement, inputText, url_src) {
-    const imgElement = createEl('img', { class: 'imageElement' });
-    imgElement.src = defaultMediaImageUrl;
-    imgElement.style.maxWidth = `${maxWidth}px`;
-    imgElement.style.maxHeight = `${maxHeight}px`;
-
-    const actualImage = new Image();
-    actualImage.src = url_src;
-    actualImage.onload = function () {
-        imgElement.src = url_src;
-    };
-    actualImage.onerror = function () {
-        imgElement.remove();
-        msgContentElement.textContent = inputText;
-    };
-
-    imgElement.addEventListener('click', function () {
-        displayImagePreview(imgElement.src);
-    });
-
-    return imgElement;
-}
-
-
-
-function createAudioElement(audioURL) {
-    const audioElement = createEl('audio');
-    audioElement.src = audioURL;
-    audioElement.controls = true; 
-    return audioElement;
-}
-async function createJsonElement(url) {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('Failed to fetch JSON data');
-        }
-        let jsonData = await response.json();
-        const beautifiedData = beautifyJson(jsonData);
-        const truncatedJsonLines = beautifiedData.split('\n').slice(0, 15).join('\n');
-        const jsonContainer = createEl('div');
-        jsonContainer.classList.add('jsonContainer');
-        const jsonElement = createEl('pre');
-        jsonElement.textContent = truncatedJsonLines;
-        jsonElement.style.userSelect = 'text';
-        jsonElement.style.whiteSpace = 'pre-wrap';
-        jsonContainer.appendChild(jsonElement);
-        jsonContainer.addEventListener('click', function () {
-            displayJsonPreview(beautifiedData); 
-        });
-        return jsonContainer;
-    } catch (error) {
-        console.error('Error creating JSON element:', error);
-        return null;
-    }
-}
-
-
-function createYouTubeElement(url) {
-    const youtubeURL = getYouTubeEmbedURL(url);
-    const iframeElement = createEl('iframe');
-    iframeElement.src = youtubeURL;
-    iframeElement.frameborder = '0';
-    iframeElement.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
-    iframeElement.allowFullscreen = true;
-    iframeElement.setAttribute("allowfullscreen", "true");
-    iframeElement.setAttribute("mozallowfullscreen", "true");
-    iframeElement.setAttribute("msallowfullscreen", "true");
-    iframeElement.setAttribute("oallowfullscreen", "true");
-    iframeElement.setAttribute("webkitallowfullscreen", "true");
-    iframeElement.className = 'youtube-element';
-    return iframeElement;
-}
-
-
-function createVideoElement(url) {
-    const videoElement = createEl('video');
-    videoElement.src = url;
-    videoElement.width = '560';
-    videoElement.height = '315';
-    videoElement.controls = true; 
-    return videoElement;
-}
-
 
 function extractLinks(message) {
     if(message) {
@@ -2582,11 +2198,9 @@ function getManageableGuilds() {
 
 function inviteUser(user_id,guild_id) {
     if(!user_id || !guild_id) { return; }
-    
     console.log("inviting user : ", user_id , ' to guild ' , guild_id);
     OpenDm(user_id);
     
-
 }
 
 
@@ -2649,10 +2263,7 @@ function appendToProfileContextList(userData,user_id) {
 function createOptions3Button(message,message_id,user_id) {
     const button = createMsgOptionButton(message,false);
     button.dataset.m_id = message_id;
-
     appendToMessageContextList(message_id,user_id);
-    
-
 }
 
 
@@ -2660,78 +2271,7 @@ let isUsersOpen = true;
 
 
 
-function displayGIFs(gifDatas) {
-    gifsMenuContainer.innerHTML = ''; 
 
-    gifDatas.forEach(gifData => {
-        const img = createEl('img',{className:'gif-content',src:gifData.preview});
-        gifsMenuContainer.appendChild(img);
-
-        img.addEventListener('click',function() {
-            toggleGifs();
-            sendMessage(gifData.gif);
-        });
-
-
-    });
-}
-async function loadGifContent() {
-    const query = gifsMenuSearchBar.value;
-    if(!query) {
-        gifsMenuContainer.innerHTML = '';
-        return;
-    } 
-
-    const url = `https://liventcord-gif-worker.efekantunc0.workers.dev?q=${encodeURIComponent(query)}`;
-
-    try {
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.error) {
-            throw new Error(`API error: ${data.error}`);
-        }
-        console.warn(data.results);
-
-        const gifElements = data.results.map(result => ({
-            gif: result.media_formats.gif.url,
-            preview: result.media_formats.tinygif.url,
-        }));
-
-        displayGIFs(gifElements);
-    } catch (error) {
-        console.error('Error fetching or parsing GIFs:', error);
-    }
-}
-
-function toggleEmojis() {
-    if(isGifsOpen) {
-        closeGifs();
-    } else {
-        gifMenu.style.display = 'block';
-    }
-    isGifsOpen = !isGifsOpen;
-}
-function closeGifs() {
-    gifMenu.style.display = 'none';
-}
-async function toggleGifs() {
-    if (isGifsOpen) {
-        closeGifs();
-    } else {
-        gifMenu.style.display = 'block';
-    }
-    isGifsOpen = !isGifsOpen;
-}
-
-function togglePin() {
-    console.log("Toggle pin!");
-}
 
 
 
@@ -2750,3 +2290,691 @@ function getLastSecondMessageDate() {
     }
     return '';
 }
+
+
+
+
+
+
+//Logic
+
+let lastConfirmedguildImg;
+function onEditImage(isGuild) {
+    if(!isCropieInitialized) { return }
+    const filedata = getId(isGuild ? 'guildImage':'profileImage').files[0];
+    if (!filedata) {
+        console.log("No file. ", isGuild)
+        return;
+    }
+    console.log("On edit image." , isGuild)
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        function callbackAfterAccept(outputBase64) {
+            console.log("Callback triggered!", isGuild)
+            if(isGuild) {
+                lastConfirmedguildImg =  getBase64Image(getId('guild-image'))
+            } else {
+                lastConfirmedProfileImg =  getBase64Image(getId('settings-self-profile'))
+            }
+            getId(isGuild ? 'guild-image' : 'settings-self-profile').src = outputBase64;
+            isChangedProfile = true;
+            if(!currentPopUp) {
+                let _currentPopUp = generateUnsavedPopUp();
+                currentPopUp = _currentPopUp;
+            }
+            
+            showUnsavedPopUp(currentPopUp);
+        }
+        createCropPop(e.target.result,callbackAfterAccept);
+        
+    };
+    reader.onerror = (error) => {
+        console.error("Error reading file:", error);
+    };
+    reader.readAsDataURL(filedata);
+    getId(isGuild ? 'guildImage':'profileImage').value = '';
+    
+    isUnsaved = true;
+
+}
+function onEditProfile() {
+    onEditImage(false);
+}
+function onEditGuildProfile() {
+    onEditImage(true);
+}
+function deleteProfilePic() {
+    let xhr = new XMLHttpRequest();
+    let formData = new FormData();
+    xhr.open('POST', '/delete_profile_pic');
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log('Profile picture deleted');
+            updateSelfProfile(currentUserId,user_name,true);
+        }
+        else {
+            console.error('Error uploading profile pic!');
+        }
+    };
+    xhr.send(formData);
+}
+function updateGuild(uploadedGuildId) {
+    const guildList = getId('guilds-list').querySelectorAll('img');
+    guildList.forEach((img) => {
+        if (img.id === uploadedGuildId) {
+            img.src = !uploadedGuildId ? createBlackImage() : `/guilds/${uploadedGuildId}`;
+        }
+    });
+
+}
+function uploadImage(isGuild) {
+    if (!isChangedProfile) { return; }
+    
+    let formData = new FormData();
+    const uploadedGuildId = currentGuildId;
+    const file = isGuild ? getId('guild-image').src : getId('settings-self-profile').src;
+    
+    console.log(file, isGuild);
+    
+    if (file && file.startsWith('data:image/')) {
+        const byteString = atob(file.split(',')[1]);
+        const mimeString = file.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new Uint8Array(byteString.length);
+        
+        for (let i = 0; i < byteString.length; i++) {
+            ab[i] = byteString.charCodeAt(i);
+        }
+        
+        const blob = new Blob([ab], { type: mimeString });
+        
+        if (blob.size <= 8 * 1024 * 1024) {
+            formData.append('photo', blob, 'profile-image.png');
+            
+            if (isGuild) {
+                formData.append('guild_id', uploadedGuildId);
+            }
+            
+            console.log("Sending req...");
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload_img');
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    updateGuild(uploadedGuildId);
+                } else {
+                    console.error('Error uploading profile pic!');
+                }
+            };
+            xhr.onerror = function() {
+                if(isGuild) {
+                    getId('guild-image').src = lastConfirmedguildImg 
+                } else {
+                    getId('settings-self-profile').src = lastConfirmedProfileImg;
+                }
+            }
+            xhr.send(formData);
+        } else {
+            alertUser('Dosya boyutu 8 MB\'den büyük olamaz!');
+            getId('profileImage').value = ''; 
+        }
+    } else {
+        console.error('Invalid file format or undefined file.');
+    }
+}
+
+
+function createGuild() {
+    const guildName = getId('guild-name-input').value;
+    const guildPhotoFile = getId('guildImageInput').files[0];
+
+    if (guildPhotoFile !== undefined) {
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/gif', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml'];
+        if (!allowedTypes.includes(guildPhotoFile.type)) {
+            alertUser('Yalnızca resim dosyaları yükleyebilirsiniz (JPG, PNG veya GIF)!');
+            getId('guildImageInput').value = '';
+            getId('guildImg').style.backgroundImage = '';
+            return; 
+        }
+
+        if (guildPhotoFile.size > 8 * 1024 * 1024) {
+            alertUser('Dosya boyutu 8 MB\'den küçük olmalıdır!');
+            getId('guildImageInput').value = '';
+            getId('guildImg').style.backgroundImage = '';
+            return; 
+        }
+    }
+
+    let formData = new FormData();
+
+    if (guildPhotoFile !== undefined) {
+        formData.append('photo', guildPhotoFile);
+    }
+    formData.append('guild_name', guildName);
+    getId('guildImg').style.class = "";
+
+    fetch('/create_guild', {
+        method: 'POST',
+        body: formData
+    }).then(response => {
+        if (response.ok) {
+            return response.json();
+        }
+        return response.text();
+    }).then(data => {
+        console.log('Guild creation response:', data);
+        if(typeof(data) == 'object') {
+            const popup = getId('guild-pop-up');
+            if (popup) {
+                popup.parentNode.remove();
+            }
+            changeUrlWithFireWorks(data.new_guild_id,data.new_channel_id,data.new_guild_name);
+        } else {
+            alertUser('Sunucu oluşturma hatası',data);
+        }
+        
+    }).catch(error => {
+       console.error('Error:', error);
+       
+        
+    });
+}
+    
+
+
+
+
+window.addEventListener('popstate', function(event) {
+    try {
+        const pathStr = window.location.pathname;
+        if (pathStr === '/channels/@me') {
+            loadMainMenu(false);
+        } else if (pathStr.startsWith('/channels/@me/')) {
+            const parts = pathStr.split('/');
+            const friendId = parts[3];
+            OpenDm(friendId);
+        } else if (pathStr.startsWith('/channels/') && pathStr.split('/').length === 4) {
+            
+            const parts = pathStr.split('/');
+            const guildID = parts[2];
+            const channelId = parts[3];
+            loadGuild(guildID, channelId, null, null, false);
+        } else {
+            console.error('Unknown URL format:', pathStr);
+        }
+        
+    } catch (error) {
+        console.error(error);
+    }
+});
+function constructAppPage(guild_id,channel_id) {
+    return`/channels/${guild_id}/${channel_id}`;
+}
+function constructDmPage(channel_id) {
+    return`/channels/@me/${channel_id}`;
+}
+function constructAbsoluteAppPage(guild_id, channel_id) {
+    return `${window.location.protocol}//${window.location.hostname}/app/channels/${guild_id}/${channel_id}`;
+}
+
+function selectGuildList(guild_id) {
+    console.log(typeof(guild_id),guild_id)
+    const guildList = getId('guilds-list'); 
+    if (!guildList) return; 
+    
+    const foundGuilds = guildList.querySelectorAll('img');
+    
+    foundGuilds.forEach(guild => {
+        console.log(guild);
+        if (guild.id === guild_id) {
+            guild.parentNode.classList.add('selected-guild');
+        } else {
+            guild.parentNode.classList.remove('selected-guild');
+        }
+    });
+}
+
+function loadGuild(guild_id,channel_id,guildName,guildAuthorId,isChangingUrl=true) {
+    if(!guild_id || !channel_id ) { return; }
+    
+    if (isChangingUrl) {
+        const state = constructAppPage(guild_id,channel_id);
+        if(window.location.pathname != state) {
+            window.history.pushState(null, null, state);
+        }
+    } else { 
+        console.warn("calling from popstate");
+    }
+    if(isChangingPage) {
+        console.warn(" Already changing guild! can not change guild");
+        return;
+    }
+    currentGuildId = guild_id;
+    permissionManager = new PermissionManager(permissions_map, currentGuildId);
+    selectGuildList(guild_id);
+    if(guildName) {
+        currentGuildName = guildName;
+    } else {
+        if(guildNames[guild_id]) {
+            currentGuildName = guildNames[guild_id];
+        }
+    }
+
+    currentChannelId = channel_id;
+    if(!isChangingUrl) {
+        wasNotChangingUrl = true;
+    }
+    if(isOnMe) {
+        loadApp();
+    } else if (isOnDm) {
+        loadApp();
+    } else if (isOnGuild){
+        changecurrentGuild();
+    } 
+}
+function initialiseMe() {
+    enableElement('dms-title');
+    userList.innerHTML = userListTitleHTML;
+    loadMainToolbar();
+    isInitialized = true;
+}
+function get_users() {
+    if(currentGuildId) {
+        if(guild_users_cache[currentGuildId]) {
+            updateUserList(guild_users_cache[currentGuildId]);
+        } else {
+            socket.emit('get_users',currentGuildId);
+        }
+
+        if(!users_metadata_cache[currentGuildId]) {
+            socket.emit('get_user_metadata',currentGuildId);
+        }
+
+    } else {
+        console.warn("Current guild id is null!");
+    }
+}
+function getChannels() {
+    if(currentChannelId) {
+        if(channels_cache[currentGuildId]) {
+            updateChannels(channels_cache[currentGuildId]);
+        } else {
+            socket.emit('get_channels',currentGuildId);
+        }
+    } else {
+        console.warn("Current channel id is null!");
+    }
+
+}
+let isChangingPage = false;
+function setUserListLine() {
+    const userLine = document.querySelector('.horizontal-line');
+    if(isUsersOpenGlobal) {
+        enableElement('user-list');
+        userLine.style.display = 'flex';
+    } else {
+        disableElement('user-list');
+        userLine.style.display = 'none';
+    }
+}
+function userExistsDm(userId) {
+    return userId in dm_users;
+}
+function OpenDm(friend_id) {
+    const wasOnDm = isOnDm;
+    isOnDm = true;
+    currentDmId = friend_id;
+    lastSenderID = '';
+    lastMessageDateTime = null;
+    activateDmContainer(friend_id);
+    const url = constructDmPage(friend_id);
+    if(url != window.location.pathname) {
+        window.history.pushState(null, null, url);
+    }
+    if(!userExistsDm(friend_id)) {
+        socket.emit('add_dm',{'friend_id' : friend_id});
+    }
+    loadApp(friend_id);
+    if(wasOnDm) {
+        changeCurrentDm(friend_id);
+    }
+    GetHistoryFromOneChannel(friend_id,true);
+}
+
+
+let lastDmId;
+function loadMainMenu(isChangingUrl=true) {
+    if(isOnGuild && currentChannelId) {
+        guildChatMessages[currentChannelId] = messages_raw_cache;
+    }
+    function handleMenu() {
+        selectGuildList('main-logo');
+        if(isChangingUrl) {
+            window.history.pushState(null, null, "/channels/@me");
+        }
+        enableElement('friends-container',false,true);
+        getId('friend-container-item').classList.add('dm-selected');
+        disableDmContainers();
+        lastDmId = '';
+        currentDmId = '';
+        enableElement('channel-info-container-for-friend');
+        disableElement('channel-info-container-for-index');
+        loadMainToolbar();
+        disableElement('chat-container');
+        disableElement('message-input-container');
+        getId('friend-container-item').style.color = 'white';
+
+        userList.innerHTML = userListTitleHTML;
+        userList.classList.add('friendactive');
+        if(userListFriActiveHtml) {
+            userList.innerHTML = userListFriActiveHtml;
+        }
+        getId('nowonline').style.fontWeight = 'bolder';
+        if(isOnMe) { return; }
+        isOnMe = true;
+        isOnGuild = false;
+    }
+    
+    function handleDm() {
+        OpenDm(lastDmId)
+        disableElement('friends-container');
+    }
+    if(isOnGuild) {
+        if(isOnDm) {
+            handleMenu();
+        } else {
+            if(lastDmId) {
+                handleDm()
+            } else {
+                handleMenu();
+            }
+        }
+
+    } else {
+        handleMenu();
+    }
+
+
+    enableElement('friend-container-item');
+    getId('guild-name').innerText = '';
+    disableElement('guild-settings-button');
+    enableElement('globalSearchInput',false,true);
+    enableElement('friends-container-item');
+    
+    enableElement('dms-title');
+    enableElement('dm-container-parent',false, true);
+    channelsUl.innerHTML = '';
+
+    enableElement('guild-container',false,true);
+    
+    
+    const chanList = getId('channel-list');
+    if(cachedFriMenuContent) {
+        chanList.innerHTML = cachedFriMenuContent;
+    }
+
+
+    handleResize();
+    
+}
+function UpdateDmUserList(friend_id,friendNick,friendDiscriminator) {
+    const usersData = {
+        currentUserId: {
+            user_id:  currentUserId,
+            name: currentUserName,
+            is_online : true ,
+            discriminator: currentDiscriminator
+        },
+        friend_id: {
+            user_id:  friend_id,
+            name: friendNick,
+            is_online : isOnline(friend_id),
+            discriminator: friendDiscriminator
+        }
+    };
+    updateUserList(usersData);
+}
+function loadApp(friend_id=null) {
+    if(isChangingPage) {return;  }
+    isChangingPage = true;
+    const userList = getId('user-list');
+
+    if(isOnMe) {
+        userListFriActiveHtml = userList.innerHTML;
+    }
+    
+    isOnMe = false;
+
+    userList.innerHTML = ""; 
+    userList.classList.remove('friendactive'); 
+    enableElement('guild-name');
+
+    if(!friend_id) {
+        isOnGuild = true;
+        isOnDm = false;
+        if(currentDmId) {
+            lastDmId = currentDmId;
+        }
+        getChannels();
+        get_users();
+        refreshInviteId();
+        disableElement('dms-title');
+        disableElement('dm-container-parent');
+        disableElement('friend-container-item');
+        enableElement('guild-settings-button');
+        enableElement('hash-sign');
+        getId('guild-name').innerText = currentGuildName;
+        disableElement('globalSearchInput');
+        disableElement('dm-profile-sign-bubble');
+        disableElement('dm-profile-sign');
+        loadGuildToolbar();
+    } else {
+        loadDmToolbar();
+        isOnGuild = false;
+        isOnDm = true;
+        enableElement('dm-profile-sign-bubble');
+        enableElement('dm-profile-sign');
+        enableElement('guild-container',false,true);
+        disableElement('guild-settings-button');
+        activateDmContainer(friend_id);
+        const friendNick = passed_friend_name != undefined && passed_friend_id == friend_id ? passed_friend_name : getUserNick(friend_id);
+        userInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+        channelInfo.textContent = friendNick;
+        disableElement('hash-sign');
+        enableElement('dm-profile-sign')
+        const dmProfSign = getId('dm-profile-sign');
+        setProfilePic(dmProfSign,friend_id);
+        dmProfSign.dataset.cid = friend_id;
+        
+        UpdateDmUserList(friend_id,friendNick,passed_friend_discriminator);
+    }
+    
+    
+    disableElement('channel-info-container-for-friend');
+    disableElement('friends-container');
+    document.querySelector('.horizontal-line').style.display = 'none';
+    
+    enableElement('channel-info-container-for-index');
+    enableElement('chat-container',true);
+    enableElement('message-input-container',false,true);
+    adjustHeight();
+    
+    handleResize();
+    isChangingPage = false;
+}
+
+function changeCurrentDm(friend_id) {
+    isChangingPage = true;
+    isOnMe = false;
+    isOnGuild = false;
+    isOnDm = true;
+    isReachedChannelEnd = false;
+    
+    const friendNick = getUserNick(friend_id);
+    channelInfo.textContent = friendNick;
+    userInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+    const dmProfSign = getId('dm-profile-sign');
+    setProfilePic(dmProfSign,friend_id);
+    dmProfSign.dataset.cid = friend_id;
+    UpdateDmUserList(friend_id,friendNick)
+
+    isChangingPage = false;
+}
+
+
+
+
+
+
+function changecurrentGuild() {
+    isChangingPage = true;
+    isOnMe = false;
+    isOnGuild = true;
+    getChannels();
+    get_users();
+    refreshInviteId();
+    getId('channel-info').textContent = currentChannelName;
+    getId('guild-name').innerText = currentGuildName;
+    isDropdownOpen = false;
+    dropDown.style.display = 'none';
+  
+    isChangingPage = false;
+}
+
+
+
+
+function joinVoiceChannel(channel_id) {
+    if(currentVoiceChannelId == channel_id) { return; }
+    const data = { 'guild_id' : currentGuildId, 'channel_id' : channel_id }
+    socket.emit('join_voice_channel',data);
+    return;
+}
+
+
+
+function refreshInviteId() {
+    if(!current_invite_ids) { return; }
+    socket.emit('get_current_invite_id',{'guild_id' : currentGuildId});
+}
+
+
+
+function changeUrlWithFireWorks(guild_id,channel_id,guild_id) { 
+    loadGuild(guild_id,channel_id,guild_id,currentUserId)
+    createFireWorks();
+    permissions_map[guild_id] = {
+        "read_messages": 1,
+        "send_messages": 1,
+        "manage_roles": 1,
+        "kick_members": 1,
+        "ban_members": 1,
+        "manage_channels": 1,
+        "mention_everyone": 1,
+        "add_reaction": 1,
+        "is_admin": 1,
+        "can_invite": 1
+    }
+}
+
+
+
+
+function closeSettings() {
+    if(isUnsaved) {
+        shakeScreen();
+        return;
+    }
+    enableSnowOnSettings()
+    getId('settings-menu').style.animation = 'settings-menu-disappear-animation 0.3s forwards';
+
+
+
+    setTimeout(() => {
+        getId('settings-overlay').style.display = 'none';
+    }, 300);
+
+    isSettingsOpen = false;
+
+    
+    
+
+}
+let changeNicknameTimeout;
+function changeNickname() {
+    const newNicknameInput = getId('new-nickname-input');
+    const newNickname = newNicknameInput.value.trim();
+
+    if (newNickname !== '' && !changeNicknameTimeout && newNickname != currentUserName) {
+
+        console.log("Changed your nickname to: " + newNickname);
+        userNick = newNickname;
+        socket.emit('set_nick', newNickname);
+
+        newNicknameInput.value = newNickname;
+        changeNicknameTimeout = setTimeout(() => {
+            changeNicknameTimeout = null;
+        }, 1000);
+
+    }
+}
+
+let changeGuildNameTimeout;
+function changeGuildName() {
+    const newGuildInput = getId('guild-overview-name-input');
+    const newGuildName = newGuildInput.value.trim();
+    if (newGuildName !== '' && !changeGuildNameTimeout && newGuildName != currentGuildName) {
+        console.log("Changed guild name to: " + newGuildName);
+        const objecttosend = {'' : newGuildName,'guild_id' : currentGuildId};
+        socket.emit('set_guild_name', objecttosend);
+        const setInfoNick = getId('set-info-nick');
+        if(setInfoNick) {
+            setInfoNick.innerText = newGuildName;
+        }
+        newGuildInput.value = newGuildName;
+        changeGuildNameTimeout = setTimeout(() => {
+            changeGuildNameTimeout = null;
+        }, 1000);
+    }
+}
+
+
+
+
+
+function logOut() {
+    socket.disconnect();
+
+    fetch('/auth/logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        if (response.ok) {
+            document.body.innerHTML = '';
+            window.location.href = '/';
+        } else {
+            console.error('Logout failed:', response.statusText);
+
+        }
+    })
+    .catch(error => {
+        console.error('Error during logout:', error);
+    });
+}
+function changePageToMe() {
+    window.location.href = "/channels/@me";
+}
+function changePageToGuild() {
+    window.location.href = "/";
+}
+
+
+
+
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        if(isUnread)
+        setActiveIcon();
+    } else {
+        setInactiveIcon();
+    }
+});
