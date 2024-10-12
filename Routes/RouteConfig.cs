@@ -10,6 +10,7 @@ namespace MyPostgresApp.Routes
         public static void ConfigureRoutes(IEndpointRouteBuilder app)
         {
             
+
             void MapRoute(string path, string fileName)
             {
                 var provider = new FileExtensionContentTypeProvider();
@@ -27,21 +28,22 @@ namespace MyPostgresApp.Routes
                     }
 
                     var filePath = Path.Combine(env.WebRootPath, fileName);
-                    if (!File.Exists(filePath))
-                    {
-                        context.Response.StatusCode = StatusCodes.Status404NotFound;
-                        await context.Response.WriteAsync("File not found.");
-                        return;
-                    }
-
-                    if (fileName.StartsWith("https://"))
-                    {
-                        context.Response.Redirect(fileName);
-                    }
-                    else
+                    if (File.Exists(filePath))
                     {
                         context.Response.ContentType = contentType;
                         await context.Response.SendFileAsync(filePath);
+                    }
+                    else
+                    {
+                        if (fileName.EndsWith("404_files/noodle.gif"))
+                        {
+                            context.Response.Redirect("https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+                        }
+                        else
+                        {
+                            string redirectUrl = "https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404filesnew/output/" + Path.GetFileName(fileName);
+                            context.Response.Redirect(redirectUrl);
+                        }
                     }
                 });
             }
@@ -87,8 +89,7 @@ namespace MyPostgresApp.Routes
 
             foreach (string url in urls)
             {
-                string redirectBaseUrl = "https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404filesnew/output/";
-                MapRoute(url, redirectBaseUrl + Path.GetFileName(url));
+                MapRoute(url,url);
             }
 
 
@@ -113,7 +114,7 @@ namespace MyPostgresApp.Routes
             MapRoute("/assets/d6db7b5639c7ed70f8b582984dda6c62.woff2", "static/404/d6db7b5639c7ed70f8b582984dda6c62.woff2");
 
             MapRoute("/assets/oneTrust/v4/consent/04da1d72-0626-4fff-b3c6-150c719cc115/04da1d72-0626-4fff-b3c6-150c719cc115.json","static/404/04da1d72-0626-4fff-b3c6-150c719cc115.json");
-            MapRoute("/assets/e4ec7c5d7af5342f57347c9ada429fba.gif", "https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+            MapRoute("/assets/e4ec7c5d7af5342f57347c9ada429fba.gif", "404_files/noodle.gif");
             MapRoute("/assets/779a770c34fcb823a598a7277301adaf.svg", "static/404/779a770c34fcb823a598a7277301adaf.svg");
 
             MapRoute("/assets/847541504914fd33810e70a0ea73177e.ico", "static/images/icons/favicon.png");
