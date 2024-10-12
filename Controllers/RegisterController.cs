@@ -27,8 +27,8 @@ namespace MyPostgresApp.Controllers
             if (string.IsNullOrEmpty(nickname) || nickname.Length > 32)
                 return BadRequest(new { message = "Kullanıcı adı geçersiz, 1 ile 32 karakter arasında olmalıdır" });
             
-            if (string.IsNullOrEmpty(password) || password.Length > 20)
-                return BadRequest(new { message = "Şifre geçersiz, 1 ile 20 karakter arasında olmalıdır" });
+            if (string.IsNullOrEmpty(password) || password.Length > 128)
+                return BadRequest(new { message = "Şifre geçersiz, 1 ile 128 karakter arasında olmalıdır" });
             
             if (string.IsNullOrEmpty(email) || email.Length > 240)
                 return BadRequest(new { message = "E-posta geçersiz, 1 ile 240 karakter arasında olmalıdır" });
