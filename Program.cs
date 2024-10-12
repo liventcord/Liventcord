@@ -1,79 +1,11 @@
 using MyPostgresApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using System.Text.Json;
 using MyPostgresApp.Helpers;
 using MyPostgresApp.Services;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.StaticFiles;
 using MyPostgresApp.Routes;
 using MyPostgresApp.Controllers;
-using Fleck;
-
-var server = new WebSocketServer("ws://0.0.0.0:8181");
-var clients = new List<IWebSocketConnection>();
-server.Start(socket =>
-{
-    socket.OnOpen = () => 
-    {
-        clients.Add(socket);
-        Console.WriteLine("Open!");
-    };
-    
-    socket.OnClose = () => 
-    {
-        clients.Remove(socket);
-        Console.WriteLine("Close!");
-    };
-    
-    socket.OnMessage = message => 
-    {
-        Console.WriteLine("Received: " + message);
-        SocketMessage? msg = null;
-        
-        try
-        {
-            msg = JsonSerializer.Deserialize<SocketMessage>(message);
-        }
-        catch (JsonException ex)
-        {
-            Console.WriteLine($"JSON Deserialization error: {ex.Message}");
-            return;
-        }
-        
-        if (msg == null)
-        {
-            Console.WriteLine("Received a null message.");
-            return;
-        }
-        
-        HandleMessage(socket, msg);
-    };
-});
-
-static void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
-{
-    if (msg == null)
-    {
-        Console.WriteLine("Received a null message in HandleMessage.");
-        return;
-    }
-
-    switch (msg.Type)
-    {
-        case "keep-alive":
-            Console.WriteLine("Keep-alive received from client.");
-            break;
-
-        case "create_channel":
-            Console.WriteLine("Create channel request received.");
-            break;
-
-        default:
-            Console.WriteLine($"Unknown message type: {msg.Type}");
-            break;
-    }
-}
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
@@ -82,7 +14,6 @@ builder.Services.AddScoped<GuildService>();
 builder.Services.AddScoped<AppLogic>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<UploadController>();
-
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
@@ -112,9 +43,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 
-
 RouteConfig.ConfigureRoutes(app);
 
+var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181");
 
 app.MapGet("/login", async context =>
 {
@@ -151,13 +82,5 @@ app.MapFallback(async context =>
     await context.Response.SendFileAsync(filePath);
 });
 
-
 app.MapControllers();
-
 app.Run();
-public class SocketMessage
-{
-    public required string Type { get; set; }
-    public required string Key { get; set; } 
-    public string? Content { get; set; }
-}
