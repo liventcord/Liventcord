@@ -1022,9 +1022,6 @@ socket.on('connect', function() {
     socket.emit('keep-alive');
 });
 
-socket.on('update_guilds', function(data) {
-    updateGuildList(data);
-});
 
 function updateGuildList(data) {
     console.log('Guilds Updated:', data);

@@ -68,31 +68,12 @@ void HandleMessage(IWebSocketConnection socket, Message msg)
             Console.WriteLine("Create channel request received.");
             break;
 
-        case "update_guilds":
-            var guildData = GetUpdatedGuilds(); // Assume this method retrieves the updated guilds
-            foreach (var client in clients)
-            {
-                if (client != null)
-                {
-                    client.Send(JsonSerializer.Serialize(new { Type = "update_guilds", Data = guildData }));
-                }
-            }
-            break;
-
         default:
             Console.WriteLine($"Unknown message type: {msg.Type}");
             break;
     }
 }
 
-List<Guild1> GetUpdatedGuilds() 
-{
-    return new List<Guild1>
-    {
-        new Guild1 { Id = 1, Name = "Guild One" },
-        new Guild1 { Id = 2, Name = "Guild Two" }
-    };
-}
 
 void HandleCreateChannel(IWebSocketConnection socket, Dictionary<string, object> data)
 {
@@ -191,9 +172,4 @@ public class Message
     public string Type { get; set; }
     public string Key { get; set; }  // If applicable
     public string Content { get; set; } // If applicable
-}
-public class Guild1
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
 }

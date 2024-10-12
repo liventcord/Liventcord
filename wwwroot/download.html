@@ -377,9 +377,6 @@
                                 <img src="/static/images/wardmarkcolor.png" loading="lazy" alt="" class="discord2"/>
                             </div>
                             <div class="div-block-4">
-                                <a href="https://liventcord.loophole.site" data-track-nav="download" class="nav-link w-nav-link" id="loophole-link">liventcord.loophole.site<span id="loophole-status"></span></a>
-                                <a href="https://liventcord.serveo.net" data-track-nav="download" class="nav-link w-nav-link" id="serveo-link">liventcord.serveo.net<span id="serveo-status"></span></a>
-
                                 <a href="/download" data-track-nav="download" class="nav-link w-nav-link">Download</a>
                                 
                                 
@@ -718,90 +715,6 @@
         </script>
 
         <script src="https://discord.com/webflow-scripts/download.js" defer async></script>
-        <script>
-
-                        
-            function checkStatus(url, successCallback, errorCallback) {
-              let timerId = setTimeout(() => {
-                errorCallback(new Error('Timeout'));
-              }, 3500);
-
-              function checkWebsiteExists(url) {
-                return new Promise((resolve, reject) => {
-                  let elem = document.createElement('img');
-                  elem.src = url;
-
-                  
-                  
-                  elem.onload = function () {
-
-                    console.log("Resolve 200!");
-                    resolve();
-
-                  };
-                  
-                  elem.onerror = function () {
-                    reject('h');
-
-                  };
-
-                });
-              }
-
-
-              checkWebsiteExists(url)
-                .then(() => {
-                  clearTimeout(timerId);
-                  successCallback();
-                })
-                .catch(error => {
-                  clearTimeout(timerId);
-                  errorCallback(error);
-                });
-            }
-
-
-
-          
-            function updateStatus(linkId, statusId, success) {
-              const link = document.getElementById(linkId);
-              const status = document.getElementById(statusId);
-          
-              if (success) {
-                status.innerHTML = '✅';
-              } else {
-                status.innerHTML = '❌';
-              }
-            }
-            function UpdateServers() {
-              checkStatus('https://liventcord.serveo.net/static/images/icons/favicon.png?' + new Date().getTime(), function() {
-                updateStatus('serveo-link', 'serveo-status', true);
-              }, function() {
-                updateStatus('serveo-link', 'serveo-status', false);
-              });
-
-              checkStatus('https://liventcord.loophole.site/static/images/icons/favicon.png?' + new Date().getTime(), function() {
-                updateStatus('loophole-link', 'loophole-status', true);
-              }, function() {
-                updateStatus('loophole-link', 'loophole-status', false);
-              });
-
-            }
-
-            
-            UpdateServers();
-
-
-
-
-            setTimeout(() => {
-              UpdateServers();
-            }, 30000);
-
-
-        </script>
-
-
 
     </body>
 </html>
