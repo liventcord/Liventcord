@@ -44,13 +44,13 @@ namespace MyPostgresApp.Models
         {
             OwnerId = ownerId;
             RootChannel = rootChannel;
-            GuildUsers.Add(new GuildUser { UserId = ownerId }); // Add after instantiation
+            GuildUsers.Add(new GuildUser { UserId = ownerId });
             Channels.Add(new Channel
             {
                 ChannelId = rootChannel,
                 ChannelName = "general",
                 ChannelDescription = "",
-                IsVoiceChannel = false,
+                IsTextChannel = true,
                 Order = 0
             });
         }
@@ -68,8 +68,11 @@ namespace MyPostgresApp.Models
         [Column("channel_description")]
         public string? ChannelDescription { get; set; }
 
-        [Column("channel_type")]
-        public bool IsVoiceChannel { get; set; } = false;
+        [Column("is_text_channel")]
+        public bool IsTextChannel { get; set; } = false;
+
+        [Column("last_read_datetime")]
+        public DateTime? LastReadDateTime { get; set; }
 
         [ForeignKey("Guild")]
         [Column("guild_id")]
@@ -79,5 +82,7 @@ namespace MyPostgresApp.Models
         public int Order { get; set; }
 
         public virtual Guild Guild { get; set; } = null!;
+        public virtual ICollection<UserChannel> UserChannels { get; set; } 
+
     }
 }

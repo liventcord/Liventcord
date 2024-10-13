@@ -9,6 +9,8 @@ using MyPostgresApp.Controllers;
 using Microsoft.AspNetCore.WebUtilities;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Register services
 builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
@@ -18,6 +20,7 @@ builder.Services.AddScoped<UploadController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -26,24 +29,27 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
         options.LoginPath = "/auth/login";
     });
+
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-using var scope = app.Services.CreateScope();
-var services = scope.ServiceProvider;
+// Ensure the database is recreated on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    //var context = services.GetRequiredService<AppDbContext>();
+    //context.RecreateDatabase(); // Recreate the database
+}
 
 if (!app.Environment.IsDevelopment())
 {
-    // Handle 500 errors with this exception handler middleware
-    app.UseExceptionHandler("/Home/Error"); // Custom error handling for 500
+    app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
 }
-
-// Show detailed exception page in development
-if (app.Environment.IsDevelopment())
+else
 {
     app.UseDeveloperExceptionPage();
 }
@@ -51,7 +57,6 @@ if (app.Environment.IsDevelopment())
 app.UseStatusCodePages(async context =>
 {
     var statusCode = context.HttpContext.Response.StatusCode;
-
     if (statusCode == 404)
     {
         context.HttpContext.Response.ContentType = "text/html";
@@ -66,7 +71,6 @@ app.UseStatusCodePages(async context =>
     }
 });
 
-
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
@@ -74,14 +78,15 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
-string secretKey = builder.Configuration["AppSettings:SecretKey"];
-var guildService = services.GetRequiredService<GuildService>();
-var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey,guildService);
 
-// Map specific routes
+string secretKey = builder.Configuration["AppSettings:SecretKey"];
+var guildService = app.Services.GetRequiredService<GuildService>();
+var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey, guildService);
+
+// Define routes
 app.MapGet("/login", async context =>
 {
-    if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+    if (context.User.Identity?.IsAuthenticated == true)
     {
         context.Response.Redirect("/app");
         return;
@@ -92,7 +97,8 @@ app.MapGet("/login", async context =>
     await context.Response.SendFileAsync(filePath);
 });
 
-app.MapGet("/app", context => {
+app.MapGet("/app", context =>
+{
     context.Response.Redirect("/channels/@me");
     return Task.CompletedTask;
 });
@@ -107,7 +113,7 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
 
-// Fallback route to handle 404 for any undefined routes
+// Fallback route for undefined routes
 app.MapFallback(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status404NotFound;

@@ -2150,34 +2150,41 @@ function addChannel(channel) {
     }
 }
 function updateChannels(channels) {
-    if (channels == null) { return; }
-    let channelsArray;
-    try {
-        channelsArray = JSON.parse(channels);
-    } catch (error) {
-        console.error("Error parsing channels JSON:", error);
-        return;
+    if (channels == null || !Array.isArray(channels)) { 
+        console.log("Invalid channels format");
+        return; 
     }
-    if (!Array.isArray(channelsArray) || channelsArray.length === 0) {
-        console.log("Channels format is not recognized. Type: " + typeof channelsArray + channelsArray);
-        return;
-    }
+
     channelsUl.innerHTML = "";
-    if(!isOnMe) {
+    if (!isOnMe) {
         disableElement('dm-container-parent');
     }
     document.removeEventListener('keydown', handleKeydown);
     document.removeEventListener('keyup', resetKeydown);
-    channelsArray.forEach((channel) => {
-        createChannelElement(channel);
+
+    channels.forEach(channel => {
+        const channelId = channel.channel_id;
+        const channelName = channel.channel_name;
+        const isTextChannel = channel.is_text_channel;
+        const lastReadDatetime = channel.last_read_datetime;
+
+        const channelObj = {
+            id: channelId,
+            name: channelName,
+            isTextChannel: isTextChannel,
+            lastReadDatetime: lastReadDatetime
+        };
+
+        createChannelElement(channelObj);
     });
-    currentChannels = channelsArray;
+
+    currentChannels = channels;
+
     if (currentChannels.length > 1) {
         document.addEventListener('keydown', handleKeydown);
         document.addEventListener('keyup', resetKeydown);
     }
 }
-
 let isKeyDown = false;
 let currentChannelIndex = 0;
 function moveChannel(direction) {

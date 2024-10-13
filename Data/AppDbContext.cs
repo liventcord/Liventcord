@@ -18,6 +18,13 @@ namespace MyPostgresApp.Data
         public DbSet<EmojiFile> EmojiFiles { get; set; }
         public DbSet<ProfileFile> ProfileFiles { get; set; }
         public DbSet<GuildFile> GuildFiles { get; set; }
+        public DbSet<UserChannel> UserChannels { get; set; }
+        public void RecreateDatabase()
+        {
+            Database.EnsureDeleted(); // Drop the existing database
+            Database.EnsureCreated(); // Create the new database
+        }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,7 +33,7 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(128);
             modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(128);
             modelBuilder.Entity<User>().Property(u => u.Nickname).HasMaxLength(128);
-            
+
             modelBuilder.Entity<Friend>().ToTable("friends");
             modelBuilder.Entity<Friend>().HasKey(f => new { f.UserId, f.FriendId });
             modelBuilder.Entity<Friend>().Property(f => f.UserId).HasColumnName("user_id").IsRequired();
@@ -39,40 +46,33 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.GuildId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.ChannelId).IsRequired();
 
-            modelBuilder.Entity<Channel>()
-                .HasKey(c => c.ChannelId);
-
+            modelBuilder.Entity<Channel>().ToTable("channels");
+            modelBuilder.Entity<Channel>().HasKey(c => c.ChannelId);
             modelBuilder.Entity<Channel>()
                 .HasOne(c => c.Guild)
                 .WithMany(g => g.Channels)
                 .HasForeignKey(c => c.GuildId);
 
+            modelBuilder.Entity<UserDm>().ToTable("user_dms");
+            modelBuilder.Entity<UserDm>().HasKey(ud => new { ud.UserId, ud.FriendId });
             modelBuilder.Entity<UserDm>()
-                .ToTable("user_dms")
-                .HasKey(ud => new { ud.UserId, ud.FriendId }); 
-
-            modelBuilder.Entity<UserDm>()
-                .HasOne<User>() 
+                .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(ud => ud.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<UserDm>()
-                .HasOne<User>() 
+                .HasOne<User>()
                 .WithMany()
                 .HasForeignKey(ud => ud.FriendId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<GuildUser>()
-                .ToTable("guild_users") // Make sure to define the correct table name
-                .HasKey(gu => new { gu.GuildId, gu.UserId });
-
+            modelBuilder.Entity<GuildUser>().ToTable("guild_users");
+            modelBuilder.Entity<GuildUser>().HasKey(gu => new { gu.GuildId, gu.UserId });
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.Guild)
                 .WithMany(g => g.GuildUsers)
                 .HasForeignKey(gu => gu.GuildId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.User)
                 .WithMany(u => u.GuildUsers)
@@ -87,6 +87,7 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<AttachmentFile>().Property(a => a.Content).HasColumnName("content").IsRequired();
             modelBuilder.Entity<AttachmentFile>().Property(a => a.Extension).HasColumnName("extension").IsRequired();
             modelBuilder.Entity<AttachmentFile>().Property(a => a.UserId).HasColumnName("user_id").IsRequired(false);
+            modelBuilder.Entity<AttachmentFile>().HasKey(a => a.FileId);
 
             modelBuilder.Entity<EmojiFile>().ToTable("emoji_files");
             modelBuilder.Entity<EmojiFile>().Property(e => e.FileId).HasColumnName("file_id").IsRequired();
@@ -94,6 +95,7 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<EmojiFile>().Property(e => e.GuildId).HasColumnName("guild_id").IsRequired(false);
             modelBuilder.Entity<EmojiFile>().Property(e => e.Content).HasColumnName("content").IsRequired();
             modelBuilder.Entity<EmojiFile>().Property(e => e.Extension).HasColumnName("extension").IsRequired();
+            modelBuilder.Entity<EmojiFile>().HasKey(e => e.FileId);
 
             modelBuilder.Entity<ProfileFile>().ToTable("profile_files");
             modelBuilder.Entity<ProfileFile>().Property(p => p.FileId).HasColumnName("file_id").IsRequired();
@@ -102,6 +104,7 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<ProfileFile>().Property(p => p.Content).HasColumnName("content").IsRequired();
             modelBuilder.Entity<ProfileFile>().Property(p => p.Extension).HasColumnName("extension").IsRequired();
             modelBuilder.Entity<ProfileFile>().Property(p => p.UserId).HasColumnName("user_id").IsRequired(false);
+            modelBuilder.Entity<ProfileFile>().HasKey(p => p.FileId);
 
             modelBuilder.Entity<GuildFile>().ToTable("guilds_files");
             modelBuilder.Entity<GuildFile>().Property(g => g.FileId).HasColumnName("file_id").IsRequired();
@@ -111,18 +114,20 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<GuildFile>().Property(g => g.UserId).HasColumnName("user_id").IsRequired(false);
             modelBuilder.Entity<GuildFile>().Property(g => g.Content).HasColumnName("content").IsRequired();
             modelBuilder.Entity<GuildFile>().Property(g => g.Extension).HasColumnName("extension").IsRequired();
+            modelBuilder.Entity<GuildFile>().HasKey(g => g.FileId);
 
-            modelBuilder.Entity<AttachmentFile>()
-                .HasKey(a => a.FileId);
-
-            modelBuilder.Entity<EmojiFile>()
-                .HasKey(e => e.FileId);
-
-            modelBuilder.Entity<ProfileFile>()
-                .HasKey(p => p.FileId);
-
-            modelBuilder.Entity<GuildFile>()
-                .HasKey(g => g.FileId);
+            modelBuilder.Entity<UserChannel>().ToTable("user_channels");
+            modelBuilder.Entity<UserChannel>()
+                .HasKey(uc => new { uc.UserId, uc.ChannelId }); // Composite key
+            modelBuilder.Entity<UserChannel>()
+                .HasOne(uc => uc.User)
+                .WithMany(u => u.UserChannels) // Assuming User has a collection of UserChannel
+                .HasForeignKey(uc => uc.UserId);
+            modelBuilder.Entity<UserChannel>()
+                .HasOne(uc => uc.Channel)
+                .WithMany(c => c.UserChannels) // Assuming Channel has a collection of UserChannel
+                .HasForeignKey(uc => uc.ChannelId);
         }
+
     }
 }

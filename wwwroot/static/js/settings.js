@@ -52,17 +52,17 @@ class CustomWebSocket {
             this.socket.send(message);
         }
     }
-
+    
     prepareData(data) {
         if (data === null || data === undefined) {
-            return {}; // Return an empty object for null or undefined
+            return {}; 
         }
-        if (typeof data === 'object') {
-            return data; // Return the object as-is for any object types
+        if (typeof data === 'object' && !Array.isArray(data) && !(data instanceof Date)) {
+            return data; 
         }
-        // Return strings as-is to avoid wrapping them unnecessarily
-        return data; 
+        return { value: data }; 
     }
+    
 
     handleMessage(event) {
         const msg = JSON.parse(event.data);
@@ -71,13 +71,11 @@ class CustomWebSocket {
             this.listeners[eventType].forEach(callback => callback(msg.Data));
         }
 
-        if (eventType === 'authenticate' && msg.Data.success) {
-            this.connected = true; // Only set to true on successful auth
+        if (eventType === 'authenticate' && msg.success) {
+            this.connected = true;
             console.log("Successfully authenticated. Connected state:", this.connected);
-            this.emit('keep-alive'); // Send keep-alive message now that authenticated
+            this.emit('keep-alive'); 
         }
-
-        console.log("Token updated:", msg.Data.token); // Update token, if present
     }
 
     disconnect() {
@@ -573,6 +571,7 @@ socket.on('update_users', data => {
 });
 
 socket.on('update_channels', data => {
+    console.log("updated channels with: ", data);
     if(!data || !data.channels || !data.guild_id) { return; }
     channels_cache[data.guild_id] = data.channels;
     updateChannels(data.channels);

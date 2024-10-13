@@ -2858,8 +2858,8 @@ function refreshInviteId() {
 
 
 
-function changeUrlWithFireWorks(guild_id,channel_id,guild_id) { 
-    loadGuild(guild_id,channel_id,guild_id,currentUserId)
+function changeUrlWithFireWorks(guild_id,channel_id,guild_name) { 
+    loadGuild(guild_id,channel_id,guild_name,currentUserId)
     createFireWorks();
     permissions_map[guild_id] = {
         "read_messages": 1,
