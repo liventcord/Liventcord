@@ -689,7 +689,7 @@ document.addEventListener('DOMContentLoaded', function () {
     currentDiscriminator = user_discriminator;
 
     getId('self-name').textContent = user_name;
-    getId('self-discriminator').textContent = user_discriminator;
+    getId('self-discriminator').textContent = '#'+user_discriminator;
     
     
     getId('tb-showprofile').addEventListener('click', toggleUsersList);

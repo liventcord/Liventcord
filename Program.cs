@@ -6,6 +6,7 @@ using MyPostgresApp.Services;
 using Microsoft.AspNetCore.StaticFiles;
 using MyPostgresApp.Routes;
 using MyPostgresApp.Controllers;
+using Microsoft.AspNetCore.WebUtilities;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
@@ -33,9 +34,35 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    // Handle 500 errors with this exception handler middleware
+    app.UseExceptionHandler("/Home/Error"); // Custom error handling for 500
     app.UseHsts();
 }
+
+// Show detailed exception page in development
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.UseStatusCodePages(async context =>
+{
+    var statusCode = context.HttpContext.Response.StatusCode;
+
+    if (statusCode == 404)
+    {
+        context.HttpContext.Response.ContentType = "text/html";
+        var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
+        await context.HttpContext.Response.SendFileAsync(filePath);
+    }
+    else
+    {
+        var reasonPhrase = ReasonPhrases.GetReasonPhrase(statusCode);
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync($"{statusCode} {reasonPhrase}");
+    }
+});
+
 
 app.UseHttpsRedirection();
 app.UseRouting();
@@ -44,11 +71,10 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
-string secretKey = builder.Configuration["Jwt:SecretKey"];
+string secretKey = builder.Configuration["AppSettings:SecretKey"];
 var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey);
 
-
-
+// Map specific routes
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
@@ -76,6 +102,8 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
+
+// Fallback route to handle 404 for any undefined routes
 app.MapFallback(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status404NotFound;
