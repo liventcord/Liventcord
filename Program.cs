@@ -32,6 +32,9 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+
 if (!app.Environment.IsDevelopment())
 {
     // Handle 500 errors with this exception handler middleware
@@ -72,7 +75,8 @@ app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
 string secretKey = builder.Configuration["AppSettings:SecretKey"];
-var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey);
+var guildService = services.GetRequiredService<GuildService>();
+var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey,guildService);
 
 // Map specific routes
 app.MapGet("/login", async context =>

@@ -52,17 +52,17 @@ class CustomWebSocket {
             this.socket.send(message);
         }
     }
-    
+
     prepareData(data) {
         if (data === null || data === undefined) {
             return {}; // Return an empty object for null or undefined
         }
         if (typeof data === 'object') {
-            return data; // Return the object as-is
+            return data; // Return the object as-is for any object types
         }
-        return { value: data }; // Wrap other types in an object for consistency
+        // Return strings as-is to avoid wrapping them unnecessarily
+        return data; 
     }
-    
 
     handleMessage(event) {
         const msg = JSON.parse(event.data);
@@ -89,6 +89,7 @@ class CustomWebSocket {
         }
     }
 }
+
 
 
 

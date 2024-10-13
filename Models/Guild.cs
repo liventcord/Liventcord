@@ -38,31 +38,23 @@ namespace MyPostgresApp.Models
         public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
         [NotMapped]
-        public string[] UserIds => GuildUsers.Select(gu => gu.UserId).ToArray();
+        public IEnumerable<string> UserIds => GuildUsers.Select(gu => gu.UserId);
 
         public Guild(string ownerId, string rootChannel)
         {
             OwnerId = ownerId;
             RootChannel = rootChannel;
-            GuildUsers = new List<GuildUser>
+            GuildUsers.Add(new GuildUser { UserId = ownerId }); // Add after instantiation
+            Channels.Add(new Channel
             {
-                new GuildUser { UserId = ownerId, GuildId = GuildId }
-            };
-            Channels = new List<Channel>
-            {
-                new Channel
-                {
-                    ChannelId = rootChannel,
-                    ChannelName = "general",
-                    ChannelDescription = "",
-                    IsVoiceChannel = false,
-                    Order = 0,
-                    GuildId = GuildId
-                }
-            };
+                ChannelId = rootChannel,
+                ChannelName = "general",
+                ChannelDescription = "",
+                IsVoiceChannel = false,
+                Order = 0
+            });
         }
     }
-
 
     public class Channel
     {

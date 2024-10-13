@@ -11,9 +11,11 @@ public class WebSocketHandler
     private readonly WebSocketServer server;
     private readonly string secretKey;
     private readonly Dictionary<IWebSocketConnection, string> authenticatedClients = new();
+    private GuildService _guildService;
 
-    public WebSocketHandler(string url, string secretKey)
+    public WebSocketHandler(string url, string secretKey, GuildService guildService)
     {
+        _guildService = guildService;
         this.secretKey = secretKey;
         server = new WebSocketServer(url);
         server.Start(socket =>
@@ -35,109 +37,143 @@ public class WebSocketHandler
         Console.WriteLine("Close!");
     }
 
-    private void OnMessage(IWebSocketConnection socket, string message)
-    {
-        Console.WriteLine("Received: " + message);
-        SocketMessage? msg = null;
-
-        try
-        {
-            msg = JsonSerializer.Deserialize<SocketMessage>(message);
-        }
-        catch (JsonException ex)
-        {
-            Console.WriteLine($"JSON Deserialization error: {ex.Message}");
-            return;
-        }
-
-        if (msg == null)
-        {
-            Console.WriteLine("Received a null message.");
-            return;
-        }
-        //Console.WriteLine($"Deserialized message: {JsonSerializer.Serialize(msg)}");
-
-        if (msg.Type == "authenticate")
-        {
-            HandleAuthentication(socket, msg);
-            return;
-        }
-
-        if (!authenticatedClients.ContainsKey(socket))
-        {
-            Console.WriteLine("Received message from unauthenticated client.");
-            socket.Close();
-            return;
-        }
-
-        HandleMessage(socket, msg);
-    }
-
+    
     private void HandleAuthentication(IWebSocketConnection socket, SocketMessage msg)
     {
-        if (msg.Data == null || string.IsNullOrEmpty(msg.Data.token))
-        {
-            Console.WriteLine("Authentication data is missing or token is null.");
-            socket.Close();
-            return;
-        }
-
-        string token = msg.Data.token;
-
-        if (!ValidateToken(token, out var userId))
-        {
-            Console.WriteLine("Invalid authentication token.");
-            socket.Close();
-            return;
-        }
-
-        authenticatedClients[socket] = userId;
-        Console.WriteLine($"User authenticated: {userId}");
-
-        var response = new SocketMessage 
-        { 
-            Type = "authenticate", 
-            Data = new AuthData { success = true } 
-        };
-
         try
         {
-            string jsonResponse = JsonSerializer.Serialize(response);
-            socket.Send(jsonResponse);
+            if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+            {
+                var authData = JsonSerializer.Deserialize<AuthData>(dataElement.GetRawText());
+                if (authData == null || string.IsNullOrEmpty(authData.token))
+                {
+                    Console.WriteLine("Authentication failed: Invalid data.");
+                    socket.Send(JsonSerializer.Serialize(new { Type = "error", Message = "Invalid authentication data." }));
+                    return;
+                }
+
+                string userId;
+                bool isValidToken = ValidateToken(authData.token, out userId); // Now using out parameter to get userId directly
+                if (!isValidToken)
+                {
+                    Console.WriteLine("Authentication failed: Invalid token.");
+                    socket.Send(JsonSerializer.Serialize(new { Type = "error", Message = "Invalid token." }));
+                    return;
+                }
+
+                authenticatedClients[socket] = userId; // Store the authenticated client
+                Console.WriteLine($"Client authenticated: {userId}");
+                socket.Send(JsonSerializer.Serialize(new { Type = "authenticate", Success = true, UserId = userId }));
+            }
+            else
+            {
+                Console.WriteLine("Authentication failed: Data is not in expected format.");
+                socket.Send(JsonSerializer.Serialize(new { Type = "error", Message = "Invalid authentication format." }));
+            }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error serializing response: {ex.Message}");
-            socket.Close();
+            Console.WriteLine($"Exception in HandleAuthentication: {ex.Message}");
+            socket.Send(JsonSerializer.Serialize(new { Type = "error", Message = "Authentication error." }));
         }
     }
 
 
 
-    private void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
+    private void OnMessage(IWebSocketConnection socket, string message)
     {
-        if (msg == null)
+        try
         {
-            Console.WriteLine("Received a null message in HandleMessage.");
+            Console.WriteLine("Received: " + message);
+            SocketMessage? msg = JsonSerializer.Deserialize<SocketMessage>(message);
+
+            if (msg == null)
+            {
+                Console.WriteLine("Received a null message.");
+                return;
+            }
+
+            if (msg.Type == "authenticate")
+            {
+                HandleAuthentication(socket, msg);
+                return;
+            }
+
+            if (!authenticatedClients.ContainsKey(socket))
+            {
+                Console.WriteLine("Received message from unauthenticated client.");
+                return;
+            }
+
+            HandleMessage(socket, msg);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception in OnMessage: {ex.Message}");
+        }
+    }
+
+
+    private void HandleGetChannels(string userId, string guildId)
+    {
+        if (string.IsNullOrEmpty(guildId))
+        {
+            Console.WriteLine("Guild ID is missing.");
             return;
         }
 
-        string userId = authenticatedClients[socket]; // Get user ID from authenticated clients
-        Console.WriteLine($"User ID: {userId}");
+        _guildService.GetGuildChannels(userId, guildId);
+    }
 
-        switch (msg.Type)
+    private void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
+    {
+        try
         {
-            case "keep-alive":
-                Console.WriteLine("Keep-alive received from client.");
-                break;
-            case "create_channel":
-                Console.WriteLine("Create channel request received.");
-                break;
-            default:
-                Console.WriteLine($"Unknown message type: {msg.Type}");
-                break;
+            if (msg == null)
+            {
+                Console.WriteLine("Received a null message in HandleMessage.");
+                return;
+            }
+
+            if (!authenticatedClients.TryGetValue(socket, out string userId))
+            {
+                Console.WriteLine("Received message from unauthenticated client.");
+                return;
+            }
+
+            Console.WriteLine($"User ID: {userId}");
+
+            switch (msg.Type)
+            {
+                case "keep-alive":
+                    Console.WriteLine("Keep-alive message received.");
+                    break;
+                case "create_channel":
+                    Console.WriteLine("Create channel request received.");
+                    break;
+                case "get_channels":
+                    if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+                    {
+                        var getChannelsData = JsonSerializer.Deserialize<GetChannelsData>(dataElement.GetRawText());
+                        if (getChannelsData == null || string.IsNullOrEmpty(getChannelsData.GuildId))
+                        {
+                            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
+                            return;
+                        }
+                        HandleGetChannels(userId, getChannelsData.GuildId);
+                    }
+                    break;
+                default:
+                    Console.WriteLine($"Unknown message type: {msg.Type}");
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception in HandleMessage: {ex.Message}");
         }
     }
+
 
     private bool ValidateToken(string? token, out string userId)
     {
@@ -146,7 +182,7 @@ public class WebSocketHandler
         if (string.IsNullOrEmpty(token))
         {
             Console.WriteLine("Token is null or empty.");
-            return false; // Token is invalid
+            return false;
         }
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -168,25 +204,25 @@ public class WebSocketHandler
             if (string.IsNullOrEmpty(userId))
             {
                 Console.WriteLine("User ID not found in token claims.");
-                return false; // User ID not found
+                return false;
             }
 
-            return true; // Token is valid
+            return true;
         }
         catch (SecurityTokenExpiredException)
         {
             Console.WriteLine("Token has expired.");
-            return false; // Token is expired
+            return false;
         }
         catch (SecurityTokenInvalidSignatureException)
         {
             Console.WriteLine("Invalid token signature.");
-            return false; // Invalid token signature
+            return false;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Token validation error: {ex.Message}");
-            return false; // General validation error
+            return false;
         }
     }
 }
@@ -194,11 +230,16 @@ public class WebSocketHandler
 public class SocketMessage
 {
     public required string Type { get; set; }
-    public AuthData Data { get; set; }
+    public object? Data { get; set; } // Change Data type to object to accommodate various structures
 }
 
 public class AuthData
 {
     public string? token { get; set; }
     public bool success { get; set; }
+}
+
+public class GetChannelsData
+{
+    public string GuildId { get; set; } // For get_channels, GuildId will be here
 }
