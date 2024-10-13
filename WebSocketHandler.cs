@@ -112,20 +112,60 @@ public class WebSocketHandler
             Console.WriteLine($"Exception in OnMessage: {ex.Message}");
         }
     }
-
-
-    private void HandleGetChannels(string userId, string guildId)
+    private async Task HandleGetChannels(IWebSocketConnection socket, SocketMessage msg)
     {
-        if (string.IsNullOrEmpty(guildId))
+        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
         {
-            Console.WriteLine("Guild ID is missing.");
-            return;
+            var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(dataElement.GetRawText());
+            
+            if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
+            {
+                string guildId = guildIdElement.GetString();
+                if (!string.IsNullOrEmpty(guildId))
+                {
+                    var channels = await _guildService.GetGuildChannels(authenticatedClients[socket], guildId);
+                    if (channels != null)
+                    {
+                        var updateChannelsMessage = new
+                        {
+                            Type = "update_channels",
+                            Data = new
+                            {
+                                guild_id = guildId,
+                                channels
+                            }
+                        };
+                        EmitToUser(socket, updateChannelsMessage);
+                        return; // Successfully sent update
+                    }
+                }
+            }
+            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
         }
-
-        _guildService.GetGuildChannels(userId, guildId);
+        else
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+        }
     }
 
-    private void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
+
+    private void EmitToUser(IWebSocketConnection connection, object message)
+    {
+        if (connection != null)
+        {
+            var jsonMessage = JsonSerializer.Serialize(message);
+            connection.Send(jsonMessage);
+        }
+        else
+        {
+            Console.WriteLine("Connection is null, cannot send message.");
+        }
+    }
+
+
+
+
+    private async void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
     {
         try
         {
@@ -152,17 +192,10 @@ public class WebSocketHandler
                     Console.WriteLine("Create channel request received.");
                     break;
                 case "get_channels":
-                    if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
-                    {
-                        var getChannelsData = JsonSerializer.Deserialize<GetChannelsData>(dataElement.GetRawText());
-                        if (getChannelsData == null || string.IsNullOrEmpty(getChannelsData.GuildId))
-                        {
-                            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
-                            return;
-                        }
-                        HandleGetChannels(userId, getChannelsData.GuildId);
-                    }
+                    Console.WriteLine(msg.Data);
+                    await HandleGetChannels(socket, msg);
                     break;
+
                 default:
                     Console.WriteLine($"Unknown message type: {msg.Type}");
                     break;
@@ -173,6 +206,9 @@ public class WebSocketHandler
             Console.WriteLine($"Exception in HandleMessage: {ex.Message}");
         }
     }
+
+
+
 
 
     private bool ValidateToken(string? token, out string userId)
@@ -241,5 +277,6 @@ public class AuthData
 
 public class GetChannelsData
 {
-    public string GuildId { get; set; } // For get_channels, GuildId will be here
+    public string GuildId { get; set; }
+    public string Value { get; set; }
 }

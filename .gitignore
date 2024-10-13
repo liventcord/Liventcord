@@ -1,24 +1,21 @@
 liventcordenv/
 
-# Build directories
 bin/
 obj/
 publish/
 cache/
 ytcache/
+migrations/
 
-# Sensitive configuration files
 appsettings.Development.json
 appsettings.json
 
-# Visual Studio specific files
 *.suo
 *.user
 *.userprefs
 *.sln.docstates
 .vs/
 
-# Temporary files
 *.tmp
 *.log
 *.dSYM/
@@ -27,5 +24,4 @@ appsettings.json
 
 
 
-# Other potential files
 global.json

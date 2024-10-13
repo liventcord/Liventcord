@@ -81,6 +81,7 @@ namespace MyPostgresApp.Models
                 Location = Location
             };
         }
+        public virtual ICollection<UserChannel> UserChannels { get; set; } 
     }
 
     public class PublicUser
