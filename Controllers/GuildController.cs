@@ -68,7 +68,7 @@ namespace MyPostgresApp.Controllers
                 RootChannel = newGuild.RootChannel,
                 Region = newGuild.Region,
                 IsGuildUploadedImg = newGuild.IsGuildUploadedImg,
-                GuildUsers = newGuild.GuildUsers.Select(gu => gu.UserId).ToList() // Return only User IDs
+                GuildUsers = newGuild.GuildUsers.Select(gu => gu.UserId).ToList()
             };
 
             return CreatedAtAction(nameof(CreateGuild), new { id = guildDto.GuildId }, guildDto);

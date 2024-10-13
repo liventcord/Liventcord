@@ -50,16 +50,35 @@ public class GuildService
             .FirstOrDefaultAsync();
     }
 
-    public async Task<List<Guild>> GetUserGuilds(string userId)
+    public async Task<List<GuildDto>> GetUserGuilds(string userId)
     {
         var guilds = await _dbContext.GuildUsers
             .Where(gu => gu.UserId == userId)
-            .Include(gu => gu.Guild)
-            .Select(gu => gu.Guild)
+            .Include(gu => gu.Guild) 
+            .ThenInclude(g => g.Channels) 
+            .Select(gu => new GuildDto
+            {
+                GuildId = gu.Guild.GuildId,
+                OwnerId = gu.Guild.OwnerId,
+                GuildName = gu.Guild.GuildName,
+                RootChannel = gu.Guild.RootChannel,
+                Region = gu.Guild.Region,
+                IsGuildUploadedImg = gu.Guild.IsGuildUploadedImg,
+                GuildUsers = _dbContext.GuildUsers
+                    .Where(g => g.GuildId == gu.Guild.GuildId)
+                    .Select(g => g.UserId)
+                    .ToList(),
+                FirstChannelId = gu.Guild.Channels
+                    .OrderBy(c => c.Order) // Order by the Order property
+                    .Select(c => c.ChannelId) // Select the ChannelId
+                    .FirstOrDefault() // Get the first channel ID or null if none exists
+            })
             .ToListAsync();
 
         return guilds;
     }
+
+
 
     public async Task<string?> GetGuildName(string guildId)
     {

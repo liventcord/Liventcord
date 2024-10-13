@@ -34,11 +34,11 @@ namespace MyPostgresApp.Models
         [Column("is_guild_uploaded_img")]
         public bool IsGuildUploadedImg { get; set; }
 
-        [NotMapped]
-        public string FirstChannelId => Channels.OrderBy(c => c.Order).FirstOrDefault()?.ChannelId ?? RootChannel;
+        public virtual ICollection<GuildUser> GuildUsers { get; set; } = new List<GuildUser>();
+        public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
-        public virtual ICollection<GuildUser> GuildUsers { get; set; }
-        public virtual ICollection<Channel> Channels { get; set; }
+        [NotMapped]
+        public string[] UserIds => GuildUsers.Select(gu => gu.UserId).ToArray();
 
         public Guild(string ownerId, string rootChannel)
         {
@@ -62,6 +62,7 @@ namespace MyPostgresApp.Models
             };
         }
     }
+
 
     public class Channel
     {

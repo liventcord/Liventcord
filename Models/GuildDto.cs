@@ -9,6 +9,7 @@ namespace MyPostgresApp.Models
         public string RootChannel { get; set; }
         public string? Region { get; set; }
         public bool IsGuildUploadedImg { get; set; }
-        public List<string> GuildUsers { get; set; } 
+        public List<string> GuildUsers { get; set; }
+        public string FirstChannelId { get; set; }
     }
 }

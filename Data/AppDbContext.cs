@@ -1,4 +1,3 @@
-//Data/AppDbContext.cs
 using Microsoft.EntityFrameworkCore;
 using MyPostgresApp.Models;
 
@@ -20,7 +19,6 @@ namespace MyPostgresApp.Data
         public DbSet<ProfileFile> ProfileFiles { get; set; }
         public DbSet<GuildFile> GuildFiles { get; set; }
 
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<User>().ToTable("users");
@@ -35,14 +33,11 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<Friend>().Property(f => f.FriendId).HasColumnName("friend_id").IsRequired();
             modelBuilder.Entity<Friend>().Property(f => f.Status).HasColumnName("status").IsRequired().HasMaxLength(20);
 
-
-
             modelBuilder.Entity<TypingStatus>().ToTable("typing_statuses");
             modelBuilder.Entity<TypingStatus>().HasKey(ts => new { ts.UserId, ts.GuildId, ts.ChannelId });
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.UserId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.GuildId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.ChannelId).IsRequired();
-
 
             modelBuilder.Entity<Channel>()
                 .HasKey(c => c.ChannelId);
@@ -51,8 +46,6 @@ namespace MyPostgresApp.Data
                 .HasOne(c => c.Guild)
                 .WithMany(g => g.Channels)
                 .HasForeignKey(c => c.GuildId);
-
-
 
             modelBuilder.Entity<UserDm>()
                 .ToTable("user_dms")
@@ -71,21 +64,21 @@ namespace MyPostgresApp.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<GuildUser>()
+                .ToTable("guild_users") // Make sure to define the correct table name
                 .HasKey(gu => new { gu.GuildId, gu.UserId });
 
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.Guild)
                 .WithMany(g => g.GuildUsers)
-                .HasForeignKey(gu => gu.GuildId);
+                .HasForeignKey(gu => gu.GuildId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.User)
                 .WithMany(u => u.GuildUsers)
-                .HasForeignKey(gu => gu.UserId);
+                .HasForeignKey(gu => gu.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-
-
-            
             modelBuilder.Entity<AttachmentFile>().ToTable("attachment_files");
             modelBuilder.Entity<AttachmentFile>().Property(a => a.FileId).HasColumnName("file_id").IsRequired();
             modelBuilder.Entity<AttachmentFile>().Property(a => a.FileName).HasColumnName("file_name").IsRequired();
@@ -117,8 +110,7 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<GuildFile>().Property(g => g.ChannelId).HasColumnName("channel_id").IsRequired(false);
             modelBuilder.Entity<GuildFile>().Property(g => g.UserId).HasColumnName("user_id").IsRequired(false);
             modelBuilder.Entity<GuildFile>().Property(g => g.Content).HasColumnName("content").IsRequired();
-        modelBuilder.Entity<GuildFile>().Property(g => g.Extension).HasColumnName("extension").IsRequired();
-
+            modelBuilder.Entity<GuildFile>().Property(g => g.Extension).HasColumnName("extension").IsRequired();
 
             modelBuilder.Entity<AttachmentFile>()
                 .HasKey(a => a.FileId);
@@ -131,7 +123,6 @@ namespace MyPostgresApp.Data
 
             modelBuilder.Entity<GuildFile>()
                 .HasKey(g => g.FileId);
-                
         }
     }
 }
