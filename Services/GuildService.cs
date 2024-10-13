@@ -69,9 +69,9 @@ public class GuildService
                     .Select(g => g.UserId)
                     .ToList(),
                 FirstChannelId = gu.Guild.Channels
-                    .OrderBy(c => c.Order) // Order by the Order property
-                    .Select(c => c.ChannelId) // Select the ChannelId
-                    .FirstOrDefault() // Get the first channel ID or null if none exists
+                    .OrderBy(c => c.Order)
+                    .Select(c => c.ChannelId)
+                    .FirstOrDefault()
             })
             .ToListAsync();
 
