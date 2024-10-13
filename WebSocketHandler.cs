@@ -75,9 +75,16 @@ public class WebSocketHandler
 
     private void HandleAuthentication(IWebSocketConnection socket, SocketMessage msg)
     {
-        string token = msg.Data?.token;
+        if (msg.Data == null || string.IsNullOrEmpty(msg.Data.token))
+        {
+            Console.WriteLine("Authentication data is missing or token is null.");
+            socket.Close();
+            return;
+        }
 
-        if (string.IsNullOrEmpty(token) || !ValidateToken(token, out var userId))
+        string token = msg.Data.token;
+
+        if (!ValidateToken(token, out var userId))
         {
             Console.WriteLine("Invalid authentication token.");
             socket.Close();
@@ -87,9 +94,24 @@ public class WebSocketHandler
         authenticatedClients[socket] = userId;
         Console.WriteLine($"User authenticated: {userId}");
 
-        var response = new SocketMessage { Type = "authenticate", Data = new AuthData { success = true } };
-        socket.Send(JsonSerializer.Serialize(response));
+        var response = new SocketMessage 
+        { 
+            Type = "authenticate", 
+            Data = new AuthData { success = true } 
+        };
+
+        try
+        {
+            string jsonResponse = JsonSerializer.Serialize(response);
+            socket.Send(jsonResponse);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error serializing response: {ex.Message}");
+            socket.Close();
+        }
     }
+
 
 
     private void HandleMessage(IWebSocketConnection socket, SocketMessage msg)

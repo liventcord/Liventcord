@@ -19,11 +19,12 @@ namespace MyPostgresApp.Controllers
         private readonly AppDbContext _context;
         private readonly string _secretKey;
 
-        public LoginController(AppDbContext context, IConfiguration configuration)
-        {
+        public LoginController(AppDbContext context, IConfiguration configuration) {
             _context = context;
-            _secretKey = configuration["AppSettings:SecretKey"]; // Get the secret key from configuration
+            _secretKey = configuration["AppSettings:SecretKey"];
+            if(string.IsNullOrEmpty(_secretKey)) throw new ArgumentException("SecretKey is missing or invalid.");
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAuth([FromForm] string email, [FromForm] string password)
@@ -80,7 +81,7 @@ namespace MyPostgresApp.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
 
