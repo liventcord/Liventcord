@@ -157,23 +157,17 @@
 
 
     
-    
     function submitForm(event) {
         event.preventDefault();
         var email = document.querySelector('input[name="email"]').value;
         var password = document.querySelector('input[name="pass"]').value;
- 
 
         if (!validateEmail(email)) {
             document.querySelector('.wrap-input100.validate-input').classList.add('alert-validate');
-
+            return;
         }
         if (!password) {
             document.querySelectorAll('.wrap-input100.validate-input')[1].classList.add('alert-validate');
-
-        }
-
-        if (!validateRegistrationParameters(email, password)) {
             return;
         }
 
@@ -187,21 +181,26 @@
             credentials: 'same-origin' 
         })
         .then(response => {
-            if (response.status === 200) {
-                // Store the session cookie if successful
-                document.cookie = document.cookie = response.headers.get('session_id');
-                window.location.href = '/app';
+            if (response.ok) {
+                return response.json(); // Assuming the server returns the JWT token in the response body
             } else if (response.status === 401) {
                 myalert('E posta veya şifre geçersiz!');
+                throw new Error('Unauthorized');
             } else {
                 myalert('Bir hata oluştu! ' + response.status);
+                throw new Error('Error occurred');
             }
+        })
+        .then(data => {
+            const token = data.token; // Assuming the token is sent in { token: "your_jwt_token" }
+            localStorage.setItem('jwtToken', token); // Store the JWT token
+            window.location.href = '/app'; // Redirect after successful login
+            initializeWebSocket(); // Initialize WebSocket connection with the token
         })
         .catch(error => {
             console.error('Error:', error);
         });
     }
-
     function submitForgotPassword(event) {
         event.preventDefault();
         var emailInput = document.querySelector('input.input100[name="email"]');

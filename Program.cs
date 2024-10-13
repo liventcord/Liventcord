@@ -44,8 +44,10 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
+string secretKey = builder.Configuration["Jwt:SecretKey"];
+var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey);
 
-var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181");
+
 
 app.MapGet("/login", async context =>
 {

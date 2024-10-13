@@ -1,6 +1,7 @@
 class CustomWebSocket {
-    constructor(url) {
+    constructor(url, token) {
         this.url = url;
+        this.token = token; // Store the JWT token here
         this.socket = null;
         this.listeners = {};
         this.connect();
@@ -14,26 +15,23 @@ class CustomWebSocket {
     }
 
     onOpen() {
-        isDisconnected = false;
         console.log('Connected to server');
-        this.emit('keep-alive');
-        if (disconnectTimer) {
-            clearTimeout(disconnectTimer);
-            disconnectTimer = null;
+        if (this.token && this.token.trim()) { // Check if token is not empty or null
+            this.emit('authenticate', { token: this.token }); // Send token as first message
+        } else {
+            console.error("Authentication failed: Token is null or empty. Not sending authentication message.");
         }
+        this.emit('keep-alive');
     }
 
     onClose() {
-        isDisconnected = true;
         console.log("Disconnected from the server. Attempting to reconnect...");
-        disconnectTimer = setTimeout(() => this.reconnect(), 5000);
+        setTimeout(() => this.reconnect(), 5000);
     }
 
     reconnect() {
-        if (isDisconnected) {
-            console.log("Reconnecting...");
-            this.connect();
-        }
+        console.log("Reconnecting...");
+        this.connect();
     }
 
     on(event, callback) {
@@ -49,7 +47,6 @@ class CustomWebSocket {
             this.socket.send(message);
         }
     }
-    
 
     handleMessage(event) {
         const msg = JSON.parse(event.data);
@@ -69,14 +66,22 @@ class CustomWebSocket {
     }
 }
 
+function initializeWebSocket() {
+    const token = localStorage.getItem('jwtToken'); // Retrieve token from storage
+    if (token) {
+        const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
+        const socket = new CustomWebSocket(serverUrl, token);
+        return socket; // Return the socket instance for further use
+    } else {
+        console.error('No valid token found. Please log in first.');
+    }
+}
+const socket = initializeWebSocket();
 
-const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
-let connection;
 
 let isDisconnected = false;
 let disconnectTimer = null;
 let currentTimeout;
-const socket = new CustomWebSocket(serverUrl);
 
 
 let isUnread = false;
