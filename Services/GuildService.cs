@@ -1,4 +1,3 @@
-// Services/GuildService.cs
 using Microsoft.EntityFrameworkCore;
 using MyPostgresApp.Data;
 using MyPostgresApp.Helpers;
@@ -42,6 +41,17 @@ public class GuildService
         return sharedGuilds.Where(g => g != guildId).ToList();
     }
 
+    public async Task<List<string>> GetGuildChannels(string userId, string guildId)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
+            return new List<string>();
+
+        return await _dbContext.Channels
+            .Where(c => c.GuildId == guildId)
+            .Select(c => c.ChannelId)
+            .ToListAsync();
+    }
+
     public async Task<string?> GetGuildAuthor(string guildId)
     {
         return await _dbContext.Guilds
@@ -54,8 +64,8 @@ public class GuildService
     {
         var guilds = await _dbContext.GuildUsers
             .Where(gu => gu.UserId == userId)
-            .Include(gu => gu.Guild) 
-            .ThenInclude(g => g.Channels) 
+            .Include(gu => gu.Guild)
+            .ThenInclude(g => g.Channels)
             .Select(gu => new GuildDto
             {
                 GuildId = gu.Guild.GuildId,
@@ -77,8 +87,6 @@ public class GuildService
 
         return guilds;
     }
-
-
 
     public async Task<string?> GetGuildName(string guildId)
     {
