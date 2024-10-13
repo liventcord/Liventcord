@@ -8,10 +8,10 @@ using System.Collections.Generic;
 
 public class WebSocketHandler
 {
-    private readonly List<IWebSocketConnection> clients = new();
     private readonly WebSocketServer server;
     private readonly string secretKey;
-    
+    private readonly Dictionary<IWebSocketConnection, string> authenticatedClients = new();
+
     public WebSocketHandler(string url, string secretKey)
     {
         this.secretKey = secretKey;
@@ -31,7 +31,7 @@ public class WebSocketHandler
 
     private void OnClose(IWebSocketConnection socket)
     {
-        clients.Remove(socket);
+        authenticatedClients.Remove(socket);
         Console.WriteLine("Close!");
     }
 
@@ -55,32 +55,44 @@ public class WebSocketHandler
             Console.WriteLine("Received a null message.");
             return;
         }
-        Console.WriteLine($"Deserialized message: {JsonSerializer.Serialize(msg)}");
+        //Console.WriteLine($"Deserialized message: {JsonSerializer.Serialize(msg)}");
 
-
-        // Extract the token from msg.Data
-        string token = msg.Data?.token; // Accessing the Token property
-
-        if (string.IsNullOrEmpty(token))
+        if (msg.Type == "authenticate")
         {
-            Console.WriteLine("Token is null or empty.");
-            socket.Close(); // Close the connection if the token is invalid
+            HandleAuthentication(socket, msg);
             return;
         }
 
-        if (!ValidateToken(token, out var userId))
+        if (!authenticatedClients.ContainsKey(socket))
         {
-            Console.WriteLine("Invalid token.");
-            socket.Close(); // Close the connection if the token is invalid
+            Console.WriteLine("Received message from unauthenticated client.");
+            socket.Close();
             return;
         }
 
-        HandleMessage(socket, msg, userId);
+        HandleMessage(socket, msg);
+    }
+
+    private void HandleAuthentication(IWebSocketConnection socket, SocketMessage msg)
+    {
+        string token = msg.Data?.token;
+
+        if (string.IsNullOrEmpty(token) || !ValidateToken(token, out var userId))
+        {
+            Console.WriteLine("Invalid authentication token.");
+            socket.Close();
+            return;
+        }
+
+        authenticatedClients[socket] = userId;
+        Console.WriteLine($"User authenticated: {userId}");
+
+        var response = new SocketMessage { Type = "authenticate", Data = new AuthData { success = true } };
+        socket.Send(JsonSerializer.Serialize(response));
     }
 
 
-
-    private void HandleMessage(IWebSocketConnection socket, SocketMessage msg, string userId)
+    private void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
     {
         if (msg == null)
         {
@@ -88,6 +100,7 @@ public class WebSocketHandler
             return;
         }
 
+        string userId = authenticatedClients[socket]; // Get user ID from authenticated clients
         Console.WriteLine($"User ID: {userId}");
 
         switch (msg.Type)
@@ -154,8 +167,6 @@ public class WebSocketHandler
             return false; // General validation error
         }
     }
-
-
 }
 
 public class SocketMessage
@@ -166,5 +177,6 @@ public class SocketMessage
 
 public class AuthData
 {
-    public string? token { get; set; } // Note the case for "Token" should match the incoming JSON exactly
+    public string? token { get; set; }
+    public bool success { get; set; }
 }
