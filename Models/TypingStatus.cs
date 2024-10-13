@@ -1,16 +1,15 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-public class TypingStatus
+namespace MyPostgresApp.Models;
+
+public partial class TypingStatus
 {
-    [Column("user_id")]
-    public string UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
-    [Column("guild_id")]
-    public string GuildId { get; set; }
+    public string GuildId { get; set; } = null!;
 
-    [Column("channel_id")]
-    public string ChannelId { get; set; }
+    public string ChannelId { get; set; } = null!;
 
-    [Column("timestamp")]
-    public DateTime Timestamp { get; set; } 
+    public DateTime Timestamp { get; set; }
 }

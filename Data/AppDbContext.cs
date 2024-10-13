@@ -14,15 +14,17 @@ namespace MyPostgresApp.Data
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Channel> Channels { get; set; }
         public DbSet<GuildUser> GuildUsers { get; set; } 
+        public DbSet<GuildPermissions> GuildPermissions { get; set; }
         public DbSet<AttachmentFile> AttachmentFiles { get; set; }
         public DbSet<EmojiFile> EmojiFiles { get; set; }
         public DbSet<ProfileFile> ProfileFiles { get; set; }
         public DbSet<GuildFile> GuildFiles { get; set; }
         public DbSet<UserChannel> UserChannels { get; set; }
+        
         public void RecreateDatabase()
         {
-            Database.EnsureDeleted(); // Drop the existing database
-            Database.EnsureCreated(); // Create the new database
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
         }
 
 
@@ -118,15 +120,43 @@ namespace MyPostgresApp.Data
 
             modelBuilder.Entity<UserChannel>().ToTable("user_channels");
             modelBuilder.Entity<UserChannel>()
-                .HasKey(uc => new { uc.UserId, uc.ChannelId }); // Composite key
+                .HasKey(uc => new { uc.UserId, uc.ChannelId });
             modelBuilder.Entity<UserChannel>()
                 .HasOne(uc => uc.User)
-                .WithMany(u => u.UserChannels) // Assuming User has a collection of UserChannel
+                .WithMany(u => u.UserChannels)
                 .HasForeignKey(uc => uc.UserId);
             modelBuilder.Entity<UserChannel>()
                 .HasOne(uc => uc.Channel)
-                .WithMany(c => c.UserChannels) // Assuming Channel has a collection of UserChannel
+                .WithMany(c => c.UserChannels)
                 .HasForeignKey(uc => uc.ChannelId);
+
+
+            modelBuilder.Entity<GuildPermissions>()
+                .ToTable("guild_permissions")
+                .HasKey(gp => new { gp.GuildId, gp.UserId }); // Composite key
+
+            modelBuilder.Entity<GuildPermissions>()
+                .Property(gp => gp.GuildId) // Ensure GuildId is required
+                .IsRequired();
+
+            modelBuilder.Entity<GuildPermissions>()
+                .Property(gp => gp.UserId) // Ensure UserId is required
+                .IsRequired();
+
+            // Configure the relationship between GuildPermissions and User
+            modelBuilder.Entity<GuildPermissions>()
+                .HasOne(gp => gp.User) // Specify the navigation property in GuildPermissions
+                .WithMany(u => u.GuildPermissions) // Inverse navigation in User
+                .HasForeignKey(gp => gp.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Set deletion behavior
+
+            // Configure the relationship between GuildPermissions and Guild
+            modelBuilder.Entity<GuildPermissions>()
+                .HasOne(gp => gp.Guild) // Specify the navigation property in GuildPermissions
+                .WithMany(g => g.GuildPermissions) // Inverse navigation in Guild
+                .HasForeignKey(gp => gp.GuildId)
+                .OnDelete(DeleteBehavior.Cascade); // Set deletion behavior
+
         }
 
     }

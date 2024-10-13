@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,8 +39,10 @@ namespace MyPostgresApp.Models
 
         [NotMapped]
         public IEnumerable<string> UserIds => GuildUsers.Select(gu => gu.UserId);
+        public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
-        public Guild(string ownerId, string rootChannel)
+
+        public Guild(string ownerId, string rootChannel)    
         {
             OwnerId = ownerId;
             RootChannel = rootChannel;
@@ -53,6 +55,7 @@ namespace MyPostgresApp.Models
                 IsTextChannel = true,
                 Order = 0
             });
+            GuildPermissions.Add(new GuildPermissions { GuildId = GuildId, UserId = ownerId });
         }
     }
 

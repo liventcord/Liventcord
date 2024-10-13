@@ -45,13 +45,13 @@ namespace MyPostgresApp.Helpers
 
             var typingUsers = new List<string>();
             var sharedGuildsMap = new List<string>();
-            var permissionsMap = new List<string>();
+            var permissionsMap = _guildService.GetPermissionsMapForUser(userId) ?? new Dictionary<string, Dictionary<string, int>>();
 
             if (!string.IsNullOrEmpty(guildId))
             {
                 typingUsers = await _typingService.GetTypingUsers(guildId, channelId) ?? new List<string>();
                 sharedGuildsMap = await _guildService.GetSharedGuilds(guildId, userId) ?? new List<string>();
-                permissionsMap = getPermissionsMap(guildId, userId) ?? new List<string>();
+          
             }
 
             var friendsStatus = await _friendHelper.GetFriendsStatus(userId) ?? null;
@@ -94,9 +94,5 @@ namespace MyPostgresApp.Helpers
             await context.Response.WriteAsync(htmlContent);
         }
 
-        private List<string> getPermissionsMap(string guildId, string userId)
-        {
-            return new List<string>();
-        }
     }
 }

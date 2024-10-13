@@ -36,17 +36,15 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Ensure the database is recreated on startup
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    //var context = services.GetRequiredService<AppDbContext>();
-    //context.RecreateDatabase(); // Recreate the database
+    var context = services.GetRequiredService<AppDbContext>();
 }
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/error");
     app.UseHsts();
 }
 else
@@ -78,6 +76,13 @@ app.UseAuthorization();
 app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
+
+app.MapGet("/error", async context =>
+{
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    context.Response.ContentType = "text/plain";
+    await context.Response.WriteAsync("An internal server error occurred. Please try again later.");
+});
 
 string secretKey = builder.Configuration["AppSettings:SecretKey"];
 var guildService = app.Services.GetRequiredService<GuildService>();

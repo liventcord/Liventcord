@@ -231,6 +231,57 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("guilds");
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.GuildPermissions", b =>
+                {
+                    b.Property<string>("GuildId")
+                        .HasColumnType("text")
+                        .HasColumnName("guild_id");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("AddReaction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BanMembers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CanInvite")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IsAdmin")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KickMembers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManageChannels")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManageRoles")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MentionEveryone")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("permission_id");
+
+                    b.Property<int>("ReadMessages")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SendMessages")
+                        .HasColumnType("integer");
+
+                    b.HasKey("GuildId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("guild_permissions", (string)null);
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.GuildUser", b =>
                 {
                     b.Property<string>("GuildId")
@@ -248,6 +299,25 @@ namespace MyPostgresApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("guild_users", (string)null);
+                });
+
+            modelBuilder.Entity("MyPostgresApp.Models.TypingStatus", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GuildId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChannelId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "GuildId", "ChannelId");
+
+                    b.ToTable("typing_statuses", (string)null);
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.User", b =>
@@ -343,16 +413,13 @@ namespace MyPostgresApp.Migrations
             modelBuilder.Entity("MyPostgresApp.Models.UserChannel", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnOrder(0);
+                        .HasColumnType("text");
 
                     b.Property<string>("ChannelId")
-                        .HasColumnType("text")
-                        .HasColumnOrder(1);
+                        .HasColumnType("text");
 
-                    b.Property<DateTime?>("LastReadDateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_read_datetime");
+                    b.Property<DateTime?>("LastReadDatetime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("UserId", "ChannelId");
 
@@ -414,29 +481,6 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("profile_files", (string)null);
                 });
 
-            modelBuilder.Entity("TypingStatus", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("GuildId")
-                        .HasColumnType("text")
-                        .HasColumnName("guild_id");
-
-                    b.Property<string>("ChannelId")
-                        .HasColumnType("text")
-                        .HasColumnName("channel_id");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("timestamp");
-
-                    b.HasKey("UserId", "GuildId", "ChannelId");
-
-                    b.ToTable("typing_statuses", (string)null);
-                });
-
             modelBuilder.Entity("MyPostgresApp.Models.Channel", b =>
                 {
                     b.HasOne("MyPostgresApp.Models.Guild", "Guild")
@@ -446,6 +490,25 @@ namespace MyPostgresApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Guild");
+                });
+
+            modelBuilder.Entity("MyPostgresApp.Models.GuildPermissions", b =>
+                {
+                    b.HasOne("MyPostgresApp.Models.Guild", "Guild")
+                        .WithMany("GuildPermissions")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPostgresApp.Models.User", "User")
+                        .WithMany("GuildPermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.GuildUser", b =>
@@ -510,11 +573,15 @@ namespace MyPostgresApp.Migrations
                 {
                     b.Navigation("Channels");
 
+                    b.Navigation("GuildPermissions");
+
                     b.Navigation("GuildUsers");
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.User", b =>
                 {
+                    b.Navigation("GuildPermissions");
+
                     b.Navigation("GuildUsers");
 
                     b.Navigation("UserChannels");
