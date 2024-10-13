@@ -1,9 +1,10 @@
 class CustomWebSocket {
     constructor(url, token) {
         this.url = url;
-        this.token = token; // Store the JWT token here
+        this.token = token;
         this.socket = null;
         this.listeners = {};
+        this.connected = false;
         this.connect();
     }
 
@@ -16,16 +17,20 @@ class CustomWebSocket {
 
     onOpen() {
         console.log('Connected to server');
-        if (this.token && this.token.trim()) { // Check if token is not empty or null
-            this.emit('authenticate', { token: this.token }); // Send token as first message
+        this.authenticate();
+    }
+
+    authenticate() {
+        if (this.token && this.token.trim()) {
+            this.emit('authenticate', { token: this.token });
         } else {
-            console.error("Authentication failed: Token is null or empty. Not sending authentication message.");
+            console.error("Authentication failed: Token is null or empty.");
         }
-        this.emit('keep-alive');
     }
 
     onClose() {
         console.log("Disconnected from the server. Attempting to reconnect...");
+        this.connected = false;
         setTimeout(() => this.reconnect(), 5000);
     }
 
@@ -42,11 +47,22 @@ class CustomWebSocket {
     }
 
     emit(event, data = {}) {
-        const message = JSON.stringify({ Type: event, Data: data });
+        const message = JSON.stringify({ Type: event, Data: this.prepareData(data) });
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(message);
         }
     }
+    
+    prepareData(data) {
+        if (data === null || data === undefined) {
+            return {}; // Return an empty object for null or undefined
+        }
+        if (typeof data === 'object') {
+            return data; // Return the object as-is
+        }
+        return { value: data }; // Wrap other types in an object for consistency
+    }
+    
 
     handleMessage(event) {
         const msg = JSON.parse(event.data);
@@ -54,6 +70,14 @@ class CustomWebSocket {
         if (this.listeners[eventType]) {
             this.listeners[eventType].forEach(callback => callback(msg.Data));
         }
+
+        if (eventType === 'authenticate' && msg.Data.success) {
+            this.connected = true; // Only set to true on successful auth
+            console.log("Successfully authenticated. Connected state:", this.connected);
+            this.emit('keep-alive'); // Send keep-alive message now that authenticated
+        }
+
+        console.log("Token updated:", msg.Data.token); // Update token, if present
     }
 
     disconnect() {
@@ -66,12 +90,14 @@ class CustomWebSocket {
     }
 }
 
+
+
 function initializeWebSocket() {
-    const token = localStorage.getItem('jwtToken'); // Retrieve token from storage
+    const token = localStorage.getItem('jwtToken'); 
     if (token) {
         const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
         const socket = new CustomWebSocket(serverUrl, token);
-        return socket; // Return the socket instance for further use
+        return socket;
     } else {
         console.error('No valid token found. Please log in first.');
     }
