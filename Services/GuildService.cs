@@ -27,6 +27,28 @@ public class GuildService
         await _dbContext.SaveChangesAsync();
         return guild;
     }
+    public void AssignPermissions(string guildId, string userId, Dictionary<string, int> permissions)
+    {
+        var guildPermissions = new GuildPermissions
+        {
+            GuildId = guildId,
+            UserId = userId,
+            ReadMessages = permissions["read_messages"],
+            SendMessages = permissions["send_messages"],
+            ManageRoles = permissions["manage_roles"],
+            KickMembers = permissions["kick_members"],
+            BanMembers = permissions["ban_members"],
+            ManageChannels = permissions["manage_channels"],
+            MentionEveryone = permissions["mention_everyone"],
+            AddReaction = permissions["add_reaction"],
+            IsAdmin = permissions["is_admin"],
+            CanInvite = permissions["can_invite"]
+        };
+
+        _dbContext.GuildPermissions.Add(guildPermissions);
+        _dbContext.SaveChanges();
+    }
+
 
     public async Task<List<string>> GetSharedGuilds(string guildId, string userId)
     {
@@ -55,7 +77,7 @@ public class GuildService
                 IsTextChannel = c.IsTextChannel,
                 LastReadDateTime = _dbContext.UserChannels
                     .Where(uc => uc.UserId == userId && uc.ChannelId == c.ChannelId)
-                    .Select(uc => uc.LastReadDateTime)
+                    .Select(uc => uc.LastReadDatetime)
                     .FirstOrDefault()
             })
             .ToListAsync();
@@ -69,6 +91,41 @@ public class GuildService
             .Select(g => g.OwnerId)
             .FirstOrDefaultAsync();
     }
+    public Dictionary<string, Dictionary<string, int>> GetPermissionsMapForUser(string userId)
+    {
+        var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
+
+        var userPermissions = _dbContext.GuildPermissions
+            .Where(gp => gp.UserId == userId)
+            .Include(gp => gp.Guild) // Load related guild data
+            .ToList();
+
+        foreach (var perm in userPermissions)
+        {
+            var guildId = perm.GuildId;
+
+            if (!permissionsMap.ContainsKey(guildId))
+            {
+                permissionsMap[guildId] = new Dictionary<string, int>
+                {
+                    { "read_messages", perm.ReadMessages },
+                    { "send_messages", perm.SendMessages },
+                    { "manage_roles", perm.ManageRoles },
+                    { "kick_members", perm.KickMembers },
+                    { "ban_members", perm.BanMembers },
+                    { "manage_channels", perm.ManageChannels },
+                    { "mention_everyone", perm.MentionEveryone },
+                    { "add_reaction", perm.AddReaction },
+                    { "is_admin", perm.IsAdmin },
+                    { "can_invite", perm.CanInvite }
+                };
+            }
+        }
+
+        return permissionsMap;
+    }
+
+
 
     public async Task<List<GuildDto>> GetUserGuilds(string userId)
     {

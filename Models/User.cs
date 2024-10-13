@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
@@ -82,6 +82,8 @@ namespace MyPostgresApp.Models
             };
         }
         public virtual ICollection<UserChannel> UserChannels { get; set; } 
+        public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
+
     }
 
     public class PublicUser

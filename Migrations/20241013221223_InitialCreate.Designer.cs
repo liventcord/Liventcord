@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyPostgresApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241012203715_InitialCreate")]
+    [Migration("20241013221223_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -147,14 +147,18 @@ namespace MyPostgresApp.Migrations
                         .HasColumnType("text")
                         .HasColumnName("channel_name");
 
-                    b.Property<bool>("ChannelType")
-                        .HasColumnType("boolean")
-                        .HasColumnName("channel_type");
-
                     b.Property<string>("GuildId")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("guild_id");
+
+                    b.Property<bool>("IsTextChannel")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_text_channel");
+
+                    b.Property<DateTime?>("LastReadDateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_read_datetime");
 
                     b.Property<int>("Order")
                         .HasColumnType("integer")
@@ -164,7 +168,7 @@ namespace MyPostgresApp.Migrations
 
                     b.HasIndex("GuildId");
 
-                    b.ToTable("Channel");
+                    b.ToTable("channels", (string)null);
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.Friend", b =>
@@ -198,10 +202,6 @@ namespace MyPostgresApp.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("FirstChannelId")
-                        .HasColumnType("text")
-                        .HasColumnName("first_channel_id");
-
                     b.Property<string>("GuildName")
                         .IsRequired()
                         .HasColumnType("text")
@@ -234,6 +234,57 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("guilds");
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.GuildPermissions", b =>
+                {
+                    b.Property<string>("GuildId")
+                        .HasColumnType("text")
+                        .HasColumnName("guild_id");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("AddReaction")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BanMembers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CanInvite")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IsAdmin")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KickMembers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManageChannels")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ManageRoles")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MentionEveryone")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("permission_id");
+
+                    b.Property<int>("ReadMessages")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SendMessages")
+                        .HasColumnType("integer");
+
+                    b.HasKey("GuildId", "UserId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("guild_permissions", (string)null);
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.GuildUser", b =>
                 {
                     b.Property<string>("GuildId")
@@ -250,7 +301,26 @@ namespace MyPostgresApp.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("guild_users");
+                    b.ToTable("guild_users", (string)null);
+                });
+
+            modelBuilder.Entity("MyPostgresApp.Models.TypingStatus", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("GuildId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChannelId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "GuildId", "ChannelId");
+
+                    b.ToTable("typing_statuses", (string)null);
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.User", b =>
@@ -343,6 +413,24 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.UserChannel", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ChannelId")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("LastReadDatetime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("UserId", "ChannelId");
+
+                    b.HasIndex("ChannelId");
+
+                    b.ToTable("user_channels", (string)null);
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.UserDm", b =>
                 {
                     b.Property<string>("UserId")
@@ -396,29 +484,6 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("profile_files", (string)null);
                 });
 
-            modelBuilder.Entity("TypingStatus", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("text")
-                        .HasColumnName("user_id");
-
-                    b.Property<string>("GuildId")
-                        .HasColumnType("text")
-                        .HasColumnName("guild_id");
-
-                    b.Property<string>("ChannelId")
-                        .HasColumnType("text")
-                        .HasColumnName("channel_id");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("timestamp");
-
-                    b.HasKey("UserId", "GuildId", "ChannelId");
-
-                    b.ToTable("typing_statuses", (string)null);
-                });
-
             modelBuilder.Entity("MyPostgresApp.Models.Channel", b =>
                 {
                     b.HasOne("MyPostgresApp.Models.Guild", "Guild")
@@ -428,6 +493,25 @@ namespace MyPostgresApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Guild");
+                });
+
+            modelBuilder.Entity("MyPostgresApp.Models.GuildPermissions", b =>
+                {
+                    b.HasOne("MyPostgresApp.Models.Guild", "Guild")
+                        .WithMany("GuildPermissions")
+                        .HasForeignKey("GuildId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPostgresApp.Models.User", "User")
+                        .WithMany("GuildPermissions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Guild");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.GuildUser", b =>
@@ -449,6 +533,25 @@ namespace MyPostgresApp.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.UserChannel", b =>
+                {
+                    b.HasOne("MyPostgresApp.Models.Channel", "Channel")
+                        .WithMany("UserChannels")
+                        .HasForeignKey("ChannelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MyPostgresApp.Models.User", "User")
+                        .WithMany("UserChannels")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Channel");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.UserDm", b =>
                 {
                     b.HasOne("MyPostgresApp.Models.User", null)
@@ -464,16 +567,27 @@ namespace MyPostgresApp.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.Channel", b =>
+                {
+                    b.Navigation("UserChannels");
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.Guild", b =>
                 {
                     b.Navigation("Channels");
+
+                    b.Navigation("GuildPermissions");
 
                     b.Navigation("GuildUsers");
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.User", b =>
                 {
+                    b.Navigation("GuildPermissions");
+
                     b.Navigation("GuildUsers");
+
+                    b.Navigation("UserChannels");
                 });
 #pragma warning restore 612, 618
         }
