@@ -2070,10 +2070,11 @@ function removeChannelElement(channel_id) {
     existingChannelButton.remove();
 }
 function createChannelElement(channel) {
-    const channel_id = channel.channel_id;
-    const channel_name = channel.channel_name;
-    const isTextChannel = channel.is_text_channel;
-    const last_read_datetime = channel.last_read_datetime;
+    const channel_id = channel.ChannelId;
+    const channel_name = channel.ChannelName;
+    const isTextChannel = channel.IsTextChannel;
+    const last_read_datetime = channel.LastReadDatetime;
+    console.log(channel_id,channel_name,isTextChannel);
     const existingChannelButton = channelsUl.querySelector(`li[id="${channel_id}"]`);
     if (existingChannelButton) { return; }
     const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
@@ -2163,16 +2164,16 @@ function updateChannels(channels) {
     document.removeEventListener('keyup', resetKeydown);
 
     channels.forEach(channel => {
-        const channelId = channel.channel_id;
-        const channelName = channel.channel_name;
-        const isTextChannel = channel.is_text_channel;
-        const lastReadDatetime = channel.last_read_datetime;
+        const channelId = channel.ChannelId;
+        const channelName = channel.ChannelName;
+        const isTextChannel = channel.IsTextChannel;
+        const lastReadDatetime = channel.LastReadDatetime;
 
         const channelObj = {
-            id: channelId,
-            name: channelName,
-            isTextChannel: isTextChannel,
-            lastReadDatetime: lastReadDatetime
+            ChannelId: channelId,
+            ChannelName: channelName,
+            IsTextChannel: isTextChannel,
+            LastReadDatetime: lastReadDatetime
         };
 
         createChannelElement(channelObj);
@@ -2206,15 +2207,15 @@ function removeChannel(data) {
 
     if (cachedChannels) {
         channelsArray = JSON.parse(cachedChannels);
-        channelsArray = channelsArray.filter(channel => channel.channel_id !== data.channel_id);
+        channelsArray = channelsArray.filter(channel => channel.ChannelId !== data.ChannelId);
         channels_cache[data.guild_id] = JSON.stringify(channelsArray);
     }
 
     currentChannels = channelsArray;
-    removeChannelElement(data.channel_id);
-    if(currentChannelId == data.channel_id) {
+    removeChannelElement(data.ChannelId);
+    if(currentChannelId == data.ChannelId) {
         const channelsArray = JSON.parse(channels_cache[currentGuildId])
-        const firstChannel = channelsArray[0].channel_id;
+        const firstChannel = channelsArray[0].ChannelId;
         loadGuild(currentGuildId,firstChannel)
     }
 }
@@ -2226,8 +2227,8 @@ function editChannel(data) {
     if (cachedChannels) {
         channelsArray = JSON.parse(cachedChannels);
         channelsArray.forEach((channel, index) => {
-            if (channel.channel_id === data.channel_id) {
-                editChannelElement(channel.channel_id,channel.channel_name);
+            if (channel.ChannelId === data.ChannelId) {
+                editChannelElement(channel.ChannelId,channel.ChannelName);
             }
         });
     } else {
@@ -2285,29 +2286,31 @@ function updateGuildList(guildData) {
     
     mainLogo.appendChild(mainLogoImg);
     guildsList.appendChild(mainLogo);
+    
 
     guildData.forEach((guild) => {
-        const existingGuild = getId(guild.id);
-        if (existingGuild) {
-            return;
-        }
+        const existingGuild = getId(guild.GuildId);
+        if (existingGuild) return;
+        
         const li = createEl('li');
         const img = createEl('img', { className: 'guilds-list' });
         const whiteRod = createEl('div', { className: 'white-rod' });
-        const imgSrc = guild.src && guild.src != 'black' ? guild.src : createBlackImage();
-        guildAuthorIds[guild.id] = guild.owner_id;
+        
+        const imgSrc = guild.IsGuildUploadedImg && guild.IsGuildUploadedImg != 'black' ? guild.IsGuildUploadedImg : createBlackImage();
+        
+        guildAuthorIds[guild.GuildId] = guild.OwnerId;
         img.src = imgSrc;
         li.appendChild(img);
         li.appendChild(whiteRod);
-
-        img.id = guild.id;
+    
+        img.id = guild.GuildId;
         img.addEventListener('click', function () {
-            loadGuild(guild.id,guild.first_channel_id,guild.name,)
+            loadGuild(guild.GuildId, guild.FirstChannelId, guild.GuildName);
         });
         
         guildsList.appendChild(li);
-
-        guildNames[guild.id] = guild.name;
+    
+        guildNames[guild.GuildId] = guild.GuildName;
     });
     addKeybinds();
     

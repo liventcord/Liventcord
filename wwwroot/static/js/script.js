@@ -634,8 +634,11 @@ function initialiseUserInput() {
         }
     });
 }
-
+function isPathnameCorrect(url) {
+    return /^\/channels\/\d{18}\/\d{18}$/.test(url);
+}
 document.addEventListener('DOMContentLoaded', function () {
+
     assignElements();
     
     getId('globalSearchInput').addEventListener('click', function(){
@@ -720,6 +723,11 @@ document.addEventListener('DOMContentLoaded', function () {
     if(typeof passed_friend_id !== 'undefined') {
         addUser(passed_friend_id,passed_friend_name,passed_friend_discriminator,passed_friend_blocked)
     }
+
+    if(isOnMe) {
+        if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
+    }
+
     addContextListeners();
     const val = loadBooleanCookie('isParty');
     isParty = val;
@@ -739,13 +747,13 @@ window.scrollTo(0, 0);
 
 async function changeChannel(newChannel) {
     if(isOnMe || isOnDm) { return; }
-    const channel_id = newChannel.channel_id;
-    const isTextChannel = newChannel.is_text_channel;
+    const channel_id = newChannel.ChannelId;
+    const isTextChannel = newChannel.IsTextChannel;
     const url = constructAppPage(currentGuildId,channel_id);
     if(url != window.location.pathname && isTextChannel) {
         window.history.pushState(null, null, url);
     }
-    const newChannelName = newChannel.channel_name;
+    const newChannelName = newChannel.ChannelName;
     isReachedChannelEnd = false;
     
     if(isTextChannel) {
@@ -766,11 +774,11 @@ async function changeChannel(newChannel) {
     if(!currentChannels) { return; }
 
     currentChannels.forEach((channel, index) => {
-        const channelButton = channelsUl.querySelector(`li[id="${channel.channel_id}"]`);
+        const channelButton = channelsUl.querySelector(`li[id="${channel.ChannelId}"]`);
         if(channelButton) {
-            if(channel.channel_id != channel_id) {
-                mouseHoverChannelButton(channelButton,channel.is_text_channel,channel.channel_id);
-                mouseLeaveChannelButton(channelButton,channel.is_text_channel,channel.channel_id);
+            if(channel.ChannelI != channel_id) {
+                mouseHoverChannelButton(channelButton,channel.is_text_channel,channel.ChannelI);
+                mouseLeaveChannelButton(channelButton,channel.is_text_channel,channel.ChannelI);
             } else if(!isTextChannel) {
                 const usersInChannel = usersInVoice[channel_id];
                 if(usersInChannel) {
@@ -929,7 +937,7 @@ function displayStartMessage() {
     if(!isOnDm) {
         let isGuildBorn = false;
         if (currentGuildData && currentGuildData[currentGuildId]) {
-            const rootChan = currentGuildData[currentGuildId].root_channel;
+            const rootChan = currentGuildData[currentGuildId].RootChannel;
             if (rootChan && currentChannelId == rootChan) {
                 isGuildBorn = true;
             }

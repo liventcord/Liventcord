@@ -28,13 +28,11 @@ public class WebSocketHandler
 
     private void OnOpen(IWebSocketConnection socket)
     {
-        Console.WriteLine("Open!");
     }
 
     private void OnClose(IWebSocketConnection socket)
     {
         authenticatedClients.Remove(socket);
-        Console.WriteLine("Close!");
     }
 
     
@@ -53,7 +51,7 @@ public class WebSocketHandler
                 }
 
                 string userId;
-                bool isValidToken = ValidateToken(authData.token, out userId); // Now using out parameter to get userId directly
+                bool isValidToken = ValidateToken(authData.token, out userId);
                 if (!isValidToken)
                 {
                     Console.WriteLine("Authentication failed: Invalid token.");
@@ -61,8 +59,7 @@ public class WebSocketHandler
                     return;
                 }
 
-                authenticatedClients[socket] = userId; // Store the authenticated client
-                Console.WriteLine($"Client authenticated: {userId}");
+                authenticatedClients[socket] = userId;
                 socket.Send(JsonSerializer.Serialize(new { Type = "authenticate", Success = true, UserId = userId }));
             }
             else
@@ -136,7 +133,7 @@ public class WebSocketHandler
                             }
                         };
                         EmitToUser(socket, updateChannelsMessage);
-                        return; // Successfully sent update
+                        return;
                     }
                 }
             }
@@ -180,9 +177,6 @@ public class WebSocketHandler
                 Console.WriteLine("Received message from unauthenticated client.");
                 return;
             }
-
-            Console.WriteLine($"User ID: {userId}");
-
             switch (msg.Type)
             {
                 case "keep-alive":
@@ -195,7 +189,12 @@ public class WebSocketHandler
                     Console.WriteLine(msg.Data);
                     await HandleGetChannels(socket, msg);
                     break;
-
+                case "get_users":
+                    await HandleGetUsers(socket,msg);
+                    break;
+                case "get_guilds":
+                    await HandleGetGuilds(socket,msg);
+                    break;
                 default:
                     Console.WriteLine($"Unknown message type: {msg.Type}");
                     break;
@@ -206,10 +205,60 @@ public class WebSocketHandler
             Console.WriteLine($"Exception in HandleMessage: {ex.Message}");
         }
     }
+    private async Task HandleGetGuilds(IWebSocketConnection socket, SocketMessage msg)
+    {
+        string userId = authenticatedClients[socket];
+        if(string.IsNullOrEmpty(userId)) return;
+        
+        var guilds = await _guildService.GetUserGuilds(userId);
+        if (guilds == null) return;
+        var messageToEmit = new
+        {
+            Type = "update_guilds",
+            Data = new
+            {
+                guilds
+            }
+        };
+        EmitToUser(socket, messageToEmit);
+        return;
+    }
+    
 
-
-
-
+    private async Task HandleGetUsers(IWebSocketConnection socket, SocketMessage msg)
+    {
+        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+        {
+            var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(dataElement.GetRawText());
+            
+            if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
+            {
+                string guildId = guildIdElement.GetString();
+                if (string.IsNullOrEmpty(guildId)) return;
+                string userId = authenticatedClients[socket];
+                if(string.IsNullOrEmpty(userId)) return;
+                if(!_guildService.DoesUserExistInGuild(userId,guildId)) return;
+                var users = await _guildService.GetGuildUsers(guildId);
+                if (users == null) return;
+                var updateChannelsMessage = new
+                {
+                    Type = "update_users",
+                    Data = new
+                    {
+                        guild_id = guildId,
+                        users
+                    }
+                };
+                EmitToUser(socket, updateChannelsMessage);
+                return;
+            }
+            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
+        }
+        else
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+        }
+    }
 
     private bool ValidateToken(string? token, out string userId)
     {
