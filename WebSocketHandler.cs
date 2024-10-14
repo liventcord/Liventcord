@@ -26,13 +26,25 @@ public class WebSocketHandler
         });
     }
 
-    private void OnOpen(IWebSocketConnection socket)
+    private async void OnOpen(IWebSocketConnection socket)
     {
+        if (authenticatedClients.TryGetValue(socket, out string userId))
+        {
+            await _guildService.SetUserOnlineStatus(userId,true); // Mark user as online
+        }
     }
 
-    private void OnClose(IWebSocketConnection socket)
+    private async void OnClose(IWebSocketConnection socket)
     {
-        authenticatedClients.Remove(socket);
+        if (authenticatedClients.TryGetValue(socket, out string userId))
+        {
+            authenticatedClients.Remove(socket);
+            var connections = authenticatedClients.Count(kv => kv.Value == userId); // Check remaining connections
+            if (connections == 0)
+            {
+                await _guildService.SetUserOnlineStatus(userId,false); // Mark user as offline if no connections
+            }
+        }
     }
 
     

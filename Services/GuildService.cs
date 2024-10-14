@@ -82,17 +82,24 @@ public class GuildService
             })
             .ToListAsync();
     }
-
-    public async Task<List<User>> GetGuildUsers(string guildId)
+    public async Task<List<PublicUser>> GetGuildUsers(string guildId)
     {
         if (string.IsNullOrEmpty(guildId))
-            return new List<User>();
+            return new List<PublicUser>();
 
         return await _dbContext.GuildUsers
             .Where(gu => gu.GuildId == guildId)
-            .Select(gu => gu.User)
+            .Select(gu => new PublicUser
+            {
+                UserId = gu.User.UserId,
+                Nickname = gu.User.Nickname,
+                Status = gu.User.Status,
+                CreatedAt = gu.User.CreatedAt,
+                SocialMediaLinks = gu.User.SocialMediaLinks
+            })
             .ToListAsync();
     }
+
 
     public bool DoesUserExistInGuild(string userId, string guildId)
     {
@@ -148,6 +155,16 @@ public class GuildService
 
         return permissionsMap;
     }
+    public async Task SetUserOnlineStatus(string userId, bool isOnline)
+    {
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user != null)
+        {
+            user.Status = isOnline ? "online" : "offline";
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
 
 
 
