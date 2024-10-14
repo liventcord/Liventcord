@@ -17,10 +17,7 @@ namespace MyPostgresApp.Helpers
         }
         public static bool IsValidId(string input) {
             if (string.IsNullOrEmpty(input)) return false;
-            return input.Length == 18 && MyRegex().IsMatch(input);
+            return input.Length == 18 && Regex.IsMatch(input, @"^\d{18}$");
         }
-
-        [GeneratedRegex("^\\d{18}$")]
-        private static partial Regex MyRegex();
     }
 }
