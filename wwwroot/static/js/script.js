@@ -1707,6 +1707,7 @@ function getProfileUrl(user_id) {
 
 
 async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
+    if(!srcid) return;
     if(srcid == CLYDE_ID) {
         ImgToUpdate.src = clydeSrc;
         return;

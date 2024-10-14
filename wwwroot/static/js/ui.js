@@ -2288,7 +2288,7 @@ function updateGuildList(guildData) {
     guildsList.appendChild(mainLogo);
     
 
-    guildData.forEach((guild) => {
+    guildData.guilds.forEach((guild) => {
         const existingGuild = getId(guild.GuildId);
         if (existingGuild) return;
         
