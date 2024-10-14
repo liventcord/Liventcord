@@ -83,6 +83,29 @@ public class GuildService
             .ToListAsync();
     }
 
+    public async Task<List<User>> GetGuildUsers(string guildId)
+    {
+        if (string.IsNullOrEmpty(guildId))
+            return new List<User>();
+
+        return await _dbContext.GuildUsers
+            .Where(gu => gu.GuildId == guildId)
+            .Select(gu => gu.User)
+            .ToListAsync();
+    }
+
+    public bool DoesUserExistInGuild(string userId, string guildId)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
+            return false;
+
+        return _dbContext.GuildUsers
+            .Any(gu => gu.UserId == userId && gu.GuildId == guildId);
+    }
+
+
+
+
 
     public async Task<string?> GetGuildAuthor(string guildId)
     {
@@ -91,13 +114,14 @@ public class GuildService
             .Select(g => g.OwnerId)
             .FirstOrDefaultAsync();
     }
+
     public Dictionary<string, Dictionary<string, int>> GetPermissionsMapForUser(string userId)
     {
         var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
 
         var userPermissions = _dbContext.GuildPermissions
             .Where(gp => gp.UserId == userId)
-            .Include(gp => gp.Guild) // Load related guild data
+            .Include(gp => gp.Guild)
             .ToList();
 
         foreach (var perm in userPermissions)
@@ -162,4 +186,6 @@ public class GuildService
 
         return guild?.GuildName;
     }
+
+
 }

@@ -37,7 +37,9 @@ namespace MyPostgresApp.Helpers
             var userName = user.Nickname ?? "";
             var userDiscriminator = user.Discriminator ?? "";
 
-            var guilds = await _guildService.GetUserGuilds(userId); // Fetch the user's guilds
+            var guilds = await _guildService.GetUserGuilds(userId);
+            
+            var guildUsers = await _guildService.GetGuildUsers(guildId);
 
             var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
             var guildName = guild?.GuildName ?? "";
@@ -45,7 +47,7 @@ namespace MyPostgresApp.Helpers
 
             var typingUsers = new List<string>();
             var sharedGuildsMap = new List<string>();
-            var permissionsMap = _guildService.GetPermissionsMapForUser(userId) ?? new Dictionary<string, Dictionary<string, int>>();
+            var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
 
             if (!string.IsNullOrEmpty(guildId))
             {
@@ -68,6 +70,7 @@ namespace MyPostgresApp.Helpers
                 channelId,
                 guildName,
                 authorId,
+                guildUsers,
                 typingUsers,
                 sharedGuildsMap,
                 permissionsMap,
