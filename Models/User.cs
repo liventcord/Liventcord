@@ -50,9 +50,9 @@ namespace MyPostgresApp.Models
         [StringLength(256)][Column("description")]
         public string? Description { get; set; }
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; 
         [Column("last_login")]
-        public DateTime? LastLogin { get; set; }
+        public DateTime? LastLogin { get; set; } = DateTime.UtcNow; 
         [Column("date_of_birth")]
         public DateTime? DateOfBirth { get; set; }
         [Column("verified")]
@@ -81,6 +81,12 @@ namespace MyPostgresApp.Models
                 Location = Location
             };
         }
+        public void UpdateLastLogin()
+        {
+            LastLogin = DateTime.UtcNow;
+        }
+
+
         public virtual ICollection<UserChannel> UserChannels { get; set; } 
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
@@ -93,5 +99,6 @@ namespace MyPostgresApp.Models
         public string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? Location { get; set; }
+        public string? SocialMediaLinks {get; set;}
     }
 }

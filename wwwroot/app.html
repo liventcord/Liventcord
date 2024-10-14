@@ -466,27 +466,64 @@
         var dm_users = jsonData.dmUsers || [];
         var guilds_data = jsonData.guildsJson;
         var guild_users = jsonData.guildUsers;
+        console.warn(typeof( guild_users));
+        if (!Array.isArray(guild_users)) {
+            guild_users = [guild_users]; // Wrap in an array if it’s a single object
+        }
+
+
+        currentGuildId = passed_guild_id; 
+
+        guild_users_cache = guild_users;
 
         console.log('Data loaded:', jsonData);
+        console.log(currentGuildId);
 
         const guildsList = document.getElementById('guilds-list');
-        if(guilds_data) {
+        if (guilds_data.length > 0) {
             guilds_data.forEach(guild => {
-                currentGuildData[guild.GuildId] = guild;
-                guildNames[guild.GuildId] = guild.name;
-            });
+                if (guild && guild.GuildId) {
+                    currentGuildData[guild.GuildId] = guild; // Store guild data
+                    guildNames[guild.GuildId] = guild.GuildName; // Store guild name
 
-        }
+                    // Create list item for each guild
+                    const li = createEl('li');
+                    const img = createEl('img', { className: 'guilds-list' });
+                    const whiteRod = createEl('div', { className: 'white-rod' });
 
-        if (guildsList && guilds_data) {
-            guildsList.innerHTML += renderGuilds(guilds_data);
-            const images = guildsList.querySelectorAll("img");
-            images.forEach(img => {
-                if (img.id == currentGuildId) {
-                    img.parentNode.classList.add('selected-guild');
+                    const imgSrc = guild.IsGuildUploadedImg && guild.IsGuildUploadedImg !== 'black'
+                        ? guild.IsGuildUploadedImg 
+                        : createBlackImage();
+
+                    img.src = imgSrc;
+                    img.id = guild.GuildId;
+                    img.addEventListener('click', function () {
+                        loadGuild(guild.GuildId, guild.FirstChannelId, guild.GuildName);
+                    });
+
+                    li.appendChild(img);
+                    li.appendChild(whiteRod);
+                    guildsList.appendChild(li);
+                } else {
+                    console.warn('Guild data is missing or malformed:', guild);
                 }
             });
+        } else {
+            console.warn('No guild data available or guilds_data is empty');
         }
+
+        updateUserList(currentGuildData[currentGuildId]);
+
+
+        if (guildsList && guilds_data) {
+        guildsList.innerHTML += renderGuilds(guilds_data);
+        const images = guildsList.querySelectorAll("img");
+        images.forEach(img => {
+            if (img.id == currentGuildId) {
+                img.parentNode.classList.add('selected-guild');
+            }
+        });
+    }
 
 
         const preventDrag = (elementId) => {

@@ -1309,6 +1309,8 @@ function GetOldMessages(date,message_id=null) {
 }
 
 function updateUserList(users) {
+    console.log("updating with: ",users);
+    if(!users) return;
     if(isOnMe) { console.log("Got users while on me page.");  return; }
     if(isUpdatingUsers) {  console.warn("Already updating users!");  return; }
     isUpdatingUsers = true;
