@@ -37,7 +37,7 @@ namespace MyPostgresApp.Helpers
             var userName = user.Nickname ?? "";
             var userDiscriminator = user.Discriminator ?? "";
 
-            var guilds = await _guildService.GetUserGuilds(userId);
+            var guilds = await _guildService.GetUserGuilds(userId,guildId);
             
             var guildUsers = await _guildService.GetGuildUsers(guildId);
 

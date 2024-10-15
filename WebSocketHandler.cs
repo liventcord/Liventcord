@@ -222,7 +222,7 @@ public class WebSocketHandler
         string userId = authenticatedClients[socket];
         if(string.IsNullOrEmpty(userId)) return;
         
-        var guilds = await _guildService.GetUserGuilds(userId);
+        var guilds = await _guildService.GetUserGuilds(userId,null);
         if (guilds == null) return;
         var messageToEmit = new
         {
