@@ -74,7 +74,6 @@ class CustomWebSocket {
         if (eventType === 'authenticate' && msg.success) {
             this.connected = true;
             console.log("Successfully authenticated. Connected state:", this.connected);
-            this.emit('keep-alive'); 
         }
     }
 
@@ -330,11 +329,9 @@ socket.connect();
 
 socket.on('connect', function() {
     console.log('Connected to server');
-    socket.emit('keep-alive');
 
     if(!currentTimeout) {
         currentTimeout = setTimeout(function refresh_keep_alive() {
-            socket.emit('keep-alive');
             if(socket.connected) {
                 hideLoadingScreen();
             }

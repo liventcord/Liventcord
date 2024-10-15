@@ -39,7 +39,7 @@ namespace MyPostgresApp.Controllers
             if (!ValidationHelper.ValidateEmail(email))
                 return BadRequest(new { error = "Invalid email" });
 
-            var existing_user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            var existing_user = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
             if (existing_user != null)
                 return Conflict(new { error = "Email already exists" });
 
