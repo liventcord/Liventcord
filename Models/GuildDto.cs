@@ -10,6 +10,7 @@ namespace MyPostgresApp.Models
         public string? Region { get; set; }
         public bool IsGuildUploadedImg { get; set; }
         public List<string> GuildUsers { get; set; }
+        public List<ChannelWithLastRead> GuildChannels {get; set; }
         public string FirstChannelId { get; set; }
     }
 }

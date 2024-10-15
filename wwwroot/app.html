@@ -466,10 +466,6 @@
         var dm_users = jsonData.dmUsers || [];
         var guilds_data = jsonData.guildsJson;
         var guild_users = jsonData.guildUsers;
-        console.warn(typeof( guild_users));
-        if (!Array.isArray(guild_users)) {
-            guild_users = [guild_users]; // Wrap in an array if it’s a single object
-        }
 
 
         currentGuildId = passed_guild_id; 
@@ -492,8 +488,8 @@
         } else {
             console.warn('No guild data available or guilds_data is empty');
         }
-
-        updateUserList(guild_users);
+        
+        
 
 
         if (guildsList && guilds_data) {

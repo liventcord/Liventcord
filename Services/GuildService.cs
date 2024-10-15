@@ -193,7 +193,7 @@ public class GuildService
 
 
 
-    public async Task<List<GuildDto>> GetUserGuilds(string userId)
+    public async Task<List<GuildDto>> GetUserGuilds(string userId, string guildId)
     {
         var guilds = await _dbContext.GuildUsers
             .Where(gu => gu.UserId == userId)
@@ -214,12 +214,20 @@ public class GuildService
                 FirstChannelId = gu.Guild.Channels
                     .OrderBy(c => c.Order)
                     .Select(c => c.ChannelId)
-                    .FirstOrDefault()
+                    .FirstOrDefault(),
+                GuildChannels = new List<ChannelWithLastRead>()
             })
             .ToListAsync();
 
+        var channels = await GetGuildChannels(userId, guildId);
+        
+        foreach (var guild in guilds)
+            guild.GuildChannels = guild.GuildId == guildId ? channels : new List<ChannelWithLastRead>();
+
         return guilds;
     }
+
+
 
     public async Task<string?> GetGuildName(string guildId)
     {

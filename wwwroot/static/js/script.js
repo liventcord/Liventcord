@@ -727,7 +727,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if(isOnMe) {
         if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
     }
-
+    if(isOnGuild) {
+        if(currentGuildData && !passed_guild_id in currentGuildData) {
+            window.history.pushState(null,null, "/channels/@me")
+        }
+    }
+    if(guild_users) {
+        updateUserList(guild_users,true);
+    }
     addContextListeners();
     const val = loadBooleanCookie('isParty');
     isParty = val;
@@ -1308,20 +1315,19 @@ function GetOldMessages(date,message_id=null) {
     }, 1000);
 }
 
-function updateUserList(users) {
-    if(!users) return;
-    if(isOnMe) { console.log("Got users while on me page.");  return; }
+function updateUserList(users,ignoreIsOnMe=false) {
+    if(isOnMe && !ignoreIsOnMe) { console.log("Got users while on me page.");  return; }
     if(isUpdatingUsers) {  console.warn("Already updating users!");  return; }
     isUpdatingUsers = true;
+    console.log("Updating users with: ",users);
 
-    const usersArray = Object.values(users);
     userList.innerHTML = '';
     const tableWrapper = createEl('div',{className:'user-table-wrapper'});
     const table = createEl('table',{className:'user-table'});
     const tbody = createEl('tbody');
 
-    const onlineUsers = usersArray.filter(user => user.IsOnline === true);
-    const offlineUsers = usersArray.filter(user => user.IsOnline !== true);
+    const onlineUsers = users.filter(user => user.IsOnline === true);
+    const offlineUsers = users.filter(user => user.IsOnline !== true);
     if (onlineUsers.length > 0) {
         renderTitle(`ÇEVRİM İÇİ — ${onlineUsers.length}`, tbody);
         renderUsers(onlineUsers, tbody, true); 
@@ -2677,7 +2683,8 @@ function loadMainMenu(isChangingUrl=true) {
         if(userListFriActiveHtml) {
             userList.innerHTML = userListFriActiveHtml;
         }
-        getId('nowonline').style.fontWeight = 'bolder';
+        const onlineText = getId('nowonline');
+        if(onlineText) onlineText.style.fontWeight = 'bolder';
         if(isOnMe) { return; }
         isOnMe = true;
         isOnGuild = false;
