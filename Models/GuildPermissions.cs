@@ -6,10 +6,6 @@ namespace MyPostgresApp.Models
     [Table("guild_permissions")]
     public class GuildPermissions
     {
-        [Key]
-        [Column("permission_id")]
-        public int PermissionId { get; set; }
-
         [ForeignKey("Guild")]
         [Column("guild_id")]
         public string GuildId { get; set; }

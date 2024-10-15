@@ -31,8 +31,8 @@ namespace MyPostgresApp.Controllers
         public class DeleteGuildRequest {
             public required string GuildId {get; set;}
         }
-        [HttpGet("delete_guild")]
-        public async Task<IActionResult> DeleteGuild([FromQuery] string guildId)
+        [HttpPost("delete_guild")]
+        public async Task<IActionResult> DeleteGuild([FromBody] string guildId)
         {
             if (string.IsNullOrEmpty(guildId))
                 return BadRequest("Guild ID is required.");
@@ -43,7 +43,10 @@ namespace MyPostgresApp.Controllers
 
             var guildService = new GuildService(_dbContext);
 
-            await Task.Run(() => guildService.DeleteGuild(guildId)); // Adjust if DeleteGuild is already async
+            if (!await guildService.IsUserAdmin(guildId, userId))
+                return Unauthorized("User is not authorized to delete this guild.");
+
+            guildService.DeleteGuild(guildId);
 
             return Ok("Guild deleted successfully.");
         }

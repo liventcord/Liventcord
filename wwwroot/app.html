@@ -407,23 +407,7 @@
         return canvas.toDataURL('image/png');
     }
 
-    function renderGuilds(guilds) {
-        return guilds.map(guild => {
-            const imgSrc = guild.src && guild.src !== 'black' ? guild.src : createBlackImage();
-            guildAuthorIds[guild.GuildId] = guild.owner_id;
-            const guildId = String(guild.GuildId);
-            const firstChannelId = guild.FirstChannelId ? String(guild.FirstChannelId) : '';
-            const guildName = guild.GuildName ? String(guild.GuildName) : '';
-    
-            return `
-                <li>
-                    <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-                    onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
-                    <div class="white-rod"></div>
-                </li>
-            `;
-        }).join('');
-    }
+
         
 
     
@@ -473,34 +457,47 @@
         guild_users_cache = guild_users;
 
         console.log('Data loaded:', jsonData);
-        console.log(currentGuildId);
+        function renderGuilds(guilds) {
+            return guilds.map(({ GuildId, FirstChannelId, GuildName, src, owner_id }) => {
+                const imgSrc = src && src !== 'black' ? src : createBlackImage();
+                guildAuthorIds[GuildId] = owner_id;
+                const guildId = String(GuildId);
+                const firstChannelId = FirstChannelId ? String(FirstChannelId) : '';
+                const guildName = GuildName ? String(GuildName) : '';
+
+                return `
+                    <li>
+                        <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+                        onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
+                        <div class="white-rod"></div>
+                    </li>
+                `;
+            }).join('');
+        }
 
         const guildsList = document.getElementById('guilds-list');
-        if (guilds_data.length > 0) {
-            guilds_data.forEach(guild => {
-                if (guild && guild.GuildId) {
-                    currentGuildData[guild.GuildId] = guild; 
-                    guildNames[guild.GuildId] = guild.GuildName;
+        if (guilds_data && guilds_data.length > 0) {
+            console.log(guildAuthorIds);
+
+            guilds_data.forEach(({ GuildId, GuildName, OwnerId }) => {
+                if (GuildId) {
+                    currentGuildData[GuildId] = { GuildId, GuildName, OwnerId }; // Store the guild object
+                    guildNames[GuildId] = GuildName;
+                    guildAuthorIds[GuildId] = OwnerId;
                 } else {
-                    console.warn('Guild data is missing or malformed:', guild);
+                    console.warn('Guild data is missing or malformed');
                 }
             });
+
+            guildsList.innerHTML += renderGuilds(guilds_data);
+
+            const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
+            if (selectedGuild) {
+                selectedGuild.parentNode.classList.add('selected-guild');
+            }
         } else {
             console.warn('No guild data available or guilds_data is empty');
         }
-        
-        
-
-
-        if (guildsList && guilds_data) {
-        guildsList.innerHTML += renderGuilds(guilds_data);
-        const images = guildsList.querySelectorAll("img");
-        images.forEach(img => {
-            if (img.id == currentGuildId) {
-                img.parentNode.classList.add('selected-guild');
-            }
-        });
-    }
 
 
         const preventDrag = (elementId) => {

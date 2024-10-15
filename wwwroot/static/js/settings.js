@@ -212,9 +212,7 @@ function generateSettingsHtml(settings,isGuild=false) {
 
 
 }
-function isSelfAuthor() {
-    return isAuthor(currentUserId);
-}
+
 const userSettings = [
     { category: 'MyAccount', label: 'Hesabım' },
     { category: 'SoundAndVideo', label: 'Ses Ve Görüntü' },
@@ -327,12 +325,6 @@ function removeguildImage() {
 }
 
 
-
-
-
-function updateGuildList(data) {
-    console.log('Guilds Updated:', data);
-}
 
 socket.connect();
 

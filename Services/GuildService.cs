@@ -25,29 +25,20 @@ public class GuildService
 
         _dbContext.Guilds.Add(guild);
         await _dbContext.SaveChangesAsync();
+
+        var permissions = new Dictionary<string, int>
+        {
+            {"read_messages", 1}, {"send_messages", 1}, {"manage_roles", 1},
+            {"kick_members", 1}, {"ban_members", 1}, {"manage_channels", 1},
+            {"mention_everyone", 1}, {"add_reaction", 1}, {"is_admin", 1},
+            {"can_invite", 1}
+        };
+        
+        AssignPermissions(guildId, ownerId, permissions);
+            
         return guild;
     }
-    public void AssignPermissions(string guildId, string userId, Dictionary<string, int> permissions)
-    {
-        var guildPermissions = new GuildPermissions
-        {
-            GuildId = guildId,
-            UserId = userId,
-            ReadMessages = permissions["read_messages"],
-            SendMessages = permissions["send_messages"],
-            ManageRoles = permissions["manage_roles"],
-            KickMembers = permissions["kick_members"],
-            BanMembers = permissions["ban_members"],
-            ManageChannels = permissions["manage_channels"],
-            MentionEveryone = permissions["mention_everyone"],
-            AddReaction = permissions["add_reaction"],
-            IsAdmin = permissions["is_admin"],
-            CanInvite = permissions["can_invite"]
-        };
 
-        _dbContext.GuildPermissions.Add(guildPermissions);
-        _dbContext.SaveChanges();
-    }
 
 
     public async Task<List<string>> GetSharedGuilds(string guildId, string userId)
@@ -156,6 +147,49 @@ public class GuildService
             .FirstOrDefaultAsync();
     }
 
+    public async Task<bool> IsUserAdmin(string guildId, string userId)
+    {
+        var authorId = await GetGuildAuthor(guildId);
+        return authorId == userId || await HasPermission(userId, guildId, "is_admin");
+    }
+
+    public async Task<bool> HasPermission(string userId, string guildId, string permission)
+    {
+        var userPermissions = await _dbContext.GuildPermissions
+            .Where(gp => gp.UserId == userId && gp.GuildId == guildId)
+            .Select(gp => new
+            {
+                ReadMessages = gp.ReadMessages != 0,
+                SendMessages = gp.SendMessages != 0,
+                ManageRoles = gp.ManageRoles != 0,
+                KickMembers = gp.KickMembers != 0,
+                BanMembers = gp.BanMembers != 0,
+                ManageChannels = gp.ManageChannels != 0,
+                MentionEveryone = gp.MentionEveryone != 0,
+                AddReaction = gp.AddReaction != 0,
+                IsAdmin = gp.IsAdmin != 0,
+                CanInvite = gp.CanInvite != 0
+            })
+            .FirstOrDefaultAsync();
+
+        if (userPermissions == null) return false;
+
+        return permission switch
+        {
+            "read_messages" => userPermissions.ReadMessages,
+            "send_messages" => userPermissions.SendMessages,
+            "manage_roles" => userPermissions.ManageRoles,
+            "kick_members" => userPermissions.KickMembers,
+            "ban_members" => userPermissions.BanMembers,
+            "manage_channels" => userPermissions.ManageChannels,
+            "mention_everyone" => userPermissions.MentionEveryone,
+            "add_reaction" => userPermissions.AddReaction,
+            "is_admin" => userPermissions.IsAdmin,
+            "can_invite" => userPermissions.CanInvite,
+            _ => false
+        };
+    }
+
     public Dictionary<string, Dictionary<string, int>> GetPermissionsMapForUser(string userId)
     {
         var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
@@ -167,11 +201,9 @@ public class GuildService
 
         foreach (var perm in userPermissions)
         {
-            var guildId = perm.GuildId;
-
-            if (!permissionsMap.ContainsKey(guildId))
+            if (!permissionsMap.TryGetValue(perm.GuildId, out var permDict))
             {
-                permissionsMap[guildId] = new Dictionary<string, int>
+                permDict = new Dictionary<string, int>
                 {
                     { "read_messages", perm.ReadMessages },
                     { "send_messages", perm.SendMessages },
@@ -184,11 +216,54 @@ public class GuildService
                     { "is_admin", perm.IsAdmin },
                     { "can_invite", perm.CanInvite }
                 };
+                permissionsMap[perm.GuildId] = permDict;
             }
         }
 
         return permissionsMap;
     }
+
+    public void AssignPermissions(string guildId, string userId, Dictionary<string, int> permissions)
+    {
+        var existingPermissions = _dbContext.GuildPermissions
+            .FirstOrDefault(gp => gp.GuildId == guildId && gp.UserId == userId);
+        
+        if (existingPermissions != null)
+        {
+            existingPermissions.ReadMessages = permissions["read_messages"];
+            existingPermissions.SendMessages = permissions["send_messages"];
+            existingPermissions.ManageRoles = permissions["manage_roles"];
+            existingPermissions.KickMembers = permissions["kick_members"];
+            existingPermissions.BanMembers = permissions["ban_members"];
+            existingPermissions.ManageChannels = permissions["manage_channels"];
+            existingPermissions.MentionEveryone = permissions["mention_everyone"];
+            existingPermissions.AddReaction = permissions["add_reaction"];
+            existingPermissions.IsAdmin = permissions["is_admin"];
+            existingPermissions.CanInvite = permissions["can_invite"];
+            _dbContext.GuildPermissions.Update(existingPermissions);
+        }
+        else
+        {
+            var guildPermissions = new GuildPermissions
+            {
+                GuildId = guildId,
+                UserId = userId,
+                ReadMessages = permissions["read_messages"],
+                SendMessages = permissions["send_messages"],
+                ManageRoles = permissions["manage_roles"],
+                KickMembers = permissions["kick_members"],
+                BanMembers = permissions["ban_members"],
+                ManageChannels = permissions["manage_channels"],
+                MentionEveryone = permissions["mention_everyone"],
+                AddReaction = permissions["add_reaction"],
+                IsAdmin = permissions["is_admin"],
+                CanInvite = permissions["can_invite"]
+            };
+            _dbContext.GuildPermissions.Add(guildPermissions);
+        }
+        _dbContext.SaveChanges();
+    }   
+
 
 
 

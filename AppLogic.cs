@@ -47,7 +47,7 @@ namespace MyPostgresApp.Helpers
 
             var typingUsers = new List<string>();
             var sharedGuildsMap = new List<string>();
-            var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
+            var permissionsMap = _guildService.GetPermissionsMapForUser(userId);
 
             if (!string.IsNullOrEmpty(guildId))
             {

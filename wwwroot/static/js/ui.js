@@ -754,7 +754,7 @@ function fillDropDownContent() {
     } else {
         disableElement('channel-dropdown-button');
     }
-    if(permissionManager.canManageChannels) {
+    if(permissionManager.canManageChannels()) {
         enableElement('invite-dropdown-button');
     } else {
         disableElement('invite-dropdown-button');
@@ -2297,8 +2297,8 @@ function updateGuildList(guildData) {
         const img = createEl('img', { className: 'guilds-list' });
         const whiteRod = createEl('div', { className: 'white-rod' });
         
-        const imgSrc = guild.IsGuildUploadedImg && guild.IsGuildUploadedImg != 'black' ? guild.IsGuildUploadedImg : createBlackImage();
-        
+        const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guild.GuildId}`: createBlackImage();
+        console.log(guild);
         guildAuthorIds[guild.GuildId] = guild.OwnerId;
         img.src = imgSrc;
         li.appendChild(img);

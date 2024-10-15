@@ -638,7 +638,7 @@ function isPathnameCorrect(url) {
     return /^\/channels\/\d{18}\/\d{18}$/.test(url);
 }
 document.addEventListener('DOMContentLoaded', function () {
-
+    window.scrollTo(0,0)
     assignElements();
     
     getId('globalSearchInput').addEventListener('click', function(){
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if(isOnGuild) { socket.emit('get_user_metadata',currentGuildId);  }
 
-    window.scrollTo(0, 0);
+   
 
     isDomLoaded = true;
     currentUserId = passed_user_id;
@@ -746,11 +746,13 @@ document.addEventListener('DOMContentLoaded', function () {
     
     getId("data-script").remove();
 
+    setTimeout(() => {
+        window.scrollTo(0, 0);
+    }, 20);
 
 
     
 });
-window.scrollTo(0, 0);
 
 async function changeChannel(newChannel) {
     if(isOnMe || isOnDm) { return; }
@@ -1356,6 +1358,9 @@ const crownEmojibase64 = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAyAAAAHC
 
 function isAuthor(user_id){
     return guildAuthorIds[currentGuildId] == user_id 
+}
+function isSelfAuthor() {
+    return isAuthor(currentUserId);
 }
 function renderUsers(users, tbody, isOnline) {
     for (const userData of users) {
