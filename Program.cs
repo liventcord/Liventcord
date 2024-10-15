@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.WebUtilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register services
 builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
@@ -19,7 +18,7 @@ builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<UploadController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("RemoteConnection")));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

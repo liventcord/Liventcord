@@ -38,6 +38,63 @@ public class GuildService
             
         return guild;
     }
+    public void DeleteGuild(string guildId)
+    {
+        if (string.IsNullOrEmpty(guildId)) {
+            Console.WriteLine("Guild ID cannot be null or empty.", nameof(guildId));
+            return;
+        }
+
+        var guild = _dbContext.Guilds.Find(guildId);
+        if (guild == null) {
+            Console.WriteLine("Guild does not exist.");
+            return;
+        }
+
+        _dbContext.Guilds.Remove(guild);
+        _dbContext.SaveChanges();
+    }
+
+
+    public async Task CreateChannel(string guildId, string channelName, bool isTextChannel)
+    {
+        if (string.IsNullOrEmpty(guildId))
+        {
+            throw new ArgumentException("Guild ID cannot be null or empty.", nameof(guildId));
+        }
+
+        if (string.IsNullOrEmpty(channelName))
+        {
+            throw new ArgumentException("Channel name cannot be null or empty.", nameof(channelName));
+        }
+
+        var guild = await _dbContext.Guilds
+            .Include(g => g.Channels)
+            .FirstOrDefaultAsync(g => g.GuildId == guildId);
+
+        if (guild == null)
+        {
+            throw new InvalidOperationException("Guild does not exist.");
+        }
+
+        // Create a new channel
+        var newChannel = new Channel
+        {
+            ChannelId = Utils.CreateRandomId(),
+            ChannelName = channelName,
+            IsTextChannel = isTextChannel,
+            GuildId = guildId,
+            Order = guild.Channels.Count // Optional: set order based on current channels
+        };
+
+        // Add the channel to the guild's collection
+        guild.Channels.Add(newChannel);
+
+        // Save changes to the database
+        await _dbContext.SaveChangesAsync();
+    }
+
+
 
 
 
@@ -104,23 +161,29 @@ public class GuildService
         }
     }
 
-    public void DeleteGuild(string guildId)
+    public void DeleteChannel(string guildId, string channelId)
     {
-        if (string.IsNullOrEmpty(guildId)) {
-            Console.WriteLine("Guild ID cannot be null or empty.", nameof(guildId));
-            return;
-        }
+        try
+        {
+            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
+            {
+                throw new ArgumentException("Guild ID and Channel ID cannot be null or empty.");
+            }
 
-        var guild = _dbContext.Guilds.Find(guildId);
-        if (guild == null) {
-            Console.WriteLine("Guild does not exist.");
-            return;
-        }
+            var channel = _dbContext.Channels.Find(channelId); // Assuming Channels are directly accessible
+            if (channel == null)
+            {
+                throw new InvalidOperationException("Channel does not exist.");
+            }
 
-        _dbContext.Guilds.Remove(guild);
-        _dbContext.SaveChanges();
+            _dbContext.Channels.Remove(channel); // Directly remove the channel
+            _dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting channel: {ex.Message}");
+        }
     }
-
 
 
 
@@ -145,6 +208,12 @@ public class GuildService
             .Where(g => g.GuildId == guildId)
             .Select(g => g.OwnerId)
             .FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> CanManageChannels(string userId, string guildId)
+    {
+        var authorId = await GetGuildAuthor(guildId);
+        return authorId == userId || await HasPermission(userId, guildId, "manage_channels");
     }
 
     public async Task<bool> IsUserAdmin(string guildId, string userId)
@@ -174,6 +243,11 @@ public class GuildService
 
         if (userPermissions == null) return false;
 
+        if (userPermissions.IsAdmin)
+        {
+            return true; 
+        }
+
         return permission switch
         {
             "read_messages" => userPermissions.ReadMessages,
@@ -184,11 +258,11 @@ public class GuildService
             "manage_channels" => userPermissions.ManageChannels,
             "mention_everyone" => userPermissions.MentionEveryone,
             "add_reaction" => userPermissions.AddReaction,
-            "is_admin" => userPermissions.IsAdmin,
             "can_invite" => userPermissions.CanInvite,
             _ => false
         };
     }
+
 
     public Dictionary<string, Dictionary<string, int>> GetPermissionsMapForUser(string userId)
     {

@@ -265,10 +265,6 @@ namespace MyPostgresApp.Migrations
                     b.Property<int>("MentionEveryone")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("permission_id");
-
                     b.Property<int>("ReadMessages")
                         .HasColumnType("integer");
 

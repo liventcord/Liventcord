@@ -1536,9 +1536,9 @@ function createChannelsPop() {
             newchanname = newChannelPlaceHolder;
         }
         const data = {
-            'channel_name': newchanname,
-            'guild_id': currentGuildId,
-            'is_text_channel': isTextChannel
+            'channelName': newchanname,
+            'guildId': currentGuildId,
+            'isTextChannel': isTextChannel
         };
         
         socket.emit('create_channel', data);
@@ -1610,18 +1610,18 @@ function drawProfilePop(userData) {
     console.log(userData);
     const profileContainer = createEl('div',{id:'profile-container'});
 
-    const discriminator = userData.discriminator;
-    const profileTitle = createEl('p', { id: 'profile-title', textContent: getUserNick(userData.user_id) });
+    const discriminator = userData.Discriminator;
+    const profileTitle = createEl('p', { id: 'profile-title', textContent: getUserNick(userData.UserId) });
     const profileDiscriminator = createEl('p', { id: 'profile-discriminator', textContent:'#' + discriminator });
     profileContainer.appendChild(profileTitle);
     profileContainer.appendChild(profileDiscriminator);
-    const aboutTitle = createEl('p', { id: 'profile-about-title', textContent: userData.user_id == currentUserId ? 'Hakkımda' : 'Hakkında'});
-    const aboutDescription = createEl('p', { id: 'profile-about-description', textContent: userData.description });
+    const aboutTitle = createEl('p', { id: 'profile-about-title', textContent: userData.UserId == currentUserId ? 'Hakkımda' : 'Hakkında'});
+    const aboutDescription = createEl('p', { id: 'profile-about-description', textContent: userData.Description });
     const popBottomContainer = createEl('div', { className: 'popup-bottom-container', id: 'profile-popup-bottom-container' });
     popBottomContainer.appendChild(aboutTitle);
     popBottomContainer.appendChild(aboutDescription);
     const popTopContainer = createEl('div', { className: 'popup-bottom-container', id: 'profile-popup-top-container' });
-    const profileOptions = createEl('button',{id:userData.user_id, className:'profile-dots3'});
+    const profileOptions = createEl('button',{id:userData.UserId, className:'profile-dots3'});
     const profileOptionsText = createEl('p',{className:'profile-dots3-text',textContent:'⋯'});
     profileOptions.appendChild(profileOptionsText);
     popTopContainer.appendChild(profileOptions);
@@ -1631,8 +1631,8 @@ function drawProfilePop(userData) {
 
     const profileOptionsContainer = createEl('div',{className: 'profile-options-container'});
 
-    if(userData.user_id != currentUserId) {
-        if(!isFriend(userData.user_id)) {
+    if(userData.UserId != currentUserId) {
+        if(!isFriend(userData.UserId)) {
             const addFriendBtn = createEl('button', { className: 'profile-add-friend-button' });
             addFriendBtn.innerHTML = ` <div class="icon-container">${createAddFriSVG()}</div> Arkadaş Ekle`;
             function createAddFriSVG() {
@@ -1643,7 +1643,7 @@ function drawProfilePop(userData) {
                     </svg>
                 `;
             }
-            addFriendBtn.addEventListener('click', () => { addFriend(userData.user_id); });
+            addFriendBtn.addEventListener('click', () => { addFriend(userData.UserId); });
             profileOptionsContainer.appendChild(addFriendBtn);
     
         } 
@@ -1656,7 +1656,7 @@ function drawProfilePop(userData) {
     
         sendMsgBtn.addEventListener('click', () => {
             loadMainMenu();
-            OpenDm(userData.user_id);
+            OpenDm(userData.UserId);
             const profilePopContainer = getId('profilePopContainer');
             if(profilePopContainer) {
                 profilePopContainer.parentNode.remove();
@@ -1670,14 +1670,14 @@ function drawProfilePop(userData) {
     
     
     profileContainer.appendChild(profileOptionsContainer);
-    setProfilePic(profileImg,userData.user_id);
+    setProfilePic(profileImg,userData.UserId);
 
     const bubble = createBubble(userData.is_online,true);
     profileImg.appendChild(bubble);
 
-    appendToProfileContextList(userData,userData.user_id);
+    appendToProfileContextList(userData,userData.UserId);
     profileOptions.addEventListener('click',function(event) { 
-        showContextMenu(event.pageX, event.pageY,contextList[userData.user_id]);
+        showContextMenu(event.pageX, event.pageY,contextList[userData.UserId]);
     });
     profileImg.onload = function() {
         popTopContainer.style.backgroundColor = getAverageRGB(profileImg);
@@ -2152,6 +2152,7 @@ function addChannel(channel) {
     }
 }
 function updateChannels(channels) {
+    console.log("updating channels with:",channels)
     if (channels == null || !Array.isArray(channels)) { 
         console.log("Invalid channels format");
         return; 

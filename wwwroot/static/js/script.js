@@ -751,6 +751,18 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 20);
 
 
+    if (guilds_data && guilds_data.length > 0) {
+        guilds_data.forEach(data => {
+            // Cache the channels for the current guild
+            channels_cache[data.GuildId] = data.GuildChannels;
+    
+            // Update channels for the current guild
+            updateChannels(data.GuildChannels);
+        });
+    }
+    
+
+
     
 });
 
