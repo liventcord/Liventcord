@@ -1309,7 +1309,6 @@ function GetOldMessages(date,message_id=null) {
 }
 
 function updateUserList(users) {
-    console.log("updating with: ",users);
     if(!users) return;
     if(isOnMe) { console.log("Got users while on me page.");  return; }
     if(isUpdatingUsers) {  console.warn("Already updating users!");  return; }
@@ -1321,8 +1320,8 @@ function updateUserList(users) {
     const table = createEl('table',{className:'user-table'});
     const tbody = createEl('tbody');
 
-    const onlineUsers = usersArray.filter(user => user.is_online === true);
-    const offlineUsers = usersArray.filter(user => user.is_online !== true);
+    const onlineUsers = usersArray.filter(user => user.IsOnline === true);
+    const offlineUsers = usersArray.filter(user => user.IsOnline !== true);
     if (onlineUsers.length > 0) {
         renderTitle(`ÇEVRİM İÇİ — ${onlineUsers.length}`, tbody);
         renderUsers(onlineUsers, tbody, true); 
@@ -1354,26 +1353,26 @@ function isAuthor(user_id){
 }
 function renderUsers(users, tbody, isOnline) {
     for (const userData of users) {
-        const isUserOnline = userData.is_online === true;
+        const isUserOnline = userData.IsOnline === true;
 
         if (isUserOnline === isOnline) {
-            const profileContainer = createEl('div', { className: 'profile-container' , id:userData.user_id});
+            const profileContainer = createEl('div', { className: 'profile-container' , id:userData.UserId});
             if(isUserOnline) {
                 profileContainer.classList.add('activeprofile');
             }
-            const userNameDiv = createEl('span', { textContent: userData.name, className: "profileName" });
+            const userNameDiv = createEl('span', { textContent: userData.Nickname, className: "profileName" });
             userNameDiv.style.color = 'white';
             const profileImg = createEl('img', { className: 'profile-pic'});
             profileImg.width = '30px';
             profileImg.height = '30px';
             profileImg.style.pointerEvents = 'none';
-            profileImg.dataset.user_id = userData.user_id;
+            profileImg.dataset.user_id = userData.UserId;
             const bubble = createBubble(isUserOnline);
             profileContainer.appendChild(profileImg);
             profileContainer.appendChild(userNameDiv); 
 
             if(isOnGuild) {
-                if(isAuthor(userData.user_id)) {
+                if(isAuthor(userData.UserId)) {
                     const crownEmoji = createEl('img', { src: crownEmojibase64, id: 'crown-symbol' });
                     userNameDiv.appendChild(crownEmoji);
                 }
@@ -1394,8 +1393,8 @@ function renderUsers(users, tbody, isOnline) {
                 profileContainer.style.backgroundColor = 'initial'; 
             });
 
-            appendToProfileContextList(userData,userData.user_id)
-            setProfilePic(profileImg,userData.user_id);
+            appendToProfileContextList(userData,userData.UserId)
+            setProfilePic(profileImg,userData.UserId);
 
             profileContainer.appendChild(bubble);
             tbody.appendChild(profileContainer);

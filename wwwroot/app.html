@@ -483,27 +483,8 @@
         if (guilds_data.length > 0) {
             guilds_data.forEach(guild => {
                 if (guild && guild.GuildId) {
-                    currentGuildData[guild.GuildId] = guild; // Store guild data
-                    guildNames[guild.GuildId] = guild.GuildName; // Store guild name
-
-                    // Create list item for each guild
-                    const li = createEl('li');
-                    const img = createEl('img', { className: 'guilds-list' });
-                    const whiteRod = createEl('div', { className: 'white-rod' });
-
-                    const imgSrc = guild.IsGuildUploadedImg && guild.IsGuildUploadedImg !== 'black'
-                        ? guild.IsGuildUploadedImg 
-                        : createBlackImage();
-
-                    img.src = imgSrc;
-                    img.id = guild.GuildId;
-                    img.addEventListener('click', function () {
-                        loadGuild(guild.GuildId, guild.FirstChannelId, guild.GuildName);
-                    });
-
-                    li.appendChild(img);
-                    li.appendChild(whiteRod);
-                    guildsList.appendChild(li);
+                    currentGuildData[guild.GuildId] = guild; 
+                    guildNames[guild.GuildId] = guild.GuildName;
                 } else {
                     console.warn('Guild data is missing or malformed:', guild);
                 }
@@ -512,7 +493,7 @@
             console.warn('No guild data available or guilds_data is empty');
         }
 
-        updateUserList(currentGuildData[currentGuildId]);
+        updateUserList(guild_users);
 
 
         if (guildsList && guilds_data) {

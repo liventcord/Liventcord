@@ -28,6 +28,25 @@ namespace MyPostgresApp.Controllers
             public required string GuildName { get; set; }
             public IFormFile? Photo { get; set; }
         }
+        public class DeleteGuildRequest {
+            public required string GuildId {get; set;}
+        }
+        [HttpGet("delete_guild")]
+        public async Task<IActionResult> DeleteGuild([FromQuery] string guildId)
+        {
+            if (string.IsNullOrEmpty(guildId))
+                return BadRequest("Guild ID is required.");
+
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized("User not authenticated.");
+
+            var guildService = new GuildService(_dbContext);
+
+            await Task.Run(() => guildService.DeleteGuild(guildId)); // Adjust if DeleteGuild is already async
+
+            return Ok("Guild deleted successfully.");
+        }
 
         [HttpPost("create_guild")]
         public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)

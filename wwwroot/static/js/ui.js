@@ -1231,7 +1231,7 @@ function createUserContext(user_id) {
 }
 
 function createProfileContext(userData) {
-    const user_id = userData.user_id;
+    const user_id = userData.UserId;
     let context = {};
 
 

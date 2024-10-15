@@ -94,11 +94,45 @@ public class GuildService
                 UserId = gu.User.UserId,
                 Nickname = gu.User.Nickname,
                 Status = gu.User.Status,
+                IsOnline = IsOnline(gu.User.UserId),
                 CreatedAt = gu.User.CreatedAt,
                 SocialMediaLinks = gu.User.SocialMediaLinks
             })
             .ToListAsync();
     }
+    private static List<string> OnlineUsers = new();
+    private static bool IsOnline(string userId){return OnlineUsers.Contains(userId);}
+    public async Task SetUserOnlineStatus(string userId, bool isOnline)
+    {
+        var user = await _dbContext.Users.FindAsync(userId);
+        if (user != null)
+        {
+            if(isOnline && !OnlineUsers.Contains(userId)) OnlineUsers.Add(userId);
+            else if(!isOnline) OnlineUsers.Remove(userId);
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+    public void DeleteGuild(string guildId)
+    {
+        if (string.IsNullOrEmpty(guildId)) {
+            Console.WriteLine("Guild ID cannot be null or empty.", nameof(guildId));
+            return;
+        }
+
+        var guild = _dbContext.Guilds.Find(guildId);
+        if (guild == null) {
+            Console.WriteLine("Guild does not exist.");
+            return;
+        }
+
+        _dbContext.Guilds.Remove(guild);
+        _dbContext.SaveChanges();
+    }
+
+
+
+
 
 
     public bool DoesUserExistInGuild(string userId, string guildId)
@@ -154,15 +188,6 @@ public class GuildService
         }
 
         return permissionsMap;
-    }
-    public async Task SetUserOnlineStatus(string userId, bool isOnline)
-    {
-        var user = await _dbContext.Users.FindAsync(userId);
-        if (user != null)
-        {
-            user.Status = isOnline ? "online" : "offline";
-            await _dbContext.SaveChangesAsync();
-        }
     }
 
 
