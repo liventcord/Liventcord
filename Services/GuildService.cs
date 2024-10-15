@@ -15,6 +15,7 @@ public class GuildService
     public async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
     {
         var guildId = Utils.CreateRandomId();
+
         var guild = new Guild(ownerId, rootChannel)
         {
             GuildId = guildId,
@@ -23,8 +24,19 @@ public class GuildService
             IsGuildUploadedImg = false
         };
 
+        guild.Channels.Add(new Channel
+        {
+            ChannelId = rootChannel,
+            ChannelName = "general",
+            ChannelDescription = "",
+            IsTextChannel = true,
+            Order = 0
+        });
+
+        guild.GuildUsers.Add(new GuildUser { UserId = ownerId });
+
         _dbContext.Guilds.Add(guild);
-        await _dbContext.SaveChangesAsync();
+        await _dbContext.SaveChangesAsync();  
 
         var permissions = new Dictionary<string, int>
         {
@@ -33,11 +45,15 @@ public class GuildService
             {"mention_everyone", 1}, {"add_reaction", 1}, {"is_admin", 1},
             {"can_invite", 1}
         };
-        
-        AssignPermissions(guildId, ownerId, permissions);
-            
-        return guild;
+        AssignPermissions(guildId, ownerId, permissions); 
+
+        await _dbContext.SaveChangesAsync();
+
+        return guild; 
     }
+
+
+
     public void DeleteGuild(string guildId)
     {
         if (string.IsNullOrEmpty(guildId)) {
@@ -339,7 +355,7 @@ public class GuildService
 
 
 
-    public async Task<List<GuildDto>> GetUserGuilds(string userId, string guildId)
+    public async Task<List<GuildDto>> GetUserGuilds(string userId)
     {
         var guilds = await _dbContext.GuildUsers
             .Where(gu => gu.UserId == userId)
@@ -365,13 +381,36 @@ public class GuildService
             })
             .ToListAsync();
 
-        var channels = await GetGuildChannels(userId, guildId);
-        
+        var allChannels = await _dbContext.Channels
+            .Where(c => guilds.Select(g => g.GuildId).Contains(c.GuildId))
+            .Select(c => new
+            {
+                c.ChannelId,
+                c.ChannelName,
+                c.IsTextChannel,
+                LastReadDateTime = _dbContext.UserChannels
+                    .Where(uc => uc.UserId == userId && uc.ChannelId == c.ChannelId)
+                    .Select(uc => uc.LastReadDatetime)
+                    .FirstOrDefault(),
+                c.GuildId  // Keep this only for filtering, not in the final DTO
+            })
+            .ToListAsync();
+
         foreach (var guild in guilds)
-            guild.GuildChannels = guild.GuildId == guildId ? channels : new List<ChannelWithLastRead>();
+            guild.GuildChannels = allChannels
+                .Where(c => c.GuildId == guild.GuildId) // Filter channels by guild
+                .Select(c => new ChannelWithLastRead
+                {
+                    ChannelId = c.ChannelId,
+                    ChannelName = c.ChannelName,
+                    IsTextChannel = c.IsTextChannel,
+                    LastReadDateTime = c.LastReadDateTime
+                })
+                .ToList();
 
         return guilds;
     }
+
 
 
 

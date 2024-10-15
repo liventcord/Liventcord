@@ -41,23 +41,13 @@ namespace MyPostgresApp.Models
         public IEnumerable<string> UserIds => GuildUsers.Select(gu => gu.UserId);
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
-
         public Guild(string ownerId, string rootChannel)    
         {
             OwnerId = ownerId;
             RootChannel = rootChannel;
-            GuildUsers.Add(new GuildUser { UserId = ownerId });
-            Channels.Add(new Channel
-            {
-                ChannelId = rootChannel,
-                ChannelName = "general",
-                ChannelDescription = "",
-                IsTextChannel = true,
-                Order = 0
-            });
-            GuildPermissions.Add(new GuildPermissions { GuildId = GuildId, UserId = ownerId });
         }
     }
+
 
     public class Channel
     {
