@@ -195,7 +195,7 @@ public class WebSocketHandler
                     Console.WriteLine("Keep-alive message received.");
                     break;
                 case "create_channel":
-                    Console.WriteLine("Create channel request received.");
+                    await HandleCreateChannel(socket,msg);
                     break;
                 case "get_channels":
                     Console.WriteLine(msg.Data);
@@ -235,6 +235,49 @@ public class WebSocketHandler
         EmitToUser(socket, messageToEmit);
         return;
     }
+
+    private async Task HandleCreateChannel(IWebSocketConnection socket, SocketMessage msg)
+    {
+        Console.WriteLine($"Received message: {msg.Data}");
+
+        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+        {
+            string guildId = dataElement.GetProperty("guildId").GetString();
+            bool isTextChannel = dataElement.GetProperty("isTextChannel").GetBoolean();
+            string channelName = dataElement.GetProperty("channelName").GetString();
+
+            Console.WriteLine($"Extracted - Guild ID: {guildId}, Channel Name: {channelName}, Is Text Channel: {isTextChannel}");
+
+            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelName))
+            {
+                Console.WriteLine("Guild ID or Channel Name is missing.");
+                return;
+            }
+
+            string userId = authenticatedClients[socket];
+            if (string.IsNullOrEmpty(userId))
+            {
+                Console.WriteLine("User ID is missing.");
+                return;
+            }
+
+            if (!await _guildService.CanManageChannels(userId, guildId))
+            {
+                Console.WriteLine("User does not have permission to manage channels.");
+                return;
+            }
+
+            await _guildService.CreateChannel(guildId, channelName, isTextChannel); 
+            return;
+        }
+        else
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+        }
+    }
+
+
+
     
 
     private async Task HandleGetUsers(IWebSocketConnection socket, SocketMessage msg)
@@ -252,7 +295,7 @@ public class WebSocketHandler
                 if(!_guildService.DoesUserExistInGuild(userId,guildId)) return;
                 var users = await _guildService.GetGuildUsers(guildId);
                 if (users == null) return;
-                var updateChannelsMessage = new
+                var updateUsersMessage = new
                 {
                     Type = "update_users",
                     Data = new
@@ -261,10 +304,10 @@ public class WebSocketHandler
                         users
                     }
                 };
-                EmitToUser(socket, updateChannelsMessage);
+                EmitToUser(socket, updateUsersMessage);
                 return;
             }
-            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
+            Console.WriteLine("Data is null or Guild ID is missing for get_users message.");
         }
         else
         {
