@@ -72,7 +72,7 @@ namespace MyPostgresApp.Controllers
 
         private async Task<User> AuthenticateUser(string email, string password)
         {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
             if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
             {
                 return user;

@@ -19,7 +19,7 @@ builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<UploadController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("RemoteConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -84,12 +84,11 @@ app.MapGet("/error", async context =>
     await context.Response.WriteAsync("An internal server error occurred. Please try again later.");
 });
 
-string secretKey = builder.Configuration["AppSettings:SecretKey"];
+string secretKey = builder.Configuration["AppSettings:SecretKey"] ?? string.Empty;
 var guildService = app.Services.GetRequiredService<GuildService>();
 var messageService = app.Services.GetRequiredService<MessageService>();
 var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey, guildService,messageService);
 
-// Define routes
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
@@ -119,7 +118,6 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
 
-// Fallback route for undefined routes
 app.MapFallback(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status404NotFound;
