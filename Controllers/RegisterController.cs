@@ -4,7 +4,7 @@ using MyPostgresApp.Data;
 using MyPostgresApp.Models;
 using MyPostgresApp.Helpers; 
 using Microsoft.EntityFrameworkCore;
-
+using BCrypt.Net;
 
 namespace MyPostgresApp.Controllers
 {
@@ -33,7 +33,7 @@ namespace MyPostgresApp.Controllers
             if (string.IsNullOrEmpty(email) || email.Length > 240)
                 return BadRequest(new { message = "E-posta geçersiz, 1 ile 240 karakter arasında olmalıdır" });
 
-           if (!ValidationHelper.ValidateRegistrationParameters(email, password, nickname))
+            if (!ValidationHelper.ValidateRegistrationParameters(email, password, nickname))
                 return BadRequest(new { error = "Invalid parameters" });
 
             if (!ValidationHelper.ValidateEmail(email))
@@ -55,16 +55,18 @@ namespace MyPostgresApp.Controllers
                 var discriminator = randomDiscriminators.ContainsKey(nickname) ? randomDiscriminators[nickname] : "0000";
                 string user_id = Utils.CreateRandomId();
                 DateTime currentDate = DateTime.Now;
+
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+
                 var newUser = new User
                 {
                     UserId = user_id,
                     Email = email,
-                    Password = password,
+                    Password = hashedPassword,
                     Nickname = nickname,
                     Discriminator = discriminator,
                     Bot = 0,
                     Status = "offline"
-                    
                 };
                 
                 await _context.Users.AddAsync(newUser);

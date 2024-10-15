@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
+using BCrypt.Net;
 
 namespace MyPostgresApp.Controllers
 {
@@ -19,12 +20,12 @@ namespace MyPostgresApp.Controllers
         private readonly AppDbContext _context;
         private readonly string _secretKey;
 
-        public LoginController(AppDbContext context, IConfiguration configuration) {
+        public LoginController(AppDbContext context, IConfiguration configuration)
+        {
             _context = context;
             _secretKey = configuration["AppSettings:SecretKey"];
-            if(string.IsNullOrEmpty(_secretKey)) throw new ArgumentException("SecretKey is missing or invalid.");
+            if (string.IsNullOrEmpty(_secretKey)) throw new ArgumentException("SecretKey is missing or invalid.");
         }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAuth([FromForm] string email, [FromForm] string password)
@@ -71,7 +72,12 @@ namespace MyPostgresApp.Controllers
 
         private async Task<User> AuthenticateUser(string email, string password)
         {
-            return await _context.Users.SingleOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);
+            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
+            {
+                return user;
+            }
+            return null;
         }
 
         private string GenerateToken(IEnumerable<Claim> claims)
