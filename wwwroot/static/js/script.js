@@ -2070,20 +2070,21 @@ async function sendMessage(value, user_ids) {
         displayCannotSendMessage(value);
         return;
     }
-    let data = {
-        'content': value,
-        'user_ids': user_ids,
-        'channel_id': isOnDm ? currentDmId : currentChannelId,
-        'reply_to_id': currentReplyingTo,
-        'is_dm' : isOnDm
-    };
-    if(isOnGuild) {
-        data['guild_id'] = currentGuildId;
-    }
+    let channelIdToSend = isOnDm ? currentDmId : currentChannelId;
+
     scrollToBottom();
 
     if (fileInput.files.length < 1) {
-        socket.emit('new_message', data);
+        const message = {
+            guildId: currentGuildId,
+            channelId: channelIdToSend,
+            content: 'Hello, this is a test message!',
+            attachmentUrls: null,
+            replyToId: null,
+            reactionEmojisIds: null,
+            lastEdited: null
+        };
+        socket.emit('new_message', message);
         userInput.value = '';
         closeReplyMenu();
         return;
@@ -2095,7 +2096,7 @@ async function sendMessage(value, user_ids) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('guild_id', currentGuildId);
-        formData.append('channel_id',currentChannelId)
+        formData.append('channel_id',channelIdToSend)
         const uploadResponse = await fetch('/upload', {
             method: 'POST',
             body: formData

@@ -13,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<FriendHelper>();
 builder.Services.AddScoped<TypingService>(); 
 builder.Services.AddScoped<GuildService>();
+builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AppLogic>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<UploadController>();
@@ -85,7 +86,8 @@ app.MapGet("/error", async context =>
 
 string secretKey = builder.Configuration["AppSettings:SecretKey"];
 var guildService = app.Services.GetRequiredService<GuildService>();
-var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey, guildService);
+var messageService = app.Services.GetRequiredService<MessageService>();
+var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey, guildService,messageService);
 
 // Define routes
 app.MapGet("/login", async context =>

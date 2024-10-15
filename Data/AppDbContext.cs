@@ -20,6 +20,8 @@ namespace MyPostgresApp.Data
         public DbSet<ProfileFile> ProfileFiles { get; set; }
         public DbSet<GuildFile> GuildFiles { get; set; }
         public DbSet<UserChannel> UserChannels { get; set; }
+        public DbSet<Message> Messages { get; set; }
+
         
         public void RecreateDatabase()
         {
@@ -156,6 +158,21 @@ namespace MyPostgresApp.Data
                 .WithMany(g => g.GuildPermissions) // Inverse navigation in Guild
                 .HasForeignKey(gp => gp.GuildId)
                 .OnDelete(DeleteBehavior.Cascade); // Set deletion behavior
+
+            modelBuilder.Entity<Message>(entity =>
+            {
+                entity.ToTable("Message");
+                entity.HasKey(e => e.MessageId);
+                entity.Property(e => e.MessageId).HasColumnName("message_id");
+                entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
+                entity.Property(e => e.Content).HasColumnName("content").IsRequired();
+                entity.Property(e => e.ChannelId).HasColumnName("channel_id").IsRequired();
+                entity.Property(e => e.Date).HasColumnName("date").IsRequired();
+                entity.Property(e => e.LastEdited).HasColumnName("last_edited");
+                entity.Property(e => e.AttachmentUrls).HasColumnName("attachment_urls");
+                entity.Property(e => e.ReplyToId).HasColumnName("reply_to_id");
+                entity.Property(e => e.ReactionEmojisIds).HasColumnName("reaction_emojis_ids");
+            });
 
         }
 
