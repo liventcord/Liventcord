@@ -77,20 +77,17 @@ public class GuildService
             throw new InvalidOperationException("Guild does not exist.");
         }
 
-        // Create a new channel
         var newChannel = new Channel
         {
             ChannelId = Utils.CreateRandomId(),
             ChannelName = channelName,
             IsTextChannel = isTextChannel,
             GuildId = guildId,
-            Order = guild.Channels.Count // Optional: set order based on current channels
+            Order = guild.Channels.Count 
         };
 
-        // Add the channel to the guild's collection
         guild.Channels.Add(newChannel);
 
-        // Save changes to the database
         await _dbContext.SaveChangesAsync();
     }
 
@@ -170,13 +167,13 @@ public class GuildService
                 throw new ArgumentException("Guild ID and Channel ID cannot be null or empty.");
             }
 
-            var channel = _dbContext.Channels.Find(channelId); // Assuming Channels are directly accessible
+            var channel = _dbContext.Channels.Find(channelId);
             if (channel == null)
             {
                 throw new InvalidOperationException("Channel does not exist.");
             }
 
-            _dbContext.Channels.Remove(channel); // Directly remove the channel
+            _dbContext.Channels.Remove(channel);
             _dbContext.SaveChanges();
         }
         catch (Exception ex)

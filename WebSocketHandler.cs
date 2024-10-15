@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Collections.Generic;
+using MyPostgresApp.Models;
 
 public class WebSocketHandler
 {
@@ -12,9 +13,11 @@ public class WebSocketHandler
     private readonly string secretKey;
     private readonly Dictionary<IWebSocketConnection, string> authenticatedClients = new();
     private GuildService _guildService;
+    private MessageService _messageService;
 
-    public WebSocketHandler(string url, string secretKey, GuildService guildService)
+    public WebSocketHandler(string url, string secretKey, GuildService guildService, MessageService messageService)
     {
+        _messageService = messageService;
         _guildService = guildService;
         this.secretKey = secretKey;
         server = new WebSocketServer(url);
@@ -197,6 +200,12 @@ public class WebSocketHandler
                 case "create_channel":
                     await HandleCreateChannel(socket,msg);
                     break;
+                case "new_message":
+                    await HandleNewMessage(socket,msg);
+                    break;
+                case "get_message":
+                    await HandleGetMessage(socket,msg);
+                    break;
                 case "get_channels":
                     Console.WriteLine(msg.Data);
                     await HandleGetChannels(socket, msg);
@@ -235,6 +244,57 @@ public class WebSocketHandler
         EmitToUser(socket, messageToEmit);
         return;
     }
+    private async Task HandleGetMessage(IWebSocketConnection socket, SocketMessage msg) {
+        Console.WriteLine($"Received message: {msg.Data}");
+    }
+    
+    private async Task HandleNewMessage(IWebSocketConnection socket, SocketMessage msg)
+    {
+        Console.WriteLine($"Received message: {msg.Data}");
+
+        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+        {
+            string guildId = dataElement.GetProperty("guildId").GetString() ?? string.Empty;
+            string channelId = dataElement.GetProperty("channelId").GetString() ?? string.Empty;
+            string content = dataElement.GetProperty("content").GetString() ?? string.Empty;
+            string attachmentUrls = dataElement.TryGetProperty("attachmentUrls", out var attachmentElement) ? 
+                attachmentElement.GetString() : null;
+            string replyToId = dataElement.TryGetProperty("replyToId", out var replyToElement) ? 
+                replyToElement.GetString() : null;
+            string reactionEmojisIds = dataElement.TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
+                reactionElement.GetString() : null;
+            string lastEdited = dataElement.TryGetProperty("lastEdited", out var lastEditedElement) ? 
+                lastEditedElement.GetString() : null;
+
+            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(content))
+            {
+                Console.WriteLine("Properties are missing.");
+                return;
+            }
+
+            if (!authenticatedClients.TryGetValue(socket, out string userId) || string.IsNullOrEmpty(userId))
+            {
+                Console.WriteLine("User ID is missing or socket is not authenticated.");
+                return;
+            }
+
+            if (!await _guildService.CanManageChannels(userId, guildId))
+            {
+                Console.WriteLine("User does not have permission to send message.");
+                return;
+            }
+
+            await _messageService.NewMessage(userId, guildId, channelId, content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
+            Console.WriteLine("Message sent successfully.");
+        }
+        else
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+        }
+    }
+
+
+
 
     private async Task HandleCreateChannel(IWebSocketConnection socket, SocketMessage msg)
     {

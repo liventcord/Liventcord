@@ -297,6 +297,52 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("guild_users", (string)null);
                 });
 
+            modelBuilder.Entity("MyPostgresApp.Models.Message", b =>
+                {
+                    b.Property<string>("MessageId")
+                        .HasColumnType("text")
+                        .HasColumnName("message_id");
+
+                    b.Property<string>("AttachmentUrls")
+                        .HasColumnType("text")
+                        .HasColumnName("attachment_urls");
+
+                    b.Property<string>("ChannelId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
+
+                    b.Property<DateTime?>("LastEdited")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_edited");
+
+                    b.Property<string>("ReactionEmojisIds")
+                        .HasColumnType("text")
+                        .HasColumnName("reaction_emojis_ids");
+
+                    b.Property<string>("ReplyToId")
+                        .HasColumnType("text")
+                        .HasColumnName("reply_to_id");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("MessageId");
+
+                    b.ToTable("Message", (string)null);
+                });
+
             modelBuilder.Entity("MyPostgresApp.Models.TypingStatus", b =>
                 {
                     b.Property<string>("UserId")
