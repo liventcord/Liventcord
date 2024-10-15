@@ -231,7 +231,7 @@ public class WebSocketHandler
         string userId = authenticatedClients[socket];
         if(string.IsNullOrEmpty(userId)) return;
         
-        var guilds = await _guildService.GetUserGuilds(userId,null);
+        var guilds = await _guildService.GetUserGuilds(userId);
         if (guilds == null) return;
         var messageToEmit = new
         {
