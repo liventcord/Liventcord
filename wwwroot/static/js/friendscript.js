@@ -745,13 +745,7 @@ let isPopulating = false;
 
 
 
-function addUser(userId, nick, discriminator,is_blocked) {
-    userNames[userId] = {
-      nick: nick,
-      discriminator: discriminator,
-      is_blocked: Boolean(is_blocked)
-    };
-}
+
 const OnlineText = 'Çevrim İçi';
 const OfflineText = 'Çevrim Dışı';
 const PendingText = 'Bekleyen';
@@ -773,12 +767,7 @@ function getFriendsTranslation() {
             return ''
     }
 }
-function isBlocked(user_id) {
-    if (!userNames.hasOwnProperty(user_id)) {
-        return false;
-    }
-    return userNames[user_id].is_blocked;
-}
+
 function filterFriends() {
     const input = getId('friendsSearchInput').value.toLowerCase();
     const friends = document.getElementsByClassName('friend-card');

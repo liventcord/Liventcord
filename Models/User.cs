@@ -76,6 +76,7 @@ namespace MyPostgresApp.Models
             {
                 UserId = UserId,
                 Nickname = Nickname,
+                Discriminator = Discriminator,
                 Status = Status,
                 CreatedAt = CreatedAt,
                 Location = Location
@@ -95,6 +96,9 @@ namespace MyPostgresApp.Models
     public class PublicUser
     {
         public bool IsOnline;
+        public string? Description;
+
+        public required string Discriminator { get; set; }
 
         public required string UserId { get; set; }
         public string Nickname { get; set; }

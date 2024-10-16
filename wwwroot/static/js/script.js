@@ -1327,12 +1327,30 @@ function GetOldMessages(date,message_id=null) {
         hasJustFetchedMessages = null;
     }, 1000);
 }
+function isBlocked(userId) {
+    if (!userNames.hasOwnProperty(userId)) {
+        return false;
+    }
+    return userNames[userId].is_blocked;
+}
 
+function addUser(userId, nick, discriminator,isBlocked) {
+    userNames[userId] = {
+      nick: nick,
+      discriminator: discriminator,
+      is_blocked: Boolean(isBlocked)
+    };
+}
 function updateUserList(users,ignoreIsOnMe=false) {
     if(isOnMe && !ignoreIsOnMe) { console.log("Got users while on me page.");  return; }
     if(isUpdatingUsers) {  console.warn("Already updating users!");  return; }
     isUpdatingUsers = true;
     console.log("Updating users with: ",users);
+
+    for (const userData of users) {
+        console.log(userData);
+        addUser(userData.UserId,userData.Nickname,userData.Discriminator,userData.IsBlocked);
+    }
 
     userList.innerHTML = '';
     const tableWrapper = createEl('div',{className:'user-table-wrapper'});
@@ -2561,7 +2579,6 @@ function selectGuildList(guild_id) {
     const foundGuilds = guildList.querySelectorAll('img');
     
     foundGuilds.forEach(guild => {
-        console.log(guild);
         if (guild.id === guild_id) {
             guild.parentNode.classList.add('selected-guild');
         } else {

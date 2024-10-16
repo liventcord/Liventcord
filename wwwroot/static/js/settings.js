@@ -534,22 +534,7 @@ socket.on('bulk_reply_response', data => {
         handleReplies();
     }, 100);
 });
-function updateUsersMetaData(users, blocked_users) {
-    if (!users) {
-        console.log("Invalid users", users);
-        return;
-    }
 
-    for (const userId in users) {
-        if (Object.prototype.hasOwnProperty.call(users, userId)) {
-            const [nick, discriminator] = users[userId];
-            const is_blocked = blocked_users ? blocked_users.hasOwnProperty(userId) : false;
-            addUser(userId, nick, discriminator, is_blocked);
-        }
-    }
-
-    console.log("Updated userNames:", userNames);
-}
 
 socket.on('update_users', data => {
     if (!data || !data.users || !data.guild_id) { return; }
@@ -593,12 +578,6 @@ socket.on('channel_update', data => {
     }
 });
 
-socket.on('update_users_metadata', data => {
-    if (!data || !data.users || !data.guild_id) { return; }
-    users_metadata_cache[data.guild_id] = data.users;
-
-    updateUsersMetaData(data.users,data.blocked_users);
-});
 
 
 function updateUserOnlineStatus(userId, isOnline) {

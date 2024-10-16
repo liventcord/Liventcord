@@ -154,6 +154,8 @@ public class GuildService
             {
                 UserId = gu.User.UserId,
                 Nickname = gu.User.Nickname,
+                Discriminator = gu.User.Discriminator,
+                Description = gu.User.Description,
                 Status = gu.User.Status,
                 IsOnline = IsOnline(gu.User.UserId),
                 CreatedAt = gu.User.CreatedAt,
