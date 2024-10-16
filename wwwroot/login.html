@@ -136,7 +136,6 @@
         var emailInput = document.querySelector('input[name="email"]');
         var passwordInput = document.querySelector('input[name="pass"]');
       
-        // Add event listeners to the input fields
         emailInput.addEventListener('keydown', function(event) {
           if (event.key === 'Enter') {
             event.preventDefault();
@@ -182,7 +181,7 @@
         })
         .then(response => {
             if (response.ok) {
-                return response.json(); // Assuming the server returns the JWT token in the response body
+                return response.json(); 
             } else if (response.status === 401) {
                 myalert('E posta veya şifre geçersiz!');
                 throw new Error('Unauthorized');
@@ -192,10 +191,10 @@
             }
         })
         .then(data => {
-            const token = data.token; // Assuming the token is sent in { token: "your_jwt_token" }
-            localStorage.setItem('jwtToken', token); // Store the JWT token
-            window.location.href = '/app'; // Redirect after successful login
-            initializeWebSocket(); // Initialize WebSocket connection with the token
+            const token = data.token; 
+            localStorage.setItem('jwtToken', token); 
+            window.location.href = '/app'; 
+            initializeWebSocket(); 
         })
         .catch(error => {
             console.error('Error:', error);

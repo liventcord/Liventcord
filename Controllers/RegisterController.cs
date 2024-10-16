@@ -25,69 +25,97 @@ namespace MyPostgresApp.Controllers
         public async Task<IActionResult> RegisterAuth([FromForm] string email, [FromForm] string password, [FromForm] string nickname)
         {
             if (string.IsNullOrEmpty(nickname) || nickname.Length > 32)
-                return BadRequest(new { message = "Kullanıcı adı geçersiz, 1 ile 32 karakter arasında olmalıdır" });
-            
-            if (string.IsNullOrEmpty(password) || password.Length > 128)
-                return BadRequest(new { message = "Şifre geçersiz, 1 ile 128 karakter arasında olmalıdır" });
-            
-            if (string.IsNullOrEmpty(email) || email.Length > 240)
-                return BadRequest(new { message = "E-posta geçersiz, 1 ile 240 karakter arasında olmalıdır" });
+                return BadRequest(new { message = "Nickname must be between 1 and 32 characters." });
 
-            if (!ValidationHelper.ValidateRegistrationParameters(email, password, nickname))
-                return BadRequest(new { error = "Invalid parameters" });
+            if (string.IsNullOrEmpty(password) || password.Length > 128)
+                return BadRequest(new { message = "Password must be between 1 and 128 characters." });
+
+            if (string.IsNullOrEmpty(email) || email.Length > 240)
+                return BadRequest(new { message = "Email must be between 1 and 240 characters." });
 
             if (!ValidationHelper.ValidateEmail(email))
-                return BadRequest(new { error = "Invalid email" });
+                return BadRequest(new { error = "Invalid email format." });
 
-            var existing_user = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-            if (existing_user != null)
-                return Conflict(new { error = "Email already exists" });
+            var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            if (existingUser != null)
+                return Conflict(new { error = "Email already exists." });
 
-            try
+            var existingNick = await _context.Users.SingleOrDefaultAsync(u => u.Nickname.ToLower() == nickname.ToLower());
+            string discriminator;
+
+            if (existingNick == null)
             {
-                _cache.TryGetValue("random_discriminators", out Dictionary<string, string> randomDiscriminators);
-                if (randomDiscriminators == null)
-                {
-                    randomDiscriminators = new Dictionary<string, string>();
-                    _cache.Set("random_discriminators", randomDiscriminators);
-                }
-
-                var discriminator = randomDiscriminators.ContainsKey(nickname) ? randomDiscriminators[nickname] : "0000";
-                string user_id = Utils.CreateRandomId();
-                DateTime currentDate = DateTime.Now;
-
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-
-                var newUser = new User
-                {
-                    UserId = user_id,
-                    Email = email,
-                    Password = hashedPassword,
-                    Nickname = nickname,
-                    Discriminator = discriminator,
-                    Bot = 0,
-                    Status = "offline"
-                };
-                
-                await _context.Users.AddAsync(newUser);
-                await _context.SaveChangesAsync();
-
-                if (randomDiscriminators.ContainsKey(nickname))
-                {
-                    randomDiscriminators.Remove(nickname);
-                    _cache.Set("random_discriminators", randomDiscriminators);
-                }
-
-                return Ok(new { message = "Registration successful" });
+                discriminator = "0000";
+                await _context.Discriminators.AddAsync(new Discriminator { Nickname = nickname, Value = discriminator });
             }
-            catch (Exception ex)
+            else
             {
-                var errorDetails = ex.InnerException != null ? 
-                ex.InnerException.Message : 
-                ex.Message;
+                // Call GetNickDiscriminator with the nickname string directly
+                var nextDiscriminatorResult = await GetNickDiscriminator(nickname);
 
-                return StatusCode(500, new { error = "An unexpected error occurred", details = errorDetails });
+                if (nextDiscriminatorResult is OkObjectResult okResult)
+                {
+                    discriminator = ((dynamic)okResult.Value).result; 
+                }
+                else
+                {
+                    return BadRequest(new { error = "Failed to retrieve discriminator." });
+                }
             }
+
+            string userId = Utils.CreateRandomId();
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
+
+            var newUser = new User
+            {
+                UserId = userId,
+                Email = email,
+                Password = hashedPassword,
+                Nickname = nickname,
+                Discriminator = discriminator,
+                Bot = 0,
+                Status = "offline"
+            };
+
+            await _context.Users.AddAsync(newUser);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Registration successful." });
+        }
+
+        [HttpPost("get_nick_discriminator")]
+        public async Task<IActionResult> GetNickDiscriminator([FromForm] string nick)
+        {
+            if (string.IsNullOrEmpty(nick) || nick.Length > 32)
+                return BadRequest(new { message = "Nickname must be between 1 and 32 characters." });
+
+            var existingUsers = await _context.Users
+                .Where(u => u.Nickname.ToLower() == nick.ToLower())
+                .Select(u => u.Discriminator)
+                .ToListAsync();
+
+            if (existingUsers.Count == 0)
+            {
+                return Ok(new { result = "0000" });
+            }
+
+            // Get the next available random discriminator
+            string nextAvailableDiscriminator = GenerateNextAvailableDiscriminator(existingUsers);
+
+            return Ok(new { result = nextAvailableDiscriminator });
+        }
+
+        private string GenerateNextAvailableDiscriminator(List<string> existingDiscriminators)
+        {
+            Random random = new Random();
+            string newDiscriminator;
+
+            do
+            {
+                newDiscriminator = random.Next(1000, 10000).ToString(); // Generates numbers from 1000 to 9999
+            } while (existingDiscriminators.Contains(newDiscriminator));
+
+            return newDiscriminator; // Return the next available discriminator
         }
     }
 }

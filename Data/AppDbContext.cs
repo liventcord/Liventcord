@@ -8,6 +8,7 @@ namespace MyPostgresApp.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Discriminator> Discriminators { get; set; }
         public DbSet<Friend> Friends { get; set; }
         public DbSet<UserDm> UserDms { get; set; } 
         public DbSet<TypingStatus> TypingStatuses { get; set; }
@@ -37,6 +38,12 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(128);
             modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(128);
             modelBuilder.Entity<User>().Property(u => u.Nickname).HasMaxLength(128);
+
+            modelBuilder.Entity<Discriminator>()
+                .HasIndex(d => new { d.Nickname, d.Value })
+                .IsUnique();
+
+
 
             modelBuilder.Entity<Friend>().ToTable("friends");
             modelBuilder.Entity<Friend>().HasKey(f => new { f.UserId, f.FriendId });
