@@ -40,27 +40,26 @@ namespace MyPostgresApp.Controllers
             if (existingUser != null)
                 return Conflict(new { error = "Email already exists." });
 
-            var existingNick = await _context.Users.SingleOrDefaultAsync(u => u.Nickname.ToLower() == nickname.ToLower());
+            var existingNickUsers = await _context.Users
+                .Where(u => u.Nickname.ToLower() == nickname.ToLower())
+                .ToListAsync();
+
             string discriminator;
 
-            if (existingNick == null)
+            if (!existingNickUsers.Any())
             {
                 discriminator = "0000";
                 await _context.Discriminators.AddAsync(new Discriminator { Nickname = nickname, Value = discriminator });
             }
             else
             {
-                // Call GetNickDiscriminator with the nickname string directly
-                var nextDiscriminatorResult = await GetNickDiscriminator(nickname);
+                var existingDiscriminators = existingNickUsers.Select(u => u.Discriminator).ToList();
+                
+                // Check if all discriminator combinations are taken
+                if (existingDiscriminators.Count >= 9999)
+                    return BadRequest(new { error = "Too many users have taken all possible discriminator combinations." });
 
-                if (nextDiscriminatorResult is OkObjectResult okResult)
-                {
-                    discriminator = ((dynamic)okResult.Value).result; 
-                }
-                else
-                {
-                    return BadRequest(new { error = "Failed to retrieve discriminator." });
-                }
+                discriminator = SelectRandomDiscriminator(existingDiscriminators);
             }
 
             string userId = Utils.CreateRandomId();
@@ -91,31 +90,42 @@ namespace MyPostgresApp.Controllers
 
             var existingUsers = await _context.Users
                 .Where(u => u.Nickname.ToLower() == nick.ToLower())
-                .Select(u => u.Discriminator)
                 .ToListAsync();
 
-            if (existingUsers.Count == 0)
+            if (!existingUsers.Any())
             {
                 return Ok(new { result = "0000" });
             }
 
-            // Get the next available random discriminator
-            string nextAvailableDiscriminator = GenerateNextAvailableDiscriminator(existingUsers);
+            var existingDiscriminators = existingUsers.Select(u => u.Discriminator).ToList();
 
+            // Check if all discriminator combinations are taken
+            if (existingDiscriminators.Count >= 9999)
+                return BadRequest(new { error = "Too many users have taken all possible discriminator combinations." });
+
+            string nextAvailableDiscriminator = SelectRandomDiscriminator(existingDiscriminators);
             return Ok(new { result = nextAvailableDiscriminator });
         }
 
-        private string GenerateNextAvailableDiscriminator(List<string> existingDiscriminators)
+        private string SelectRandomDiscriminator(List<string> existingDiscriminators)
         {
             Random random = new Random();
-            string newDiscriminator;
+            List<string> availableDiscriminators = new List<string>();
 
-            do
+            for (int i = 0; i <= 9999; i++)
             {
-                newDiscriminator = random.Next(1000, 10000).ToString(); // Generates numbers from 1000 to 9999
-            } while (existingDiscriminators.Contains(newDiscriminator));
+                string discriminator = i.ToString("D4"); // Format as 4 digits
+                if (!existingDiscriminators.Contains(discriminator))
+                {
+                    availableDiscriminators.Add(discriminator);
+                }
+            }
 
-            return newDiscriminator; // Return the next available discriminator
+            if (availableDiscriminators.Count == 0)
+                throw new InvalidOperationException("No available discriminators.");
+
+            // Select a random available discriminator
+            return availableDiscriminators[random.Next(availableDiscriminators.Count)];
         }
     }
 }

@@ -203,16 +203,17 @@
 				nickInput.focus();
 			}
 		});
-		let isFetching;
+		let isFetching = false;
 		let debounceTimer;
 		let currentInputValue = ''; 
-		
+
 		nickInput.addEventListener("input", async function(event) {
 			const newInputValue = nickInput.value.trim(); 
-		
-			if (currentInputValue && newInputValue !== currentInputValue && !isFetching) {
+
+			// Allow fetching on first input or when input changes
+			if (newInputValue !== currentInputValue && !isFetching) {
 				currentInputValue = newInputValue; 
-		
+
 				clearTimeout(debounceTimer);
 				debounceTimer = setTimeout(async () => {
 					var formData = new FormData();
@@ -234,15 +235,15 @@
 						} else {
 							throw new Error('Network response was not ok.');
 						}
-						
-						isFetching = false;
 					} catch (error) {
 						console.error('Fetch Error:', error);
-						isFetching = false; // Reset isFetching on error
+					} finally {
+						isFetching = false; // Always reset here
 					}
 				}, 500);
 			}
 		});
+
 		
 
 
