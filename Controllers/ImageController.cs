@@ -153,18 +153,20 @@ namespace MyPostgresApp.Controllers
 
         private IActionResult GetFileResult(dynamic file)
         {
-            if (file == null) return NotFound();
+            if (file == null) 
+                return new JsonResult(new object[] { "404", 404 }) { StatusCode = StatusCodes.Status404NotFound };
 
             if (!_fileTypeProvider.TryGetContentType(file.FileName, out string contentType))
             {
-                contentType = "application/octet-stream"; // Fallback content type
+                contentType = "application/octet-stream";
             }
 
-            // Set the Content-Disposition header to inline to display the image
             Response.Headers.Add("Content-Disposition", $"inline; filename=\"{file.FileName}\"");
             
             return File(file.Content, contentType);
         }
+
+
 
     }
 }
