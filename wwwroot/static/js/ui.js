@@ -2242,16 +2242,7 @@ function editChannel(data) {
 
 
 //guilds
-function createBlackImage() {
-    const canvas = createEl('canvas');
-    canvas.width = 50; 
-    canvas.height = 50; 
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    const dataURL = canvas.toDataURL('image/png');
-    return dataURL;
-}
+
 
 function updateGuildList(guildData) {
     if (!guildData) {
@@ -2299,7 +2290,7 @@ function updateGuildList(guildData) {
         const whiteRod = createEl('div', { className: 'white-rod' });
         
         const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guild.GuildId}`: createBlackImage();
-        console.log(guild);
+        console.warn(guild);
         guildAuthorIds[guild.GuildId] = guild.OwnerId;
         img.src = imgSrc;
         li.appendChild(img);

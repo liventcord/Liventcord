@@ -458,22 +458,24 @@
 
         console.log('Data loaded:', jsonData);
         function renderGuilds(guilds) {
-            return guilds.map(({ GuildId, FirstChannelId, GuildName, src, owner_id }) => {
-                const imgSrc = src && src !== 'black' ? src : createBlackImage();
-                guildAuthorIds[GuildId] = owner_id;
+            return guilds.map(({ GuildId, FirstChannelId, GuildName, OwnerId }) => {
+                guildAuthorIds[GuildId] = OwnerId;
                 const guildId = String(GuildId);
+                const imgSrc = `/guilds/${guildId}`;
                 const firstChannelId = FirstChannelId ? String(FirstChannelId) : '';
                 const guildName = GuildName ? String(GuildName) : '';
 
                 return `
                     <li>
                         <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+                        onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/images/server_avatars/default.png';" 
                         onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
                         <div class="white-rod"></div>
                     </li>
                 `;
             }).join('');
         }
+
 
         const guildsList = document.getElementById('guilds-list');
         if (guilds_data && guilds_data.length > 0) {

@@ -392,7 +392,7 @@ public class GuildService
                     .Where(uc => uc.UserId == userId && uc.ChannelId == c.ChannelId)
                     .Select(uc => uc.LastReadDatetime)
                     .FirstOrDefault(),
-                c.GuildId  // Keep this only for filtering, not in the final DTO
+                c.GuildId
             })
             .ToListAsync();
 
