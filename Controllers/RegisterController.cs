@@ -99,7 +99,6 @@ namespace MyPostgresApp.Controllers
 
             var existingDiscriminators = existingUsers.Select(u => u.Discriminator).ToList();
 
-            // Check if all discriminator combinations are taken
             if (existingDiscriminators.Count >= 9999)
                 return BadRequest(new { error = "Too many users have taken all possible discriminator combinations." });
 
@@ -109,23 +108,21 @@ namespace MyPostgresApp.Controllers
 
         private string SelectRandomDiscriminator(List<string> existingDiscriminators)
         {
+            HashSet<string> existingSet = new HashSet<string>(existingDiscriminators);
             Random random = new Random();
-            List<string> availableDiscriminators = new List<string>();
 
-            for (int i = 0; i <= 9999; i++)
+            for (int attempts = 0; attempts < 10000; attempts++)
             {
-                string discriminator = i.ToString("D4"); // Format as 4 digits
-                if (!existingDiscriminators.Contains(discriminator))
+                string discriminator = random.Next(0, 10000).ToString("D4"); // Format as 4 digits
+                if (!existingSet.Contains(discriminator))
                 {
-                    availableDiscriminators.Add(discriminator);
+                    return discriminator; // Found an available discriminator
                 }
             }
 
-            if (availableDiscriminators.Count == 0)
-                throw new InvalidOperationException("No available discriminators.");
-
-            // Select a random available discriminator
-            return availableDiscriminators[random.Next(availableDiscriminators.Count)];
+            throw new InvalidOperationException("No available discriminators.");
         }
+
+
     }
 }

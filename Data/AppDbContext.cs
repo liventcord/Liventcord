@@ -39,6 +39,10 @@ namespace MyPostgresApp.Data
             modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(128);
             modelBuilder.Entity<User>().Property(u => u.Nickname).HasMaxLength(128);
 
+            modelBuilder.Entity<Discriminator>().ToTable("discriminators");
+            modelBuilder.Entity<Discriminator>().HasKey(d => d.Id);
+            modelBuilder.Entity<Discriminator>().Property(d => d.Nickname).HasColumnName("nickname").IsRequired().HasMaxLength(128);
+            modelBuilder.Entity<Discriminator>().Property(d => d.Value).HasColumnName("value").IsRequired().HasMaxLength(128);
             modelBuilder.Entity<Discriminator>()
                 .HasIndex(d => new { d.Nickname, d.Value })
                 .IsUnique();
