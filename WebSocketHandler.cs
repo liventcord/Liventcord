@@ -203,7 +203,7 @@ public class WebSocketHandler
                 case "new_message":
                     await HandleNewMessage(socket,msg);
                     break;
-                case "get_message":
+                case "get_history":
                     await HandleGetMessage(socket,msg);
                     break;
                 case "get_channels":
@@ -244,53 +244,78 @@ public class WebSocketHandler
         EmitToUser(socket, messageToEmit);
         return;
     }
-    private async Task HandleGetMessage(IWebSocketConnection socket, SocketMessage msg) {
-        Console.WriteLine($"Received message: {msg.Data}");
+    private async Task HandleGetMessage(IWebSocketConnection socket, SocketMessage msg) 
+    {
+        if (msg.Data is not JsonElement dataElement || dataElement.ValueKind != JsonValueKind.Object)
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+            return;
+        }
+
+        string guildId = dataElement.GetProperty("guildId").GetString() ?? string.Empty;
+        string channelId = dataElement.GetProperty("channelId").GetString() ?? string.Empty;
+
+        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
+        {
+            Console.WriteLine("Properties are missing.");
+            return;
+        }
+
+        List<Message> messages = await _messageService.GetMessages(guildId, channelId);
+        string oldestMessageDate = await _messageService.getOldestMessage(guildId, channelId);
+
+        var messageToEmit = new
+        {
+            Type = "history_response",
+            Data = new
+            {
+                messages,oldestMessageDate
+            }
+        };
+
+        EmitToUser(socket, messageToEmit);
     }
+
     
     private async Task HandleNewMessage(IWebSocketConnection socket, SocketMessage msg)
     {
-        Console.WriteLine($"Received message: {msg.Data}");
-
-        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
-        {
-            string guildId = dataElement.GetProperty("guildId").GetString() ?? string.Empty;
-            string channelId = dataElement.GetProperty("channelId").GetString() ?? string.Empty;
-            string content = dataElement.GetProperty("content").GetString() ?? string.Empty;
-            string attachmentUrls = dataElement.TryGetProperty("attachmentUrls", out var attachmentElement) ? 
-                attachmentElement.GetString() : null;
-            string replyToId = dataElement.TryGetProperty("replyToId", out var replyToElement) ? 
-                replyToElement.GetString() : null;
-            string reactionEmojisIds = dataElement.TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
-                reactionElement.GetString() : null;
-            string lastEdited = dataElement.TryGetProperty("lastEdited", out var lastEditedElement) ? 
-                lastEditedElement.GetString() : null;
-
-            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(content))
-            {
-                Console.WriteLine("Properties are missing.");
-                return;
-            }
-
-            if (!authenticatedClients.TryGetValue(socket, out string userId) || string.IsNullOrEmpty(userId))
-            {
-                Console.WriteLine("User ID is missing or socket is not authenticated.");
-                return;
-            }
-
-            if (!await _guildService.CanManageChannels(userId, guildId))
-            {
-                Console.WriteLine("User does not have permission to send message.");
-                return;
-            }
-
-            await _messageService.NewMessage(userId, guildId, channelId, content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
-            Console.WriteLine("Message sent successfully.");
-        }
-        else
+        if (msg.Data is not JsonElement dataElement || dataElement.ValueKind != JsonValueKind.Object)
         {
             Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+            return;
         }
+
+        string guildId = dataElement.GetProperty("guildId").GetString() ?? string.Empty;
+        string channelId = dataElement.GetProperty("channelId").GetString() ?? string.Empty;
+        string content = dataElement.GetProperty("content").GetString() ?? string.Empty;
+        string attachmentUrls = dataElement.TryGetProperty("attachmentUrls", out var attachmentElement) ? 
+            attachmentElement.GetString() : null;
+        string replyToId = dataElement.TryGetProperty("replyToId", out var replyToElement) ? 
+            replyToElement.GetString() : null;
+        string reactionEmojisIds = dataElement.TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
+            reactionElement.GetString() : null;
+        string lastEdited = dataElement.TryGetProperty("lastEdited", out var lastEditedElement) ? 
+            lastEditedElement.GetString() : null;
+
+        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(content))
+        {
+            Console.WriteLine("Properties are missing.");
+            return;
+        }
+
+        if (!authenticatedClients.TryGetValue(socket, out string userId) || string.IsNullOrEmpty(userId))
+        {
+            Console.WriteLine("User ID is missing or socket is not authenticated.");
+            return;
+        }
+
+        if (!await _guildService.CanManageChannels(userId, guildId))
+        {
+            Console.WriteLine("User does not have permission to send message.");
+            return;
+        }
+
+        await _messageService.NewMessage(userId, guildId, channelId, content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
     }
 
 

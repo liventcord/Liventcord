@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyPostgresApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241013221223_InitialCreate")]
+    [Migration("20241020145803_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -62,6 +62,34 @@ namespace MyPostgresApp.Migrations
                     b.HasKey("FileId");
 
                     b.ToTable("attachment_files", (string)null);
+                });
+
+            modelBuilder.Entity("Discriminator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nickname")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("nickname");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nickname", "Value")
+                        .IsUnique();
+
+                    b.ToTable("discriminators", (string)null);
                 });
 
             modelBuilder.Entity("EmojiFile", b =>
@@ -268,10 +296,6 @@ namespace MyPostgresApp.Migrations
                     b.Property<int>("MentionEveryone")
                         .HasColumnType("integer");
 
-                    b.Property<int>("PermissionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("permission_id");
-
                     b.Property<int>("ReadMessages")
                         .HasColumnType("integer");
 
@@ -302,6 +326,52 @@ namespace MyPostgresApp.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("guild_users", (string)null);
+                });
+
+            modelBuilder.Entity("MyPostgresApp.Models.Message", b =>
+                {
+                    b.Property<string>("MessageId")
+                        .HasColumnType("text")
+                        .HasColumnName("message_id");
+
+                    b.Property<string>("AttachmentUrls")
+                        .HasColumnType("text")
+                        .HasColumnName("attachment_urls");
+
+                    b.Property<string>("ChannelId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("channel_id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("date");
+
+                    b.Property<DateTime?>("LastEdited")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_edited");
+
+                    b.Property<string>("ReactionEmojisIds")
+                        .HasColumnType("text")
+                        .HasColumnName("reaction_emojis_ids");
+
+                    b.Property<string>("ReplyToId")
+                        .HasColumnType("text")
+                        .HasColumnName("reply_to_id");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("MessageId");
+
+                    b.ToTable("Message", (string)null);
                 });
 
             modelBuilder.Entity("MyPostgresApp.Models.TypingStatus", b =>

@@ -5,6 +5,7 @@ class CustomWebSocket {
         this.socket = null;
         this.listeners = {};
         this.connected = false;
+        this.requestQueue = [];
         this.connect();
     }
 
@@ -17,7 +18,9 @@ class CustomWebSocket {
 
     onOpen() {
         console.log('Connected to server');
+        this.connected = true;
         this.authenticate();
+        this.processQueue();
     }
 
     authenticate() {
@@ -50,6 +53,13 @@ class CustomWebSocket {
         const message = JSON.stringify({ Type: event, Data: this.prepareData(data) });
         if (this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(message);
+        } else {
+            this.requestQueue.push(message);
+            if (this.socket.readyState === WebSocket.CONNECTING) {
+                this.socket.addEventListener('open', () => {
+                    this.socket.send(message);
+                });
+            }
         }
     }
     
@@ -63,7 +73,6 @@ class CustomWebSocket {
         return { value: data }; 
     }
     
-
     handleMessage(event) {
         const msg = JSON.parse(event.data);
         const eventType = msg.Type;
@@ -77,6 +86,15 @@ class CustomWebSocket {
         }
     }
 
+    processQueue() {
+        while (this.requestQueue.length > 0) {
+            const message = this.requestQueue.shift();
+            if (this.socket.readyState === WebSocket.OPEN) {
+                this.socket.send(message);
+            }
+        }
+    }
+
     disconnect() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             console.log("Closing the WebSocket connection...");
@@ -86,6 +104,8 @@ class CustomWebSocket {
         }
     }
 }
+
+
 
 
 
@@ -646,7 +666,7 @@ socket.on('message_date_response', (data)=> {
 
 
 
-socket.on('history_data_response', (data) => {
+socket.on('history_response', (data) => {
     handleHistoryResponse(data);  
 });
 

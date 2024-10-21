@@ -766,6 +766,7 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function changeChannel(newChannel) {
+    console.log("channel changed: ",newChannel);
     if(isOnMe || isOnDm) { return; }
     const channel_id = newChannel.ChannelId;
     const isTextChannel = newChannel.IsTextChannel;
@@ -822,6 +823,7 @@ async function changeChannel(newChannel) {
 
 
 function GetHistoryFromOneChannel(channel_id,is_dm=false) {
+    console.log('called history');
     const rawMessages = guildChatMessages[channel_id];
     if(!is_dm && guildChatMessages[channel_id]&& Array.isArray(rawMessages)) {
         let repliesList = new Set();
@@ -842,11 +844,11 @@ function GetHistoryFromOneChannel(channel_id,is_dm=false) {
         return
     }
     let requestData = {
-        channel_id: channel_id,
-        is_dm : is_dm
+        channelId: channel_id,
+        isDm : is_dm
     };
     if(isOnGuild) {
-        requestData['guild_id'] = currentGuildId;
+        requestData['guildId'] = currentGuildId;
     }
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
@@ -1073,67 +1075,70 @@ async function displayWebPreview(messageElement, url) {
 }
 
 
-
-
 function handleHistoryResponse(data) {
-    if (isChangingPage) { 
-        return; 
-    }
-    
+    if (isChangingPage) return;
+
+    console.log("Data: ", data);
+
     isLastSendMessageStart = false;
     chatContent.innerHTML = chatContentInitHtml;
     messages_cache = {};
-    
-    const firstMessageDateOnChannel = new Date(data.oldest_message_date);
-    
-    if (data && data.history && data.history.length > 0) {
-        let messages = data.history;
 
-        // Sort messages by date (oldest first)
-        messages.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const firstMessageDateOnChannel = new Date(data.oldestMessageDate); 
+    const { messages: Messages, channelId, guildId } = data;
 
-        if (!guildChatMessages[data.channel_id]) {
-            guildChatMessages[data.channel_id] = []; // Ensure it's an array
-        } else if (!Array.isArray(guildChatMessages[data.channel_id])) {
-            console.error(`Type error for channel ${data.channel_id}, resetting to array.`);
-            guildChatMessages[data.channel_id] = []; // Reset to empty array if not an array
-        }
-        
-        console.log('Current value:', guildChatMessages[data.channel_id], 'Type:', typeof guildChatMessages[data.channel_id]);
-        
-        try {
-            guildChatMessages[data.channel_id].push(...messages);
-        } catch (error) {
-            console.error(`Failed to push messages for channel ${data.channel_id}:`, error);
-        }
-        
-        let oldestMessageDate = new Date(messages[0].date);
-        if (oldestMessageDate.getTime() === firstMessageDateOnChannel.getTime()) {
-            displayStartMessage();
-        }
+    console.log( Messages, Messages.length);
 
-        let repliesList = new Set();
-        setTimeout(() => {
-            for (const msg of messages) {
-                const foundReply = displayChatMessage(msg);
-                if (foundReply) {
-                    repliesList.add(msg.message_id);
-                    unknownReplies.pop(msg.message_id);
-                }
-            }
-        }, 5);
+    if (!Messages || Messages.length === 0) {
+        displayStartMessage();
+        return;
+    }
 
-        fetchReplies(messages, repliesList);
-        
-        setTimeout(() => {
-            scrollToBottom();
-            setTimeout(() => {
-                scrollToBottom();
-            }, 20);
-        }, 10);
-    } else {
+    if (guildId !== currentGuildId) {
+        console.warn("History guild id is different from current guild");
+    }
+
+    if (channelId !== currentChannelId) {
+        console.warn("History channel id is different from current channel");
+    }
+
+    Messages.sort((a, b) => new Date(a.Date) - new Date(b.Date));
+
+    if (!Array.isArray(guildChatMessages[channelId])) {
+        guildChatMessages[channelId] = [];
+    }
+
+    console.log('Current value:', guildChatMessages[channelId], 'Type:', typeof guildChatMessages[channelId]);
+
+    try {
+        guildChatMessages[channelId].push(...Messages);
+    } catch (error) {
+        console.error(`Failed to push messages for channel ${channelId}:`, error);
+    }
+
+    if (Messages[0] && Messages[0].Date && new Date(Messages[0].Date).getTime() === firstMessageDateOnChannel.getTime()) {
         displayStartMessage();
     }
+    
+
+    const repliesList = new Set();
+    setTimeout(() => {
+        console.log(Messages);
+        Messages.forEach(msg => {
+            const foundReply = displayChatMessage(msg);
+            if (foundReply) {
+                repliesList.add(msg.MessageId);
+                unknownReplies.pop(msg.MessageId);
+            }
+        });
+    }, 5);
+
+    fetchReplies(Messages, repliesList);
+    
+    setTimeout(() => {
+        scrollToBottom();
+        setTimeout(scrollToBottom, 20);
+    }, 10);
 }
 
 let messageDates = {};
@@ -1596,11 +1601,26 @@ function displayWelcomeMessage(userName,date) {
 
 function displayChatMessage(data) {
     if (!data) return;
-    let { message_id,user_id, content, channel_id, date, last_edited, attachment_urls, addToTop, reply_to_id, reaction_emojis_ids,isBot, replyOf, willDisplayProfile } = data;
+    
+    const message_id = data.MessageId;
+    const user_id = data.UserId;
+    const content = data.Content;
+    const channel_id = data.ChannelId;
+    const date = data.Date;
+    const last_edited = data.LastEdited;
+    const attachment_urls = data.AttachmentUrls;
+    const reply_to_id = data.ReplyToId;
+    const reaction_emojis_ids = data.ReactionEmojisIds;
+    const addToTop = data.addToTop;
+    const isBot = data.isBot;
+    const replyOf = data.replyOf;
+
+
     if(messages_cache[message_id])  {
         console.log("Skipping adding message:", content);
         return;
     }
+    console.log(data, "displaying:", message_id, user_id, content, channel_id, date, last_edited, attachment_urls, reply_to_id, reaction_emojis_ids );
     if (!channel_id || !date ) {return; }
     if (!attachment_urls && content == ''){ return; }
     const nick = getUserNick(user_id);
@@ -1991,17 +2011,16 @@ function processMediaLink(link, newMessage, messageContentElement, content) {
             const spanElement = createEl('p', { id: 'message-content-element' });
             spanElement.textContent = content;
             spanElement.style.marginLeft = '0px';
-            messageContentElement.appendChild(spanElement); // Ensure the text is appended
+            messageContentElement.appendChild(spanElement);
         }
 
-        // Create media elements based on link types
         if (isImageURL(link) || isAttachmentUrl(link)) {
             mediaElement = document.createElement('img');
-            mediaElement.src = link; // Directly set the image source
-            mediaElement.alt = 'Loading...'; // Optional: provide an alt text
-            mediaElement.style.width = '100%'; // Optional: ensure it scales properly
-            mediaElement.style.height = 'auto'; // Optional: maintain aspect ratio
-            mediaElement.dataset.dummy = link; // Identify the image as the one being loaded
+            mediaElement.src = link; 
+            mediaElement.alt = 'Loading...'; 
+            mediaElement.style.width = '100%'; 
+            mediaElement.style.height = 'auto';
+            mediaElement.dataset.dummy = link;
             messageContentElement.appendChild(mediaElement);
         } else if (isTenorURL(link)) {
             mediaElement = createTenorElement(messageContentElement, content, link);
@@ -2081,10 +2100,10 @@ async function createMediaElement(content, messageContentElement, newMessage, at
 function hasSharedGuild(friend_id) {
     return shared_guilds_map.hasOwnProperty(friend_id);
 }
-async function sendMessage(value, user_ids) {
-    if (value == '') { return }
+async function sendMessage(content, user_ids) {
+    if (content == '') { return }
     if(isOnDm && currentDmId && !isFriend(currentDmId) && !hasSharedGuild(currentDmId)) {
-        displayCannotSendMessage(value);
+        displayCannotSendMessage(content);
         return;
     }
     let channelIdToSend = isOnDm ? currentDmId : currentChannelId;
@@ -2095,7 +2114,7 @@ async function sendMessage(value, user_ids) {
         const message = {
             guildId: currentGuildId,
             channelId: channelIdToSend,
-            content: 'Hello, this is a test message!',
+            content: content,
             attachmentUrls: null,
             replyToId: null,
             reactionEmojisIds: null,
@@ -2809,7 +2828,8 @@ function loadApp(friend_id=null) {
         if(currentDmId) {
             lastDmId = currentDmId;
         }
-        getChannels();
+        console.log(isDomLoaded);
+        
         get_users();
         refreshInviteId();
         disableElement('dms-title');

@@ -12,17 +12,33 @@ public class MessageService
 
     public MessageService(AppDbContext dbContext) => _dbContext = dbContext;
 
-    public async Task<List<string>> GetMessages(string guildId, string channelId)
+    public async Task<string> getOldestMessage(string guildId, string channelId)
+    {
+        var oldestMessageDate = await _dbContext.Messages
+            .Where(m => m.ChannelId == channelId)
+            .OrderBy(m => m.Date)
+            .Select(m => m.Date)
+            .FirstOrDefaultAsync(); 
+
+        return oldestMessageDate == default(DateTime) ? null : oldestMessageDate.ToString("o");
+    }
+
+
+
+
+
+    public async Task<List<Message>> GetMessages(string guildId, string channelId)
     {
         var messages = await _dbContext.Messages
             .Where(m => m.ChannelId == channelId)
             .OrderByDescending(m => m.Date)
             .Take(50)
-            .Select(m => m.Content)
             .ToListAsync();
+        
         messages.Reverse();
         return messages;
     }
+
     public async Task NewMessage(string userId,string guildId, string channelId, string content,string lastEdited, string attachmentUrls,string ReplyToId, string reactionEmojisIds)
     {
         string messageId = Utils.CreateRandomId();
@@ -77,4 +93,6 @@ public class MessageService
             await _dbContext.SaveChangesAsync();
         }
     }
+
+
 }
