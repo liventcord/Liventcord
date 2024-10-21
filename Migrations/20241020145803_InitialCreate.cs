@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -27,6 +28,20 @@ namespace MyPostgresApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_attachment_files", x => x.fileid);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "discriminators",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    nickname = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    value = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_discriminators", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -90,6 +105,25 @@ namespace MyPostgresApp.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_guilds_files", x => x.fileid);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Message",
+                columns: table => new
+                {
+                    messageid = table.Column<string>(name: "message_id", type: "text", nullable: false),
+                    userid = table.Column<string>(name: "user_id", type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    channelid = table.Column<string>(name: "channel_id", type: "text", nullable: false),
+                    date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    lastedited = table.Column<DateTime>(name: "last_edited", type: "timestamp with time zone", nullable: true),
+                    attachmenturls = table.Column<string>(name: "attachment_urls", type: "text", nullable: true),
+                    replytoid = table.Column<string>(name: "reply_to_id", type: "text", nullable: true),
+                    reactionemojisids = table.Column<string>(name: "reaction_emojis_ids", type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Message", x => x.messageid);
                 });
 
             migrationBuilder.CreateTable(
@@ -178,7 +212,6 @@ namespace MyPostgresApp.Migrations
                 {
                     guildid = table.Column<string>(name: "guild_id", type: "text", nullable: false),
                     userid = table.Column<string>(name: "user_id", type: "text", nullable: false),
-                    permissionid = table.Column<int>(name: "permission_id", type: "integer", nullable: false),
                     ReadMessages = table.Column<int>(type: "integer", nullable: false),
                     SendMessages = table.Column<int>(type: "integer", nullable: false),
                     ManageRoles = table.Column<int>(type: "integer", nullable: false),
@@ -286,6 +319,12 @@ namespace MyPostgresApp.Migrations
                 column: "guild_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_discriminators_nickname_value",
+                table: "discriminators",
+                columns: new[] { "nickname", "value" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_guild_permissions_user_id",
                 table: "guild_permissions",
                 column: "user_id");
@@ -313,6 +352,9 @@ namespace MyPostgresApp.Migrations
                 name: "attachment_files");
 
             migrationBuilder.DropTable(
+                name: "discriminators");
+
+            migrationBuilder.DropTable(
                 name: "emoji_files");
 
             migrationBuilder.DropTable(
@@ -326,6 +368,9 @@ namespace MyPostgresApp.Migrations
 
             migrationBuilder.DropTable(
                 name: "guilds_files");
+
+            migrationBuilder.DropTable(
+                name: "Message");
 
             migrationBuilder.DropTable(
                 name: "profile_files");

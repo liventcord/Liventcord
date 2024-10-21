@@ -61,6 +61,34 @@ namespace MyPostgresApp.Migrations
                     b.ToTable("attachment_files", (string)null);
                 });
 
+            modelBuilder.Entity("Discriminator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nickname")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("nickname");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Nickname", "Value")
+                        .IsUnique();
+
+                    b.ToTable("discriminators", (string)null);
+                });
+
             modelBuilder.Entity("EmojiFile", b =>
                 {
                     b.Property<string>("FileId")
