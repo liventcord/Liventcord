@@ -5,7 +5,7 @@ obj/
 publish/
 cache/
 ytcache/
-migrations/
+Migrations/
 
 appsettings.Development.json
 appsettings.json
