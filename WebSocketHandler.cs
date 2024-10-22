@@ -162,20 +162,8 @@ public class WebSocketHandler
     }
 
 
-    private void EmitToUser(IWebSocketConnection connection, object message)
-    {
-        if (connection != null)
-        {
-            var jsonMessage = JsonSerializer.Serialize(message);
-            connection.Send(jsonMessage);
-        }
-        else
-        {
-            Console.WriteLine("Connection is null, cannot send message.");
-        }
-    }
 
-
+    
 
 
     private async Task HandleMessage(IWebSocketConnection socket, SocketMessage msg)
@@ -217,6 +205,9 @@ public class WebSocketHandler
                 case "get_guilds":
                     await HandleGetGuilds(socket,msg);
                     break;
+                case "start_writing":
+                    await handleStartWriting(socket,msg);
+                    break;
                 default:
                     Console.WriteLine($"Unknown message type: {msg.Type}");
                     break;
@@ -227,6 +218,83 @@ public class WebSocketHandler
             Console.WriteLine($"Exception in HandleMessage: {ex.Message}");
         }
     }
+    private Dictionary<string, List<string>> writingUsersState = new();
+
+    private void EmitToUser(IWebSocketConnection connection, object message)
+    {
+        if (connection != null)
+        {
+            var jsonMessage = JsonSerializer.Serialize(message);
+            connection.Send(jsonMessage);
+        }
+        else
+        {
+            Console.WriteLine("Connection is null, cannot send message.");
+        }
+    }
+    private async Task EmitToGuild(string guildId, object payload) 
+    {
+        var guildUsers = await _guildService.GetGuildUsersIds(guildId);
+
+        if (guildUsers == null || guildUsers.Any())
+            Console.WriteLine($"No users found for guild {guildId} in the database.");
+        
+        foreach (var userId in guildUsers)
+        {
+            var connection = authenticatedClients.FirstOrDefault(ac => ac.Value == userId).Key;
+
+            if (connection != null)
+            {
+                EmitToUser(connection, payload);
+            }
+            else
+            {
+                Console.WriteLine($"No active connection found for user {userId}.");
+            }
+        }
+
+    }
+
+
+
+    private async Task handleStartWriting(IWebSocketConnection socket, SocketMessage msg)
+    {
+        string userId = authenticatedClients[socket];
+        if (string.IsNullOrEmpty(userId)) return;
+
+        if (msg.Data is not JsonElement dataElement || dataElement.ValueKind != JsonValueKind.Object)
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+            return;
+        }
+
+        string guildId = dataElement.GetProperty("guildId").GetString() ?? string.Empty;
+        string channelId = dataElement.GetProperty("channelId").GetString() ?? string.Empty;
+
+        if (!writingUsersState.ContainsKey(guildId))
+        {
+            writingUsersState[guildId] = new List<string>();
+        }
+
+        if (!writingUsersState[guildId].Contains(userId))
+        {
+            writingUsersState[guildId].Add(userId);
+        }
+
+        var messageToEmit = new
+        {
+            Type = "start_writing",
+            Data = new
+            {
+                userId, guildId, channelId
+            }
+        };
+
+        await EmitToGuild(guildId,messageToEmit);
+    }
+
+
+
     private async Task HandleGetGuilds(IWebSocketConnection socket, SocketMessage msg)
     {
         string userId = authenticatedClients[socket];
@@ -243,7 +311,6 @@ public class WebSocketHandler
             }
         };
         EmitToUser(socket, messageToEmit);
-        return;
     }
     private async Task HandleGetMessage(IWebSocketConnection socket, SocketMessage msg) 
     {
