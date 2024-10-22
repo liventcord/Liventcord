@@ -174,6 +174,18 @@ public class GuildService
             })
             .ToListAsync();
     }
+    public async Task<List<string>> GetGuildUsersIds(string guildId)
+    {
+        if (string.IsNullOrEmpty(guildId))
+            return new List<string>();
+
+        return await _dbContext.GuildUsers
+            .Where(gu => gu.GuildId == guildId)
+            .Select(gu => gu.User.UserId)
+            .ToListAsync();
+    }
+
+
     public async Task<List<PublicUser>> GetGuildUsers(string guildId)
     {
         if (string.IsNullOrEmpty(guildId))

@@ -83,7 +83,6 @@ let messageContextList = {};
 
 let channels_cache = {}; // <guild_id> <channels_list>
 let guild_users_cache = {}; // <guild_id> <users_list>
-let users_metadata_cache = {}; // <guild_id> 
 
 let usersInVoice = {};
 let readenMessagesCache = {};
@@ -421,9 +420,9 @@ async function handleUserKeydown(event) {
         }
         typingTimeout = setTimeout(() => {
             socket.emit('start_writing', {
-                'channel_id': isOnDm ? currentDmId : currentChannelId,
-                'guild_id': currentGuildId,
-                'is_dm': isOnDm
+                'channelId': isOnDm ? currentDmId : currentChannelId,
+                'guildId': currentGuildId,
+                'isDm': isOnDm
             });
         }, 1000);
     }
@@ -682,7 +681,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const friendContainer = getId('friend-container-item');
     friendContainer.addEventListener('click',loadMainMenu);
 
-    if(isOnGuild) { socket.emit('get_user_metadata',currentGuildId);  }
 
    
 
@@ -2635,6 +2633,7 @@ function loadGuild(guild_id,channel_id,guildName,guildAuthorId,isChangingUrl=tru
     if(!isChangingUrl) {
         wasNotChangingUrl = true;
     }
+    
     if(isOnMe) {
         loadApp();
     } else if (isOnDm) {
@@ -2642,6 +2641,7 @@ function loadGuild(guild_id,channel_id,guildName,guildAuthorId,isChangingUrl=tru
     } else if (isOnGuild){
         changecurrentGuild();
     } 
+    
 }
 function initialiseMe() {
     enableElement('dms-title');
@@ -2649,7 +2649,7 @@ function initialiseMe() {
     loadMainToolbar();
     isInitialized = true;
 }
-function get_users() {
+function getUsers() {
     if(currentGuildId) {
         if(guild_users_cache[currentGuildId]) {
             updateUserList(guild_users_cache[currentGuildId]);
@@ -2657,9 +2657,6 @@ function get_users() {
             socket.emit('get_users',currentGuildId);
         }
 
-        if(!users_metadata_cache[currentGuildId]) {
-            socket.emit('get_user_metadata',currentGuildId);
-        }
 
     } else {
         console.warn("Current guild id is null!");
@@ -2829,7 +2826,8 @@ function loadApp(friend_id=null) {
         }
         console.log(isDomLoaded);
         
-        get_users();
+        getUsers();
+        getChannels();
         refreshInviteId();
         disableElement('dms-title');
         disableElement('dm-container-parent');
@@ -2904,7 +2902,7 @@ function changecurrentGuild() {
     isOnMe = false;
     isOnGuild = true;
     getChannels();
-    get_users();
+    getUsers();
     refreshInviteId();
     getId('channel-info').textContent = currentChannelName;
     getId('guild-name').innerText = currentGuildName;

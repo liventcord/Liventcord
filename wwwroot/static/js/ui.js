@@ -2126,7 +2126,9 @@ function createChannelElement(channel) {
     });
 
     if (channel_id == currentChannelId) {
-        changeChannel(channel);
+        setTimeout(() => {
+            changeChannel(channel);
+        }, 50);
     }
 
 
