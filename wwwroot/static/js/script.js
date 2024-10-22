@@ -1620,7 +1620,6 @@ function displayChatMessage(data) {
         console.log("Skipping adding message:", content);
         return;
     }
-    console.log(data, "displaying:", message_id, user_id, content, channel_id, date, last_edited, attachment_urls, reply_to_id, reaction_emojis_ids );
     if (!channel_id || !date ) {return; }
     if (!attachment_urls && content == ''){ return; }
     const nick = getUserNick(user_id);
@@ -1766,23 +1765,22 @@ function getProfileUrl(user_id) {
     return `/profiles/${user_id}.png`;
 }
 
+async function setPicture(ImgToUpdate, srcid, is_profile, isTimestamp) {
+    if (!srcid) return;
 
-async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
-    if(!srcid) return;
-    if(srcid == CLYDE_ID) {
+    if (srcid == CLYDE_ID) {
         ImgToUpdate.src = clydeSrc;
         return;
     }
+
     const timestamp = new Date().getTime();
-
     const imageUrl = !is_profile 
-    ? `/guilds/${srcid}.png${isTimestamp ? `?ts=${timestamp}` : ''}` 
-    : `${getProfileUrl(srcid)}${isTimestamp ? `?ts=${timestamp}` : ''}`;
-
+        ? `/guilds/${srcid}.png${isTimestamp ? `?ts=${timestamp}` : ''}` 
+        : `${getProfileUrl(srcid)}${isTimestamp ? `?ts=${timestamp}` : ''}`;
 
     srcid = String(srcid);
-    
-    if(is_profile) {
+
+    if (is_profile) {
         if (failedProfiles.has(srcid)) {
             ImgToUpdate.src = defaultProfileImageUrl;
             return;
@@ -1794,7 +1792,6 @@ async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
         }
     }
 
-
     const cachedBase64 = is_profile ? profileCache[srcid] : guildImageCache[srcid];
     if (cachedBase64 && cachedBase64 !== base64Of404) {
         ImgToUpdate.src = cachedBase64;
@@ -1804,9 +1801,9 @@ async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
     if (requestInProgress[srcid]) {
         try {
             const base64data = await requestInProgress[srcid];
-            ImgToUpdate.src = base64data;
+            ImgToUpdate.src = base64data || (is_profile ? defaultProfileImageUrl : createBlackImage());
         } catch {
-            ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();;
+            ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();
         }
         return;
     }
@@ -1816,20 +1813,21 @@ async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
             const response = await fetch(imageUrl);
             if (response.status === 404) {
                 ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();
-                is_profile ? failedProfiles : failedGuilds.add(srcid);
+                is_profile ? failedProfiles.add(srcid) : failedGuilds.add(srcid);
                 return null;
             }
+
             const blob = await response.blob();
             const base64data = await new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                reader.onloadend = function() {
+                reader.onloadend = function () {
                     const data = reader.result;
                     if (data !== base64Of404) {
                         (is_profile ? profileCache : guildImageCache)[srcid] = data;
                         resolve(data);
                     } else {
                         (is_profile ? profileCache : guildImageCache)[srcid] = base64Of404;
-                        reject(new Error('Profile image is 404'));
+                        reject(new Error('Image is 404'));
                     }
                 };
                 reader.onerror = reject;
@@ -1838,9 +1836,9 @@ async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
 
             return base64data;
         } catch (error) {
-            ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();;
-            is_profile ? failedProfiles : failedGuilds.add(srcid);
-            return is_profile ? defaultProfileImageUrl : createBlackImage();;
+            ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();
+            is_profile ? failedProfiles.add(srcid) : failedGuilds.add(srcid);
+            return null;
         } finally {
             delete requestInProgress[srcid];
         }
@@ -1848,16 +1846,17 @@ async function setPicture(ImgToUpdate,srcid,is_profile,isTimestamp) {
 
     try {
         const base64data = await requestInProgress[srcid];
-        ImgToUpdate.src = base64data;
+        ImgToUpdate.src = base64data || (is_profile ? defaultProfileImageUrl : createBlackImage());
     } catch {
-        ImgToUpdate.src = defaultProfileImageUrl;
+        ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();
     }
 
     ImgToUpdate.addEventListener('error', function () {
-        ImgToUpdate.src = defaultProfileImageUrl;
-        is_profile ? failedProfiles : failedGuilds.add(srcid);
+        ImgToUpdate.src = is_profile ? defaultProfileImageUrl : createBlackImage();
+        is_profile ? failedProfiles.add(srcid) : failedGuilds.add(srcid);
     });
 }
+
 async function setGuildPic(guildImg , guild_id) {
     setPicture(guildImg , guild_id,false)
 }
