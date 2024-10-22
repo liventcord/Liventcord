@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Collections.Generic;
 using MyPostgresApp.Models;
+using MyPostgresApp.Data;
 
 public class WebSocketHandler
 {
@@ -177,7 +178,7 @@ public class WebSocketHandler
 
 
 
-    private async void HandleMessage(IWebSocketConnection socket, SocketMessage msg)
+    private async Task HandleMessage(IWebSocketConnection socket, SocketMessage msg)
     {
         try
         {
@@ -261,20 +262,25 @@ public class WebSocketHandler
             return;
         }
 
-        List<Message> messages = await _messageService.GetMessages(guildId, channelId);
-        string oldestMessageDate = await _messageService.getOldestMessage(guildId, channelId);
+        var messagesTask = Task.Run(() => _messageService.GetMessages(guildId, channelId));
+        var oldestMessageDateTask = Task.Run(() => _messageService.GetOldestMessage(guildId, channelId));
+
+        var messages = await messagesTask;
+        var oldestMessageDate = await oldestMessageDateTask;
 
         var messageToEmit = new
         {
             Type = "history_response",
             Data = new
             {
-                messages,oldestMessageDate
+                messages,
+                oldestMessageDate
             }
         };
 
         EmitToUser(socket, messageToEmit);
     }
+
 
     
     private async Task HandleNewMessage(IWebSocketConnection socket, SocketMessage msg)

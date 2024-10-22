@@ -11,7 +11,38 @@ public class GuildService
     private readonly AppDbContext _dbContext;
 
     public GuildService(AppDbContext dbContext) => _dbContext = dbContext;
+    public async void AddUserToGuild(string userId, string guildId)
+    {
+        var guild = await _dbContext.Guilds
+            .Include(g => g.GuildUsers)
+            .FirstOrDefaultAsync(g => g.GuildId == guildId);
 
+        if (guild == null) 
+            throw new Exception("Guild not found");
+
+        if (!guild.GuildUsers.Any(gu => gu.UserId == userId))
+        {
+            guild.GuildUsers.Add(new GuildUser { UserId = userId });
+        }
+
+        var permissions = new Dictionary<string, int>
+        {
+            {"read_messages", 1}, 
+            {"send_messages", 1}, 
+            {"mention_everyone", 1}, 
+            {"manage_roles", 0},
+            {"kick_members", 0}, 
+            {"ban_members", 0}, 
+            {"manage_channels", 0},
+            {"add_reaction", 0}, 
+            {"is_admin", 0}, 
+            {"can_invite", 0}
+        };
+
+        AssignPermissions(guildId, userId, permissions);
+
+        await _dbContext.SaveChangesAsync();
+    }
     public async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
     {
         var guildId = Utils.CreateRandomId();
