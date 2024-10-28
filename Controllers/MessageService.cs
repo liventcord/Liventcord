@@ -9,18 +9,16 @@ using System.Threading.Tasks;
 
 public class MessageService
 {
-    private readonly IDbContextFactory<AppDbContext> _contextFactory;
+    private readonly AppDbContext _context;
 
-    public MessageService(IDbContextFactory<AppDbContext> contextFactory)
+    public MessageService(AppDbContext context)
     {
-        _contextFactory = contextFactory;
+        _context = context;
     }
 
     public async Task<string> GetOldestMessage(string guildId, string channelId)
     {
-        using var context = _contextFactory.CreateDbContext();
-
-        var oldestMessageDate = await context.Messages
+        var oldestMessageDate = await _context.Messages
             .Where(m => m.ChannelId == channelId)
             .OrderBy(m => m.Date)
             .Select(m => m.Date)
@@ -31,9 +29,7 @@ public class MessageService
 
     public async Task<List<Message>> GetMessages(string guildId, string channelId)
     {
-        using var context = _contextFactory.CreateDbContext();
-
-        var messages = await context.Messages
+        var messages = await _context.Messages
             .Where(m => m.ChannelId == channelId)
             .OrderByDescending(m => m.Date)
             .Take(50)
@@ -45,8 +41,6 @@ public class MessageService
 
     public async Task NewMessage(string userId, string guildId, string channelId, string content, string lastEdited, string attachmentUrls, string replyToId, string reactionEmojisIds)
     {
-        using var context = _contextFactory.CreateDbContext();
-
         string messageId = Utils.CreateRandomId();
         var message = new Message
         {
@@ -61,51 +55,45 @@ public class MessageService
             ReactionEmojisIds = reactionEmojisIds
         };
 
-        await context.Messages.AddAsync(message);
-        await context.SaveChangesAsync();
+        await _context.Messages.AddAsync(message);
+        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteMessagesFromUser(string userId)
     {
-        using var context = _contextFactory.CreateDbContext();
-
-        var messages = await context.Messages
+        var messages = await _context.Messages
             .Where(m => m.UserId == userId)
             .ToListAsync();
 
         if (messages.Any())
         {
-            context.Messages.RemoveRange(messages);
-            await context.SaveChangesAsync();
+            _context.Messages.RemoveRange(messages);
+            await _context.SaveChangesAsync();
         }
     }
 
     public async Task DeleteMessage(string channelId, string messageId)
     {
-        using var context = _contextFactory.CreateDbContext();
-
-        var message = await context.Messages
+        var message = await _context.Messages
             .FirstOrDefaultAsync(m => m.MessageId == messageId && m.ChannelId == channelId);
 
         if (message != null)
         {
-            context.Messages.Remove(message);
-            await context.SaveChangesAsync();
+            _context.Messages.Remove(message);
+            await _context.SaveChangesAsync();
         }
     }
 
     public async Task EditMessage(string channelId, string messageId, string newContent)
     {
-        using var context = _contextFactory.CreateDbContext();
-
-        var message = await context.Messages
+        var message = await _context.Messages
             .FirstOrDefaultAsync(m => m.MessageId == messageId && m.ChannelId == channelId);
 
         if (message != null)
         {
             message.Content = newContent;
             message.LastEdited = DateTime.UtcNow;
-            await context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
         }
     }
 }
