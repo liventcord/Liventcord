@@ -2915,9 +2915,9 @@ function changecurrentGuild() {
 
 
 
-function joinVoiceChannel(channel_id) {
-    if(currentVoiceChannelId == channel_id) { return; }
-    const data = { 'guild_id' : currentGuildId, 'channel_id' : channel_id }
+function joinVoiceChannel(channelId) {
+    if(currentVoiceChannelId == channelId) { return; }
+    const data = { 'guild_id' : currentGuildId, 'channelId' : channelId }
     socket.emit('join_voice_channel',data);
     return;
 }
@@ -2926,15 +2926,26 @@ function joinVoiceChannel(channel_id) {
 
 function refreshInviteId() {
     if(!current_invite_ids) { return; }
-    socket.emit('get_current_invite_id',{'guild_id' : currentGuildId});
+    socket.emit('get_current_invite_id',{'guildId' : currentGuildId});
 }
 
 
+function addGuild(guildId, guildName, ownerId) {
+    const data = {
+        "GuildId": guildId,
+        "GuildName": guildName,
+        "OwnerId": ownerId
+    };
+    currentGuildData[guildId] = data;
+}
 
-function changeUrlWithFireWorks(guild_id,channel_id,guild_name) { 
-    loadGuild(guild_id,channel_id,guild_name,currentUserId)
+function changeUrlWithFireWorks(guildId,channelId,guildName) { 
+    guildAuthorIds[guildId] = currentUserId
+    loadGuild(guildId,channelId,guildName,currentUserId)
+    addGuild(guildId,guildName,currentUserId);
+
     createFireWorks();
-    permissions_map[guild_id] = {
+    permissions_map[guildId] = {
         "read_messages": 1,
         "send_messages": 1,
         "manage_roles": 1,

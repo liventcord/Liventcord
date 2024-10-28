@@ -2255,94 +2255,71 @@ function updateGuildList(guildData) {
     currentGuildData = guildData;
     guildsList.innerHTML = "";
 
-    const mainLogo = createEl('li');
     const mainLogoImg = createEl('img', {
         id: 'main-logo',
         src: '/static/images/icons/icon.png',
         'data-src': '/static/images/icons/icon.png',
         style: 'width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;'
     });
-    mainLogoImg.addEventListener('mousedown', function() {
+    mainLogoImg.addEventListener('mousedown', () => {
         mainLogoImg.style.transform = 'translateY(50px)';
     });
-
-    mainLogoImg.addEventListener('mouseup', function() {
+    mainLogoImg.addEventListener('mouseup', mainLogoImg.addEventListener.bind(mainLogoImg, 'mouseleave', () => {
         mainLogoImg.style.transform = 'translateY(0)';
-    });
+    }));
+    mainLogoImg.addEventListener('click', clickMainLogo);
 
-    mainLogoImg.addEventListener('mouseleave', function() {
-        mainLogoImg.style.transform = 'translateY(0)';
-    });
-    mainLogoImg.addEventListener('click',function() {
-        clickMainLogo();
-    });
-
-
-    
+    const mainLogo = createEl('li');
     mainLogo.appendChild(mainLogoImg);
     guildsList.appendChild(mainLogo);
-    
 
     guildData.guilds.forEach((guild) => {
-        const existingGuild = getId(guild.GuildId);
-        if (existingGuild) return;
+        if (getId(guild.GuildId)) return;
         
-        const li = createEl('li');
-        const img = createEl('img', { className: 'guilds-list' });
-        const whiteRod = createEl('div', { className: 'white-rod' });
-        
-        const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guild.GuildId}`: createBlackImage();
+        const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guild.GuildId}` : createBlackImage();
         console.warn(guild);
         guildAuthorIds[guild.GuildId] = guild.OwnerId;
-        img.src = imgSrc;
-        li.appendChild(img);
-        li.appendChild(whiteRod);
-    
-        img.id = guild.GuildId;
-        img.addEventListener('click', function () {
+
+        const li = createEl('li');
+        const img = createEl('img', { className: 'guilds-list', id: guild.GuildId, src: imgSrc });
+        img.addEventListener('click', () => {
             loadGuild(guild.GuildId, guild.FirstChannelId, guild.GuildName);
         });
         
+        li.appendChild(img);
+        li.appendChild(createEl('div', { className: 'white-rod' }));
         guildsList.appendChild(li);
-    
         guildNames[guild.GuildId] = guild.GuildName;
     });
-    addKeybinds();
     
+    addKeybinds();
 }
-
-
 
 function appendToGuildList(guild) {
-    const guildsList = getId('guilds-list'); 
-    if (guildsList.querySelector(`#${guild.id}`)) { return; }
-    const li = createEl('li');
-    const img = createEl('img',{className : 'guilds-list'});
-    img.src = guild.src;
-    li.appendChild(img);
-    const whiteRod = createEl('div',{className:'white-rod'});
-    li.appendChild(whiteRod);
-    img.id = guild.id;
-    img.addEventListener('click', function () {
-        loadGuild(guild.id,guild.first_channel_id,guild.name,)
-    });
+    const guildsList = getId('guilds-list');
+    if (guildsList.querySelector(`#${guild.id}`)) return;
 
+    const li = createEl('li');
+    const img = createEl('img', { className: 'guilds-list', id: guild.id, src: guild.src });
+    img.addEventListener('click', () => {
+        loadGuild(guild.id, guild.first_channel_id, guild.name);
+    });
+    
+    li.appendChild(img);
+    li.appendChild(createEl('div', { className: 'white-rod' }));
     guildsList.appendChild(li);
     guildNames[guild.id] = guild.name;
-
     addKeybinds();
 }
-
 
 function removeFromGuildList(guild_id) {
     const guildImg = getId(guild_id);
-    if (guildImg && guildsList.contains(guildImg)) {
+    if (guildImg) {
         const parentLi = guildImg.closest('li');
-        if (parentLi) {
-            parentLi.remove();
-        }
+        if (parentLi) parentLi.remove();
     }
 }
+
 
 //Generic
 
