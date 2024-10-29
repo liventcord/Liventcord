@@ -1,6 +1,6 @@
 using System;
 
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     public class Message
     {

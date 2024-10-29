@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace MyPostgresApp.Helpers
+namespace LiventCord.Helpers
 {
     public class ValidationHelper
     {

@@ -1,4 +1,4 @@
-namespace MyPostgresApp.Helpers
+namespace LiventCord.Helpers
 {
     public static class FileExtensions
     {

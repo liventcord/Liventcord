@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using MyPostgresApp.Data;
+using LiventCord.Data;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
     [Route("api")]
     [ApiController]

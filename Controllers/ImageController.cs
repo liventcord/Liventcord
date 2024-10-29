@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using MyPostgresApp.Data;
-using MyPostgresApp.Helpers;
+using LiventCord.Data;
+using LiventCord.Helpers;
 using Microsoft.Extensions.Logging;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
 
 

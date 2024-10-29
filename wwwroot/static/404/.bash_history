@@ -328,14 +328,14 @@ cd ..
 ls
 cd ..
 ls
-cd MyPostgresApp/
+cd LiventCord/
 clear
 dotnet run
 cd 
 createdb -U postgres liventcord
 clear
 cd
-cd MyPostgresApp/ && dotnet  run
+cd LiventCord/ && dotnet  run
 python down.py 
 clear
 bash runapp.sh 
@@ -371,7 +371,7 @@ gpt-3.5-turbo
 curl https://api.openai.com/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer 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" -d '{ "model": "gpt-3.5-turbo", "messages": [ {"role": "user", "content": "write a haiku about ai"} ] }'
 exit
 cd
-cd MyPostgresApp/
+cd LiventCord/
 dotnet run
 clear
 dotnet run
@@ -710,11 +710,11 @@ clear
 rm -rf LiventCordAspx/
 cd ..
 clear
-cd MyPostgresApp/
+cd LiventCord/
 clear
 cd ..
 git clone https://github.com/TheLp281/LiventCordAspx
-cp -r MyPostgresApp/* LiventCordAspx/
+cp -r LiventCord/* LiventCordAspx/
 cd LiventCordAspx/
 ls
 git add .
@@ -722,7 +722,7 @@ clear
 ls
 lf
 rm toupload.zip 
-rm MyPostgresApp.zip 
+rm LiventCord.zip 
 clear
 ls
 lf
@@ -1827,7 +1827,7 @@ exit
 pavucontorl
 pavucontrol
 cd ..
-cd MyPostgresApp/
+cd LiventCord/
 clear
 dotnet run
 dotnet run

@@ -1,11 +1,11 @@
-using MyPostgresApp.Data;
+using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using MyPostgresApp.Helpers;
-using MyPostgresApp.Services;
+using LiventCord.Helpers;
+using LiventCord.Services;
 using Microsoft.AspNetCore.StaticFiles;
-using MyPostgresApp.Routes;
-using MyPostgresApp.Controllers;
+using LiventCord.Routes;
+using LiventCord.Controllers;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;

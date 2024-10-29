@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using MyPostgresApp.Models;
+using LiventCord.Models;
 
-namespace MyPostgresApp.Controllers;
+namespace LiventCord.Controllers;
 
 public class HomeController : Controller
 {

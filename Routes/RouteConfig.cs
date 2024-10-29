@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using System.Collections.Generic;
 using System.IO;
 
-namespace MyPostgresApp.Routes
+namespace LiventCord.Routes
 {
     public static class RouteConfig
     {

@@ -5,8 +5,8 @@ using System.Text.Json;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Collections.Generic;
-using MyPostgresApp.Models;
-using MyPostgresApp.Data;
+using LiventCord.Models;
+using LiventCord.Data;
 
 public class WebSocketHandler
 {

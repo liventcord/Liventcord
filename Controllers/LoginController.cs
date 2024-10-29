@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using MyPostgresApp.Data;
-using MyPostgresApp.Models;
+using LiventCord.Data;
+using LiventCord.Models;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using BCrypt.Net;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
     [Route("auth")]
     [ApiController]

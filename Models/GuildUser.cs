@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     [Table("guild_users")]
     public class GuildUser

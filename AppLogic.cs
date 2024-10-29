@@ -1,14 +1,14 @@
-using MyPostgresApp.Data;
+using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Http;
-using MyPostgresApp.Helpers;
-using MyPostgresApp.Services;
+using LiventCord.Helpers;
+using LiventCord.Services;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace MyPostgresApp.Helpers
+namespace LiventCord.Helpers
 {
     public class AppLogic
     {

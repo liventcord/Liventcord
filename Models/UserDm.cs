@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     [Table("user_dms")]
     public class UserDm
