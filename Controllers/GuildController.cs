@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using MyPostgresApp.Data;
-using MyPostgresApp.Helpers;
-using MyPostgresApp.Models;
+using LiventCord.Data;
+using LiventCord.Helpers;
+using LiventCord.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

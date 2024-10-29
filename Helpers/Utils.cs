@@ -1,7 +1,7 @@
 using System;
 using System.Text.RegularExpressions;
 
-namespace MyPostgresApp.Helpers
+namespace LiventCord.Helpers
 {
     public static partial class Utils
     {

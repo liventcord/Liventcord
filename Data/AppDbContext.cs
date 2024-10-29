@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyPostgresApp.Models;
+using LiventCord.Models;
 
-namespace MyPostgresApp.Data
+namespace LiventCord.Data
 {
     public class AppDbContext : DbContext
     {

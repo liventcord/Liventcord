@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using MyPostgresApp.Data;
-using MyPostgresApp.Models;
+using LiventCord.Data;
+using LiventCord.Models;
 
-namespace MyPostgresApp.Helpers
+namespace LiventCord.Helpers
 {
     public class FriendHelper
     {

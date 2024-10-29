@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using MyPostgresApp.Data;
-using MyPostgresApp.Models;
-using MyPostgresApp.Helpers; 
+using LiventCord.Data;
+using LiventCord.Models;
+using LiventCord.Helpers; 
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
     [Route("auth")]
     [ApiController]

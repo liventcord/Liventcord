@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using MyPostgresApp.Data;
-using MyPostgresApp.Helpers;
-using MyPostgresApp.Models;
+using LiventCord.Data;
+using LiventCord.Helpers;
+using LiventCord.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,22 +29,18 @@ public class MessageService
 
     public async Task<List<Message>> GetMessages(string guildId, string channelId)
     {
-        var messages = await _context.Messages
+        return await _context.Messages
             .Where(m => m.ChannelId == channelId)
             .OrderByDescending(m => m.Date)
             .Take(50)
             .ToListAsync();
-
-        messages.Reverse();
-        return messages;
     }
 
     public async Task NewMessage(string userId, string guildId, string channelId, string content, string lastEdited, string attachmentUrls, string replyToId, string reactionEmojisIds)
     {
-        string messageId = Utils.CreateRandomId();
         var message = new Message
         {
-            MessageId = messageId,
+            MessageId = Utils.CreateRandomId(),
             UserId = userId,
             Content = content,
             ChannelId = channelId,

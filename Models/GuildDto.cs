@@ -1,5 +1,5 @@
 // Models/GuildDto.cs
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     public class GuildDto
     {

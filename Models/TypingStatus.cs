@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MyPostgresApp.Models;
+namespace LiventCord.Models;
 
 public partial class TypingStatus
 {

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     //user_id TEXT PRIMARY KEY,
     //email TEXT UNIQUE NOT NULL,

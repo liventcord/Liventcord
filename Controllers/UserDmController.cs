@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using MyPostgresApp.Services;
+using LiventCord.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace MyPostgresApp.Controllers
+namespace LiventCord.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

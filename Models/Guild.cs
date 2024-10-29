@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 
-namespace MyPostgresApp.Models
+namespace LiventCord.Models
 {
     [Table("guilds")]
     public class Guild

@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using MyPostgresApp.Data;
-using MyPostgresApp.Models;
+using LiventCord.Data;
+using LiventCord.Models;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace MyPostgresApp.Services
+namespace LiventCord.Services
 {
     public class TypingService
     {
