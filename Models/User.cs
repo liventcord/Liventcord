@@ -68,7 +68,15 @@ namespace LiventCord.Models
         [StringLength(512)][Column("social_media_links")]
         public string? SocialMediaLinks { get; set; }
         [Column("preferences")]
-        public JsonElement? Preferences { get; set; }
+        public string? PreferencesJson { get; set; }
+
+        [NotMapped]
+        public JsonElement? Preferences
+        {
+            get => string.IsNullOrEmpty(PreferencesJson) ? (JsonElement?)null : JsonSerializer.Deserialize<JsonElement>(PreferencesJson);
+            set => PreferencesJson = value.HasValue ? JsonSerializer.Serialize(value.Value) : null;
+        }
+
 
         public PublicUser GetPublicUser()
         {
