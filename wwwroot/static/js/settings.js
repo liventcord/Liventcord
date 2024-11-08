@@ -642,11 +642,6 @@ socket.on('message', (data) => {
         displayChatMessage(data);
 
         fetchReplies(data);
-        if(user_id == currentUserId) {
-            setTimeout(() => {
-                scrollToBottom();
-            }, 30);
-        }
 
     } catch (error) {
         console.error('Error processing message:', error);

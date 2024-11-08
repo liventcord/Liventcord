@@ -2020,7 +2020,7 @@ function mouseLeaveChannelButton(channelButton,isTextChannel,channel_id) {
 
 
     if(channelSpan && !isTextChannel) {
-        channelSpan.style.marginRight = hashChildElements(channelButton) ? '30px' : '100px';
+        channelSpan.style.marginRight = hashChildElements(channelButton) ? '30px' : '0px';
     }
     if(contentWrapper) {
         if(!isTextChannel) {
@@ -2030,7 +2030,7 @@ function mouseLeaveChannelButton(channelButton,isTextChannel,channel_id) {
                 contentWrapper.style.display = 'none';
             }
             
-        }  else {
+        }  else  if (currentChannelId == channel_id){
             contentWrapper.style.display = 'none';
             
         }

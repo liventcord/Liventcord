@@ -989,6 +989,7 @@ function displayStartMessage() {
         }
         chatContent.insertBefore(message, chatContent.firstChild); 
         isLastSendMessageStart = true;
+        scrollToBottom();
         
     } else {
         if(chatContent.querySelector('.startmessage')) { return; }
@@ -1135,8 +1136,7 @@ function handleHistoryResponse(data) {
     
     setTimeout(() => {
         scrollToBottom();
-        setTimeout(scrollToBottom, 20);
-    }, 10);
+    }, 20);
 }
 
 let messageDates = {};
@@ -2105,7 +2105,9 @@ async function sendMessage(content, user_ids) {
     }
     let channelIdToSend = isOnDm ? currentDmId : currentChannelId;
 
-    scrollToBottom();
+    setTimeout(() => {
+        scrollToBottom();
+    }, 10);
 
     if (fileInput.files.length < 1) {
         const message = {
