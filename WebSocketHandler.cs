@@ -30,7 +30,7 @@ public class WebSocketHandler
         });
     }
 
-    private async void OnOpen(IWebSocketConnection socket)
+    private async Task OnOpen(IWebSocketConnection socket)
     {
         if (authenticatedClients.TryGetValue(socket, out string userId))
         {
@@ -38,7 +38,7 @@ public class WebSocketHandler
         }
     }
 
-    private async void OnClose(IWebSocketConnection socket)
+    private async Task OnClose(IWebSocketConnection socket)
     {
         if (authenticatedClients.TryGetValue(socket, out string userId))
         {
@@ -329,11 +329,8 @@ public class WebSocketHandler
             return;
         }
 
-        var messagesTask = Task.Run(() => _messageService.GetMessages(guildId, channelId));
-        var oldestMessageDateTask = Task.Run(() => _messageService.GetOldestMessage(guildId, channelId));
-
-        var messages = await messagesTask;
-        var oldestMessageDate = await oldestMessageDateTask;
+        var messages = await _messageService.GetMessages(guildId, channelId);
+        var oldestMessageDate = await _messageService.GetOldestMessage(guildId, channelId);
 
         var messageToEmit = new
         {
@@ -347,6 +344,7 @@ public class WebSocketHandler
 
         EmitToUser(socket, messageToEmit);
     }
+
 
 
     
