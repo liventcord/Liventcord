@@ -2030,7 +2030,7 @@ function mouseLeaveChannelButton(channelButton,isTextChannel,channel_id) {
                 contentWrapper.style.display = 'none';
             }
             
-        }  else  if (currentChannelId == channel_id){
+        }  else  if (currentChannelId != channel_id){
             contentWrapper.style.display = 'none';
             
         }

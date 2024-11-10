@@ -795,9 +795,9 @@ async function changeChannel(newChannel) {
     currentChannels.forEach((channel, index) => {
         const channelButton = channelsUl.querySelector(`li[id="${channel.ChannelId}"]`);
         if(channelButton) {
-            if(channel.ChannelI != channel_id) {
-                mouseHoverChannelButton(channelButton,channel.is_text_channel,channel.ChannelI);
-                mouseLeaveChannelButton(channelButton,channel.is_text_channel,channel.ChannelI);
+            if(channel.ChannelId != channel_id) {
+                mouseHoverChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
+                mouseLeaveChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
             } else if(!isTextChannel) {
                 const usersInChannel = usersInVoice[channel_id];
                 if(usersInChannel) {

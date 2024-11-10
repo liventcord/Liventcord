@@ -125,43 +125,7 @@ public class WebSocketHandler
             Console.WriteLine($"Exception in OnMessage: {ex.Message}");
         }
     }
-    private async Task HandleGetChannels(IWebSocketConnection socket, SocketMessage msg)
-    {
-        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
-        {
-            var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(dataElement.GetRawText());
-            
-            if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
-            {
-                string guildId = guildIdElement.GetString();
-                if (!string.IsNullOrEmpty(guildId))
-                {
-                    var channels = await _guildService.GetGuildChannels(authenticatedClients[socket], guildId);
-                    if (channels != null)
-                    {
-                        var updateChannelsMessage = new
-                        {
-                            Type = "update_channels",
-                            Data = new
-                            {
-                                guild_id = guildId,
-                                channels
-                            }
-                        };
-                        EmitToUser(socket, updateChannelsMessage);
-                        return;
-                    }
-                }
-            }
-            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
-        }
-        else
-        {
-            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
-        }
-    }
-
-
+    
 
     
 
@@ -220,18 +184,29 @@ public class WebSocketHandler
     }
     private Dictionary<string, List<string>> writingUsersState = new();
 
-    private void EmitToUser(IWebSocketConnection connection, object message)
+    private readonly SemaphoreSlim _sendSemaphore = new SemaphoreSlim(1, 1);
+
+    private async Task EmitToUser(IWebSocketConnection connection, object message)
     {
         if (connection != null)
         {
-            var jsonMessage = JsonSerializer.Serialize(message);
-            connection.Send(jsonMessage);
+            await _sendSemaphore.WaitAsync(); 
+            try
+            {
+                var jsonMessage = JsonSerializer.Serialize(message);
+                await connection.Send(jsonMessage);
+            }
+            finally
+            {
+                _sendSemaphore.Release();
+            }
         }
         else
         {
             Console.WriteLine("Connection is null, cannot send message.");
         }
     }
+
     private async Task EmitToGuild(string guildId, object payload) 
     {
         var guildUsers = await _guildService.GetGuildUsersIds(guildId);
@@ -245,7 +220,7 @@ public class WebSocketHandler
 
             if (connection != null)
             {
-                EmitToUser(connection, payload);
+                await EmitToUser(connection, payload);
             }
             else
             {
@@ -292,6 +267,43 @@ public class WebSocketHandler
 
         await EmitToGuild(guildId,messageToEmit);
     }
+    private async Task HandleGetChannels(IWebSocketConnection socket, SocketMessage msg)
+    {
+        if (msg.Data is JsonElement dataElement && dataElement.ValueKind == JsonValueKind.Object)
+        {
+            var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(dataElement.GetRawText());
+            
+            if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
+            {
+                string guildId = guildIdElement.GetString();
+                if (!string.IsNullOrEmpty(guildId))
+                {
+                    var channels = await _guildService.GetGuildChannels(authenticatedClients[socket], guildId);
+                    if (channels != null)
+                    {
+                        var updateChannelsMessage = new
+                        {
+                            Type = "update_channels",
+                            Data = new
+                            {
+                                guild_id = guildId,
+                                channels
+                            }
+                        };
+                        await EmitToUser(socket, updateChannelsMessage);
+                        return;
+                    }
+                }
+            }
+            Console.WriteLine("Data is null or Guild ID is missing for get_channels message.");
+        }
+        else
+        {
+            Console.WriteLine("msg.Data is not a valid JsonElement or is not an object.");
+        }
+    }
+
+
 
 
 
@@ -310,7 +322,7 @@ public class WebSocketHandler
                 guilds
             }
         };
-        EmitToUser(socket, messageToEmit);
+        await EmitToUser(socket, messageToEmit);
     }
     private async Task HandleGetMessage(IWebSocketConnection socket, SocketMessage msg) 
     {
@@ -342,7 +354,7 @@ public class WebSocketHandler
             }
         };
 
-        EmitToUser(socket, messageToEmit);
+        await EmitToUser(socket, messageToEmit);
     }
 
 
@@ -460,7 +472,7 @@ public class WebSocketHandler
                         users
                     }
                 };
-                EmitToUser(socket, updateUsersMessage);
+                await EmitToUser(socket, updateUsersMessage);
                 return;
             }
             Console.WriteLine("Data is null or Guild ID is missing for get_users message.");
