@@ -21,7 +21,6 @@ namespace LiventCord.Models
     //social_media_links TEXT,
     //date_of_birth DATE,
     //hide_profile INTEGER DEFAULT 0,
-    //preferences JSON,
     //UNIQUE (nickname, discriminator)
 
 
@@ -67,15 +66,6 @@ namespace LiventCord.Models
         
         [StringLength(512)][Column("social_media_links")]
         public string? SocialMediaLinks { get; set; }
-        [Column("preferences")]
-        public string? PreferencesJson { get; set; }
-
-        [NotMapped]
-        public JsonElement? Preferences
-        {
-            get => string.IsNullOrEmpty(PreferencesJson) ? (JsonElement?)null : JsonSerializer.Deserialize<JsonElement>(PreferencesJson);
-            set => PreferencesJson = value.HasValue ? JsonSerializer.Serialize(value.Value) : null;
-        }
 
 
         public PublicUser GetPublicUser()
