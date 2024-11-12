@@ -9,6 +9,7 @@ using LiventCord.Controllers;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,8 +110,8 @@ app.MapGet("/error", async context =>
 string secretKey = builder.Configuration["AppSettings:SecretKey"] ?? string.Empty;
 var guildService = app.Services.GetRequiredService<GuildService>();
 var messageService = app.Services.GetRequiredService<MessageService>();
-var webSocketHandler = new WebSocketHandler("ws://0.0.0.0:8181", secretKey, guildService,messageService);
-
+var appManager = new AppManager(secretKey, guildService,messageService);
+appManager.ConfigureApp(app);
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
@@ -139,7 +140,6 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
-
 app.MapFallback(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -150,3 +150,32 @@ app.MapFallback(async context =>
 
 app.MapControllers();
 app.Run();
+
+async Task SendHistoryResponse(HttpContext context, Dictionary<string, string> request)
+{
+    var placeholderHistory = new
+    {
+        status = "success",
+        history = new[] { "Message 1", "Message 2", "Message 3" },
+        channelId = request["channel_id"],
+        guildId = request["guild_id"]
+    };
+    await context.Response.WriteAsync(JsonSerializer.Serialize(placeholderHistory));
+}
+
+async Task SendChannelsResponse(HttpContext context, Dictionary<string, string> request)
+{
+    var placeholderChannels = new
+    {
+        status = "success",
+        channels = new[] { "Channel A", "Channel B", "Channel C" },
+        guildId = request["guild_id"]
+    };
+    await context.Response.WriteAsync(JsonSerializer.Serialize(placeholderChannels));
+}
+
+async Task SendErrorResponse(HttpContext context, string message)
+{
+    var errorResponse = new { status = "error", message = message };
+    await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+}
