@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
-
 namespace LiventCord.Helpers
 {
+    
     public class AppLogic
     {
         private readonly AppDbContext _dbContext;

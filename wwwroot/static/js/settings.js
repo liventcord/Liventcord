@@ -1,45 +1,70 @@
-class CustomWebSocket {
-    constructor(url, token) {
-        this.url = url;
-        this.token = token;
-        this.socket = null;
+class CustomHttpConnection {
+    constructor() {
+        this.url = '/event-driven';
         this.listeners = {};
         this.connected = false;
         this.requestQueue = [];
+        this.isProcessing = false;
         this.connect();
     }
 
-    connect() {
-        this.socket = new WebSocket(this.url);
-        this.socket.onmessage = (event) => this.handleMessage(event);
-        this.socket.onopen = () => this.onOpen();
-        this.socket.onclose = () => this.onClose();
+    async sendRequest(data) {
+        const response = await fetch(this.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+            credentials: 'same-origin', 
+        });
+    
+        if (!response.ok) {
+            throw new Error(`Request failed with status: ${response.status}`);
+        }
+        return response.json();
     }
-
-    onOpen() {
-        console.log('Connected to server');
-        this.connected = true;
-        this.authenticate();
-        this.processQueue();
+    
+    async emit(event, data = {}) {
+        try {
+            if (typeof data === 'string') {
+                data = { guild_id: data };
+            }
+            
+            if (this.connected) {
+                const payload = {
+                    action: event,
+                    value: data
+                };
+                
+                const response = await this.sendRequest(payload);
+                
+                if (response.status === 'error') {
+                    console.error(`Error from server: ${response.message}`);
+                } else {
+                    this.handleMessage(event, response.data);
+                }
+            } else {
+                console.log("Not connected. Queueing request...");
+                this.requestQueue.push({ event, data });
+            }
+        } catch (error) {
+            console.error("Error during request:", error);
+        }
     }
+    
 
-    authenticate() {
-        if (this.token && this.token.trim()) {
-            this.emit('authenticate', { token: this.token });
-        } else {
-            console.error("Authentication failed: Token is null or empty.");
+    handleMessage(event, data) {
+        console.log(event,data);
+        if (this.listeners[event]) {
+            this.listeners[event].forEach(callback => callback(data));
         }
     }
 
-    onClose() {
-        console.log("Disconnected from the server. Attempting to reconnect...");
-        this.connected = false;
-        setTimeout(() => this.reconnect(), 5000);
-    }
-
-    reconnect() {
-        console.log("Reconnecting...");
-        this.connect();
+    async processQueue() {
+        while (this.requestQueue.length > 0) {
+            const request = this.requestQueue.shift();
+            await this.emit(request.event, request.data);
+        }
     }
 
     on(event, callback) {
@@ -49,78 +74,25 @@ class CustomWebSocket {
         this.listeners[event].push(callback);
     }
 
-    emit(event, data = {}) {
-        const message = JSON.stringify({ Type: event, Data: this.prepareData(data) });
-        if (this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(message);
-        } else {
-            this.requestQueue.push(message);
-            if (this.socket.readyState === WebSocket.CONNECTING) {
-                this.socket.addEventListener('open', () => {
-                    this.socket.send(message);
-                });
-            }
-        }
-    }
-    
-    prepareData(data) {
-        if (data === null || data === undefined) {
-            return {}; 
-        }
-        if (typeof data === 'object' && !Array.isArray(data) && !(data instanceof Date)) {
-            return data; 
-        }
-        return { value: data }; 
-    }
-    
-    handleMessage(event) {
-        const msg = JSON.parse(event.data);
-        const eventType = msg.Type;
-        if (this.listeners[eventType]) {
-            this.listeners[eventType].forEach(callback => callback(msg.Data));
-        }
-
-        if (eventType === 'authenticate' && msg.success) {
+    async connect() {
+        try {
+            console.log("Connected to server");
             this.connected = true;
-            console.log("Successfully authenticated. Connected state:", this.connected);
-        }
-    }
-
-    processQueue() {
-        while (this.requestQueue.length > 0) {
-            const message = this.requestQueue.shift();
-            if (this.socket.readyState === WebSocket.OPEN) {
-                this.socket.send(message);
-            }
+            this.processQueue();
+        } catch (error) {
+            console.error("Connection failed:", error);
         }
     }
 
     disconnect() {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-            console.log("Closing the WebSocket connection...");
-            this.socket.close();
-        } else {
-            console.log("WebSocket is already closed or not initialized.");
-        }
+        this.connected = false;
+        this.requestQueue = [];
+        console.log("Disconnected.");
     }
 }
 
+const socket = new CustomHttpConnection();
 
-
-
-
-
-function initializeWebSocket() {
-    const token = localStorage.getItem('jwtToken'); 
-    if (token) {
-        const serverUrl = `${window.location.protocol.replace('http', 'ws')}//${window.location.hostname}:8181`;
-        const socket = new CustomWebSocket(serverUrl, token);
-        return socket;
-    } else {
-        console.error('No valid token found. Please log in first.');
-    }
-}
-const socket = initializeWebSocket();
 
 
 let isDisconnected = false;
