@@ -607,13 +607,12 @@ function createCropPop(inputSrc, callbackAfterAccept) {
     let parentContainer;
     
     appendButton.addEventListener('click', () => {
-        // Get the cropped result as a square image (the output size can be adjusted as needed)
         croppie.result({
             type: 'base64',
             format: 'jpeg',
             quality: 1,
-            size: { width: 430, height: 430 }, // Set size to square (adjust if necessary)
-            circle: false // Ensure the output is not circular
+            size: { width: 430, height: 430 },
+            circle: false 
         }).then(function (base64) {
             callbackAfterAccept(base64);
             parentContainer.remove();
@@ -1327,47 +1326,47 @@ function addContextListeners() {
     });
 }
 
-function createChannelsContext(channel_id) {
+function createChannelsContext(channelId) {
     let context = {};
     context[ChannelsActionType.MARK_AS_READ] = { action: () => readCurrentMessages() };
-    context[ChannelsActionType.COPY_LINK] = { action: () => copyChannelLink(currentGuildId, channel_id) };
-    context[ChannelsActionType.MUTE_CHANNEL] = { action: () => muteChannel(channel_id) };
-    context[ChannelsActionType.NOTIFY_SETTINGS] = { action: () => showNotifyMenu(channel_id) };
+    context[ChannelsActionType.COPY_LINK] = { action: () => copyChannelLink(currentGuildId, channelId) };
+    context[ChannelsActionType.MUTE_CHANNEL] = { action: () => muteChannel(channelId) };
+    context[ChannelsActionType.NOTIFY_SETTINGS] = { action: () => showNotifyMenu(channelId) };
 
     if (isSelfAuthor()) {
-        context[ChannelsActionType.EDIT_CHANNEL] = { action: () => editChannel(channel_id) };
-        context[ChannelsActionType.DELETE_CHANNEL] = { action: () => deleteChannel(channel_id, currentGuildId) };
+        context[ChannelsActionType.EDIT_CHANNEL] = { action: () => editChannel(channelId) };
+        context[ChannelsActionType.DELETE_CHANNEL] = { action: () => deleteChannel(channelId, currentGuildId) };
     }
 
     if (isDeveloperMode) {
-        context[ActionType.COPY_ID] = { action: () => copyId(channel_id) };
+        context[ActionType.COPY_ID] = { action: () => copyId(channelId) };
     }
 
     return context;
 }
 
-function createMessageContext(message_id, user_id) {
+function createMessageContext(messageId, user_id) {
     let context = {};
 
-    context[MessagesActionType.ADD_REACTION] = { action: () => openReactionMenu(message_id) };
+    context[MessagesActionType.ADD_REACTION] = { action: () => openReactionMenu(messageId) };
 
     if (user_id === currentUserId) {
-        context[MessagesActionType.EDIT_MESSAGE] = { action: () => openEditMessage(message_id) };
+        context[MessagesActionType.EDIT_MESSAGE] = { action: () => openEditMessage(messageId) };
     }
 
     if (isSelfAuthor() || (isOnDm && user_id === currentUserId)) {
-        context[MessagesActionType.PIN_MESSAGE] = { action: () => pinMessage(message_id) };
+        context[MessagesActionType.PIN_MESSAGE] = { action: () => pinMessage(messageId) };
     }
 
-    context[MessagesActionType.REPLY] = { action: () => showReplyMenu(message_id, user_id) };
-    context[MessagesActionType.MARK_AS_UNREAD] = { action: () => markAsUnread(message_id) };
+    context[MessagesActionType.REPLY] = { action: () => showReplyMenu(messageId, user_id) };
+    context[MessagesActionType.MARK_AS_UNREAD] = { action: () => markAsUnread(messageId) };
 
     if (isSelfAuthor() || (isOnDm && user_id === currentUserId)) {
-        context[MessagesActionType.DELETE_MESSAGE] = { action: () => deleteMessage(message_id) };
+        context[MessagesActionType.DELETE_MESSAGE] = { action: () => deleteMessage(messageId) };
     }
 
     if (isDeveloperMode) {
-        context[ActionType.COPY_ID] = { action: () => copyId(message_id) };
+        context[ActionType.COPY_ID] = { action: () => copyId(messageId) };
     }
 
     return context;
@@ -1916,21 +1915,21 @@ function scrollToBottom() {
 function handleReplies() {
     console.log(reply_cache);
     Object.values(reply_cache).forEach(message => {
-        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.reply_to_id == message.message_id);
+        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.reply_to_id == message.messageId);
         console.log(replierElements, message.replies);
         replierElements.forEach(replier => {
             message.replies.forEach(msg => {
-                createReplyBar(replier, message.message_id, msg.user_id, msg.content, msg.attachment_urls);
-                console.log("Creating replly bar.", replier, message.message_id, msg.user_id, msg.content);
+                createReplyBar(replier, message.messageId, msg.user_id, msg.content, msg.attachment_urls);
+                console.log("Creating replly bar.", replier, message.messageId, msg.user_id, msg.content);
             });
         });
     });
 }
 
 
-function deleteLocalMessage(message_id,guild_id,channel_id,is_dm) {
-    if(isOnGuild && channel_id != currentChannelId || isOnDm && is_dm && channel_id != currentDmId) { 
-        console.error("Can not delete message: ",guild_id,channel_id, message_id,  currentGuildId,  currentChannelId);
+function deleteLocalMessage(messageId,guild_id,channelId,isDm) {
+    if(isOnGuild && channelId != currentChannelId || isOnDm && isDm && channelId != currentDmId) { 
+        console.error("Can not delete message: ",guild_id,channelId, messageId,  currentGuildId,  currentChannelId);
         return; 
     }
     const messages = Array.from(chatContent.children); 
@@ -1940,8 +1939,8 @@ function deleteLocalMessage(message_id,guild_id,channel_id,is_dm) {
         if (!element.classList || !element.classList.contains('message')) { continue; }
         const user_id = element.dataset.user_id;
     
-        if (String(element.id) == String(message_id)) {
-            console.log("Removing element:", message_id);
+        if (String(element.id) == String(messageId)) {
+            console.log("Removing element:", messageId);
             element.remove();
             const foundMsg = getMessage(false);
             if(foundMsg) {
@@ -1988,22 +1987,22 @@ function getBeforeElement(element) {
 
 
 //channels
-function isChannelMatching(channel_id,isTextChannel) {
+function isChannelMatching(channelId,isTextChannel) {
     if(isTextChannel) {
-        return currentChannelId == channel_id;
+        return currentChannelId == channelId;
     } else {
-        return currentVoiceChannelId == channel_id;
+        return currentVoiceChannelId == channelId;
     }
 }
 
-function mouseHoverChannelButton(channelButton,isTextChannel,channel_id) {
+function mouseHoverChannelButton(channelButton,isTextChannel,channelId) {
     if(!channelButton) { return; }
     const contentWrapper = channelButton.querySelector('.content-wrapper');
 
 
     contentWrapper.style.display = 'flex';
     if(isTextChannel) {
-        channelButton.style.backgroundColor = isChannelMatching(channel_id,isTextChannel) ? selectedChanColor : hoveredChanColor;
+        channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : hoveredChanColor;
     } else {
         channelButton.style.backgroundColor = hoveredChanColor;
     }
@@ -2012,7 +2011,7 @@ function mouseHoverChannelButton(channelButton,isTextChannel,channel_id) {
 function hashChildElements(channelButton) {
     return channelButton.querySelector('.channel-users-container') != null;
 }
-function mouseLeaveChannelButton(channelButton,isTextChannel,channel_id) {
+function mouseLeaveChannelButton(channelButton,isTextChannel,channelId) {
     if(!channelButton) { return; }
     const contentWrapper = channelButton.querySelector('.content-wrapper');
     const channelSpan = channelButton.querySelector('.channelSpan');
@@ -2024,24 +2023,24 @@ function mouseLeaveChannelButton(channelButton,isTextChannel,channel_id) {
     }
     if(contentWrapper) {
         if(!isTextChannel) {
-            if(currentVoiceChannelId == channel_id) {
+            if(currentVoiceChannelId == channelId) {
                 contentWrapper.style.display = 'flex';
             } else {
                 contentWrapper.style.display = 'none';
             }
             
-        }  else  if (currentChannelId != channel_id){
+        }  else  if (currentChannelId != channelId){
             contentWrapper.style.display = 'none';
             
         }
     }
     if(isTextChannel) {
-        channelButton.style.backgroundColor = isChannelMatching(channel_id,isTextChannel) ? selectedChanColor : 'transparent';
+        channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : 'transparent';
     } else {
         channelButton.style.backgroundColor = 'transparent';
         
     }
-    channelButton.style.color = isChannelMatching(channel_id,isTextChannel) ? 'white' : 'rgb(148, 155, 164)';
+    channelButton.style.color = isChannelMatching(channelId,isTextChannel) ? 'white' : 'rgb(148, 155, 164)';
 }
 function handleKeydown(event) {
     if (isKeyDown || isOnMe) return;
@@ -2060,26 +2059,26 @@ function handleKeydown(event) {
     }
     isKeyDown = true;
 }
-function editChannelElement(channel_id, new_channel_name) {
-    const existingChannelButton = channelsUl.querySelector(`li[id="${channel_id}"]`);
+function editChannelElement(channelId, new_channel_name) {
+    const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (!existingChannelButton) { return; }
     existingChannelButton.querySelector('channelSpan').textContent = new_channel_name;
 }
-function removeChannelElement(channel_id) {
-    const existingChannelButton = channelsUl.querySelector(`li[id="${channel_id}"]`);
+function removeChannelElement(channelId) {
+    const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (!existingChannelButton) { return; }
     existingChannelButton.remove();
 }
 function createChannelElement(channel) {
-    const channel_id = channel.ChannelId;
+    const channelId = channel.ChannelId;
     const channel_name = channel.ChannelName;
     const isTextChannel = channel.IsTextChannel;
     const last_read_datetime = channel.LastReadDatetime;
-    console.log(channel_id,channel_name,isTextChannel);
-    const existingChannelButton = channelsUl.querySelector(`li[id="${channel_id}"]`);
+    console.log(channelId,channel_name,isTextChannel);
+    const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (existingChannelButton) { return; }
     const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
-    const channelButton = createEl('li', { className: 'channel-button', id: channel_id });
+    const channelButton = createEl('li', { className: 'channel-button', id: channelId });
     channelButton.style.marginLeft = '-80px';
 
     const contentWrapper = createEl('div', { className: 'content-wrapper'});
@@ -2107,25 +2106,25 @@ function createChannelElement(channel) {
     channelButton.appendChild(hashtagSpan);
     channelButton.appendChild(channelSpan);
     channelButton.appendChild(contentWrapper);
-    appendToChannelContextList(channel_id);
+    appendToChannelContextList(channelId);
     channelsUl.appendChild(channelButton);
 
     channelButton.addEventListener('mouseover', function(event) {
-        if(event.target.id == channel_id) {
-            mouseHoverChannelButton(channelButton, isTextChannel,channel_id);
+        if(event.target.id == channelId) {
+            mouseHoverChannelButton(channelButton, isTextChannel,channelId);
         }
     });
     channelButton.addEventListener('mouseleave', function(event) {
-        if(event.target.id == channel_id) {
-            mouseLeaveChannelButton(channelButton, isTextChannel,channel_id);
+        if(event.target.id == channelId) {
+            mouseLeaveChannelButton(channelButton, isTextChannel,channelId);
         }
     });
-    mouseLeaveChannelButton(channelButton, isTextChannel,channel_id);
+    mouseLeaveChannelButton(channelButton, isTextChannel,channelId);
     channelButton.addEventListener('click', function() {
         changeChannel(channel);
     });
 
-    if (channel_id == currentChannelId) {
+    if (channelId == currentChannelId) {
         setTimeout(() => {
             changeChannel(channel);
         }, 50);
@@ -2302,7 +2301,7 @@ function appendToGuildList(guild) {
     const li = createEl('li');
     const img = createEl('img', { className: 'guilds-list', id: guild.id, src: guild.src });
     img.addEventListener('click', () => {
-        loadGuild(guild.id, guild.first_channel_id, guild.name);
+        loadGuild(guild.id, guild.firstChannelId, guild.name);
     });
     
     li.appendChild(img);
@@ -2962,15 +2961,15 @@ function logOutPrompt() {
 
 
 
-function drawVoiceChannelUser(index,user_id,channel_id,channelButton,allUsersContainer,isTextChannel) {
+function drawVoiceChannelUser(index,user_id,channelId,channelButton,allUsersContainer,isTextChannel) {
     
     const userName = getUserNick(user_id);
     const userContainer = createEl('li', { className: 'channel-button',id : user_id });
     userContainer.addEventListener('mouseover', function(event) {
-        //mouseHoverChannelButton(userContainer, isTextChannel,channel_id);
+        //mouseHoverChannelButton(userContainer, isTextChannel,channelId);
     });
     userContainer.addEventListener('mouseleave', function(event) {
-        //mouseLeaveChannelButton(userContainer, isTextChannel,channel_id);
+        //mouseLeaveChannelButton(userContainer, isTextChannel,channelId);
     });
 
 

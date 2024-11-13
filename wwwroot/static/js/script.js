@@ -81,8 +81,8 @@ let userListFriActiveHtml;
 let contextList = {};
 let messageContextList = {};
 
-let channels_cache = {}; // <guild_id> <channels_list>
-let guild_users_cache = {}; // <guild_id> <users_list>
+let channels_cache = {}; // <guildId> <channels_list>
+let guild_users_cache = {}; // <guildId> <users_list>
 
 let usersInVoice = {};
 let readenMessagesCache = {};
@@ -709,8 +709,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const friendId = parts[3];
         OpenDm(friendId);
         
-    } else  if (typeof passed_guild_id !== 'undefined' && typeof passed_channel_id !== 'undefined' && typeof passed_author_id !== 'undefined') {
-        loadGuild(passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
+    } else  if (typeof passed_guildId !== 'undefined' && typeof passed_channelId !== 'undefined' && typeof passed_author_id !== 'undefined') {
+        loadGuild(passed_guildId,passed_channelId,passed_guild_name,passed_author_id);
     }
     if (typeof passed_message_readen !== 'undefined') {
         readenMessagesCache = passed_message_readen;
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
     }
     if(isOnGuild) {
-        if(currentGuildData && !passed_guild_id in currentGuildData) {
+        if(currentGuildData && !passed_guildId in currentGuildData) {
             window.history.pushState(null,null, "/channels/@me")
         }
     }
@@ -766,9 +766,9 @@ document.addEventListener('DOMContentLoaded', function () {
 async function changeChannel(newChannel) {
     console.log("channel changed: ",newChannel);
     if(isOnMe || isOnDm) { return; }
-    const channel_id = newChannel.ChannelId;
+    const channelId = newChannel.ChannelId;
     const isTextChannel = newChannel.IsTextChannel;
-    const url = constructAppPage(currentGuildId,channel_id);
+    const url = constructAppPage(currentGuildId,channelId);
     if(url != window.location.pathname && isTextChannel) {
         window.history.pushState(null, null, url);
     }
@@ -776,7 +776,7 @@ async function changeChannel(newChannel) {
     isReachedChannelEnd = false;
     
     if(isTextChannel) {
-        currentChannelId = channel_id;
+        currentChannelId = channelId;
         currentChannelName = newChannelName;
         userInput.placeholder = '#' + truncateString(newChannelName,30) + ' kanalına mesaj gönder';
         channelInfo.textContent = newChannelName;
@@ -787,7 +787,7 @@ async function changeChannel(newChannel) {
         GetHistoryFromOneChannel(currentChannelId);
         closeReplyMenu();
     } else {
-        joinVoiceChannel(channel_id);
+        joinVoiceChannel(channelId);
     }
 
     if(!currentChannels) { return; }
@@ -795,11 +795,11 @@ async function changeChannel(newChannel) {
     currentChannels.forEach((channel, index) => {
         const channelButton = channelsUl.querySelector(`li[id="${channel.ChannelId}"]`);
         if(channelButton) {
-            if(channel.ChannelId != channel_id) {
+            if(channel.ChannelId != channelId) {
                 mouseHoverChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
                 mouseLeaveChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
             } else if(!isTextChannel) {
-                const usersInChannel = usersInVoice[channel_id];
+                const usersInChannel = usersInVoice[channelId];
                 if(usersInChannel) {
 
                     let allUsersContainer = channelButton.querySelector('.channel-users-container');
@@ -808,7 +808,7 @@ async function changeChannel(newChannel) {
                     }
                     channelButton.style.width = '100%';
                     usersInChannel.forEach((user_id,index) => {
-                        drawVoiceChannelUser(index,user_id,channel_id,channelButton,allUsersContainer,isTextChannel);
+                        drawVoiceChannelUser(index,user_id,channelId,channelButton,allUsersContainer,isTextChannel);
                     });
                 }
             }
@@ -820,10 +820,10 @@ async function changeChannel(newChannel) {
 
 
 
-function GetHistoryFromOneChannel(channel_id,is_dm=false) {
+function GetHistoryFromOneChannel(channelId,isDm=false) {
     console.log('called history');
-    const rawMessages = guildChatMessages[channel_id];
-    if(!is_dm && guildChatMessages[channel_id]&& Array.isArray(rawMessages)) {
+    const rawMessages = guildChatMessages[channelId];
+    if(!isDm && guildChatMessages[channelId]&& Array.isArray(rawMessages)) {
         let repliesList = new Set();
         
         if (rawMessages ) {
@@ -831,7 +831,7 @@ function GetHistoryFromOneChannel(channel_id,is_dm=false) {
             for (const msg of rawMessages) {
                 const foundReply = displayChatMessage(msg);
                 if (foundReply) {
-                    repliesList.add(msg.message_id);
+                    repliesList.add(msg.messageId);
                 }
             }
 
@@ -842,8 +842,8 @@ function GetHistoryFromOneChannel(channel_id,is_dm=false) {
         return
     }
     let requestData = {
-        channelId: channel_id,
-        isDm : is_dm
+        channelId: channelId,
+        isDm : isDm
     };
     if(isOnGuild) {
         requestData['guildId'] = currentGuildId;
@@ -875,7 +875,7 @@ function createScrollButton()
 function readCurrentMessages() {
     if (!currentChannelId ) { return; }
     //const lasttime = lastMessageDateTime;   'last_time' : lasttime,
-    socket.emit('read_message',{'channel_id' : currentChannelId,'guild_id' : currentGuildId});
+    socket.emit('read_message',{'channelId' : currentChannelId,'guildId' : currentGuildId});
     getId('newMessagesBar').style.display = 'none';
 }
 function truncateString(str, maxLength) {
@@ -912,10 +912,10 @@ function displayCannotSendMessage(failedMessageContent) {
     if(!isOnDm) { return }
     const failedId = createRandomId();
     const failedMessage = {
-        message_id: failedId,
+        messageId: failedId,
         user_id : currentUserId,
         content : failedMessageContent,
-        channel_id : currentDmId,
+        channelId : currentDmId,
         date : createNowDate(),
         addToTop: false
 
@@ -933,10 +933,10 @@ function displayCannotSendMessage(failedMessageContent) {
 
     const textToSend = 'Mesajın iletilemedi. Bunun nedeni alıcıyla herhangi bir sunucu paylaşmıyor olman veya alıcının sadece arkadaşlarından direkt mesaj kabul ediyor olması olabilir.';
     const cannotSendMsg = {
-        message_id: createRandomId(),
+        messageId: createRandomId(),
         user_id: CLYDE_ID,
         content: textToSend,
-        channel_id: currentDmId,
+        channelId: currentDmId,
         date: createNowDate(),
         last_edited: '',
         attachment_urls: '',
@@ -1145,20 +1145,20 @@ let replyIdToGo = "";
 function fetchReplies(messages, repliesList=null,goToOld=false) {
     if(!repliesList) { repliesList = new Set()}
     if(goToOld) {
-        const message_id = messages;
-        const existingDate = messageDates[message_id];
+        const messageId = messages;
+        const existingDate = messageDates[messageId];
         if(existingDate) { 
             if(existingDate > currentLastDate) {
-                replyIdToGo = message_id;
-                GetOldMessages(existingDate,message_id);
+                replyIdToGo = messageId;
+                GetOldMessages(existingDate,messageId);
             }
 
             return 
         }
         const data = {
-            'message_id' : message_id,
-            'guild_id' : currentGuildId, 
-            'channel_id' : currentChannelId
+            'messageId' : messageId,
+            'guildId' : currentGuildId, 
+            'channelId' : currentChannelId
         }
         socket.emit('get_message_date',data);
         return;
@@ -1166,15 +1166,15 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
     const messagesArray = Array.isArray(messages) ? messages : [messages];
 
     const replyIds = messagesArray
-        .filter(msg => !repliesList.has(msg.message_id) && !reply_cache[msg.message_id])
+        .filter(msg => !repliesList.has(msg.messageId) && !reply_cache[msg.messageId])
         .filter(msg => msg.reply_to_id !== undefined && msg.reply_to_id !== null && msg.reply_to_id !== '')
         .map(msg => msg.reply_to_id);
 
     if (replyIds.length > 0) {
         const data = {
             ids: replyIds,
-            guild_id: currentGuildId,
-            channel_id: currentChannelId
+            guildId: currentGuildId,
+            channelId: currentChannelId
         };
         socket.emit('get_bulk_reply', data);
     }
@@ -1255,10 +1255,10 @@ function handleOldMessagesResponse(data) {
     if(history.length == 0) { isReachedChannelEnd = true; return; }
 
     let messages = history.map(msg => ({
-        message_id : msg.message_id,
+        messageId : msg.messageId,
         user_id: msg.user_id,
         content: msg.content,
-        channel_id: msg.channel_id !== undefined ? msg.channel_id : null,
+        channelId: msg.channelId !== undefined ? msg.channelId : null,
         date: msg.date,
         last_edited: msg.last_edited,
         attachment_urls: msg.attachment_urls,
@@ -1276,12 +1276,12 @@ function handleOldMessagesResponse(data) {
         const foundReply =  displayChatMessage({
             ...msg,
             addToTop: true,
-            replyOf: data.message_id,
+            replyOf: data.messageId,
             willDisplayProfile : willDisplayProfile
         });
         
         if (foundReply) {
-            repliesList.add(msg.message_id);
+            repliesList.add(msg.messageId);
         }
     };
 
@@ -1312,18 +1312,18 @@ function GetOldMessagesOnScroll() {
     GetOldMessages(oldestDate);
 }
 
-function GetOldMessages(date,message_id=null) {
+function GetOldMessages(date,messageId=null) {
     let data = {
         date: date.toString(),
-        is_dm : isOnDm
+        isDm : isOnDm
     }
-    if(message_id) {
-        data['message_id'] = message_id;
+    if(messageId) {
+        data['messageId'] = messageId;
     }
 
-    data['channel_id'] = isOnDm ? currentDmId : currentChannelId;
+    data['channelId'] = isOnDm ? currentDmId : currentChannelId;
     if(isOnGuild) {
-        data['guild_id'] = currentGuildId;
+        data['guildId'] = currentGuildId;
     }
     socket.emit('get_old_messages',data);
     hasJustFetchedMessages = setTimeout(() => {
@@ -1519,7 +1519,7 @@ function scrollToMessage(messageToScroll) {
         }, 2000); 
     }, 100); 
 }
-function createReplyBar(newMessage,message_id,user_id,content,attachment_urls) {
+function createReplyBar(newMessage,messageId,user_id,content,attachment_urls) {
     if(newMessage.querySelector('.replyBar')) { return; }
     const smallDate = newMessage.querySelector('.small-date-element');
     if(smallDate)  {
@@ -1546,7 +1546,7 @@ function createReplyBar(newMessage,message_id,user_id,content,attachment_urls) {
 
     
     replyContent.onclick = () => {
-        const originalMsg = getId(message_id);
+        const originalMsg = getId(messageId);
         if(originalMsg) {
             scrollToMessage(originalMsg);
         } else {
@@ -1600,10 +1600,10 @@ function displayWelcomeMessage(userName,date) {
 function displayChatMessage(data) {
     if (!data) return;
     
-    const message_id = data.MessageId;
+    const messageId = data.MessageId;
     const user_id = data.UserId;
     const content = data.Content;
-    const channel_id = data.ChannelId;
+    const channelId = data.ChannelId;
     const date = data.Date;
     const last_edited = data.LastEdited;
     const attachment_urls = data.AttachmentUrls;
@@ -1614,11 +1614,11 @@ function displayChatMessage(data) {
     const replyOf = data.replyOf;
 
 
-    if(messages_cache[message_id])  {
+    if(messages_cache[messageId])  {
         console.log("Skipping adding message:", content);
         return;
     }
-    if (!channel_id || !date ) {return; }
+    if (!channelId || !date ) {return; }
     if (!attachment_urls && content == ''){ return; }
     const nick = getUserNick(user_id);
     const newMessage = createEl('div',{className : 'message'});
@@ -1662,13 +1662,13 @@ function displayChatMessage(data) {
     if (isURL(content)) {formattedMessage = '';  }
     messageContentElement.style.position = 'relative';
     messageContentElement.style.wordBreak = 'break-all';
-    newMessage.id = message_id;
+    newMessage.id = messageId;
     newMessage.dataset.user_id =  user_id;
     newMessage.dataset.date =  date;
     newMessage.dataset.content =  content;
     newMessage.dataset.attachment_urls = attachment_urls;
     newMessage.dataset.reply_to_id = reply_to_id;
-    newMessage.dataset.message_id = message_id;
+    newMessage.dataset.messageId = messageId;
     messageContentElement.dataset.content_observe = formattedMessage;
     observer.observe(messageContentElement);
     newMessage.appendChild(messageContentElement);
@@ -1680,8 +1680,8 @@ function displayChatMessage(data) {
     } else {
         currentLastDate = date;
     }
-    messages_cache[message_id] = newMessage;
-    messages_raw_cache[message_id] = data;
+    messages_cache[messageId] = newMessage;
+    messages_raw_cache[messageId] = data;
     if (!addToTop) { 
         lastSenderID = user_id;
     } else {
@@ -1690,7 +1690,7 @@ function displayChatMessage(data) {
     if(user_id != currentUserId) {
         createMsgOptionButton(newMessage,true);
     }
-    createOptions3Button(newMessage,message_id,user_id);
+    createOptions3Button(newMessage,messageId,user_id);
     if(isLastSendMessageStart) {isLastSendMessageStart = false; }
     if (addToTop) {
         chatContent.insertBefore(newMessage, chatContent.firstChild);
@@ -1726,7 +1726,7 @@ function displayChatMessage(data) {
     if(date && newMessage.parentNode.className != 'startmessage') {
         lastMessageDateTime = formatDate(new Date(date));
     }
-    if(replyOf == message_id) {
+    if(replyOf == messageId) {
         setTimeout(() => {
             scrollToMessage(newMessage);
         }, 0);
@@ -1734,7 +1734,7 @@ function displayChatMessage(data) {
     if(reply_to_id) {
         const foundReply = getId(reply_to_id);
         if(foundReply) {
-            createReplyBar(newMessage, foundReply.dataset.message_id,foundReply.dataset.user_id,foundReply.dataset.content,foundReply.dataset.attachment_urls);
+            createReplyBar(newMessage, foundReply.dataset.messageId,foundReply.dataset.user_id,foundReply.dataset.content,foundReply.dataset.attachment_urls);
         } 
         else {
             unknownReplies.push(data);    
@@ -1855,8 +1855,8 @@ async function setPicture(ImgToUpdate, srcid, is_profile, isTimestamp) {
     });
 }
 
-async function setGuildPic(guildImg , guild_id) {
-    setPicture(guildImg , guild_id,false)
+async function setGuildPic(guildImg , guildId) {
+    setPicture(guildImg , guildId,false)
 }
 async function setProfilePic(profileImg, userId, isTimestamp = false) {
     setPicture(profileImg,userId,true,isTimestamp)
@@ -2130,8 +2130,8 @@ async function sendMessage(content, user_ids) {
         fileInput.value = '';
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('guild_id', currentGuildId);
-        formData.append('channel_id',channelIdToSend)
+        formData.append('guildId', currentGuildId);
+        formData.append('channelId',channelIdToSend)
         const uploadResponse = await fetch('/upload', {
             method: 'POST',
             body: formData
@@ -2198,28 +2198,28 @@ function editGuildProfile() {
 }
 
 
-function openReactionMenu(message_id) {
-    console.log("Opening react menu for: ",message_id);
+function openReactionMenu(messageId) {
+    console.log("Opening react menu for: ",messageId);
 }
-function openEditMessage(message_id) {
-    console.log("Editing message ",message_id);
+function openEditMessage(messageId) {
+    console.log("Editing message ",messageId);
 }
-function pinMessage(message_id) {
-    console.log("Pinning message ",message_id);
+function pinMessage(messageId) {
+    console.log("Pinning message ",messageId);
 }
 
-function markAsUnread(message_id) {
-    console.log("Marking as unread message ",message_id);
+function markAsUnread(messageId) {
+    console.log("Marking as unread message ",messageId);
 }
-function deleteMessage(message_id) {
-    console.log("Deleting message ",message_id);
+function deleteMessage(messageId) {
+    console.log("Deleting message ",messageId);
     let data = {
-        'is_dm' : isOnDm,
-        'message_id' : message_id,
-        'channel_id' : isOnGuild ? currentChannelId : currentDmId
+        'isDm' : isOnDm,
+        'messageId' : messageId,
+        'channelId' : isOnGuild ? currentChannelId : currentDmId
     }
     if(isOnGuild) {
-        data['guild_id'] = currentGuildId;
+        data['guildId'] = currentGuildId;
     }
     socket.emit('message_delete',data);
 }
@@ -2247,8 +2247,8 @@ function removeDm(user_id) {
 
 
 }
-function getGuildName(guild_id) {
-    const guild = currentGuildData[guild_id];
+function getGuildName(guildId) {
+    const guild = currentGuildData[guildId];
     return guild ? guild.name : 'Unknown Guild';
 }
 
@@ -2269,9 +2269,9 @@ function getManageableGuilds() {
 
 
 
-function inviteUser(user_id,guild_id) {
-    if(!user_id || !guild_id) { return; }
-    console.log("inviting user : ", user_id , ' to guild ' , guild_id);
+function inviteUser(user_id,guildId) {
+    if(!user_id || !guildId) { return; }
+    console.log("inviting user : ", user_id , ' to guild ' , guildId);
     OpenDm(user_id);
     
 }
@@ -2290,41 +2290,41 @@ const MessagesActionType = {
     DELETE_MESSAGE: "Mesajı Sil",
 }
 
-function copyChannelLink(guild_id,channel_id) {
-    const content = constructAbsoluteAppPage(guild_id,channel_id);
+function copyChannelLink(guildId,channelId) {
+    const content = constructAbsoluteAppPage(guildId,channelId);
     navigator.clipboard.writeText(content)
 }
-function copyId(channel_id) {
-    navigator.clipboard.writeText(channel_id);
+function copyId(channelId) {
+    navigator.clipboard.writeText(channelId);
 }
 
-function muteChannel(channel_id) {
+function muteChannel(channelId) {
     alertUser("Mute channel is not implemented!");
 
 }
-function showNotifyMenu(channel_id) {
+function showNotifyMenu(channelId) {
     alertUser("Notify menu is not implemented!");
 }
-function editChannel(channel_id) {
+function editChannel(channelId) {
     alertUser("Channel editing is not implemented!");
     
 }
-function deleteChannel(channel_id,guild_id) {
+function deleteChannel(channelId,guildId) {
     const data = {
-        'guild_id' : guild_id,
-        'channel_id' : channel_id
+        'guildId' : guildId,
+        'channelId' : channelId
     }
     socket.emit('remove_channel',data);
     
 }
 
 
-function appendToChannelContextList(channel_id) {
-    contextList[channel_id] = createChannelsContext(channel_id);
+function appendToChannelContextList(channelId) {
+    contextList[channelId] = createChannelsContext(channelId);
 }
 
-function appendToMessageContextList(message_id,user_id) {
-    messageContextList[message_id] = createMessageContext(message_id,user_id);
+function appendToMessageContextList(messageId,user_id) {
+    messageContextList[messageId] = createMessageContext(messageId,user_id);
 }
 function appendToProfileContextList(userData,user_id) {
     if(user_id && userData) {
@@ -2333,10 +2333,10 @@ function appendToProfileContextList(userData,user_id) {
 }
 
 
-function createOptions3Button(message,message_id,user_id) {
+function createOptions3Button(message,messageId,user_id) {
     const button = createMsgOptionButton(message,false);
-    button.dataset.m_id = message_id;
-    appendToMessageContextList(message_id,user_id);
+    button.dataset.m_id = messageId;
+    appendToMessageContextList(messageId,user_id);
 }
 
 
@@ -2464,7 +2464,7 @@ function uploadImage(isGuild) {
             formData.append('photo', blob, 'profile-image.png');
             
             if (isGuild) {
-                formData.append('guild_id', uploadedGuildId);
+                formData.append('guildId', uploadedGuildId);
             }
             
             console.log("Sending req...");
@@ -2579,25 +2579,25 @@ window.addEventListener('popstate', function(event) {
         console.error(error);
     }
 });
-function constructAppPage(guild_id,channel_id) {
-    return`/channels/${guild_id}/${channel_id}`;
+function constructAppPage(guildId,channelId) {
+    return`/channels/${guildId}/${channelId}`;
 }
-function constructDmPage(channel_id) {
-    return`/channels/@me/${channel_id}`;
+function constructDmPage(channelId) {
+    return`/channels/@me/${channelId}`;
 }
-function constructAbsoluteAppPage(guild_id, channel_id) {
-    return `${window.location.protocol}//${window.location.hostname}/app/channels/${guild_id}/${channel_id}`;
+function constructAbsoluteAppPage(guildId, channelId) {
+    return `${window.location.protocol}//${window.location.hostname}/app/channels/${guildId}/${channelId}`;
 }
 
-function selectGuildList(guild_id) {
-    console.log(typeof(guild_id),guild_id)
+function selectGuildList(guildId) {
+    console.log(typeof(guildId),guildId)
     const guildList = getId('guilds-list'); 
     if (!guildList) return; 
     
     const foundGuilds = guildList.querySelectorAll('img');
     
     foundGuilds.forEach(guild => {
-        if (guild.id === guild_id) {
+        if (guild.id === guildId) {
             guild.parentNode.classList.add('selected-guild');
         } else {
             guild.parentNode.classList.remove('selected-guild');
@@ -2605,11 +2605,11 @@ function selectGuildList(guild_id) {
     });
 }
 
-function loadGuild(guild_id,channel_id,guildName,guildAuthorId,isChangingUrl=true) {
-    if(!guild_id || !channel_id ) { return; }
+function loadGuild(guildId,channelId,guildName,guildAuthorId,isChangingUrl=true) {
+    if(!guildId || !channelId ) { return; }
     
     if (isChangingUrl) {
-        const state = constructAppPage(guild_id,channel_id);
+        const state = constructAppPage(guildId,channelId);
         if(window.location.pathname != state) {
             window.history.pushState(null, null, state);
         }
@@ -2620,18 +2620,18 @@ function loadGuild(guild_id,channel_id,guildName,guildAuthorId,isChangingUrl=tru
         console.warn(" Already changing guild! can not change guild");
         return;
     }
-    currentGuildId = guild_id;
+    currentGuildId = guildId;
     permissionManager = new PermissionManager(permissions_map, currentGuildId);
-    selectGuildList(guild_id);
+    selectGuildList(guildId);
     if(guildName) {
         currentGuildName = guildName;
     } else {
-        if(guildNames[guild_id]) {
-            currentGuildName = guildNames[guild_id];
+        if(guildNames[guildId]) {
+            currentGuildName = guildNames[guildId];
         }
     }
 
-    currentChannelId = channel_id;
+    currentChannelId = channelId;
     if(!isChangingUrl) {
         wasNotChangingUrl = true;
     }
@@ -2656,7 +2656,7 @@ function getUsers() {
         if(guild_users_cache[currentGuildId]) {
             updateUserList(guild_users_cache[currentGuildId]);
         } else {
-            socket.emit('get_users',currentGuildId);
+            socket.emit('get_users',{'guildId' : currentGuildId});
         }
 
 
@@ -2669,7 +2669,7 @@ function getChannels() {
         if(channels_cache[currentGuildId]) {
             updateChannels(channels_cache[currentGuildId]);
         } else {
-            socket.emit('get_channels',currentGuildId);
+            socket.emit('get_channels',{'guildId' : currentGuildId});
         }
     } else {
         console.warn("Current channel id is null!");
@@ -2919,7 +2919,7 @@ function changecurrentGuild() {
 
 function joinVoiceChannel(channelId) {
     if(currentVoiceChannelId == channelId) { return; }
-    const data = { 'guild_id' : currentGuildId, 'channelId' : channelId }
+    const data = { 'guildId' : currentGuildId, 'channelId' : channelId }
     socket.emit('join_voice_channel',data);
     return;
 }
@@ -2993,7 +2993,7 @@ function changeNickname() {
 
         console.log("Changed your nickname to: " + newNickname);
         userNick = newNickname;
-        socket.emit('set_nick', newNickname);
+        socket.emit('set_nick', {'nick' : newNickname});
 
         newNicknameInput.value = newNickname;
         changeNicknameTimeout = setTimeout(() => {
@@ -3009,7 +3009,7 @@ function changeGuildName() {
     const newGuildName = newGuildInput.value.trim();
     if (newGuildName !== '' && !changeGuildNameTimeout && newGuildName != currentGuildName) {
         console.log("Changed guild name to: " + newGuildName);
-        const objecttosend = {'' : newGuildName,'guild_id' : currentGuildId};
+        const objecttosend = {'' : newGuildName,'guildId' : currentGuildId};
         socket.emit('set_guild_name', objecttosend);
         const setInfoNick = getId('set-info-nick');
         if(setInfoNick) {

@@ -1,6 +1,6 @@
 class CustomHttpConnection {
     constructor() {
-        this.url = '/event-driven';
+        this.url = '/api/data';
         this.listeners = {};
         this.connected = false;
         this.requestQueue = [];
@@ -26,10 +26,6 @@ class CustomHttpConnection {
     
     async emit(event, data = {}) {
         try {
-            if (typeof data === 'string') {
-                data = { guild_id: data };
-            }
-            
             if (this.connected) {
                 const payload = {
                     action: event,
@@ -37,28 +33,27 @@ class CustomHttpConnection {
                 };
                 
                 const response = await this.sendRequest(payload);
-                
-                if (response.status === 'error') {
-                    console.error(`Error from server: ${response.message}`);
-                } else {
-                    this.handleMessage(event, response.data);
-                }
+                this.handleMessage(event, response.Type,response.Data);                            
+               
             } else {
                 console.log("Not connected. Queueing request...");
                 this.requestQueue.push({ event, data });
             }
         } catch (error) {
-            console.error("Error during request:", error);
+            console.warn("Error during request:", error);
         }
     }
     
-
-    handleMessage(event, data) {
-        console.log(event,data);
-        if (this.listeners[event]) {
-            this.listeners[event].forEach(callback => callback(data));
+    handleMessage(event,type, data) {
+        console.log("Got Response for ", event," as(" , type  ,  "):" , data);
+        if (this.listeners[type]) {
+            this.listeners[type].forEach(callback => {
+                console.log("Triggered listener!");
+                callback(data);
+            });
         }
     }
+    
 
     async processQueue() {
         while (this.requestQueue.length > 0) {
@@ -220,10 +215,10 @@ const guildSettings = [
 
 
 
-function createDeleteGuildPrompt(guild_id,guild_name) {
-    if(!guild_id) { return }
+function createDeleteGuildPrompt(guildId,guild_name) {
+    if(!guildId) { return }
     var onClickHandler = function() {
-        socket.emit('delete_guild', guild_id);
+        socket.emit('delete_guild', guildId);
     }
     const successText = "Sunucuyu sil";
     askUser(`${guild_name} Sunucusunu Sil`,'Bu işlem geri alınamaz.',successText,onClickHandler,isRed=true);
@@ -308,7 +303,7 @@ function removeElement(elementname) {
 
 
 function removeguildImage() {
-    socket.emit('remove_guild_image',{'guild_id': currentGuildId})
+    socket.emit('remove_guild_image',{'guildId': currentGuildId})
     getId('guildImage').value = '';
     getId('guild-image').src = createBlackImage();
 
@@ -407,11 +402,11 @@ socket.on('update_guilds',data => {
 
 
 socket.on('deletion_message', data=> {
-    deleteLocalMessage(data.message_id,data.guild_id,data.channel_id,data.is_dm);
-    if(guildChatMessages && guildChatMessages[currentChannelId] && guildChatMessages[currentChannelId] [data.message_id]) {
-        delete guildChatMessages[currentChannelId][data.message_id];
+    deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
+    if(guildChatMessages && guildChatMessages[currentChannelId] && guildChatMessages[currentChannelId] [data.messageId]) {
+        delete guildChatMessages[currentChannelId][data.messageId];
     }
-    const msgdate = messages_raw_cache[data.message_id].date;
+    const msgdate = messages_raw_cache[data.messageId].date;
     if(lastMessageDate == new Date(msgdate).setHours(0, 0, 0, 0)) {
         lastMessageDate = new Date(getLastSecondMessageDate()).setHours(0, 0, 0, 0)
         
@@ -419,8 +414,8 @@ socket.on('deletion_message', data=> {
     if(bottomestChatDateStr  == msgdate) {
         bottomestChatDateStr = getLastSecondMessageDate();
     }
-    delete guildChatMessages[currentChannelId][data.message_id];
-    delete messages_raw_cache[data.message_id];
+    delete guildChatMessages[currentChannelId][data.messageId];
+    delete messages_raw_cache[data.messageId];
 });
 
 socket.on('join_guild_response',data=> {
@@ -430,11 +425,11 @@ socket.on('join_guild_response',data=> {
         getId('create-guild-title').style.color = 'red';
         return;
     }
-    if(!permissions_map[data.guild_id]) { permissions_map[data.guild_id] = [] };
+    if(!permissions_map[data.guildId]) { permissions_map[data.guildId] = [] };
     
     
-    permissions_map[data.guild_id] = data.permissions_map;
-    loadGuild(data.joined_guild_id,data.joined_channel_id,data.joined_guild_name,data.joined_author_id);
+    permissions_map[data.guildId] = data.permissions_map;
+    loadGuild(data.joined_guildId,data.joined_channelId,data.joined_guild_name,data.joined_author_id);
 
     if(closeCurrentJoinPop) {
         closeCurrentJoinPop();
@@ -455,7 +450,7 @@ socket.on('deleted_guild', data => {
     if(typeof(data) == 'object') {
         if(data.success) {
             closeSettings();
-            removeFromGuildList(data.guild_id);
+            removeFromGuildList(data.guildId);
             loadMainMenu();
         } else {
             alertUser('Sunucu silme başarısız.');
@@ -467,17 +462,17 @@ socket.on('deleted_guild', data => {
 });
 socket.on('current_invite_ids_response', data => {
     if (data && data.invite_ids) {
-        if (!current_invite_ids[data.guild_id]) {
-            current_invite_ids[data.guild_id] = [];
+        if (!current_invite_ids[data.guildId]) {
+            current_invite_ids[data.guildId] = [];
         }
-        current_invite_ids[data.guild_id] = data.invite_ids;
+        current_invite_ids[data.guildId] = data.invite_ids;
     } else {
         console.warn("Invite ids do not exist.");
     }
 });
 
 socket.on('update_',data => {
-    if(data.guild_id == currentGuildId) {
+    if(data.guildId == currentGuildId) {
         getId('guild-name').innerText = currentGuildName;
     }
 })
@@ -513,14 +508,14 @@ let messages_raw_cache = {};
 socket.on('bulk_reply_response', data => {
     const replies = data.bulk_replies;
     replies.forEach(reply => {
-        const { message_id, user_id, content, attachment_urls } = reply;
-        if (!reply_cache[message_id]) {
-            reply_cache[message_id] = {
-                message_id: message_id,
+        const { messageId, user_id, content, attachment_urls } = reply;
+        if (!reply_cache[messageId]) {
+            reply_cache[messageId] = {
+                messageId: messageId,
                 replies: []
             };
         }
-        reply_cache[message_id].replies.push({ user_id, content, attachment_urls });
+        reply_cache[messageId].replies.push({ user_id, content, attachment_urls });
     });
     setTimeout(() => {
         handleReplies();
@@ -529,17 +524,17 @@ socket.on('bulk_reply_response', data => {
 
 
 socket.on('update_users', data => {
-    if (!data || !data.users || !data.guild_id) { return; }
+    if (!data || !data.users || !data.guildId) { return; }
     
-    guild_users_cache[data.guild_id] = data.users;
+    guild_users_cache[data.guildId] = data.users;
     updateUserList(data.users);   
     
 });
 
 socket.on('update_channels', data => {
     console.log("updated channels with: ", data);
-    if(!data || !data.channels || !data.guild_id) { return; }
-    channels_cache[data.guild_id] = data.channels;
+    if(!data || !data.channels || !data.guildId) { return; }
+    channels_cache[data.guildId] = data.channels;
     updateChannels(data.channels);
 
 });
@@ -554,8 +549,8 @@ socket.on('channel_update', data => {
 
     if(updateType == createType) {
         const channel = {
-            guild_id : data.guild_id,
-            channel_id: data.channel_id,
+            guildId : data.guildId,
+            channelId: data.channelId,
             channel_name: data.channel_name,
             is_text_channel: data.is_text_channel
         };
@@ -574,14 +569,14 @@ socket.on('channel_update', data => {
 
 function updateUserOnlineStatus(userId, isOnline) {
     if(userId == currentUserId) {return; }
-    for (const guild_id in guild_users_cache) {
-        if (guild_users_cache.hasOwnProperty(guild_id)) {
-            const users = guild_users_cache[guild_id];
+    for (const guildId in guild_users_cache) {
+        if (guild_users_cache.hasOwnProperty(guildId)) {
+            const users = guild_users_cache[guildId];
             for (const userKey in users) {
                 if (users.hasOwnProperty(userKey)) {
                     if (users[userKey].user_id === userId) {
                         users[userKey].is_online = isOnline;
-                        console.log(`User ${userId} online status updated to ${isOnline} in guild ${guild_id}`);
+                        console.log(`User ${userId} online status updated to ${isOnline} in guild ${guildId}`);
                         return; 
                     }
                 }
@@ -599,11 +594,11 @@ socket.on('user_status', (data) => {
 
 socket.on('message', (data) => {
     try {
-        const { is_dm, message_id, user_id, content, channel_id, date, attachment_urls, reply_to_id,is_bot, guild_id, last_edited, reaction_emojis_ids} = data;
-        const idToCompare = is_dm ? currentDmId : currentChannelId;
+        const { isDm, messageId, user_id, content, channelId, date, attachment_urls, reply_to_id,is_bot, guildId, last_edited, reaction_emojis_ids} = data;
+        const idToCompare = isDm ? currentDmId : currentChannelId;
         
-        if (data.guild_id != currentGuildId || idToCompare != channel_id) {
-            console.log(`${idToCompare} is not ${channel_id} so returning`);
+        if (data.guildId != currentGuildId || idToCompare != channelId) {
+            console.log(`${idToCompare} is not ${channelId} so returning`);
             if (user_id !== currentUserId) {
                 playNotification();
                 setActiveIcon();
@@ -622,10 +617,10 @@ socket.on('message', (data) => {
 
 socket.on('message_date_response', (data)=> {
     const message_date = data.message_date;
-    messageDates[data.message_id] = message_date;
+    messageDates[data.messageId] = message_date;
     console.log(currentLastDate,message_date)
     if(currentLastDate && currentLastDate > message_date) {
-        GetOldMessages(message_date,data.message_id);
+        GetOldMessages(message_date,data.messageId);
     } else {
         console.log("Is less than!", currentLastDate, message_date)
     }
