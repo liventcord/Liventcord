@@ -15,6 +15,7 @@ public class AppManager
     private readonly Channel<string> _eventChannel;
     private Dictionary<string, List<string>> writingUsersState = new();
     private readonly Dictionary<string, HttpContext> activeConnections = new();
+    private readonly HandlerCreator _handlerCreator;
     
 
 
@@ -24,34 +25,12 @@ public class AppManager
         _guildService = guildService;
         this.secretKey = secretKey;
         _eventChannel = System.Threading.Channels.Channel.CreateUnbounded<string>();
+        _handlerCreator = new HandlerCreator(this); 
     }
 
     public void ConfigureApp(WebApplication app)
     {
-        app.MapGet("/event-driven", async (HttpContext context) =>
-        {
-            context.Response.ContentType = "text/event-stream";
-            context.Response.Headers.Add("Cache-Control", "no-cache");
-            context.Response.Headers.Add("Connection", "keep-alive");
-
-            var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                await SendErrorResponse(context, "Authentication failed.");
-                return;
-            }
-
-            // Add the connection to the active connections
-            AddConnection(userId, context);
-
-            await HandleSseConnection(context, userId);
-
-            // Remove connection after the SSE is closed
-            RemoveConnection(userId);
-        });
-
-        app.MapPost("/event-driven", async (HttpContext context) =>
+        app.MapPost("/api/data", async (HttpContext context) =>
         {
             var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -72,44 +51,17 @@ public class AppManager
                         return;
                     }
 
-                    switch (action)
+                    var handler = await _handlerCreator.CreateHandler(action, context, doc, userId);
+                    if (handler != null)
                     {
-                        case "create_channel":
-                            await HandleCreateChannel(context, doc, userId);
-                            break;
-                        case "new_message":
-                            await HandleNewMessage(context, doc, userId);
-                            break;
-                        case "get_history":
-                            await HandleGetMessages(context, doc, userId);
-                            break;
-                        case "get_channels":
-                            await HandleGetChannels(context, doc, userId);
-                            break;
-                        case "get_users":
-                            await HandleGetUsers(context, doc, userId);
-                            break;
-                        case "get_guilds":
-                            await HandleGetGuilds(context, doc, userId);
-                            break;
-                        case "start_writing":
-                            await HandleStartWriting(context, doc, userId);
-                            break;
-                        default:
-                            var missingAction = action == null ? "action field" : $"unknown action '{action}'";
-                            await SendErrorResponse(context, $"Invalid request format, missing or unknown action: {missingAction}");
-                            break;
+                        await handler(context, doc, userId);
                     }
-                }
-                else
-                {
-                    await SendErrorResponse(context, "Invalid request format, missing action.");
                 }
             }
         });
     }
 
-    private async Task HandleSseConnection(HttpContext context, string userId)
+    public async Task HandleSseConnection(HttpContext context, string userId)
     {
         try
         {
@@ -147,7 +99,7 @@ public class AppManager
     }
 
 
-    private async Task EmitToUser(string userId, string event_type, string payload)
+    public async Task EmitToUser(string userId, string event_type, string payload)
     {
         var messageToSend = new { Type = "message", Data = payload };
         if (activeConnections.ContainsKey(userId))
@@ -162,7 +114,7 @@ public class AppManager
         }
     }
 
-    private async Task EmitToGuild(string guildId, object messageToEmit, HttpContext context)
+    public async Task EmitToGuild(string guildId, object messageToEmit, HttpContext context)
     {
         List<PublicUser> guildUsers = await _guildService.GetGuildUsers(guildId);
         foreach (var client in activeConnections)
@@ -175,10 +127,7 @@ public class AppManager
         }
     }
 
-
-
-
-    private async Task HandleStartWriting(HttpContext context, JsonDocument request, string userId)
+    public async Task HandleStartWriting(HttpContext context, JsonDocument request, string userId)
     {
         if (string.IsNullOrEmpty(userId))
         {
@@ -186,38 +135,9 @@ public class AppManager
             return;
         }
 
-        if (request.RootElement.ValueKind != JsonValueKind.Object)
-        {
-            await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
-            return;
-        }
+        string guildId = await ExtractParameter(request, "guildId", e => e.GetString(), context);
+        string channelId = await ExtractParameter(request, "channelId", e => e.GetString(), context);
 
-        string guildId = string.Empty;
-        string channelId = string.Empty;
-
-        try
-        {
-            if (request.RootElement.TryGetProperty("guildId", out JsonElement guildIdElement) && guildIdElement.ValueKind == JsonValueKind.String)
-            {
-                guildId = guildIdElement.GetString() ?? string.Empty;
-            }
-
-            if (request.RootElement.TryGetProperty("channelId", out JsonElement channelIdElement) && channelIdElement.ValueKind == JsonValueKind.String)
-            {
-                channelId = channelIdElement.GetString() ?? string.Empty;
-            }
-        }
-        catch (Exception ex)
-        {
-            await SendErrorResponse(context, "Error parsing JSON data.");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
-        {
-            await SendErrorResponse(context, "Properties are missing.");
-            return;
-        }
         if (!writingUsersState.ContainsKey(guildId))
         {
             writingUsersState[guildId] = new List<string>();
@@ -240,104 +160,58 @@ public class AppManager
         await EmitToGuild(guildId, messageToEmit, context);
         await context.Response.WriteAsync(JsonSerializer.Serialize(new { Type = "success", Message = "Writing started." }));
     }
-    private async Task HandleGetChannels(HttpContext context, JsonDocument request, string userId)
+
+
+
+   
+    public async Task HandleGetChannels(HttpContext context, JsonDocument request, string userId)
     {
-        if (request.RootElement.ValueKind != JsonValueKind.Object)
-        {
-            await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
-            return;
-        }
-
         var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
-
-        if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
+        string guildId = jsonData["value"].GetProperty("guildId").GetString();
+        
+        var channels = await _guildService.GetGuildChannels(userId, guildId);
+        if (channels != null)
         {
-            if (guildIdElement.ValueKind != JsonValueKind.String)
+            var updateChannelsMessage = new
             {
-                await SendErrorResponse(context, "Guild ID is not a string.");
-                return;
-            }
-
-            string guildId = guildIdElement.GetString();
-            if (!string.IsNullOrEmpty(guildId))
-            {
-                var channels = await _guildService.GetGuildChannels(userId, guildId);
-                if (channels != null)
+                Type = "update_channels",
+                Data = new
                 {
-                    var updateChannelsMessage = new
-                    {
-                        Type = "update_channels",
-                        Data = new
-                        {
-                            guild_id = guildId,
-                            channels
-                        }
-                    };
-                    await context.Response.WriteAsync(JsonSerializer.Serialize(updateChannelsMessage));
-                    return;
+                    guildId = guildId,
+                    channels
                 }
-            }
+            };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(updateChannelsMessage));
         }
-
-        await SendErrorResponse(context, "Guild ID is missing for get_channels message.");
+        else
+        {
+            await SendErrorResponse(context, "Unable to retrieve channels.");
+        }
     }
 
-
-    private async Task HandleGetGuilds(HttpContext context, JsonDocument request, string userId)
+    public async Task HandleGetGuilds(HttpContext context, JsonDocument request, string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-        {
-            await SendErrorResponse(context, "User ID is missing.");
-            return;
-        }
-
         var guilds = await _guildService.GetUserGuilds(userId);
-        if (guilds == null)
+        if (guilds != null)
+        {
+            var messageToEmit = new
+            {
+                Type = "update_guilds",
+                Data = new { guilds }
+            };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(messageToEmit));
+        }
+        else
         {
             await SendErrorResponse(context, "Unable to retrieve guilds.");
-            return;
         }
-
-        var messageToEmit = new
-        {
-            Type = "update_guilds",
-            Data = new
-            {
-                guilds
-            }
-        };
-
-        await context.Response.WriteAsync(JsonSerializer.Serialize(messageToEmit));
     }
 
-    private async Task HandleGetMessages(HttpContext context, JsonDocument request, string userId)
+    public async Task HandleGetMessages(HttpContext context, JsonDocument request, string userId)
     {
-        if (request.RootElement.ValueKind != JsonValueKind.Object)
-        {
-            await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
-            return;
-        }
-
-        if (!request.RootElement.TryGetProperty("guildId", out JsonElement guildIdElement) || guildIdElement.ValueKind != JsonValueKind.String)
-        {
-            await SendErrorResponse(context, "Guild ID is missing or not a string.");
-            return;
-        }
-
-        if (!request.RootElement.TryGetProperty("channelId", out JsonElement channelIdElement) || channelIdElement.ValueKind != JsonValueKind.String)
-        {
-            await SendErrorResponse(context, "Channel ID is missing or not a string.");
-            return;
-        }
-
-        string guildId = guildIdElement.GetString();
-        string channelId = channelIdElement.GetString();
-
-        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
-        {
-            await SendErrorResponse(context, "Properties are missing.");
-            return;
-        }
+        var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
+        string guildId = jsonData["value"].GetProperty("guildId").GetString();
+        string channelId = jsonData["value"].GetProperty("channelId").GetString();
 
         var messages = await _messageService.GetMessages(guildId, channelId);
         var oldestMessageDate = await _messageService.GetOldestMessage(guildId, channelId);
@@ -345,49 +219,43 @@ public class AppManager
         var messageToEmit = new
         {
             Type = "history_response",
-            Data = new
-            {
-                messages,
-                oldestMessageDate
-            }
+            Data = new { messages, oldestMessageDate }
         };
 
         await context.Response.WriteAsync(JsonSerializer.Serialize(messageToEmit));
     }
 
-
-
-    private async Task HandleNewMessage(HttpContext context, JsonDocument request, string userId)
+    public async Task<T> ExtractParameter<T>(JsonDocument request, string propertyName, Func<JsonElement, T> convertFunc, HttpContext context)
     {
         if (request.RootElement.ValueKind != JsonValueKind.Object)
         {
             await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
-            return;
         }
 
-        string guildId = request.RootElement.GetProperty("guildId").GetString() ?? string.Empty;
-        string channelId = request.RootElement.GetProperty("channelId").GetString() ?? string.Empty;
-        string content = request.RootElement.GetProperty("content").GetString() ?? string.Empty;
-        string attachmentUrls = request.RootElement.TryGetProperty("attachmentUrls", out var attachmentElement) ? 
+        if (!request.RootElement.TryGetProperty(propertyName, out JsonElement valueElement) || valueElement.ValueKind != JsonValueKind.String)
+        {
+            await SendErrorResponse(context, $"{propertyName} is missing or not a valid string.");
+        }
+
+        return convertFunc(valueElement);
+    }
+
+
+    public async Task HandleNewMessage(HttpContext context, JsonDocument request, string userId)
+    {
+        var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
+        string guildId = jsonData["value"].GetProperty("guildId").GetString();
+        string channelId = jsonData["value"].GetProperty("channelId").GetString();
+        string content = jsonData["value"].GetProperty("content").GetString();
+        
+        string attachmentUrls = jsonData["value"].TryGetProperty("attachmentUrls", out var attachmentElement) ? 
             attachmentElement.GetString() : null;
-        string replyToId = request.RootElement.TryGetProperty("replyToId", out var replyToElement) ? 
+        string replyToId = jsonData["value"].TryGetProperty("replyToId", out var replyToElement) ? 
             replyToElement.GetString() : null;
-        string reactionEmojisIds = request.RootElement.TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
+        string reactionEmojisIds = jsonData["value"].TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
             reactionElement.GetString() : null;
-        string lastEdited = request.RootElement.TryGetProperty("lastEdited", out var lastEditedElement) ? 
+        string lastEdited = jsonData["value"].TryGetProperty("lastEdited", out var lastEditedElement) ? 
             lastEditedElement.GetString() : null;
-
-        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(content))
-        {
-            await SendErrorResponse(context, "Properties are missing.");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            await SendErrorResponse(context, "User ID is missing.");
-            return;
-        }
 
         if (!await _guildService.CanManageChannels(userId, guildId))
         {
@@ -399,29 +267,12 @@ public class AppManager
         await context.Response.WriteAsync(JsonSerializer.Serialize(new { Type = "success", Message = "Message sent." }));
     }
 
-    private async Task HandleCreateChannel(HttpContext context, JsonDocument request, string userId)
+    public async Task HandleCreateChannel(HttpContext context, JsonDocument request, string userId)
     {
-        if (request.RootElement.ValueKind != JsonValueKind.Object)
-        {
-            await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
-            return;
-        }
-
-        string guildId = request.RootElement.GetProperty("guildId").GetString();
-        bool isTextChannel = request.RootElement.GetProperty("isTextChannel").GetBoolean();
-        string channelName = request.RootElement.GetProperty("channelName").GetString();
-
-        if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelName))
-        {
-            await SendErrorResponse(context, "Guild ID or Channel Name is missing.");
-            return;
-        }
-
-        if (string.IsNullOrEmpty(userId))
-        {
-            await SendErrorResponse(context, "User ID is missing.");
-            return;
-        }
+        var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
+        string guildId = jsonData["value"].GetProperty("guildId").GetString();
+        bool isTextChannel = jsonData["value"].GetProperty("isTextChannel").GetBoolean();
+        string channelName = jsonData["value"].GetProperty("channelName").GetString();
 
         if (!await _guildService.CanManageChannels(userId, guildId))
         {
@@ -433,93 +284,138 @@ public class AppManager
         await context.Response.WriteAsync(JsonSerializer.Serialize(new { Type = "success", Message = "Channel created." }));
     }
 
-    private async Task HandleGetUsers(HttpContext context, JsonDocument request, string userId)
+    public async Task HandleGetUsers(HttpContext context, JsonDocument request, string userId)
     {
-        if (request.RootElement.ValueKind != JsonValueKind.Object)
+        var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
+        string guildId = jsonData["value"].GetProperty("guildId").GetString();
+
+        if (!_guildService.DoesUserExistInGuild(userId, guildId))
         {
-            await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
+            await SendErrorResponse(context, "User not in guild.");
             return;
         }
 
-        var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
-
-        if (jsonData != null && jsonData.TryGetValue("value", out JsonElement guildIdElement))
+        var users = await _guildService.GetGuildUsers(guildId);
+        if (users != null)
         {
-            if (guildIdElement.ValueKind != JsonValueKind.String)
-            {
-                await SendErrorResponse(context, "Guild ID is not a string.");
-                return;
-            }
-
-            string guildId = guildIdElement.GetString();
-            if (string.IsNullOrEmpty(guildId)) 
-            {
-                await SendErrorResponse(context, "Guild ID is missing.");
-                return;
-            }
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                await SendErrorResponse(context, "User ID is missing.");
-                return;
-            }
-
-            if (!_guildService.DoesUserExistInGuild(userId, guildId)) 
-            {
-                await SendErrorResponse(context, "User not in guild.");
-                return;
-            }
-
-            var users = await _guildService.GetGuildUsers(guildId);
-            if (users == null) 
-            {
-                await SendErrorResponse(context, "Unable to retrieve users.");
-                return;
-            }
-
             var updateUsersMessage = new
             {
                 Type = "update_users",
-                Data = new
-                {
-                    guild_id = guildId,
-                    users
-                }
+                Data = new { guildId = guildId, users }
             };
             await context.Response.WriteAsync(JsonSerializer.Serialize(updateUsersMessage));
         }
         else
         {
-            await SendErrorResponse(context, "Data is null or Guild ID is missing for get_users message.");
+            await SendErrorResponse(context, "Unable to retrieve users.");
         }
     }
 
 
-    private async Task SendErrorResponse(HttpContext context, string message)
+
+    public async Task SendErrorResponse(HttpContext context, string message)
     {
         var errorResponse = new { Type = "error", Message = message };
+        context.Response.ContentType = "application/json";
+        context.Response.StatusCode = 400; 
         await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
     }
+
 
     
 }
 
-public class SocketMessage
+
+public class HandlerCreator
 {
-    public required string Type { get; set; }
-    public object? Data { get; set; }
+    private readonly AppManager _appManager;
+
+    public HandlerCreator(AppManager appManager)
+    {
+        _appManager = appManager;
+    }
+
+    public async Task<Func<HttpContext, JsonDocument, string, Task>> CreateHandler(string action, HttpContext context, JsonDocument request, string userId)
+    {
+        if (!ParameterValidator.ValidateParameters(action, request, out string errorMessage))
+        {
+            await _appManager.SendErrorResponse(context, errorMessage);
+            return null;
+        }
+
+        return action switch
+        {
+            "create_channel" => _appManager.HandleCreateChannel,
+            "new_message" => _appManager.HandleNewMessage,
+            "get_history" => _appManager.HandleGetMessages,
+            "get_channels" => _appManager.HandleGetChannels,
+            "get_users" => _appManager.HandleGetUsers,
+            "get_guilds" => _appManager.HandleGetGuilds,
+            "start_writing" => _appManager.HandleStartWriting,
+            _ => null
+        };
+    }
+}
+public static class ParameterValidator
+{
+    public static bool ValidateParameters(string action, JsonDocument request, out string errorMessage)
+    {
+        errorMessage = string.Empty;
+
+        if (request is null)
+        {
+            errorMessage = "Request JSON document is null. [Auto-generated]";
+            return false;
+        }
+
+        if (!ActionMetadata.RequiredFields.ContainsKey(action))
+        {
+            errorMessage = "Unknown action type. [Auto-generated]";
+            return false;
+        }
+
+        var requiredFields = ActionMetadata.RequiredFields[action];
+
+        if (request.RootElement.TryGetProperty("value", out var valueElement))
+        {
+            if (valueElement.ValueKind != JsonValueKind.Object)
+            {
+                errorMessage = "'value' must be a JSON object. [Auto-generated]";
+                return false;
+            }
+
+            foreach (var field in requiredFields)
+            {
+                if (!valueElement.TryGetProperty(field, out var _))
+                {
+                    errorMessage = $"{field} is missing in the request. [Auto-generated]";
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            errorMessage = "'value' object is missing. [Auto-generated]";
+            return false;
+        }
+
+        return true;
+    }
 }
 
-public class AuthData
-{
-    public string? token { get; set; }
-    public bool success { get; set; }
-}
 
-public class GetChannelsData
+public static class ActionMetadata
 {
-    public string GuildId { get; set; }
-    public string Value { get; set; }
+    public static readonly Dictionary<string, List<string>> RequiredFields = new()
+    {
+        { "create_channel", new List<string> { "guildId", "channelName" } },
+        { "new_message", new List<string> { "content", "guildId", "channelId" } },
+        { "get_history", new List<string> { "guildId", "channelId" } },
+        { "get_channels", new List<string> { "guildId" } },
+        { "get_users", new List<string> { "guildId" } },
+        { "get_guilds", new List<string> { } },
+        { "start_writing", new List<string> { "guildId", "channelId" } }
+    };
 }
 
 

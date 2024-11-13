@@ -146,29 +146,27 @@ namespace LiventCord.Data
 
             modelBuilder.Entity<GuildPermissions>()
                 .ToTable("guild_permissions")
-                .HasKey(gp => new { gp.GuildId, gp.UserId }); // Composite key
+                .HasKey(gp => new { gp.GuildId, gp.UserId }); 
 
             modelBuilder.Entity<GuildPermissions>()
-                .Property(gp => gp.GuildId) // Ensure GuildId is required
+                .Property(gp => gp.GuildId) 
                 .IsRequired();
 
             modelBuilder.Entity<GuildPermissions>()
-                .Property(gp => gp.UserId) // Ensure UserId is required
+                .Property(gp => gp.UserId) 
                 .IsRequired();
 
-            // Configure the relationship between GuildPermissions and User
             modelBuilder.Entity<GuildPermissions>()
-                .HasOne(gp => gp.User) // Specify the navigation property in GuildPermissions
-                .WithMany(u => u.GuildPermissions) // Inverse navigation in User
+                .HasOne(gp => gp.User)
+                .WithMany(u => u.GuildPermissions) 
                 .HasForeignKey(gp => gp.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Set deletion behavior
+                .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure the relationship between GuildPermissions and Guild
             modelBuilder.Entity<GuildPermissions>()
-                .HasOne(gp => gp.Guild) // Specify the navigation property in GuildPermissions
-                .WithMany(g => g.GuildPermissions) // Inverse navigation in Guild
+                .HasOne(gp => gp.Guild)
+                .WithMany(g => g.GuildPermissions) 
                 .HasForeignKey(gp => gp.GuildId)
-                .OnDelete(DeleteBehavior.Cascade); // Set deletion behavior
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Message>(entity =>
             {
