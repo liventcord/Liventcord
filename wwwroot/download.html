@@ -18,6 +18,29 @@
         <link href="https://fonts.googleapis.com" rel="preconnect"/>
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous"/>
         <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+        <link rel="manifest" href="/manifest.json">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+        
+        <script>
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('/service-worker.js').then((registration) => {
+                console.log('Service Worker registered with scope:', registration.scope);
+              }).catch((error) => {
+                console.error('Service Worker registration failed:', error);
+              });
+            }
+        </script>
+        
+        <script>
+            const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+            
+            if (isPWA && window.location.pathname !== '/app') {
+              window.location.replace('/app');
+            }
+        </script>
+          
+
         <script type="text/javascript">
             WebFont.load({
                 google: {
@@ -396,7 +419,6 @@
                             <a href="/app" data-track-nav="login" data-track="login" data-w-id="c36f0e26-d62e-952f-a4f7-a242f3e01e65" class="button-white login-button-js w-button">Login</a>
                         </div>
                         <div class="menu-button w-nav-button">
-                            <img src="/static/images/wardmarkcolor.png" loading="lazy" data-w-id="c36f0e26-d62e-952f-a4f7-a242f3e01e68" alt=""/>
                             <img src="/static/images/wardmarkcolor.png" loading="lazy" alt="" class="invert-color-black"/>
                             <div class="mubu-btn"></div>
                         </div>
@@ -579,15 +601,18 @@
                 let userAgent = window.navigator.userAgent,
                     platform = window.navigator.platform,
                     windowsPlatforms = ["Win32", "Win64", "Windows", "WinCE"],
-                    buttonAttributes = null;
-            
+                    buttonAttributes = {
+                        text: "Download",
+                        href: "/default-download",
+                    };
+
                 if (windowsPlatforms.indexOf(platform) !== -1) {
                     buttonAttributes = {
                         text: "Download for Windows",
                         href: "/download-windows",
                     };
                 }
-            
+
                 let downloadEl = document.querySelectorAll(".download-button");
                 if (downloadEl) {
                     downloadEl.forEach(function(el) {
@@ -595,7 +620,7 @@
                         el.href = buttonAttributes.href;
                     });
                 }
-            
+
                 let downloadSidebarEl = document.querySelectorAll(".download-sidebar");
                 if (downloadSidebarEl) {
                     downloadSidebarEl.forEach(function(el) {
@@ -603,7 +628,8 @@
                     });
                 }
             }
-            
+
+                        
 
             function initLogInOrOpenDiscordButton() {
                 let loginButtonText, loginRoute, signUpButtonText, signupRoute;

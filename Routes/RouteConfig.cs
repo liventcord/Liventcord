@@ -170,6 +170,9 @@ namespace LiventCord.Routes
             MapRoute("/static/w/assets/otSDKStub.js/scripttemplates/6.33.0/otBannerSdk.js", "static/w/assets/otBannerSdk.js");
             MapRoute("/static/w/assets/otSDKStub.js/consent/04da1d72-0626-4fff-b3c6-150c719cc115/40451c6c-36d5-41b4-a718-aca26f058456/en.json","static/404/en.json");
 
+            MapRoute("/service-worker.js", "pwa/service-worker.js");
+            MapRoute("/manifest.json", "pwa/manifest.json");
+
         }
     }
 }
