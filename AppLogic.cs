@@ -1,12 +1,12 @@
 using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
 using LiventCord.Helpers;
 using LiventCord.Services;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
+using LiventCord.Controllers;
+
+
 namespace LiventCord.Helpers
 {
     
@@ -14,14 +14,14 @@ namespace LiventCord.Helpers
     {
         private readonly AppDbContext _dbContext;
         private readonly TypingService _typingService;
-        private readonly GuildService _guildService;
         private readonly FriendHelper _friendHelper;
+        private readonly GuildController _guildController;
 
-        public AppLogic(AppDbContext dbContext, TypingService typingService, GuildService guildService, FriendHelper friendHelper)
+        public AppLogic(AppDbContext dbContext, TypingService typingService, FriendHelper friendHelper ,GuildController guildController)
         {
             _dbContext = dbContext;
+            _guildController = guildController;
             _typingService = typingService;
-            _guildService = guildService;
             _friendHelper = friendHelper;
         }
 
@@ -37,9 +37,9 @@ namespace LiventCord.Helpers
             var userName = user.Nickname ?? "";
             var userDiscriminator = user.Discriminator ?? "";
 
-            var guilds = await _guildService.GetUserGuilds(userId);
+            var guilds = await _guildController.GetUserGuilds(userId);
             
-            var guildUsers = await _guildService.GetGuildUsers(guildId);
+            var guildUsers = await _guildController.GetGuildUsers(guildId);
 
             var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
             var guildName = guild?.GuildName ?? "";
@@ -47,12 +47,12 @@ namespace LiventCord.Helpers
 
             var typingUsers = new List<string>();
             var sharedGuildsMap = new List<string>();
-            var permissionsMap = _guildService.GetPermissionsMapForUser(userId);
+            var permissionsMap = _guildController.GetPermissionsMapForUser(userId);
 
             if (!string.IsNullOrEmpty(guildId))
             {
                 typingUsers = await _typingService.GetTypingUsers(guildId, channelId) ?? new List<string>();
-                sharedGuildsMap = await _guildService.GetSharedGuilds(guildId, userId) ?? new List<string>();
+                sharedGuildsMap = await _guildController.GetSharedGuilds(guildId, userId) ?? new List<string>();
           
             }
 

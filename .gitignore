@@ -6,6 +6,7 @@ publish/
 cache/
 ytcache/
 Migrations/
+Logs/
 
 appsettings.Development.json
 appsettings.json

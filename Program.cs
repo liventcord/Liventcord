@@ -1,29 +1,36 @@
-using LiventCord.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using LiventCord.Helpers;
-using LiventCord.Services;
-using Microsoft.AspNetCore.StaticFiles;
-using LiventCord.Routes;
-using LiventCord.Controllers;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
-using System.Text.Json;
+using LiventCord.Controllers;
+using LiventCord.Data;
+using LiventCord.Helpers;
+using LiventCord.Routes;
+using LiventCord.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) 
+    .CreateLogger();
+
+builder.Host.UseSerilog(); 
+
+
+
 builder.Services.AddScoped<FriendHelper>();
-builder.Services.AddScoped<TypingService>(); 
-builder.Services.AddScoped<GuildService>();
+builder.Services.AddScoped<TypingService>();
 builder.Services.AddScoped<MessageService>();
 builder.Services.AddScoped<AppLogic>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
+builder.Services.AddScoped<GuildController>();
 builder.Services.AddScoped<UploadController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
-
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -55,13 +62,24 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Optimal;
 });
 
-var app = builder.Build();
+builder.Services.AddScoped<AppManager>(provider =>
+{
+    var secretKey = builder.Configuration["AppSettings:SecretKey"] ?? string.Empty;
+    var messageService = provider.GetRequiredService<MessageService>();
+    var guildController = provider.GetRequiredService<GuildController>();
+    return new AppManager(provider,secretKey, messageService, guildController);
+});
 
+var app = builder.Build();
+app.UseSerilogRequestLogging();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
 }
+
+var appManager = app.Services.GetRequiredService<AppManager>();
+appManager.ConfigureApp(app);
 
 app.UseResponseCompression();
 
@@ -78,11 +96,16 @@ else
 app.UseStatusCodePages(async context =>
 {
     var statusCode = context.HttpContext.Response.StatusCode;
-    if (statusCode == 404)
+
+    if (statusCode == StatusCodes.Status404NotFound)
     {
-        context.HttpContext.Response.ContentType = "text/html";
-        var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
-        await context.HttpContext.Response.SendFileAsync(filePath);
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync("404 Not Found");
+    }
+    else if (statusCode == StatusCodes.Status500InternalServerError)
+    {
+        context.HttpContext.Response.ContentType = "text/plain";
+        await context.HttpContext.Response.WriteAsync("500 Internal Server Error");
     }
     else
     {
@@ -92,6 +115,7 @@ app.UseStatusCodePages(async context =>
     }
 });
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
@@ -100,18 +124,6 @@ app.UseStaticFiles();
 
 RouteConfig.ConfigureRoutes(app);
 
-app.MapGet("/error", async context =>
-{
-    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-    context.Response.ContentType = "text/plain";
-    await context.Response.WriteAsync("An internal server error occurred. Please try again later.");
-});
-
-string secretKey = builder.Configuration["AppSettings:SecretKey"] ?? string.Empty;
-var guildService = app.Services.GetRequiredService<GuildService>();
-var messageService = app.Services.GetRequiredService<MessageService>();
-var appManager = new AppManager(secretKey, guildService,messageService);
-appManager.ConfigureApp(app);
 app.MapGet("/login", async context =>
 {
     if (context.User.Identity?.IsAuthenticated == true)
@@ -140,6 +152,7 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
+
 app.MapFallback(async context =>
 {
     context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -150,32 +163,3 @@ app.MapFallback(async context =>
 
 app.MapControllers();
 app.Run();
-
-async Task SendHistoryResponse(HttpContext context, Dictionary<string, string> request)
-{
-    var placeholderHistory = new
-    {
-        status = "success",
-        history = new[] { "Message 1", "Message 2", "Message 3" },
-        channelId = request["channel_id"],
-        guildId = request["guild_id"]
-    };
-    await context.Response.WriteAsync(JsonSerializer.Serialize(placeholderHistory));
-}
-
-async Task SendChannelsResponse(HttpContext context, Dictionary<string, string> request)
-{
-    var placeholderChannels = new
-    {
-        status = "success",
-        channels = new[] { "Channel A", "Channel B", "Channel C" },
-        guildId = request["guild_id"]
-    };
-    await context.Response.WriteAsync(JsonSerializer.Serialize(placeholderChannels));
-}
-
-async Task SendErrorResponse(HttpContext context, string message)
-{
-    var errorResponse = new { status = "error", message = message };
-    await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
-}

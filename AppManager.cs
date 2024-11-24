@@ -6,24 +6,27 @@ using System.Text.Json;
 using LiventCord.Models;
 using LiventCord.Data;
 using System.Threading.Channels;
+using LiventCord.Controllers;
 
 public class AppManager
 {
     private readonly string secretKey;
-    private GuildService _guildService;
     private MessageService _messageService;
     private readonly Channel<string> _eventChannel;
     private Dictionary<string, List<string>> writingUsersState = new();
     private readonly Dictionary<string, HttpContext> activeConnections = new();
     private readonly HandlerCreator _handlerCreator;
-    
+    private readonly GuildController _guildController;
 
 
-    public AppManager(string secretKey, GuildService guildService, MessageService messageService)
+    private readonly IServiceProvider _serviceProvider;
+
+    public AppManager(IServiceProvider serviceProvider,string secretKey, MessageService messageService,GuildController guildController)
     {
         _messageService = messageService;
-        _guildService = guildService;
+        _serviceProvider = serviceProvider;
         this.secretKey = secretKey;
+        _guildController = guildController;
         _eventChannel = System.Threading.Channels.Channel.CreateUnbounded<string>();
         _handlerCreator = new HandlerCreator(this); 
     }
@@ -116,11 +119,11 @@ public class AppManager
 
     public async Task EmitToGuild(string guildId, object messageToEmit, HttpContext context)
     {
-        List<PublicUser> guildUsers = await _guildService.GetGuildUsers(guildId);
+        List<PublicUser> guildUsers = await _guildController.GetGuildUsers(guildId);
         foreach (var client in activeConnections)
         {
             var userId = client.Key;
-            if (guildUsers.Any(u => u.UserId == userId)) 
+            if (guildUsers.Any(u => u.UserId == userId))
             {
                 await EmitToUser(userId, "event_type", JsonSerializer.Serialize(messageToEmit));
             }
@@ -129,14 +132,9 @@ public class AppManager
 
     public async Task HandleStartWriting(HttpContext context, JsonDocument request, string userId)
     {
-        if (string.IsNullOrEmpty(userId))
-        {
-            await SendErrorResponse(context, "User ID is missing.");
-            return;
-        }
-
-        string guildId = await ExtractParameter(request, "guildId", e => e.GetString(), context);
-        string channelId = await ExtractParameter(request, "channelId", e => e.GetString(), context);
+   
+        string ?guildId = await ExtractParameter(request, "guildId", e => e.GetString(), context);
+        string ?channelId = await ExtractParameter(request, "channelId", e => e.GetString(), context);
 
         if (!writingUsersState.ContainsKey(guildId))
         {
@@ -169,7 +167,7 @@ public class AppManager
         var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
         string guildId = jsonData["value"].GetProperty("guildId").GetString();
         
-        var channels = await _guildService.GetGuildChannels(userId, guildId);
+        var channels = await _guildController.GetGuildChannels(userId, guildId);
         if (channels != null)
         {
             var updateChannelsMessage = new
@@ -191,7 +189,7 @@ public class AppManager
 
     public async Task HandleGetGuilds(HttpContext context, JsonDocument request, string userId)
     {
-        var guilds = await _guildService.GetUserGuilds(userId);
+        var guilds = await  _guildController.GetUserGuilds(userId);
         if (guilds != null)
         {
             var messageToEmit = new
@@ -225,39 +223,61 @@ public class AppManager
         await context.Response.WriteAsync(JsonSerializer.Serialize(messageToEmit));
     }
 
-    public async Task<T> ExtractParameter<T>(JsonDocument request, string propertyName, Func<JsonElement, T> convertFunc, HttpContext context)
+    public async Task<T?> ExtractParameter<T>(JsonDocument request, string propertyName, Func<JsonElement, T> convertFunc, HttpContext context)
     {
         if (request.RootElement.ValueKind != JsonValueKind.Object)
         {
             await SendErrorResponse(context, "msg.Data is not a valid JsonElement or is not an object.");
+            return default; 
         }
 
-        if (!request.RootElement.TryGetProperty(propertyName, out JsonElement valueElement) || valueElement.ValueKind != JsonValueKind.String)
+        if (!request.RootElement.TryGetProperty(propertyName, out JsonElement valueElement))
         {
-            await SendErrorResponse(context, $"{propertyName} is missing or not a valid string.");
+            await SendErrorResponse(context, $"{propertyName} is missing.");
+            return default; 
         }
 
-        return convertFunc(valueElement);
+        if (valueElement.ValueKind != JsonValueKind.String)
+        {
+            await SendErrorResponse(context, $"{propertyName} is not a valid string.");
+            return default;  
+        }
+
+        try
+        {
+            return convertFunc(valueElement); 
+        }
+        catch (Exception ex)
+        {
+            await SendErrorResponse(context, $"Error during conversion: {ex.Message}");
+            return default;  
+        }
     }
+
 
 
     public async Task HandleNewMessage(HttpContext context, JsonDocument request, string userId)
     {
         var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
-        string guildId = jsonData["value"].GetProperty("guildId").GetString();
-        string channelId = jsonData["value"].GetProperty("channelId").GetString();
-        string content = jsonData["value"].GetProperty("content").GetString();
+        string? guildId = jsonData["value"].GetProperty("guildId").GetString();
+        string? channelId = jsonData["value"].GetProperty("channelId").GetString();
+        string? content = jsonData["value"].GetProperty("content").GetString();
+        if (guildId == null || channelId == null || content == null)
+        {
+            await SendErrorResponse(context, "Required properties (guildId, channelId, content) are missing.");
+            return;
+        }
         
-        string attachmentUrls = jsonData["value"].TryGetProperty("attachmentUrls", out var attachmentElement) ? 
+        string ?attachmentUrls = jsonData["value"].TryGetProperty("attachmentUrls", out var attachmentElement) ? 
             attachmentElement.GetString() : null;
-        string replyToId = jsonData["value"].TryGetProperty("replyToId", out var replyToElement) ? 
+        string ?replyToId = jsonData["value"].TryGetProperty("replyToId", out var replyToElement) ? 
             replyToElement.GetString() : null;
-        string reactionEmojisIds = jsonData["value"].TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
+        string ?reactionEmojisIds = jsonData["value"].TryGetProperty("reactionEmojisIds", out var reactionElement) ? 
             reactionElement.GetString() : null;
-        string lastEdited = jsonData["value"].TryGetProperty("lastEdited", out var lastEditedElement) ? 
+        string ?lastEdited = jsonData["value"].TryGetProperty("lastEdited", out var lastEditedElement) ? 
             lastEditedElement.GetString() : null;
 
-        if (!await _guildService.CanManageChannels(userId, guildId))
+        if (!await  _guildController.CanManageChannels(userId, guildId))
         {
             await SendErrorResponse(context, "User does not have permission to send message.");
             return;
@@ -273,14 +293,15 @@ public class AppManager
         string guildId = jsonData["value"].GetProperty("guildId").GetString();
         bool isTextChannel = jsonData["value"].GetProperty("isTextChannel").GetBoolean();
         string channelName = jsonData["value"].GetProperty("channelName").GetString();
+        
 
-        if (!await _guildService.CanManageChannels(userId, guildId))
+        if (!await _guildController.CanManageChannels(userId, guildId))
         {
             await SendErrorResponse(context, "User does not have permission to manage channels.");
             return;
         }
 
-        await _guildService.CreateChannel(guildId, channelName, isTextChannel); 
+        await  _guildController.CreateChannel(guildId, channelName, isTextChannel); 
         await context.Response.WriteAsync(JsonSerializer.Serialize(new { Type = "success", Message = "Channel created." }));
     }
 
@@ -289,35 +310,45 @@ public class AppManager
         var jsonData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(request.RootElement.GetRawText());
         string guildId = jsonData["value"].GetProperty("guildId").GetString();
 
-        if (!_guildService.DoesUserExistInGuild(userId, guildId))
+        // Resolve a new instance of GuildController
+        using (var scope = _serviceProvider.CreateScope())
         {
-            await SendErrorResponse(context, "User not in guild.");
-            return;
-        }
+            var guildController = scope.ServiceProvider.GetRequiredService<GuildController>();
 
-        var users = await _guildService.GetGuildUsers(guildId);
-        if (users != null)
-        {
-            var updateUsersMessage = new
+            if (!guildController.DoesUserExistInGuild(userId, guildId))
             {
-                Type = "update_users",
-                Data = new { guildId = guildId, users }
-            };
-            await context.Response.WriteAsync(JsonSerializer.Serialize(updateUsersMessage));
-        }
-        else
-        {
-            await SendErrorResponse(context, "Unable to retrieve users.");
+                await SendErrorResponse(context, "User not in guild.");
+                return;
+            }
+
+            var users = await guildController.GetGuildUsers(guildId).ConfigureAwait(false);
+            if (users != null)
+            {
+                var updateUsersMessage = new
+                {
+                    Type = "update_users",
+                    Data = new { guildId = guildId, users }
+                };
+                await context.Response.WriteAsync(JsonSerializer.Serialize(updateUsersMessage));
+            }
+            else
+            {
+                await SendErrorResponse(context, "Unable to retrieve users.");
+            }
         }
     }
 
 
-
     public async Task SendErrorResponse(HttpContext context, string message)
     {
+        if (context.Response.HasStarted)
+        {
+            return;
+        }
+
         var errorResponse = new { Type = "error", Message = message };
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = 400; 
+        context.Response.StatusCode = 400;
         await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
     }
 
@@ -335,7 +366,7 @@ public class HandlerCreator
         _appManager = appManager;
     }
 
-    public async Task<Func<HttpContext, JsonDocument, string, Task>> CreateHandler(string action, HttpContext context, JsonDocument request, string userId)
+    public async Task<Func<HttpContext, JsonDocument, string, Task>?> CreateHandler(string action, HttpContext context, JsonDocument request, string userId)
     {
         if (!ParameterValidator.ValidateParameters(action, request, out string errorMessage))
         {
@@ -343,7 +374,7 @@ public class HandlerCreator
             return null;
         }
 
-        return action switch
+        Func<HttpContext, JsonDocument, string, Task>? handler = action switch
         {
             "create_channel" => _appManager.HandleCreateChannel,
             "new_message" => _appManager.HandleNewMessage,
@@ -354,7 +385,24 @@ public class HandlerCreator
             "start_writing" => _appManager.HandleStartWriting,
             _ => null
         };
+
+        if (handler == null)
+        {
+            handler = DefaultHandler();
+        }
+
+        return handler;
     }
+
+    private Func<HttpContext, JsonDocument, string, Task> DefaultHandler()
+    {
+        return async (HttpContext context, JsonDocument request, string userId) =>
+        {
+            await _appManager.SendErrorResponse(context, "Invalid action.");
+        };
+    }
+
+
 }
 public static class ParameterValidator
 {
