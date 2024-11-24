@@ -702,6 +702,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     selfBubble = getId("self-bubble");
+    console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
 
     initialiseMe();
     if (window.location.pathname.startsWith('/channels/@me/')) {
@@ -709,8 +710,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const friendId = parts[3];
         OpenDm(friendId);
         
-    } else  if (typeof passed_guildId !== 'undefined' && typeof passed_channelId !== 'undefined' && typeof passed_author_id !== 'undefined') {
-        loadGuild(passed_guildId,passed_channelId,passed_guild_name,passed_author_id);
+    } else  if (typeof passed_guild_id !== 'undefined' && typeof passed_channel_id !== 'undefined' && typeof passed_author_id !== 'undefined') {
+        loadGuild(passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
     }
     if (typeof passed_message_readen !== 'undefined') {
         readenMessagesCache = passed_message_readen;
@@ -726,7 +727,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
     }
     if(isOnGuild) {
-        if(currentGuildData && !passed_guildId in currentGuildData) {
+        if(currentGuildData && !passed_guild_id in currentGuildData) {
             window.history.pushState(null,null, "/channels/@me")
         }
     }
@@ -748,9 +749,9 @@ document.addEventListener('DOMContentLoaded', function () {
         window.scrollTo(0, 0);
     }, 20);
 
-
     if (guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
+            console.warn(data,isOnGuild);
             channels_cache[data.GuildId] = data.GuildChannels;
             if(isOnGuild) {
                 updateChannels(data.GuildChannels);
@@ -2607,6 +2608,7 @@ function selectGuildList(guildId) {
 
 function loadGuild(guildId,channelId,guildName,guildAuthorId,isChangingUrl=true) {
     if(!guildId || !channelId ) { return; }
+    console.log("Loading guild: ",guildId,channelId,guildName);
     
     if (isChangingUrl) {
         const state = constructAppPage(guildId,channelId);
@@ -2819,6 +2821,7 @@ function loadApp(friend_id=null) {
     userList.innerHTML = ""; 
     userList.classList.remove('friendactive'); 
     enableElement('guild-name');
+    console.log("Loading app with friend id:", friend_id);
 
     if(!friend_id) {
         isOnGuild = true;
