@@ -8,8 +8,8 @@ namespace LiventCord.Models
 
     public class Friend
     {
-        public string UserId { get; set; }
-        public string FriendId { get; set; }
+        public required string UserId { get; set; }
+        public required string FriendId { get; set; }
         public FriendStatus Status { get; set; } 
     }
 }

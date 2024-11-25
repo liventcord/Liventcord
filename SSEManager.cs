@@ -18,7 +18,7 @@ public class SSEManager
         context.Response.Headers.Add("Cache-Control", "no-cache");
         context.Response.Headers.Add("Connection", "keep-alive");
 
-        string userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        string? userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(userId))
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;

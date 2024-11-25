@@ -13,23 +13,22 @@ namespace LiventCord.Controllers
 
     [ApiController]
     [Route("api")]
-    public class UploadController : ControllerBase 
+    public class UploadController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly FileExtensionContentTypeProvider _fileTypeProvider;
-        private readonly ILogger<UploadController> _logger; 
-
+        private readonly ILogger<UploadController> _logger;
 
         public UploadController(AppDbContext context, FileExtensionContentTypeProvider fileTypeProvider, ILogger<UploadController> logger)
         {
             _context = context;
             _fileTypeProvider = fileTypeProvider ?? new FileExtensionContentTypeProvider();
-            _logger = logger; 
+            _logger = logger;
         }
 
         [HttpPost("upload_img")]
         [Authorize]
-        public async Task<IActionResult> UploadImage(IFormFile photo, string guild_id = null)
+        public async Task<IActionResult> UploadImage(IFormFile photo, string? guildId = null)
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (photo == null || photo.Length == 0)
@@ -41,61 +40,56 @@ namespace LiventCord.Controllers
 
             using var memoryStream = new MemoryStream();
             await photo.CopyToAsync(memoryStream);
+
             var content = memoryStream.ToArray();
             var fileId = Utils.CreateRandomId();
 
-            if (!string.IsNullOrEmpty(guild_id))
+            if (!string.IsNullOrEmpty(guildId))
             {
-                var existingFile = await _context.GuildFiles.FirstOrDefaultAsync(f => f.FileName == photo.FileName && f.GuildId == guild_id);
-                if (existingFile != null)
-                {
-                    existingFile.Content = content;
-                    existingFile.Extension = extension;
-                    _logger.LogInformation("Updating existing GuildFile: {FileId}, {FileName}, {GuildId}, {Extension}", existingFile.FileId, photo.FileName, guild_id, extension);
-                }
-                else
-                {
-                    var guildFile = new GuildFile
-                    {
-                        FileId = fileId,
-                        FileName = photo.FileName,
-                        GuildId = guild_id,
-                        Content = content,
-                        Extension = extension
-                    };
-                    _logger.LogInformation("Saving new GuildFile: {FileId}, {FileName}, {GuildId}, {Extension}", fileId, photo.FileName, guild_id, extension);
-                    _context.GuildFiles.Add(guildFile);
-                }
+                await SaveOrUpdateFile<GuildFile>(photo.FileName, content, extension, f => f.GuildId == guildId, guildId, fileId);
             }
             else
             {
-                var existingFile = await _context.ProfileFiles.FirstOrDefaultAsync(f => f.UserId == userId);
-                if (existingFile != null)
-                {
-                    existingFile.Content = content;
-                    existingFile.Extension = extension;
-                    _logger.LogInformation("Updating existing ProfileFile: {FileId}, {FileName}, {UserId}, {Extension}", existingFile.FileId, photo.FileName, userId, extension);
-                }
-                else
-                {
-                    var profileFile = new ProfileFile
-                    {
-                        FileId = fileId,
-                        FileName = photo.FileName,
-                        UserId = userId,
-                        Content = content,
-                        Extension = extension
-                    };
-                    _logger.LogInformation("Saving new ProfileFile: {FileId}, {FileName}, {UserId}, {Extension}", fileId, photo.FileName, userId, extension);
-                    _context.ProfileFiles.Add(profileFile);
-                }
+                await SaveOrUpdateFile<ProfileFile>(photo.FileName, content, extension, f => f.UserId == userId, userId, fileId);
+            }
+
+            return Ok(new { fileId });
+        }
+
+        private async Task SaveOrUpdateFile<T>(
+            string fileName,
+            byte[] content,
+            string extension,
+            Func<T, bool> predicate,
+            string? additionalField = null,
+            string fileId = "") where T : FileBase
+        {
+            var existingFile = await _context.Set<T>().FirstOrDefaultAsync(f => predicate(f));
+            if (existingFile != null)
+            {
+                existingFile.Content = content;
+                existingFile.Extension = extension;
+                _logger.LogInformation("Updated file: {FileId}, {FileName}, {AdditionalField}, {Extension}", existingFile.FileId, fileName, additionalField, extension);
+            }
+            else
+            {
+                T? newFile = Activator.CreateInstance(typeof(T), fileId, fileName, content, extension, additionalField) as T;
+
+                if (newFile == null)
+                    throw new InvalidOperationException($"Unable to create instance of {typeof(T).Name}.");
+                
+
+                _logger.LogInformation("Saved new file: {FileId}, {FileName}, {AdditionalField}, {Extension}", fileId, fileName, additionalField, extension);
+                _context.Set<T>().Add(newFile);
             }
 
             await _context.SaveChangesAsync();
-            return Ok(new { fileId });
         }
+
     }
 
+
+    
     [ApiController]
     [Route("")]
     public class FileController : ControllerBase
@@ -109,64 +103,42 @@ namespace LiventCord.Controllers
             _fileTypeProvider = fileTypeProvider ?? new FileExtensionContentTypeProvider();
         }
 
-
-
-        [HttpGet("profiles/{fileId}")]
-        public async Task<IActionResult> GetProfileFile(string fileId)
+        [HttpGet("{fileType}/{fileId}")]
+        public async Task<IActionResult> GetFile(string fileType, string fileId)
         {
             if (FileExtensions.HasImageExtension(fileId))
                 fileId = fileId.Substring(0, fileId.LastIndexOf('.'));
 
-            var file = await _context.ProfileFiles.FirstOrDefaultAsync(f => f.UserId == fileId);
+            object? file = fileType.ToLower() switch
+            {
+                "profiles" => await _context.ProfileFiles.FirstOrDefaultAsync(f => f.FileId == fileId),
+                "attachments" => await _context.AttachmentFiles.FirstOrDefaultAsync(f => f.FileId == fileId),
+                "emojis" => await _context.EmojiFiles.FirstOrDefaultAsync(f => f.FileId == fileId),
+                "guilds" => await _context.GuildFiles.FirstOrDefaultAsync(f => f.FileId == fileId),
+                _ => null
+            };
+
+            if (file == null)
+                return NotFound(new { Error = "File not found." });
+
             return GetFileResult(file);
         }
 
-        [HttpGet("attachments/{fileId}")]
-        public async Task<IActionResult> GetAttachmentFile(string fileId)
-        {
-            if (FileExtensions.HasImageExtension(fileId))
-                fileId = fileId.Substring(0, fileId.LastIndexOf('.'));
-
-            var file = await _context.AttachmentFiles.FirstOrDefaultAsync(f => f.FileId == fileId);
-            return GetFileResult(file);
-        }
-
-        [HttpGet("emojis/{fileId}")]
-        public async Task<IActionResult> GetEmojiFile(string fileId)
-        {
-            if (FileExtensions.HasImageExtension(fileId))
-                fileId = fileId.Substring(0, fileId.LastIndexOf('.'));
-
-            var file = await _context.EmojiFiles.FirstOrDefaultAsync(f => f.FileId == fileId);
-            return GetFileResult(file);
-        }
-
-        [HttpGet("guilds/{fileId}")]
-        public async Task<IActionResult> GetGuildFile(string fileId)
-        {
-            if (FileExtensions.HasImageExtension(fileId))
-                fileId = fileId.Substring(0, fileId.LastIndexOf('.'));
-
-            var file = await _context.GuildFiles.FirstOrDefaultAsync(f => f.GuildId == fileId);
-            return GetFileResult(file);
-        }
 
         private IActionResult GetFileResult(dynamic file)
         {
-            if (file == null) 
-                return new JsonResult(new object[] { "404", 404 }) { StatusCode = StatusCodes.Status404NotFound };
+            if (file == null)
+                return NotFound(new { Error = "File not found." });
 
             if (!_fileTypeProvider.TryGetContentType(file.FileName, out string contentType))
-            {
                 contentType = "application/octet-stream";
-            }
 
             Response.Headers.Add("Content-Disposition", $"inline; filename=\"{file.FileName}\"");
-            
             return File(file.Content, contentType);
         }
-
-
-
     }
+
+
+
+    
 }

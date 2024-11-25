@@ -4,6 +4,7 @@ using LiventCord.Helpers;
 using System.Security.Claims;
 using System.Text.Json;
 using LiventCord.Controllers;
+using LiventCord.Models;
 
 
 namespace LiventCord.Helpers
@@ -30,7 +31,7 @@ namespace LiventCord.Helpers
         }
 
 
-        public async Task HandleChannelRequest(HttpContext context, string guildId, string channelId, string? friendId = null)
+        public async Task HandleChannelRequest(HttpContext context, string? guildId, string? channelId, string? friendId = null)
         {
             string? userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             _logger.LogInformation("userId: {UserId}", userId);
@@ -54,8 +55,7 @@ namespace LiventCord.Helpers
 
                 _logger.LogInformation("Fetching guilds for user...");
                 var guilds = await _guildController.GetUserGuilds(userId);
-                _logger.LogInformation("Fetching guild users for guildId: {GuildId}", guildId);
-                var guildUsers = await _guildController.GetGuildUsers(guildId);
+  
 
                 _logger.LogInformation("Retrieving guild information for guildId: {GuildId}", guildId);
                 var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
@@ -63,12 +63,18 @@ namespace LiventCord.Helpers
                 _logger.LogInformation("Checking typing users...");
                 var typingUsers = new List<string>();
                 var sharedGuildsMap = new List<string>();
+                var guildUsers = new List<PublicUser>();
                 var permissionsMap = _permissionsController.GetPermissionsMapForUser(userId);
 
                 if (!string.IsNullOrEmpty(guildId))
                 {
-                    _logger.LogInformation("Fetching typing users...");
-                    typingUsers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
+                    _logger.LogInformation("Fetching guild users for guildId: {GuildId}", guildId);
+                    guildUsers = await _guildController.GetGuildUsers(guildId);
+
+                    if (!string.IsNullOrEmpty(channelId)) {
+                        _logger.LogInformation("Fetching typing users...");
+                        typingUsers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
+                    }
 
                     _logger.LogInformation("Fetching shared guilds...");
                     sharedGuildsMap = await _guildController.GetSharedGuilds(guildId, userId) ?? new List<string>();
