@@ -15,73 +15,62 @@ namespace LiventCord.Controllers
     [Authorize]
     public class GuildController : ControllerBase
     {
+        private string DEFAULT_CHANNEL_NAME = "general";
         private readonly AppDbContext _dbContext;
         private readonly UploadController _uploadController;
         private readonly MessageController _messageController;
         private readonly SSEManager _sseManager;
         private readonly GuildInviteService _guildInviteService;
+        private readonly ILogger<AppLogic> _logger;
+        private readonly PermissionsController _permissionsController;
 
 
-        public GuildController(AppDbContext dbContext, UploadController uploadController,MessageController messageController,SSEManager sseManager,GuildInviteService guildInviteService)
+        public GuildController(AppDbContext dbContext, UploadController uploadController,MessageController messageController,SSEManager sseManager,GuildInviteService guildInviteService, ILogger<AppLogic> logger, PermissionsController permissionsController)
         {
             _dbContext = dbContext;
             _sseManager = sseManager;
             this._messageController = messageController;
             _uploadController = uploadController;
             _guildInviteService = guildInviteService;
+            _logger = logger;
+            _permissionsController = permissionsController;
+
+
         }
 
 
   
-        [HttpDelete("delete_guild")]
-        public async Task<IActionResult> DeleteGuildEndpoint([FromBody] string guildId)
+  
+        // GET /api/guilds/{guildId}/channels
+        [HttpGet("guilds/{guildId}/channels")]
+        public async Task<IActionResult> HandleGetChannels([FromRoute] string guildId, [FromHeader] string userId)
         {
-            if (string.IsNullOrEmpty(guildId))
-                return BadRequest("Guild ID is required.");
-
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized("User not authenticated.");
-
-            if (!await IsUserAdmin(guildId, userId))
-                return Unauthorized("User is not authorized to delete this guild.");
-
-            DeleteGuild(guildId);
-
-            return Ok("Guild deleted successfully.");
-        }
-        // GET api/guilds/channels
-        [HttpGet("get-channels")]
-        public async Task<IActionResult> HandleGetChannels([FromBody] GetChannelsRequest request, [FromHeader] string userId)
-        {
-            string guildId = request.GuildId;
+                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
 
             var channels = await GetGuildChannels(userId, guildId);
-            if (channels != null)
-            {
-                var updateChannelsMessage = new
-                {
-                    Type = "update_channels",
-                    Data = new { guildId, channels }
-                };
-                return Ok(updateChannelsMessage);
-            }
-            else
-            {
+
+            if (channels == null)
                 return BadRequest(new { Type = "error", Message = "Unable to retrieve channels." });
-            }
+
+            var updateChannelsMessage = new
+            {
+                Type = "update_channels",
+                Data = new { guildId, channels }
+            };
+
+            return Ok(updateChannelsMessage);
         }
 
-        // GET api/guilds/get-guilds
-        [HttpGet("get-guilds")]
+
+        // GET /api/guilds
+        [HttpGet("guilds")]
         public async Task<IActionResult> HandleGetGuilds([FromHeader] string userId)
         {
-            var guilds = await GetUserGuilds(userId);
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
 
-            if (guilds == null)
-            {
-                guilds = new List<GuildDto>(); 
-            }
+            var guilds = await GetUserGuilds(userId) ?? new List<GuildDto>();
 
             var messageToEmit = new
             {
@@ -92,55 +81,10 @@ namespace LiventCord.Controllers
             return Ok(messageToEmit);
         }
 
-        
-        // POST /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("messages")]
-        public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request, [FromHeader] string userId)
-        {
-            if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
-            {
-                return BadRequest(new { Type = "error", Message = "Required properties (guildId, channelId, content) are missing." });
-            }
-
-            string? attachmentUrls = request.AttachmentUrls;
-            string? replyToId = request.ReplyToId;
-            string? reactionEmojisIds = request.ReactionEmojisIds;
-            string? lastEdited = request.LastEdited;
-
-            if (!await CanManageChannels(userId, request.GuildId))
-            {
-                return Forbid();
-            }
-
-            await _messageController.NewMessage(userId, request.GuildId, request.ChannelId, request.Content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
-            
-            return Ok(new { Type = "success", Message = "Message sent." });
-        }
-
-        // GET /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpGet("messages")]
-        public async Task<IActionResult> HandleGetMessages([FromQuery] string guildId, [FromQuery] string channelId, [FromHeader] string userId)
-        {
-            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
-            {
-                return BadRequest(new { Type = "error", Message = "guildId and channelId must be provided." });
-            }
-
-            var messages = await _messageController.GetMessages(guildId, channelId);
-            var oldestMessageDate = await _messageController.GetOldestMessage(guildId, channelId);
-
-            var messageToEmit = new
-            {
-                Type = "history_response",
-                Data = new { messages, oldestMessageDate }
-            };
-
-            return Ok(messageToEmit);
-        }
 
 
-        // POST api/guilds/create_guild
-        [HttpPost("create_guild")]
+        // POST api/guilds
+        [HttpPost("")]
         public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)
         {
             if (!ModelState.IsValid)
@@ -178,7 +122,7 @@ namespace LiventCord.Controllers
                 RootChannel = newGuild.RootChannel,
                 Region = newGuild.Region,
                 IsGuildUploadedImg = newGuild.IsGuildUploadedImg,
-                GuildUsers = newGuild.GuildUsers.Select(gu => gu.UserId).ToList()
+                GuildUsers = newGuild.GuildMembers.Select(gu => gu.UserId).ToList()
             };
 
             return CreatedAtAction(nameof(CreateGuild), new { id = guildDto.GuildId }, guildDto);
@@ -187,12 +131,13 @@ namespace LiventCord.Controllers
         private Dictionary<string, List<string>> writingUsersState = new();
     
 
-        // POST /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("start-writing")]
-        public async Task<IActionResult> HandleStartWriting([FromBody] StartWritingRequest request, [FromHeader] string userId)
+        // POST /api/guilds/{guildId}/channels/{channelId}/writing
+        [HttpPost("/api/guilds/{guildId}/channels/{channelId}/writing")]
+        public async Task<IActionResult> HandleStartWriting(
+            [FromRoute] string guildId,
+            [FromRoute] string channelId,
+            [FromHeader] string userId)
         {
-            string guildId = request.GuildId;
-            string channelId = request.ChannelId;
 
             if (!writingUsersState.ContainsKey(guildId))
             {
@@ -219,8 +164,8 @@ namespace LiventCord.Controllers
             return Ok(new { Type = "success", Message = "Writing started." });
         }
 
-        // POST /api/guilds/join_id
-        [HttpPost("join_id")]
+        // POST /api/guilds/{guild_id}/members
+        [HttpPost("/api/guilds/{guild_id}/members")]
         public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(joinId))
@@ -249,39 +194,30 @@ namespace LiventCord.Controllers
                 
     
 
-        public async Task AddUserToGuild(string userId, string guildId)
+        private async Task AddUserToGuild(string userId, string guildId)
         {
             var guild = await _dbContext.Guilds
-                .Include(g => g.GuildUsers)
+                .Include(g => g.GuildMembers)
                 .FirstOrDefaultAsync(g => g.GuildId == guildId);
 
             if (guild == null) 
                 throw new Exception("Guild not found");
 
-            if (!guild.GuildUsers.Any(gu => gu.UserId == userId))
+            if (!guild.GuildMembers.Any(gu => gu.UserId == userId))
             {
-                guild.GuildUsers.Add(new GuildUser { UserId = userId });
+                guild.GuildMembers.Add(new GuildUser { UserId = userId });
             }
 
-            var permissions = new Dictionary<string, int>
-            {
-                {"read_messages", 1}, 
-                {"send_messages", 1}, 
-                {"mention_everyone", 1}, 
-                {"manage_roles", 0},
-                {"kick_members", 0}, 
-                {"ban_members", 0}, 
-                {"manage_channels", 0},
-                {"add_reaction", 0}, 
-                {"is_admin", 0}, 
-                {"can_invite", 0}
-            };
+            var permissions = PermissionFlags.ReadMessages 
+                            | PermissionFlags.SendMessages 
+                            | PermissionFlags.MentionEveryone;
 
-            AssignPermissions(guildId, userId, permissions);
+            await _permissionsController.AssignPermissions(guildId, userId, permissions);
+
 
             await _dbContext.SaveChangesAsync();
         }
-        public async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
+        private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
         {
             var guildId = Utils.CreateRandomId();
 
@@ -296,25 +232,22 @@ namespace LiventCord.Controllers
             guild.Channels.Add(new Channel
             {
                 ChannelId = rootChannel,
-                ChannelName = "general",
+                GuildId = guildId,
+                ChannelName = DEFAULT_CHANNEL_NAME,
                 ChannelDescription = "",
                 IsTextChannel = true,
                 Order = 0
             });
 
-            guild.GuildUsers.Add(new GuildUser { UserId = ownerId });
+            guild.GuildMembers.Add(new GuildUser { UserId = ownerId });
 
             _dbContext.Guilds.Add(guild);
             await _dbContext.SaveChangesAsync();  
 
-            var permissions = new Dictionary<string, int>
-            {
-                {"read_messages", 1}, {"send_messages", 1}, {"manage_roles", 1},
-                {"kick_members", 1}, {"ban_members", 1}, {"manage_channels", 1},
-                {"mention_everyone", 1}, {"add_reaction", 1}, {"is_admin", 1},
-                {"can_invite", 1}
-            };
-            AssignPermissions(guildId, ownerId, permissions); 
+            var permissions = PermissionFlags.ReadMessages 
+                            | PermissionFlags.SendMessages 
+                            | PermissionFlags.MentionEveryone;
+            await _permissionsController.AssignPermissions(guildId, ownerId, permissions); 
 
             await _dbContext.SaveChangesAsync();
 
@@ -322,107 +255,91 @@ namespace LiventCord.Controllers
         }
 
 
-
-        public void DeleteGuild(string guildId)
+        // DELETE /api/guilds/{guildId}
+        [HttpDelete("delete_guild")]
+        public async Task<IActionResult> DeleteGuildEndpoint([FromBody] DeleteGuildRequest request)
         {
-            if (string.IsNullOrEmpty(guildId)) {
-                Console.WriteLine("Guild ID cannot be null or empty.", nameof(guildId));
-                return;
-            }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var guild = _dbContext.Guilds.Find(guildId);
-            if (guild == null) {
-                Console.WriteLine("Guild does not exist.");
-                return;
-            }
+            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (!await _permissionsController.IsUserAdmin(request.GuildId, userId))
+                return Unauthorized(new { Type = "error", Message = "User is not authorized to delete this guild." });
+
+            var guild = await _dbContext.Guilds.FindAsync(request.GuildId);
+            if (guild == null)
+                return NotFound(new { Type = "error", Message = "Guild not found." });
 
             _dbContext.Guilds.Remove(guild);
-            _dbContext.SaveChanges();
-        }
+            await _dbContext.SaveChangesAsync();
 
+            return Ok(new { Type = "success", Message = "Guild deleted successfully." });
+        }
 
         // POST /api/guilds/{guildId}/channels
         [HttpPost("{guildId}/channels")]
-        public async Task<IActionResult> CreateChannel(
-            [FromRoute] string guildId,  
-            [FromBody] CreateChannelRequest request, 
-            [FromHeader] string userId)
+        public async Task<IActionResult> CreateChannel([FromRoute] string guildId, [FromBody] CreateChannelRequest request, [FromHeader] string userId)
         {
-            if (!await CanManageChannels(userId, guildId))
-            {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            if (!await _permissionsController.CanManageChannels(userId, guildId))
                 return Unauthorized(new { Type = "error", Message = "User does not have permission to manage channels." });
-            }
-
-            try
-            {
-                await CreateChannel(guildId, request.ChannelName, request.IsTextChannel);
-                return Ok(new { Type = "success", Message = "Channel created." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Type = "error", Message = ex.Message });
-            }
-        }
-        public async Task CreateChannel(string guildId, string channelName, bool isTextChannel)
-        {
-            if (string.IsNullOrEmpty(guildId))
-            {
-                throw new ArgumentException("Guild ID cannot be null or empty.", nameof(guildId));
-            }
-
-            if (string.IsNullOrEmpty(channelName))
-            {
-                throw new ArgumentException("Channel name cannot be null or empty.", nameof(channelName));
-            }
 
             var guild = await _dbContext.Guilds
                 .Include(g => g.Channels)
                 .FirstOrDefaultAsync(g => g.GuildId == guildId);
 
             if (guild == null)
-            {
-                throw new InvalidOperationException("Guild does not exist.");
-            }
+                return NotFound(new { Type = "error", Message = "Guild does not exist." });
 
             var newChannel = new Channel
             {
                 ChannelId = Utils.CreateRandomId(),
-                ChannelName = channelName,
-                IsTextChannel = isTextChannel,
+                ChannelName = request.ChannelName,
+                IsTextChannel = request.IsTextChannel,
                 GuildId = guildId,
                 Order = guild.Channels.Count
             };
 
             guild.Channels.Add(newChannel);
             await _dbContext.SaveChangesAsync();
+
+            return Ok(new { Type = "success", Message = "Channel created.", ChannelId = newChannel.ChannelId });
         }
 
 
-        // GET /api/guilds/{guildId}/users
-        [HttpGet("{guildId}/users")]
+
+        
+
+        // GET /api/guilds/{guildId}/members
+        [HttpGet("{guildId}/members")]
         public async Task<IActionResult> HandleGetUsers([FromRoute] string guildId, [FromHeader] string userId)
         {
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
 
-            if (!DoesUserExistInGuild(userId, guildId))
-            {
+            if (!await DoesUserExistInGuild(userId, guildId))
                 return BadRequest(new { Type = "error", Message = "User not in guild." });
-            }
 
             var users = await GetGuildUsers(guildId).ConfigureAwait(false);
-            if (users == null) return BadRequest(new { Type = "error", Message = "Unable to retrieve users." });
-            
+            if (users == null)
+                return BadRequest(new { Type = "error", Message = "Unable to retrieve users." });
+
             var updateUsersMessage = new
             {
                 Type = "update_users",
-                Data = new { guildId = guildId, users }
+                Data = new { guildId, users }
             };
+
             return Ok(updateUsersMessage);
         }
 
 
 
 
-
+        [NonAction]
         public async Task<List<string>> GetSharedGuilds(string guildId, string userId)
         {
             if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(userId))
@@ -435,7 +352,7 @@ namespace LiventCord.Controllers
 
             return sharedGuilds.Where(g => g != guildId).ToList();
         }
-
+        [NonAction]
         public async Task<List<ChannelWithLastRead>> GetGuildChannels(string userId, string guildId)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
@@ -455,6 +372,7 @@ namespace LiventCord.Controllers
                 })
                 .ToListAsync();
         }
+        [NonAction]
         public async Task<List<string>> GetGuildUsersIds(string guildId)
         {
             if (string.IsNullOrEmpty(guildId))
@@ -466,7 +384,7 @@ namespace LiventCord.Controllers
                 .ToListAsync();
         }
 
-
+        [NonAction]
         public async Task<List<PublicUser>> GetGuildUsers(string guildId)
         {
             if (string.IsNullOrEmpty(guildId))
@@ -489,6 +407,8 @@ namespace LiventCord.Controllers
         }
         private static List<string> OnlineUsers = new();
         private static bool IsOnline(string userId){return OnlineUsers.Contains(userId);}
+
+        [NonAction]
         public async Task SetUserOnlineStatus(string userId, bool isOnline)
         {
             var user = await _dbContext.Users.FindAsync(userId);
@@ -499,7 +419,7 @@ namespace LiventCord.Controllers
                 await _dbContext.SaveChangesAsync();
             }
         }
-
+        [NonAction]
         public void DeleteChannel(string guildId, string channelId)
         {
             try
@@ -527,20 +447,18 @@ namespace LiventCord.Controllers
 
 
 
-
-        public bool DoesUserExistInGuild(string userId, string guildId)
+        [NonAction]
+        public async Task<bool> DoesUserExistInGuild(string userId, string guildId)
         {
             if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
                 return false;
 
-            return _dbContext.GuildUsers
-                .Any(gu => gu.UserId == userId && gu.GuildId == guildId);
+            return await _dbContext.GuildUsers
+                .AnyAsync(gu => gu.UserId == userId && gu.GuildId == guildId);
         }
 
 
-
-
-
+        [NonAction]
         public async Task<string?> GetGuildAuthor(string guildId)
         {
             return await _dbContext.Guilds
@@ -549,138 +467,8 @@ namespace LiventCord.Controllers
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> CanManageChannels(string userId, string guildId)
-        {
-            var authorId = await GetGuildAuthor(guildId);
-            return authorId == userId || await HasPermission(userId, guildId, "manage_channels");
-        }
 
-        public async Task<bool> IsUserAdmin(string guildId, string userId)
-        {
-            var authorId = await GetGuildAuthor(guildId);
-            return authorId == userId || await HasPermission(userId, guildId, "is_admin");
-        }
-
-        public async Task<bool> HasPermission(string userId, string guildId, string permission)
-        {
-            var userPermissions = await _dbContext.GuildPermissions
-                .Where(gp => gp.UserId == userId && gp.GuildId == guildId)
-                .Select(gp => new
-                {
-                    ReadMessages = gp.ReadMessages != 0,
-                    SendMessages = gp.SendMessages != 0,
-                    ManageRoles = gp.ManageRoles != 0,
-                    KickMembers = gp.KickMembers != 0,
-                    BanMembers = gp.BanMembers != 0,
-                    ManageChannels = gp.ManageChannels != 0,
-                    MentionEveryone = gp.MentionEveryone != 0,
-                    AddReaction = gp.AddReaction != 0,
-                    IsAdmin = gp.IsAdmin != 0,
-                    CanInvite = gp.CanInvite != 0
-                })
-                .FirstOrDefaultAsync();
-
-            if (userPermissions == null) return false;
-
-            if (userPermissions.IsAdmin)
-            {
-                return true; 
-            }
-
-            return permission switch
-            {
-                "read_messages" => userPermissions.ReadMessages,
-                "send_messages" => userPermissions.SendMessages,
-                "manage_roles" => userPermissions.ManageRoles,
-                "kick_members" => userPermissions.KickMembers,
-                "ban_members" => userPermissions.BanMembers,
-                "manage_channels" => userPermissions.ManageChannels,
-                "mention_everyone" => userPermissions.MentionEveryone,
-                "add_reaction" => userPermissions.AddReaction,
-                "can_invite" => userPermissions.CanInvite,
-                _ => false
-            };
-        }
-
-
-        public Dictionary<string, Dictionary<string, int>> GetPermissionsMapForUser(string userId)
-        {
-            var permissionsMap = new Dictionary<string, Dictionary<string, int>>();
-
-            var userPermissions = _dbContext.GuildPermissions
-                .Where(gp => gp.UserId == userId)
-                .Include(gp => gp.Guild)
-                .ToList();
-
-            foreach (var perm in userPermissions)
-            {
-                if (!permissionsMap.TryGetValue(perm.GuildId, out var permDict))
-                {
-                    permDict = new Dictionary<string, int>
-                    {
-                        { "read_messages", perm.ReadMessages },
-                        { "send_messages", perm.SendMessages },
-                        { "manage_roles", perm.ManageRoles },
-                        { "kick_members", perm.KickMembers },
-                        { "ban_members", perm.BanMembers },
-                        { "manage_channels", perm.ManageChannels },
-                        { "mention_everyone", perm.MentionEveryone },
-                        { "add_reaction", perm.AddReaction },
-                        { "is_admin", perm.IsAdmin },
-                        { "can_invite", perm.CanInvite }
-                    };
-                    permissionsMap[perm.GuildId] = permDict;
-                }
-            }
-
-            return permissionsMap;
-        }
-
-        public void AssignPermissions(string guildId, string userId, Dictionary<string, int> permissions)
-        {
-            var existingPermissions = _dbContext.GuildPermissions
-                .FirstOrDefault(gp => gp.GuildId == guildId && gp.UserId == userId);
-            
-            if (existingPermissions != null)
-            {
-                existingPermissions.ReadMessages = permissions["read_messages"];
-                existingPermissions.SendMessages = permissions["send_messages"];
-                existingPermissions.ManageRoles = permissions["manage_roles"];
-                existingPermissions.KickMembers = permissions["kick_members"];
-                existingPermissions.BanMembers = permissions["ban_members"];
-                existingPermissions.ManageChannels = permissions["manage_channels"];
-                existingPermissions.MentionEveryone = permissions["mention_everyone"];
-                existingPermissions.AddReaction = permissions["add_reaction"];
-                existingPermissions.IsAdmin = permissions["is_admin"];
-                existingPermissions.CanInvite = permissions["can_invite"];
-                _dbContext.GuildPermissions.Update(existingPermissions);
-            }
-            else
-            {
-                var guildPermissions = new GuildPermissions
-                {
-                    GuildId = guildId,
-                    UserId = userId,
-                    ReadMessages = permissions["read_messages"],
-                    SendMessages = permissions["send_messages"],
-                    ManageRoles = permissions["manage_roles"],
-                    KickMembers = permissions["kick_members"],
-                    BanMembers = permissions["ban_members"],
-                    ManageChannels = permissions["manage_channels"],
-                    MentionEveryone = permissions["mention_everyone"],
-                    AddReaction = permissions["add_reaction"],
-                    IsAdmin = permissions["is_admin"],
-                    CanInvite = permissions["can_invite"]
-                };
-                _dbContext.GuildPermissions.Add(guildPermissions);
-            }
-            _dbContext.SaveChanges();
-        }   
-
-
-
-
-
+        [NonAction]
         public async Task<List<GuildDto>> GetUserGuilds(string userId)
         {
             var guilds = await _dbContext.GuildUsers
@@ -699,10 +487,6 @@ namespace LiventCord.Controllers
                         .Where(g => g.GuildId == gu.Guild.GuildId)
                         .Select(g => g.UserId)
                         .ToList(),
-                    FirstChannelId = gu.Guild.Channels
-                        .OrderBy(c => c.Order)
-                        .Select(c => c.ChannelId)
-                        .FirstOrDefault(),
                     GuildChannels = new List<ChannelWithLastRead>()
                 })
                 .ToListAsync();
@@ -724,7 +508,7 @@ namespace LiventCord.Controllers
 
             foreach (var guild in guilds)
                 guild.GuildChannels = allChannels
-                    .Where(c => c.GuildId == guild.GuildId) // Filter channels by guild
+                    .Where(c => c.GuildId == guild.GuildId)
                     .Select(c => new ChannelWithLastRead
                     {
                         ChannelId = c.ChannelId,
@@ -736,41 +520,34 @@ namespace LiventCord.Controllers
 
             return guilds;
         }
-
-
-
-
-        public async Task<string?> GetGuildName(string guildId)
-        {
-            var guild = await _dbContext.Guilds
-                .FirstOrDefaultAsync(g => g.GuildId == guildId);
-
-            return guild?.GuildName;
-        }
     }
 }
 // Request models for the API
 public class StartWritingRequest
 {
-    public string GuildId { get; set; }
-    public string ChannelId { get; set; }
+    public required string GuildId { get; set; }
+    public required string ChannelId { get; set; }
 }
 
 public class GetChannelsRequest
 {
-    public string GuildId { get; set; }
+    public required string GuildId { get; set; }
 }
 
 public class GetMessagesRequest
 {
-    public string GuildId { get; set; }
-    public string ChannelId { get; set; }
+    [Required(ErrorMessage = "GuildId is required.")]
+    public required string GuildId { get; set; }
+    [Required(ErrorMessage = "ChannelId is required.")]
+    public required string ChannelId { get; set; }
 }
 
 public class CreateChannelRequest
 {
-    public string ChannelName { get; set; }
-    public bool IsTextChannel { get; set; }
+    [Required(ErrorMessage = "Channel name is required.")]
+    public required string ChannelName { get; set; }
+    [Required(ErrorMessage = "IsTextChannel is required.")]
+    public required bool IsTextChannel { get; set; }
 }
 
 public class CreateGuildRequest
@@ -780,9 +557,16 @@ public class CreateGuildRequest
 }
 public class NewMessageRequest
 {
-    public string GuildId { get; set; }
-    public string ChannelId { get; set; }
-    public string Content { get; set; }
+    [Required(ErrorMessage = "GuildId is required.")]
+    public required string GuildId { get; set; }
+
+    [Required(ErrorMessage = "ChannelId is required.")]
+    public required string ChannelId { get; set; }
+
+    [Required(ErrorMessage = "Content is required.")]
+    [StringLength(2000, ErrorMessage = "Content must not exceed 2000 characters.")]
+    public required string Content { get; set; }
+
     public string? AttachmentUrls { get; set; }
     public string? ReplyToId { get; set; }
     public string? ReactionEmojisIds { get; set; }
@@ -791,7 +575,22 @@ public class NewMessageRequest
 public class GuildInvite
 {
     [Key]
-    public string InviteId { get; set; }
-    public string GuildId { get; set; }
+    public required string InviteId { get; set; }
+    public required string GuildId { get; set; }
     public DateTime CreatedAt { get; set; }
 }
+public class GetGuildMembersRequest
+{
+    [Required(ErrorMessage = "Guild ID is required.")]
+    public required string GuildId { get; set; }
+
+    [Required(ErrorMessage = "User ID is required.")]
+    public required string UserId { get; set; }
+}
+
+public class DeleteGuildRequest
+{
+    [Required(ErrorMessage = "Guild ID is required.")]
+    public required string GuildId { get; set; }
+}
+

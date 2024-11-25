@@ -2,32 +2,82 @@ using Microsoft.EntityFrameworkCore;
 using LiventCord.Data;
 using LiventCord.Helpers;
 using LiventCord.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
-public class MessageController
+
+namespace LiventCord.Controllers {
+
+[Route("api/guilds/{guildId}/channels/{channelId}/messages")]
+[ApiController]
+[Authorize]
+public class MessageController : ControllerBase
 {
     private readonly AppDbContext _context;
+    private readonly PermissionsController _permissionsController;
 
-    public MessageController(AppDbContext context)
+    public MessageController(AppDbContext context, PermissionsController permissionsController)
     {
+        _permissionsController = permissionsController;
         _context = context;
     }
 
-    public async Task<string> GetOldestMessage(string guildId, string channelId)
+
+        
+    // POST /api/guilds/{guildId}/channels/{channelId}/messages
+    [HttpPost("messages")]
+    public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request, [FromHeader] string userId)
     {
+        if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
+        {
+            return BadRequest(new { Type = "error", Message = "Required properties (guildId, channelId, content) are missing." });
+        }
+
+        string? attachmentUrls = request.AttachmentUrls;
+        string? replyToId = request.ReplyToId;
+        string? reactionEmojisIds = request.ReactionEmojisIds;
+        string? lastEdited = request.LastEdited;
+
+        if (!await _permissionsController.CanManageChannels(userId, request.GuildId))
+        {
+            return Forbid();
+        }
+
+        await NewMessage(userId, request.GuildId, request.ChannelId, request.Content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
+        
+        return Ok(new { Type = "success", Message = "Message sent." });
+    }
+
+    // GET /api/guilds/{guildId}/channels/{channelId}/messages
+    [HttpGet("messages")]
+    public async Task<IActionResult> HandleGetMessages(
+        [FromQuery] GetMessagesRequest request,
+        [FromHeader] string userId)
+    {
+        if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId))
+        {
+            return BadRequest(new { Type = "error", Message = "guildId and channelId must be provided." });
+        }
+
+        var messages = await GetMessages(request.GuildId, request.ChannelId);
         var oldestMessageDate = await _context.Messages
-            .Where(m => m.ChannelId == channelId)
+            .Where(m => m.ChannelId == request.ChannelId)
             .OrderBy(m => m.Date)
             .Select(m => m.Date)
             .FirstOrDefaultAsync();
 
-        return oldestMessageDate == default(DateTime) ? null : oldestMessageDate.ToString("o");
+        var messageToEmit = new
+        {
+            Type = "history_response",
+            Data = new { messages, oldestMessageDate }
+        };
+
+        return Ok(messageToEmit);
     }
 
-    public async Task<List<Message>> GetMessages(string guildId, string channelId)
+
+    [NonAction]
+    private async Task<List<Message>> GetMessages(string guildId, string channelId)
     {
         return await _context.Messages
             .Where(m => m.ChannelId == channelId)
@@ -35,8 +85,8 @@ public class MessageController
             .Take(50)
             .ToListAsync();
     }
-
-    public async Task NewMessage(string userId, string guildId, string channelId, string content, string lastEdited, string attachmentUrls, string replyToId, string reactionEmojisIds)
+    [NonAction]
+    private async Task NewMessage(string userId, string guildId, string channelId, string content, string lastEdited, string attachmentUrls, string replyToId, string reactionEmojisIds)
     {
         var message = new Message
         {
@@ -55,7 +105,9 @@ public class MessageController
         await _context.SaveChangesAsync();
     }
 
-    public async Task DeleteMessagesFromUser(string userId)
+
+    
+    private async Task DeleteMessagesFromUser(string userId)
     {
         var messages = await _context.Messages
             .Where(m => m.UserId == userId)
@@ -68,7 +120,7 @@ public class MessageController
         }
     }
 
-    public async Task DeleteMessage(string channelId, string messageId)
+    private async Task DeleteMessage(string channelId, string messageId)
     {
         var message = await _context.Messages
             .FirstOrDefaultAsync(m => m.MessageId == messageId && m.ChannelId == channelId);
@@ -80,7 +132,7 @@ public class MessageController
         }
     }
 
-    public async Task EditMessage(string channelId, string messageId, string newContent)
+    private async Task EditMessage(string channelId, string messageId, string newContent)
     {
         var message = await _context.Messages
             .FirstOrDefaultAsync(m => m.MessageId == messageId && m.ChannelId == channelId);
@@ -92,4 +144,5 @@ public class MessageController
             await _context.SaveChangesAsync();
         }
     }
+}
 }

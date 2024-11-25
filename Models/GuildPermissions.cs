@@ -26,5 +26,6 @@ namespace LiventCord.Models
         public int AddReaction { get; set; }
         public int IsAdmin { get; set; }
         public int CanInvite { get; set; }
+        public PermissionFlags Permissions { get; set; }
     }
 }

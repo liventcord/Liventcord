@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using LiventCord.Data;
 using LiventCord.Models;
-using LiventCord.Helpers; 
 using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
+using LiventCord.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace LiventCord.Controllers
 {
@@ -13,116 +12,78 @@ namespace LiventCord.Controllers
     public class RegisterController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly IMemoryCache _cache;
 
-        public RegisterController(AppDbContext context, IMemoryCache cache)
-        {
-            _context = context;
-            _cache = cache;
-        }
+        public RegisterController(AppDbContext context) => _context = context;
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterAuth([FromForm] string email, [FromForm] string password, [FromForm] string nickname)
+        public async Task<IActionResult> RegisterAuth([FromForm] RegisterRequest request)
         {
-            if (string.IsNullOrEmpty(nickname) || nickname.Length > 32)
-                return BadRequest(new { message = "Nickname must be between 1 and 32 characters." });
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            if (string.IsNullOrEmpty(password) || password.Length > 128)
-                return BadRequest(new { message = "Password must be between 1 and 128 characters." });
-
-            if (string.IsNullOrEmpty(email) || email.Length > 240)
-                return BadRequest(new { message = "Email must be between 1 and 240 characters." });
-
-            if (!ValidationHelper.ValidateEmail(email))
-                return BadRequest(new { error = "Invalid email format." });
-
-            var existingUser = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-            if (existingUser != null)
+            if (await _context.Users.AnyAsync(u => u.Email.ToLower() == request.Email.ToLower()))
                 return Conflict(new { error = "Email already exists." });
 
-            var existingNickUsers = await _context.Users
-                .Where(u => u.Nickname.ToLower() == nickname.ToLower())
-                .ToListAsync();
+            var discriminator = await GetOrCreateDiscriminator(request.Nickname);
+            if (discriminator == null)
+                return BadRequest(new { error = "No available discriminators." });
 
-            string discriminator;
-
-            if (!existingNickUsers.Any())
+            await _context.Users.AddAsync(new User
             {
-                discriminator = "0000";
-                await _context.Discriminators.AddAsync(new Discriminator { Nickname = nickname, Value = discriminator });
-            }
-            else
-            {
-                var existingDiscriminators = existingNickUsers.Select(u => u.Discriminator).ToList();
-                
-                // Check if all discriminator combinations are taken
-                if (existingDiscriminators.Count >= 9999)
-                    return BadRequest(new { error = "Too many users have taken all possible discriminator combinations." });
-
-                discriminator = SelectRandomDiscriminator(existingDiscriminators);
-            }
-
-            string userId = Utils.CreateRandomId();
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-
-            var newUser = new User
-            {
-                UserId = userId,
-                Email = email,
-                Password = hashedPassword,
-                Nickname = nickname,
+                UserId = Utils.CreateRandomId(),
+                Email = request.Email,
+                Password = BCrypt.Net.BCrypt.HashPassword(request.Password),
+                Nickname = request.Nickname,
                 Discriminator = discriminator,
                 Bot = 0,
                 Status = "offline"
-            };
-
-            await _context.Users.AddAsync(newUser);
+            });
             await _context.SaveChangesAsync();
 
             return Ok(new { message = "Registration successful." });
         }
 
         [HttpPost("get_nick_discriminator")]
-        public async Task<IActionResult> GetNickDiscriminator([FromForm] string nick)
+        public async Task<IActionResult> GetNickDiscriminator([FromForm] NickDiscriminatorRequest request)
         {
-            if (string.IsNullOrEmpty(nick) || nick.Length > 32)
-                return BadRequest(new { message = "Nickname must be between 1 and 32 characters." });
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            var existingUsers = await _context.Users
-                .Where(u => u.Nickname.ToLower() == nick.ToLower())
+            var existingDiscriminators = await _context.Users
+                .Where(u => u.Nickname.ToLower() == request.Nick.ToLower())
+                .Select(u => u.Discriminator)
                 .ToListAsync();
-
-            if (!existingUsers.Any())
-            {
-                return Ok(new { result = "0000" });
-            }
-
-            var existingDiscriminators = existingUsers.Select(u => u.Discriminator).ToList();
 
             if (existingDiscriminators.Count >= 9999)
                 return BadRequest(new { error = "Too many users have taken all possible discriminator combinations." });
 
-            string nextAvailableDiscriminator = SelectRandomDiscriminator(existingDiscriminators);
-            return Ok(new { result = nextAvailableDiscriminator });
+            return Ok(new { result = SelectDiscriminator(existingDiscriminators) });
         }
 
-        private string SelectRandomDiscriminator(List<string> existingDiscriminators)
+        private async Task<string?> GetOrCreateDiscriminator(string nickname)
         {
-            HashSet<string> existingSet = new HashSet<string>(existingDiscriminators);
-            Random random = new Random();
+            var existingDiscriminators = await _context.Users
+                .Where(u => u.Nickname.ToLower() == nickname.ToLower())
+                .Select(u => u.Discriminator)
+                .ToListAsync();
 
-            for (int attempts = 0; attempts < 10000; attempts++)
-            {
-                string discriminator = random.Next(0, 10000).ToString("D4"); // Format as 4 digits
-                if (!existingSet.Contains(discriminator))
-                {
-                    return discriminator; // Found an available discriminator
-                }
-            }
-
-            throw new InvalidOperationException("No available discriminators.");
+            return existingDiscriminators.Count < 9999 
+                ? SelectDiscriminator(existingDiscriminators) 
+                : null;
         }
 
-
+        private string SelectDiscriminator(IEnumerable<string> existing)
+        {
+            var set = new HashSet<string>(existing);
+            var random = new Random();
+            return Enumerable.Range(0, 10000)
+                .Select(_ => random.Next(0, 10000).ToString("D4"))
+                .FirstOrDefault(d => !set.Contains(d)) ?? throw new InvalidOperationException();
+        }
     }
 }
+public class NickDiscriminatorRequest
+{
+    [Required(ErrorMessage = "Nickname is required.")]
+    [StringLength(32, MinimumLength = 1, ErrorMessage = "Nickname must be between 1 and 32 characters.")]
+    public required string Nick { get; set; }
+}
+

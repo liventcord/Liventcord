@@ -53,6 +53,7 @@ namespace LiventCord.Routes
             MapRoute("/download", "download.html");
             MapRoute("/register", "register.html");
             MapRoute("/test","test.html");
+            MapRoute("/docs2", "docs.html");
 
             List<string> urls = new List<string>
             {

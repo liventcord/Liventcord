@@ -40,7 +40,7 @@ namespace LiventCord.Models
         [Required][StringLength(128)][Column("password")]
         public required string Password { get; set; }
         [Required][StringLength(32)][Column("nickname")]
-        public string? Nickname { get; set; }
+        public required string Nickname { get; set; }
         [Required][Column("bot")]
         public int Bot { get; set; }
         [Required][StringLength(128)][Column("status")]
@@ -99,8 +99,8 @@ namespace LiventCord.Models
         public required string Discriminator { get; set; }
 
         public required string UserId { get; set; }
-        public string Nickname { get; set; }
-        public string Status { get; set; }
+        public required string Nickname { get; set; }
+        public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? Location { get; set; }
         public string? SocialMediaLinks {get; set;}
