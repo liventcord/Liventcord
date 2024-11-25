@@ -38,7 +38,7 @@ namespace LiventCord.Controllers
 
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddFriendEndpoint([FromQuery] string userId, [FromQuery] string? friendName, [FromQuery] string? friendDiscriminator)
+        public async Task<IActionResult> AddFriendEndpoint([FromQuery] string userId, [FromQuery] string friendName, [FromQuery] string friendDiscriminator)
         {
             if (string.IsNullOrEmpty(friendName) || string.IsNullOrEmpty(friendDiscriminator))
             {
@@ -52,43 +52,36 @@ namespace LiventCord.Controllers
             });
         }
 
-        public async Task AddFriend(string userId, string? friendName, string? friendDiscriminator = null)
+        private async Task AddFriend(string userId, string friendName, string friendDiscriminator)
         {
-            if (friendName != null && friendDiscriminator != null)
+            var friend = await _dbContext.Users
+                .FirstOrDefaultAsync(u => u.Nickname == friendName && u.Discriminator == friendDiscriminator);
+
+            if (friend != null)
             {
-                var friend = await _dbContext.Users
-                    .FirstOrDefaultAsync(u => u.Nickname == friendName && u.Discriminator == friendDiscriminator);
+                var existingFriendship = await _dbContext.Friends
+                    .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friend.UserId);
 
-                if (friend != null)
+                if (existingFriendship == null)
                 {
-                    var existingFriendship = await _dbContext.Friends
-                        .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friend.UserId);
-
-                    if (existingFriendship == null)
+                    var newFriendship = new Friend
                     {
-                        var newFriendship = new Friend
-                        {
-                            UserId = userId,
-                            FriendId = friend.UserId,
-                            Status = FriendStatus.Pending
-                        };
+                        UserId = userId,
+                        FriendId = friend.UserId,
+                        Status = FriendStatus.Pending
+                    };
 
-                        _dbContext.Friends.Add(newFriendship);
-                        await _dbContext.SaveChangesAsync();
-                    }
-                }
-                else
-                {
-                    throw new ArgumentException("Friend not found.");
+                    _dbContext.Friends.Add(newFriendship);
+                    await _dbContext.SaveChangesAsync();
                 }
             }
             else
             {
-                throw new ArgumentException("Friend name and discriminator must be provided.");
+                throw new ArgumentException("Friend not found.");
             }
         }
 
-        // A utility method to handle errors consistently
+
         private async Task<IActionResult> ExecuteWithErrorHandling(Func<Task<IActionResult>> action)
         {
             try

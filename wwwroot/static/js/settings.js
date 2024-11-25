@@ -1,6 +1,7 @@
 const EventType = Object.freeze({
     CREATE_CHANNEL: 'create_channel',
     JOIN_GUILD: 'join_guild',
+    CREATE_GUILD: 'create_guild', // Added CREATE_GUILD event
     DELETE_GUILD: 'delete_guild',
     DELETE_GUILD_IMAGE: 'delete_guild_image',
     NEW_MESSAGE: 'new_message',
@@ -9,6 +10,7 @@ const EventType = Object.freeze({
     GET_GUILDS: 'get_guilds',
     START_WRITING: 'start_writing'
 });
+
 
 const HttpMethod = Object.freeze({
     POST: 'POST',
@@ -35,9 +37,13 @@ class CustomHttpConnection {
                 method: HttpMethod.POST, 
                 url: '/api/guilds/{guildId}/members'
             },
+            [EventType.CREATE_GUILD]: { 
+                method: HttpMethod.POST, 
+                url: '/api/guilds'
+            },
             [EventType.DELETE_GUILD]: { 
                 method: HttpMethod.DELETE, 
-                url: '/api/guilds/{guildId}'
+                url: '/api/guilds/{guildId}' 
             },
             [EventType.DELETE_GUILD_IMAGE]: { 
                 method: HttpMethod.DELETE, 
@@ -45,7 +51,7 @@ class CustomHttpConnection {
             },
             [EventType.NEW_MESSAGE]: { 
                 method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/messages' 
+                url: '/api/guilds/{guildId}/channels/{channelId}/messages'
             },
             [EventType.GET_USERS]: { 
                 method: HttpMethod.GET, 
@@ -53,15 +59,15 @@ class CustomHttpConnection {
             },
             [EventType.GET_HISTORY]: { 
                 method: HttpMethod.GET, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/messages' 
+                url: '/api/guilds/{guildId}/channels/{channelId}/messages'
             },
             [EventType.GET_GUILDS]: { 
                 method: HttpMethod.GET, 
-                url: '/api/guilds'
+                url: '/api/guilds' 
             },
             [EventType.START_WRITING]: { 
                 method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/typing' 
+                url: '/api/guilds/{guildId}/channels/{channelId}/typing'
             }
         };
         
@@ -98,6 +104,11 @@ class CustomHttpConnection {
     async emit(event, data = {}) {
         try {
             if (this.connected) {
+                if (!event) {
+                    console.log("Event is required"); 
+                    return
+                }
+
                 const { url, method } = this.getUrlForEvent(event, data);
                 const payload = {
                     action: event,

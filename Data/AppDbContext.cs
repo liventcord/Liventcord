@@ -89,7 +89,7 @@ namespace LiventCord.Data
             modelBuilder.Entity<GuildUser>().HasKey(gu => new { gu.GuildId, gu.UserId });
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.Guild)
-                .WithMany(g => g.GuildUsers)
+                .WithMany(g => g.GuildMembers)
                 .HasForeignKey(gu => gu.GuildId)
                 .OnDelete(DeleteBehavior.Cascade);
             modelBuilder.Entity<GuildUser>()

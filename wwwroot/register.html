@@ -210,7 +210,6 @@
 		nickInput.addEventListener("input", async function(event) {
 			const newInputValue = nickInput.value.trim(); 
 
-			// Allow fetching on first input or when input changes
 			if (newInputValue !== currentInputValue && !isFetching) {
 				currentInputValue = newInputValue; 
 
@@ -238,7 +237,7 @@
 					} catch (error) {
 						console.error('Fetch Error:', error);
 					} finally {
-						isFetching = false; // Always reset here
+						isFetching = false; 
 					}
 				}, 500);
 			}

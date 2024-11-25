@@ -28,6 +28,7 @@ builder.Services.AddScoped<AppLogic>();
 builder.Services.AddScoped<SSEManager>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<GuildController>();
+builder.Services.AddScoped<PermissionsController>();
 builder.Services.AddScoped<UploadController>();
 builder.Services.AddScoped<GuildInviteService>();
 
@@ -45,6 +46,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddResponseCompression(options =>
@@ -67,6 +71,14 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 var app = builder.Build();
 app.UseSerilogRequestLogging();
 
+app.UseSwagger();
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.RoutePrefix = "docs";
+});
+
 
 app.UseResponseCompression();
 
@@ -82,23 +94,50 @@ else
 
 app.UseStatusCodePages(async context =>
 {
-    var statusCode = context.HttpContext.Response.StatusCode;
+    var httpContext = context.HttpContext;
+    var statusCode = httpContext.Response.StatusCode;
+
+    var isApiRequest = httpContext.Request.Headers["Accept"].ToString().Contains("application/json");
 
     if (statusCode == StatusCodes.Status404NotFound)
     {
-        context.HttpContext.Response.ContentType = "text/plain";
-        await context.HttpContext.Response.WriteAsync("404 Not Found");
+        if (isApiRequest)
+        {
+            httpContext.Response.ContentType = "text/plain";
+            await httpContext.Response.WriteAsync("404 Not Found");
+        }
+
     }
     else if (statusCode == StatusCodes.Status500InternalServerError)
     {
-        context.HttpContext.Response.ContentType = "text/plain";
-        await context.HttpContext.Response.WriteAsync("500 Internal Server Error");
+        httpContext.Response.ContentType = "text/plain";
+        await httpContext.Response.WriteAsync("500 Internal Server Error");
     }
     else
     {
         var reasonPhrase = ReasonPhrases.GetReasonPhrase(statusCode);
-        context.HttpContext.Response.ContentType = "text/plain";
-        await context.HttpContext.Response.WriteAsync($"{statusCode} {reasonPhrase}");
+        httpContext.Response.ContentType = "text/plain";
+        await httpContext.Response.WriteAsync($"{statusCode} {reasonPhrase}");
+    }
+});
+
+// Fallback for non-API routes
+app.MapFallback(async context =>
+{
+    var acceptHeader = context.Request.Headers["Accept"].ToString();
+
+    if (acceptHeader.Contains("text/html"))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        context.Response.ContentType = "text/html";
+        var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
+        await context.Response.SendFileAsync(filePath);
+    }
+    else
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        context.Response.ContentType = "text/plain";
+        await context.Response.WriteAsync("404 Not Found");
     }
 });
 
@@ -140,13 +179,6 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
 
-app.MapFallback(async context =>
-{
-    context.Response.StatusCode = StatusCodes.Status404NotFound;
-    context.Response.ContentType = "text/html";
-    var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
-    await context.Response.SendFileAsync(filePath);
-});
 
 app.MapControllers();
 app.Run();

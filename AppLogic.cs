@@ -15,16 +15,18 @@ namespace LiventCord.Helpers
         private readonly GuildController _guildController;
         private readonly FriendController _friendController;
         private readonly TypingController _typingController;
-
         private readonly ILogger<AppLogic> _logger;
+        private readonly PermissionsController _permissionsController;
 
-        public AppLogic(AppDbContext dbContext, FriendController friendController, GuildController guildController, TypingController typingController, ILogger<AppLogic> logger)
+
+        public AppLogic(AppDbContext dbContext, FriendController friendController, GuildController guildController, TypingController typingController, ILogger<AppLogic> logger, PermissionsController permissionsController)
         {
             _dbContext = dbContext;
             _guildController = guildController;
             _friendController = friendController;
             _typingController = typingController;
             _logger = logger;
+            _permissionsController = permissionsController;
         }
 
 
@@ -61,7 +63,7 @@ namespace LiventCord.Helpers
                 _logger.LogInformation("Checking typing users...");
                 var typingUsers = new List<string>();
                 var sharedGuildsMap = new List<string>();
-                var permissionsMap = _guildController.GetPermissionsMapForUser(userId);
+                var permissionsMap = _permissionsController.GetPermissionsMapForUser(userId);
 
                 if (!string.IsNullOrEmpty(guildId))
                 {
