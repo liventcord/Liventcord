@@ -4,12 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using LiventCord.Data;
 using LiventCord.Models;
 using System.Security.Claims;
-using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.Extensions.Configuration;
-using BCrypt.Net;
 
 namespace LiventCord.Controllers
 {
@@ -28,71 +23,36 @@ namespace LiventCord.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> LoginAuth([FromForm] string email, [FromForm] string password)
+        public async Task<IActionResult> LoginAuth([FromForm] LoginRequest loginRequest)
         {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await AuthenticateUser(loginRequest.Email, loginRequest.Password);
+            if (user == null) 
                 return Unauthorized(new { message = "Authentication failed!" });
-
-            if (IsEmailInvalid(email))
-                return BadRequest(new { message = "Email is invalid." });
-
-            if (IsPasswordInvalid(password))
-                return BadRequest(new { message = "Password is invalid." });
-
-            var user = await AuthenticateUser(email, password);
-            if (user != null)
+            
+            var claims = new List<Claim>
             {
-                var claims = new List<Claim>
-                {
-                    new(ClaimTypes.Email, email),
-                    new(ClaimTypes.NameIdentifier, user.UserId.ToString())
-                };
-
-                var token = GenerateToken(claims);
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties
-                {
-                    IsPersistent = true
-                };
-
-                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
-
-                return Ok(new { message = "Login successful!", token });
-            }
-
-            return Unauthorized(new { message = "Authentication failed!" });
-        }
-
-        private static bool IsEmailInvalid(string email) =>
-            email.Length < 5 || email.Length > 128;
-
-        private static bool IsPasswordInvalid(string password) =>
-            password.Length < 5 || password.Length > 128;
-
-        private async Task<User> AuthenticateUser(string email, string password)
-        {
-            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
-            if (user != null && BCrypt.Net.BCrypt.Verify(password, user.Password))
-            {
-                return user;
-            }
-            return null;
-        }
-
-        private string GenerateToken(IEnumerable<Claim> claims)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secretKey);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(7),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                new(ClaimTypes.Email, loginRequest.Email),
+                new(ClaimTypes.NameIdentifier, user.UserId.ToString())
             };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties { IsPersistent = true };
+
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            return Ok(new { message = "Login successful!" });
+            
+
+            
+        }
+
+        private async Task<User?> AuthenticateUser(string email, string password)
+        {
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
+            return user != null && BCrypt.Net.BCrypt.Verify(password, user.Password) ? user : null;
         }
 
         [HttpPost("logout")]

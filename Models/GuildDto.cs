@@ -3,14 +3,13 @@ namespace LiventCord.Models
 {
     public class GuildDto
     {
-        public string GuildId { get; set; }
-        public string OwnerId { get; set; }
-        public string GuildName { get; set; }
-        public string RootChannel { get; set; }
-        public string? Region { get; set; }
-        public bool IsGuildUploadedImg { get; set; }
-        public List<string> GuildUsers { get; set; }
-        public List<ChannelWithLastRead> GuildChannels {get; set; }
-        public string FirstChannelId { get; set; }
+        public required string GuildId { get; set; }
+        public required string OwnerId { get; set; }
+        public required string GuildName { get; set; }
+        public required string RootChannel { get; set; }
+        public required string? Region { get; set; }
+        public required bool IsGuildUploadedImg { get; set; }
+        public required List<string> GuildUsers { get; set; }
+        public List<ChannelWithLastRead>? GuildChannels {get; set; }
     }
 }

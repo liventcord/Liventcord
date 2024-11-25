@@ -34,11 +34,11 @@ namespace LiventCord.Models
         [Column("is_guild_uploaded_img")]
         public bool IsGuildUploadedImg { get; set; }
 
-        public virtual ICollection<GuildUser> GuildUsers { get; set; } = new List<GuildUser>();
+        public virtual ICollection<GuildUser> GuildMembers { get; set; } = new List<GuildUser>();
         public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
         [NotMapped]
-        public IEnumerable<string> UserIds => GuildUsers.Select(gu => gu.UserId);
+        public IEnumerable<string> UserIds => GuildMembers.Select(gu => gu.UserId);
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
         public Guild(string ownerId, string rootChannel)    
@@ -53,29 +53,29 @@ namespace LiventCord.Models
     {
         [Key]
         [Column("channel_id")]
-        public string ChannelId { get; set; }
+        public required string ChannelId { get; set; }
 
         [Column("channel_name")]
-        public string ChannelName { get; set; }
+        public required string ChannelName { get; set; }
 
         [Column("channel_description")]
         public string? ChannelDescription { get; set; }
 
         [Column("is_text_channel")]
-        public bool IsTextChannel { get; set; } = false;
+        public required bool IsTextChannel { get; set; } = false;
 
         [Column("last_read_datetime")]
         public DateTime? LastReadDateTime { get; set; }
 
         [ForeignKey("Guild")]
         [Column("guild_id")]
-        public string GuildId { get; set; }
+        public required string GuildId { get; set; }
 
         [Column("order")]
         public int Order { get; set; }
 
         public virtual Guild Guild { get; set; } = null!;
-        public virtual ICollection<UserChannel> UserChannels { get; set; } 
+        public virtual ICollection<UserChannel>? UserChannels { get; set; } 
 
     }
 }
