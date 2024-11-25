@@ -172,9 +172,8 @@ namespace LiventCord.Controllers
             var guildId = await _guildInviteService.GetGuildIdByInviteAsync(joinId);
 
             if (string.IsNullOrEmpty(guildId))
-            {
                 return NotFound(new { message = "Invalid or expired invite." });
-            }
+            
 
             try
             {
@@ -220,13 +219,8 @@ namespace LiventCord.Controllers
         {
             var guildId = Utils.CreateRandomId();
 
-            var guild = new Guild(ownerId, rootChannel)
-            {
-                GuildId = guildId,
-                GuildName = guildName,
-                Region = region,
-                IsGuildUploadedImg = false
-            };
+            var guild = new Guild(guildId, ownerId, guildName, rootChannel, region, false);
+
 
             guild.Channels.Add(new Channel
             {

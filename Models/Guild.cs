@@ -39,14 +39,21 @@ namespace LiventCord.Models
 
         [NotMapped]
         public IEnumerable<string> UserIds => GuildMembers.Select(gu => gu.UserId);
+
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
-        public Guild(string ownerId, string rootChannel)    
+        public Guild(string guildId, string ownerId, string guildName, string rootChannel, string? region = null, bool isGuildUploadedImg = false)
         {
+            GuildId = guildId;
             OwnerId = ownerId;
+            GuildName = guildName;
             RootChannel = rootChannel;
+            Region = region;
+            IsGuildUploadedImg = isGuildUploadedImg;
         }
     }
+
+
 
 
     public class Channel
