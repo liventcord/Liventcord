@@ -1,6 +1,23 @@
+const EventType = Object.freeze({
+    CREATE_CHANNEL: 'create_channel',
+    JOIN_GUILD: 'join_guild',
+    DELETE_GUILD: 'delete_guild',
+    DELETE_GUILD_IMAGE: 'delete_guild_image',
+    NEW_MESSAGE: 'new_message',
+    GET_USERS: 'get_users',
+    GET_HISTORY: 'get_history',
+    GET_GUILDS: 'get_guilds',
+    START_WRITING: 'start_writing'
+});
+
+const HttpMethod = Object.freeze({
+    POST: 'POST',
+    GET: 'GET',
+    DELETE: 'DELETE'
+});
+
 class CustomHttpConnection {
     constructor() {
-        this.url = '/api/data';
         this.listeners = {};
         this.connected = false;
         this.requestQueue = [];
@@ -8,33 +25,87 @@ class CustomHttpConnection {
         this.connect();
     }
 
-    async sendRequest(data) {
-        const response = await fetch(this.url, {
-            method: 'POST',
+    getUrlForEvent(event, data) {
+        const eventRoutes = {
+            [EventType.CREATE_CHANNEL]: { 
+                method: HttpMethod.POST, 
+                url: '/api/guilds/{guildId}/channels' 
+            },
+            [EventType.JOIN_GUILD]: { 
+                method: HttpMethod.POST, 
+                url: '/api/guilds/{guildId}/members'
+            },
+            [EventType.DELETE_GUILD]: { 
+                method: HttpMethod.DELETE, 
+                url: '/api/guilds/{guildId}'
+            },
+            [EventType.DELETE_GUILD_IMAGE]: { 
+                method: HttpMethod.DELETE, 
+                url: '/api/guilds/{guildId}/image'
+            },
+            [EventType.NEW_MESSAGE]: { 
+                method: HttpMethod.POST, 
+                url: '/api/guilds/{guildId}/channels/{channelId}/messages' 
+            },
+            [EventType.GET_USERS]: { 
+                method: HttpMethod.GET, 
+                url: '/api/guilds/{guildId}/members'
+            },
+            [EventType.GET_HISTORY]: { 
+                method: HttpMethod.GET, 
+                url: '/api/guilds/{guildId}/channels/{channelId}/messages' 
+            },
+            [EventType.GET_GUILDS]: { 
+                method: HttpMethod.GET, 
+                url: '/api/guilds'
+            },
+            [EventType.START_WRITING]: { 
+                method: HttpMethod.POST, 
+                url: '/api/guilds/{guildId}/channels/{channelId}/typing' 
+            }
+        };
+        
+        const route = eventRoutes[event];
+        if (!route) throw new Error(`Unknown event: ${event}`);
+
+        let url = route.url;
+        if (data.guildId) {
+            url = url.replace("{guildId}", data.guildId);
+        }
+        if (data.channelId) {
+            url = url.replace("{channelId}", data.channelId);
+        }
+
+        return { method: route.method, url };
+    }
+
+    async sendRequest(data, url, method) {
+        const response = await fetch(url, {
+            method: method,
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
-            credentials: 'same-origin', 
+            credentials: 'same-origin',
         });
-    
+
         if (!response.ok) {
             throw new Error(`Request failed with status: ${response.status}`);
         }
         return response.json();
     }
-    
+
     async emit(event, data = {}) {
         try {
             if (this.connected) {
+                const { url, method } = this.getUrlForEvent(event, data);
                 const payload = {
                     action: event,
                     value: data
                 };
-                
-                const response = await this.sendRequest(payload);
-                this.handleMessage(event, response.Type,response.Data);                            
-               
+
+                const response = await this.sendRequest(payload, url, method);
+                this.handleMessage(event, response.Type, response.Data);
             } else {
                 console.log("Not connected. Queueing request...");
                 this.requestQueue.push({ event, data });
@@ -43,9 +114,9 @@ class CustomHttpConnection {
             console.warn("Error during request:", error);
         }
     }
-    
-    handleMessage(event,type, data) {
-        console.log("Got Response for ", event," as(" , type  ,  "):" , data);
+
+    handleMessage(event, type, data) {
+        console.log("Got Response for", event, "as(", type, "):", data);
         if (this.listeners[type]) {
             this.listeners[type].forEach(callback => {
                 console.log("Triggered listener!");
@@ -53,7 +124,6 @@ class CustomHttpConnection {
             });
         }
     }
-    
 
     async processQueue() {
         while (this.requestQueue.length > 0) {
@@ -218,7 +288,7 @@ const guildSettings = [
 function createDeleteGuildPrompt(guildId,guild_name) {
     if(!guildId) { return }
     var onClickHandler = function() {
-        socket.emit('delete_guild', guildId);
+        socket.emit(EventType.DELETE_GUILD, guildId);
     }
     const successText = "Sunucuyu sil";
     askUser(`${guild_name} Sunucusunu Sil`,'Bu işlem geri alınamaz.',successText,onClickHandler,isRed=true);
@@ -233,7 +303,7 @@ async function requestMicrophonePermissions() {
             const reader = new FileReader();
             reader.onload = function () {
                 const bytes = new Uint8Array(reader.result);
-                socket.emit('audio_data', bytes);
+                audioManager.emit('audio_data', bytes);
             };
             reader.readAsArrayBuffer(blob);
         }
@@ -303,7 +373,7 @@ function removeElement(elementname) {
 
 
 function removeguildImage() {
-    socket.emit('remove_guild_image',{'guildId': currentGuildId})
+    socket.emit(EventType.DELETE_GUILD_IMAGE,{'guildId': currentGuildId})
     getId('guildImage').value = '';
     getId('guild-image').src = createBlackImage();
 

@@ -357,10 +357,8 @@ function updateUserMentionDropdown(value) {
             const currentUsers = isOnGuild ? guild_users_cache[currentGuildId] : getCurrentDmUsers();
             if (!currentUsers) return;
 
-            // Convert currentUsers object to an array
-            const usersArray = Object.values(currentUsers); // Get all user objects
+            const usersArray = Object.values(currentUsers);
             
-            // Filter users based on the mention
             const filteredUsers = usersArray.filter(user => user.name.toLowerCase().startsWith(lastMention.slice(1).toLowerCase()));
 
             if (filteredUsers.length) {
