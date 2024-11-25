@@ -22,7 +22,7 @@ namespace LiventCord.Data
         public DbSet<GuildFile> GuildFiles { get; set; }
         public DbSet<UserChannel> UserChannels { get; set; }
         public DbSet<Message> Messages { get; set; }
-
+        public DbSet<GuildInvite> GuildInvites { get; set; }
         
         public void RecreateDatabase()
         {
