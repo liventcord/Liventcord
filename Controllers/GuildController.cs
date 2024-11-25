@@ -5,6 +5,7 @@ using LiventCord.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 
 
 namespace LiventCord.Controllers
@@ -18,14 +19,16 @@ namespace LiventCord.Controllers
         private readonly UploadController _uploadController;
         private readonly MessageController _messageController;
         private readonly SSEManager _sseManager;
+        private readonly GuildInviteService _guildInviteService;
 
 
-        public GuildController(AppDbContext dbContext, UploadController uploadController,MessageController messageController,SSEManager sseManager)
+        public GuildController(AppDbContext dbContext, UploadController uploadController,MessageController messageController,SSEManager sseManager,GuildInviteService guildInviteService)
         {
             _dbContext = dbContext;
             _sseManager = sseManager;
             this._messageController = messageController;
             _uploadController = uploadController;
+            _guildInviteService = guildInviteService;
         }
 
 
@@ -216,9 +219,37 @@ namespace LiventCord.Controllers
             return Ok(new { Type = "success", Message = "Writing started." });
         }
 
+        // POST /api/guilds/join_id
+        [HttpPost("join_id")]
+        public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId, [FromHeader] string userId)
+        {
+            if (string.IsNullOrEmpty(joinId))
+            {
+                return BadRequest(new { message = "Join ID is required." });
+            }
+
+            var guildId = await _guildInviteService.GetGuildIdByInviteAsync(joinId);
+
+            if (string.IsNullOrEmpty(guildId))
+            {
+                return NotFound(new { message = "Invalid or expired invite." });
+            }
+
+            try
+            {
+                await AddUserToGuild(userId, guildId);
+                return Ok(new { message = "Successfully joined the guild." });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+                
     
 
-        public async void AddUserToGuild(string userId, string guildId)
+        public async Task AddUserToGuild(string userId, string guildId)
         {
             var guild = await _dbContext.Guilds
                 .Include(g => g.GuildUsers)
@@ -313,9 +344,9 @@ namespace LiventCord.Controllers
         // POST /api/guilds/{guildId}/channels
         [HttpPost("{guildId}/channels")]
         public async Task<IActionResult> CreateChannel(
-            [FromRoute] string guildId,  // route parameter (guildId)
-            [FromBody] CreateChannelRequest request,  // body data for channel creation
-            [FromHeader] string userId)  // userId from headers
+            [FromRoute] string guildId,  
+            [FromBody] CreateChannelRequest request, 
+            [FromHeader] string userId)
         {
             if (!await CanManageChannels(userId, guildId))
             {
@@ -366,6 +397,8 @@ namespace LiventCord.Controllers
             await _dbContext.SaveChangesAsync();
         }
 
+
+        // GET /api/guilds/{guildId}/users
         [HttpGet("{guildId}/users")]
         public async Task<IActionResult> HandleGetUsers([FromRoute] string guildId, [FromHeader] string userId)
         {
@@ -754,4 +787,11 @@ public class NewMessageRequest
     public string? ReplyToId { get; set; }
     public string? ReactionEmojisIds { get; set; }
     public string? LastEdited { get; set; }
+}
+public class GuildInvite
+{
+    [Key]
+    public string InviteId { get; set; }
+    public string GuildId { get; set; }
+    public DateTime CreatedAt { get; set; }
 }
