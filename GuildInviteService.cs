@@ -12,7 +12,6 @@ public class GuildInviteService
         _dbContext = dbContext;
     }
 
-    // Generate a random invite ID
     private string CreateRandomInviteId()
     {
         const int length = 8;
@@ -38,7 +37,7 @@ public class GuildInviteService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<string> GetGuildIdByInviteAsync(string inviteId)
+    public async Task<string?> GetGuildIdByInviteAsync(string inviteId)
     {
         var guildInvite = await _dbContext.GuildInvites
             .FirstOrDefaultAsync(g => g.InviteId == inviteId);
