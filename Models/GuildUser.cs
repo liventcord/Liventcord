@@ -8,16 +8,16 @@ namespace LiventCord.Models
     {
         [Key]
         [Column("guild_id", Order = 1)]
-        public string GuildId { get; set; }
+        public required string GuildId { get; set; }
 
         [Key]
         [Column("user_id", Order = 2)]
-        public string UserId { get; set; }
+        public required string UserId { get; set; }
 
         [ForeignKey("GuildId")]
-        public virtual Guild Guild { get; set; }
+        public virtual required Guild Guild { get; set; }
 
         [ForeignKey("UserId")]
-        public virtual User User { get; set; }
+        public virtual required User User { get; set; }
     }
 }

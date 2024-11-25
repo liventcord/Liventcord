@@ -28,7 +28,7 @@ namespace LiventCord.Models
     {
         [Key][Column("user_id")]
         public required string UserId { get; set; }
-        public virtual ICollection<GuildUser> GuildUsers { get; set; } 
+        public virtual ICollection<GuildUser>? GuildUsers { get; set; } 
         
         [Required][StringLength(128)][Column("email")]
         [NotMapped]
@@ -86,7 +86,7 @@ namespace LiventCord.Models
         }
 
 
-        public virtual ICollection<UserChannel> UserChannels { get; set; } 
+        public virtual ICollection<UserChannel>? UserChannels { get; set; } 
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
     }

@@ -24,13 +24,10 @@ namespace LiventCord.Controllers
                 return BadRequest(new { error = "Invalid parameters" });
 
             bool isUnique = !_context.Users.Any(u => u.Nickname == nick);
-            _cache.TryGetValue("random_discriminators", out Dictionary<string, string> randomDiscriminators);
-            if (randomDiscriminators == null)
-            {
-                randomDiscriminators = new Dictionary<string, string>();
-                _cache.Set("random_discriminators", randomDiscriminators);
-            }
+            _cache.TryGetValue("random_discriminators", out Dictionary<string, string>? randomDiscriminators);
+            randomDiscriminators ??= new Dictionary<string, string>();
 
+      
             if (!randomDiscriminators.ContainsKey(nick))
             {
                 randomDiscriminators[nick] = CreateDiscriminator(nick);
