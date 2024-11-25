@@ -7,11 +7,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-public class MessageService
+public class MessageController
 {
     private readonly AppDbContext _context;
 
-    public MessageService(AppDbContext context)
+    public MessageController(AppDbContext context)
     {
         _context = context;
     }

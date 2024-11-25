@@ -55,6 +55,10 @@ namespace LiventCord.Data
             modelBuilder.Entity<Friend>().Property(f => f.FriendId).HasColumnName("friend_id").IsRequired();
             modelBuilder.Entity<Friend>().Property(f => f.Status).HasColumnName("status").IsRequired().HasMaxLength(20);
 
+            modelBuilder.Entity<Friend>()
+                .Property(f => f.Status)
+                .HasConversion<int>();
+
             modelBuilder.Entity<TypingStatus>().ToTable("typing_statuses");
             modelBuilder.Entity<TypingStatus>().HasKey(ts => new { ts.UserId, ts.GuildId, ts.ChannelId });
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.UserId).IsRequired();
