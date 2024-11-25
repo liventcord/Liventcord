@@ -1,29 +1,110 @@
 using Microsoft.AspNetCore.Mvc;
-using LiventCord.Helpers;
+using Microsoft.EntityFrameworkCore;
+using LiventCord.Models;
+using LiventCord.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LiventCord.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/friends")]
+    [Authorize]
     public class FriendController : ControllerBase
     {
-        private readonly FriendHelper _friendHelper;
 
-        public FriendController(FriendHelper friendService)
+        private readonly AppDbContext _dbContext;
+
+        public FriendController(AppDbContext dbContext)
         {
-            _friendHelper = friendService;
+            _dbContext = dbContext;
         }
 
-        private IActionResult GetFriendName(string friendId)
+
+        
+        [NonAction] 
+        public async Task<List<PublicUser>> GetFriendsStatus(string userId)
         {
-            var friendName = _friendHelper.QueryFriendName(friendId);
-            return Ok(new { friendId, friendName });
+            var publicFriends = await _dbContext.Friends
+                .Where(f => f.UserId == userId && f.Status == FriendStatus.Accepted)  // No cast needed for UserId
+                .Join(_dbContext.Users,
+                    friend => friend.FriendId,
+                    user => user.UserId,
+                    (friend, user) => user.GetPublicUser())
+                .ToListAsync();
+
+            return publicFriends;
         }
 
-        private IActionResult GetFriendDiscriminator(string friendId)
+
+
+        [HttpPost("add")]
+        public async Task<IActionResult> AddFriendEndpoint([FromQuery] string userId, [FromQuery] string? friendName, [FromQuery] string? friendDiscriminator)
         {
-            var friendDiscriminator = _friendHelper.QueryFriendDiscriminator(friendId);
-            return Ok(new { friendId, friendDiscriminator });
+            if (string.IsNullOrEmpty(friendName) || string.IsNullOrEmpty(friendDiscriminator))
+            {
+                return BadRequest("Friend name and discriminator must be provided.");
+            }
+
+            return await ExecuteWithErrorHandling(async () =>
+            {
+                await AddFriend(userId, friendName, friendDiscriminator);
+                return Ok(new { Type = "success", Message = "Friend request sent." });
+            });
         }
+
+        public async Task AddFriend(string userId, string? friendName, string? friendDiscriminator = null)
+        {
+            if (friendName != null && friendDiscriminator != null)
+            {
+                var friend = await _dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Nickname == friendName && u.Discriminator == friendDiscriminator);
+
+                if (friend != null)
+                {
+                    var existingFriendship = await _dbContext.Friends
+                        .FirstOrDefaultAsync(f => f.UserId == userId && f.FriendId == friend.UserId);
+
+                    if (existingFriendship == null)
+                    {
+                        var newFriendship = new Friend
+                        {
+                            UserId = userId,
+                            FriendId = friend.UserId,
+                            Status = FriendStatus.Pending
+                        };
+
+                        _dbContext.Friends.Add(newFriendship);
+                        await _dbContext.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("Friend not found.");
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Friend name and discriminator must be provided.");
+            }
+        }
+
+        // A utility method to handle errors consistently
+        private async Task<IActionResult> ExecuteWithErrorHandling(Func<Task<IActionResult>> action)
+        {
+            try
+            {
+                return await action();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { Type = "error", Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Type = "error", Message = "An error occurred while processing the request.", Details = ex.Message });
+            }
+        }
+
+
     }
 }

@@ -679,7 +679,7 @@ function createFriendCard(friend,isPending,friendsContainer) {
         acceptButton.addEventListener('click', function(event) {
             if(event.target == acceptButton) {
                 event.stopPropagation();
-                socket.emit('friend_request_event', 'accept_friend_request', { 'friend_id': friend.user_id });
+                socket.emit('accept_friend_request', { 'friendId': friend.user_id });
             }
         });
     }
@@ -691,9 +691,9 @@ function createFriendCard(friend,isPending,friendsContainer) {
 
                 event.stopPropagation();
                 if (friend.is_friends_requests_to_user) {
-                    socket.emit('friend_request_event', 'deny_friend_request', { 'friend_id': friend.user_id });
+                    socket.emit('deny_friend_request', { 'friendId': friend.user_id });
                 } else {
-                    socket.emit('friend_request_event', 'remove_friend_request', { 'friend_id': friend.user_id });
+                    socket.emit('remove_friend_request', { 'friendId': friend.user_id });
                 }
             }
         });
@@ -731,7 +731,7 @@ async function fetchUsersFromAPI(request_type) {
     if (!isFriendsOpen && !isPopulating) {
         isFetchingUsers = true; 
         try {
-            socket.emit('fetch_users_event', { 'request_type': request_type });
+            socket.emit('fetch_users_event', { 'requestType': request_type });
         } catch (error) {
             console.error('Error fetching users:', error);
         }
@@ -983,7 +983,7 @@ function parseUsernameDiscriminator(input) {
 }
 
 function addFriend(user_id) {
-    socket.emit('friend_request_event','add_friend_request',{'friend_id' : user_id});
+    socket.emit('add_friend_request_id',{'friendId' : user_id});
 }
 function submitAddFriend() {
     const addfriendinput = getId('addfriendinputfield');
@@ -998,17 +998,22 @@ function submitAddFriend() {
         const { username, discriminator } = parseUsernameDiscriminator(currentValue);
         if(!username || !discriminator) { return }
         
-        socket.emit('friend_request_event','add_friend_request',{'friend_name': username , 'friend_discriminator' : discriminator});
+        socket.emit('add_friend_request',{'friendName': username , 'friendDiscriminator' : discriminator});
     }
 }
 
 
 function areJsonsEqual(existing_data, new_data) {
-    // Convert JSON objects to strings for easy comparison
+    if (existing_data == null || new_data == null) {
+        return false;
+    }
+
+    if (typeof existing_data !== 'object' || typeof new_data !== 'object') {
+        return false;
+    }
+
     const existingJson = JSON.stringify(existing_data);
     const newJson = JSON.stringify(new_data);
-
-    // Compare the JSON strings
     return existingJson === newJson;
 }
 

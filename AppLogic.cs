@@ -1,7 +1,6 @@
 using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
 using LiventCord.Helpers;
-using LiventCord.Services;
 using System.Security.Claims;
 using System.Text.Json;
 using LiventCord.Controllers;
@@ -13,89 +12,119 @@ namespace LiventCord.Helpers
     public class AppLogic
     {
         private readonly AppDbContext _dbContext;
-        private readonly TypingService _typingService;
-        private readonly FriendHelper _friendHelper;
         private readonly GuildController _guildController;
+        private readonly FriendController _friendController;
+        private readonly TypingController _typingController;
 
-        public AppLogic(AppDbContext dbContext, TypingService typingService, FriendHelper friendHelper ,GuildController guildController)
-        {
-            _dbContext = dbContext;
-            _guildController = guildController;
-            _typingService = typingService;
-            _friendHelper = friendHelper;
-        }
+private readonly ILogger<AppLogic> _logger;
+
+public AppLogic(AppDbContext dbContext, FriendController friendController, GuildController guildController, TypingController typingController, ILogger<AppLogic> logger)
+{
+    _dbContext = dbContext;
+    _guildController = guildController;
+    _friendController = friendController;
+    _typingController = typingController;
+    _logger = logger;
+}
+
 
         public async Task HandleChannelRequest(HttpContext context, string guildId, string channelId, string friendId = null)
-        {
-            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) { context.Response.Redirect("/login"); return; }
+{
+    string userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    _logger.LogInformation("userId: {UserId}", userId);
+    if (string.IsNullOrEmpty(userId)) 
+    { 
+        context.Response.Redirect("/login"); 
+        return; 
+    }
 
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user == null) { context.Response.Redirect("/login"); return; }
-
-            var email = user.Email ?? "";
-            var userName = user.Nickname ?? "";
-            var userDiscriminator = user.Discriminator ?? "";
-
-            var guilds = await _guildController.GetUserGuilds(userId);
-            
-            var guildUsers = await _guildController.GetGuildUsers(guildId);
-
-            var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
-            var guildName = guild?.GuildName ?? "";
-            var authorId = guild?.OwnerId ?? "";
-
-            var typingUsers = new List<string>();
-            var sharedGuildsMap = new List<string>();
-            var permissionsMap = _guildController.GetPermissionsMapForUser(userId);
-
-            if (!string.IsNullOrEmpty(guildId))
-            {
-                typingUsers = await _typingService.GetTypingUsers(guildId, channelId) ?? new List<string>();
-                sharedGuildsMap = await _guildController.GetSharedGuilds(guildId, userId) ?? new List<string>();
-          
-            }
-
-            var friendsStatus = await _friendHelper.GetFriendsStatus(userId) ?? null;
-
-            var dmUsers = await _dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
-
-            var jsonData = new
-            {
-                email,
-                userId,
-                userName,
-                userDiscriminator,
-                guildId,
-                channelId,
-                guildName,
-                authorId,
-                guildUsers,
-                typingUsers,
-                sharedGuildsMap,
-                permissionsMap,
-                friendsStatus,
-                dmUsers,
-                guildsJson = guilds
-            };
-
-            string jsonDataScript = $@"
-                <script id='data-script' type='application/json'>
-                    {JsonSerializer.Serialize(jsonData)}
-                </script>";
-
-            var filePath = Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath, "app.html");
-            var htmlContent = await File.ReadAllTextAsync(filePath);
-            var bodyCloseTagIndex = htmlContent.LastIndexOf("</body>");
-
-            if (bodyCloseTagIndex >= 0)
-            {
-                htmlContent = htmlContent.Insert(bodyCloseTagIndex, jsonDataScript);
-            }
-
-            context.Response.ContentType = "text/html";
-            await context.Response.WriteAsync(htmlContent);
+    try
+    {
+        _logger.LogInformation("Attempting to retrieve user from database...");
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+        if (user == null) 
+        { 
+            context.Response.Redirect("/login"); 
+            return; 
         }
+
+        _logger.LogInformation("User retrieved: {UserName}", user.UserId);
+
+        // Additional logging for other database calls:
+        _logger.LogInformation("Fetching guilds for user...");
+        var guilds = await _guildController.GetUserGuilds(userId);
+        _logger.LogInformation("Fetching guild users for guildId: {GuildId}", guildId);
+        var guildUsers = await _guildController.GetGuildUsers(guildId);
+
+        _logger.LogInformation("Retrieving guild information for guildId: {GuildId}", guildId);
+        var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
+        
+        _logger.LogInformation("Checking typing users...");
+        var typingUsers = new List<string>();
+        var sharedGuildsMap = new List<string>();
+        var permissionsMap = _guildController.GetPermissionsMapForUser(userId);
+
+        if (!string.IsNullOrEmpty(guildId))
+        {
+            _logger.LogInformation("Fetching typing users...");
+            typingUsers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
+
+            _logger.LogInformation("Fetching shared guilds...");
+            sharedGuildsMap = await _guildController.GetSharedGuilds(guildId, userId) ?? new List<string>();
+        }
+
+        _logger.LogInformation("Fetching friends' statuses...");
+        var friendsStatus = await _friendController.GetFriendsStatus(userId) ?? null;
+
+        _logger.LogInformation("Fetching DM users...");
+        var dmUsers = await _dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
+
+        _logger.LogInformation("Generating JSON data...");
+        var jsonData = new
+        {
+            email = user.Email ?? "",
+            userId,
+            userName = user.Nickname ?? "",
+            userDiscriminator = user.Discriminator ?? "",
+            guildId,
+            channelId,
+            guildName = guild?.GuildName ?? "",
+            authorId = guild?.OwnerId ?? "",
+            guildUsers,
+            typingUsers,
+            sharedGuildsMap,
+            permissionsMap,
+            friendsStatus,
+            dmUsers,
+            guildsJson = guilds
+        };
+
+        string jsonDataScript = $@"
+            <script id='data-script' type='application/json'>
+                {JsonSerializer.Serialize(jsonData)}
+            </script>";
+
+        var filePath = Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath, "app.html");
+        _logger.LogInformation("Reading HTML file from path: {FilePath}", filePath);
+        var htmlContent = await File.ReadAllTextAsync(filePath);
+        
+        var bodyCloseTagIndex = htmlContent.LastIndexOf("</body>");
+        if (bodyCloseTagIndex >= 0)
+        {
+            htmlContent = htmlContent.Insert(bodyCloseTagIndex, jsonDataScript);
+        }
+
+        context.Response.ContentType = "text/html";
+        await context.Response.WriteAsync(htmlContent);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "An error occurred while processing the channel request.");
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsync("An internal server error occurred.");
+    }
+}
+
 
     }
 }

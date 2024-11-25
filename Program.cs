@@ -3,7 +3,6 @@ using LiventCord.Controllers;
 using LiventCord.Data;
 using LiventCord.Helpers;
 using LiventCord.Routes;
-using LiventCord.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
@@ -13,6 +12,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) 
     .CreateLogger();
@@ -21,10 +21,11 @@ builder.Host.UseSerilog();
 
 
 
-builder.Services.AddScoped<FriendHelper>();
-builder.Services.AddScoped<TypingService>();
-builder.Services.AddScoped<MessageService>();
+builder.Services.AddScoped<FriendController>();
+builder.Services.AddScoped<TypingController>();
+builder.Services.AddScoped<MessageController>();
 builder.Services.AddScoped<AppLogic>();
+builder.Services.AddScoped<SSEManager>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<GuildController>();
 builder.Services.AddScoped<UploadController>();
@@ -62,24 +63,9 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
     options.Level = CompressionLevel.Optimal;
 });
 
-builder.Services.AddScoped<AppManager>(provider =>
-{
-    var secretKey = builder.Configuration["AppSettings:SecretKey"] ?? string.Empty;
-    var messageService = provider.GetRequiredService<MessageService>();
-    var guildController = provider.GetRequiredService<GuildController>();
-    return new AppManager(provider,secretKey, messageService, guildController);
-});
-
 var app = builder.Build();
 app.UseSerilogRequestLogging();
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<AppDbContext>();
-}
 
-var appManager = app.Services.GetRequiredService<AppManager>();
-appManager.ConfigureApp(app);
 
 app.UseResponseCompression();
 
