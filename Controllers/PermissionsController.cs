@@ -97,6 +97,7 @@ namespace LiventCord.Controllers
             }
             else
             {
+
                 var guildPermissions = new GuildPermissions
                 {
                     GuildId = guildId,

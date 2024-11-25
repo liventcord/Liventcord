@@ -18,9 +18,12 @@ namespace LiventCord.Controllers
         public LoginController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
-            _secretKey = configuration["AppSettings:SecretKey"];
-            if (string.IsNullOrEmpty(_secretKey)) throw new ArgumentException("SecretKey is missing or invalid.");
+            _secretKey = configuration["AppSettings:SecretKey"] ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(_secretKey))
+                throw new ArgumentException("SecretKey is missing or invalid in AppSettings.");
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAuth([FromForm] LoginRequest loginRequest)

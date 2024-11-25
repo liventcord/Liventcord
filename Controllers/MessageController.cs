@@ -43,7 +43,7 @@ public class MessageController : ControllerBase
             return Forbid();
         }
 
-        await NewMessage(userId, request.GuildId, request.ChannelId, request.Content, lastEdited, attachmentUrls, replyToId, reactionEmojisIds);
+        await NewMessage(userId, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
         
         return Ok(new { Type = "success", Message = "Message sent." });
     }
@@ -86,7 +86,7 @@ public class MessageController : ControllerBase
             .ToListAsync();
     }
     [NonAction]
-    private async Task NewMessage(string userId, string guildId, string channelId, string content, string lastEdited, string attachmentUrls, string replyToId, string reactionEmojisIds)
+    private async Task NewMessage(string userId, string guildId, string channelId, string content, string? attachmentUrls, string? replyToId, string? reactionEmojisIds)
     {
         var message = new Message
         {
