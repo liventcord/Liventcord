@@ -45,9 +45,6 @@ namespace LiventCord.Controllers
         [HttpGet("guilds/{guildId}/channels")]
         public async Task<IActionResult> HandleGetChannels([FromRoute] string guildId, [FromHeader] string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
-
             var channels = await GetGuildChannels(userId, guildId);
 
             if (channels == null)
@@ -64,12 +61,9 @@ namespace LiventCord.Controllers
 
 
         // GET /api/guilds
-        [HttpGet("guilds")]
+        [HttpGet("")]
         public async Task<IActionResult> HandleGetGuilds([FromHeader] string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
-
             var guilds = await GetUserGuilds(userId) ?? new List<GuildDto>();
 
             var messageToEmit = new
@@ -85,14 +79,11 @@ namespace LiventCord.Controllers
 
         // POST api/guilds
         [HttpPost("")]
-        public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)
+        public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request, [FromHeader] string userId)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized("User not authenticated.");
 
             string rootChannel = Utils.CreateRandomId();
             string? region = Request.Headers["Region"].ToString();
@@ -104,15 +95,20 @@ namespace LiventCord.Controllers
             if (request.Photo != null)
             {
                 var uploadResult = await _uploadController.UploadImage(request.Photo, newGuild.GuildId);
-                if (uploadResult is OkObjectResult uploadResultOk)
-                {
-                    var fileId = ((dynamic)uploadResultOk.Value).fileId;
-                }
-                else
-                {
-                    return uploadResult; 
-                }
+                if (uploadResult is not OkObjectResult uploadResultOk) return uploadResult;
+                
+                var value = uploadResultOk.Value;
+                
+                if (value == null)  return new BadRequestResult();
+                dynamic dynamicValue = value;
+                var fileId = dynamicValue?.fileId;
+
+                if (fileId == null)
+                    return new BadRequestResult();
+                    
             }
+
+
 
             var guildDto = new GuildDto
             {
@@ -202,10 +198,13 @@ namespace LiventCord.Controllers
 
             if (guild == null) 
                 throw new Exception("Guild not found");
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (user == null)
+                throw new Exception("User not found");
 
             if (!guild.GuildMembers.Any(gu => gu.UserId == userId))
             {
-                guild.GuildMembers.Add(new GuildUser { UserId = userId });
+                guild.GuildMembers.Add(new GuildUser { UserId = userId , GuildId = guildId, Guild = guild, User=user});
             }
 
             var permissions = PermissionFlags.ReadMessages 
@@ -239,7 +238,13 @@ namespace LiventCord.Controllers
                 Order = 0
             });
 
-            guild.GuildMembers.Add(new GuildUser { UserId = ownerId });
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == ownerId);
+            if (user == null)
+                throw new Exception("User not found");
+
+            if (guild.GuildMembers.Any(gu => gu.UserId == ownerId)) throw new Exception("User already in guild");
+                guild.GuildMembers.Add(new GuildUser { UserId = ownerId , GuildId = guildId, Guild = guild, User=user});
+
 
             _dbContext.Guilds.Add(guild);
             await _dbContext.SaveChangesAsync();  
@@ -256,18 +261,18 @@ namespace LiventCord.Controllers
 
 
         // DELETE /api/guilds/{guildId}
-        [HttpDelete("delete_guild")]
-        public async Task<IActionResult> DeleteGuildEndpoint([FromBody] DeleteGuildRequest request)
+        [HttpDelete("{guildId}")]
+        public async Task<IActionResult> DeleteGuildEndpoint([FromRoute] string guildId, [FromHeader] string userId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (string.IsNullOrEmpty(guildId))
+                return BadRequest(new { Type = "error", Message = "Guild ID is required." });
 
-            var userId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (!await _permissionsController.IsUserAdmin(request.GuildId, userId))
-                return Unauthorized(new { Type = "error", Message = "User is not authorized to delete this guild." });
 
-            var guild = await _dbContext.Guilds.FindAsync(request.GuildId);
+            if (!await _permissionsController.IsUserAdmin(guildId, userId))
+                return Forbid("User is not authorized to delete this guild.");
+
+            var guild = await _dbContext.Guilds.FindAsync(guildId);
             if (guild == null)
                 return NotFound(new { Type = "error", Message = "Guild not found." });
 
@@ -276,6 +281,25 @@ namespace LiventCord.Controllers
 
             return Ok(new { Type = "success", Message = "Guild deleted successfully." });
         }
+
+        // DELETE /api/guilds/{guildId}/channels/{channelId}
+        [HttpDelete("/{guildId}/channels/{channelId}")]
+        public async Task<IActionResult> DeleteChannel([FromRoute] string guildId, string channelId, [FromHeader] string userId)
+        {
+            var channel = _dbContext.Channels.Find(channelId);
+            if (channel == null)
+                return NotFound("Channel does not exist.");
+
+            if (!await DoesUserExistInGuild(userId, guildId))
+                return BadRequest(new { Type = "error", Message = "User not in guild." });
+            if (!await _permissionsController.HasPermission(userId,guildId,PermissionFlags.ManageChannels))
+                return Forbid("User is not authorized to delete this channel.");
+
+            _dbContext.Channels.Remove(channel);
+            await _dbContext.SaveChangesAsync();
+            return Ok(new { Type = "success", Message = "Channel deleted successfully." });
+        }
+
 
         // POST /api/guilds/{guildId}/channels
         [HttpPost("{guildId}/channels")]
@@ -317,8 +341,6 @@ namespace LiventCord.Controllers
         [HttpGet("{guildId}/members")]
         public async Task<IActionResult> HandleGetUsers([FromRoute] string guildId, [FromHeader] string userId)
         {
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { Type = "error", Message = "User not authenticated." });
 
             if (!await DoesUserExistInGuild(userId, guildId))
                 return BadRequest(new { Type = "error", Message = "User not in guild." });
@@ -419,30 +441,8 @@ namespace LiventCord.Controllers
                 await _dbContext.SaveChangesAsync();
             }
         }
-        [NonAction]
-        public void DeleteChannel(string guildId, string channelId)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId))
-                {
-                    throw new ArgumentException("Guild ID and Channel ID cannot be null or empty.");
-                }
-
-                var channel = _dbContext.Channels.Find(channelId);
-                if (channel == null)
-                {
-                    throw new InvalidOperationException("Channel does not exist.");
-                }
-
-                _dbContext.Channels.Remove(channel);
-                _dbContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting channel: {ex.Message}");
-            }
-        }
+        
+        
 
 
 

@@ -30,9 +30,9 @@ namespace LiventCord.Helpers
         }
 
 
-        public async Task HandleChannelRequest(HttpContext context, string guildId, string channelId, string friendId = null)
+        public async Task HandleChannelRequest(HttpContext context, string guildId, string channelId, string? friendId = null)
         {
-            string userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             _logger.LogInformation("userId: {UserId}", userId);
             if (string.IsNullOrEmpty(userId)) 
             { 
