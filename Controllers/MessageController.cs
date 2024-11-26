@@ -25,7 +25,7 @@ public class MessageController : ControllerBase
 
         
     // POST /api/guilds/{guildId}/channels/{channelId}/messages
-    [HttpPost("messages")]
+    [HttpPost("")]
     public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request, [FromHeader] string userId)
     {
         if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
@@ -49,7 +49,7 @@ public class MessageController : ControllerBase
     }
 
     // GET /api/guilds/{guildId}/channels/{channelId}/messages
-    [HttpGet("messages")]
+    [HttpGet("")]
     public async Task<IActionResult> HandleGetMessages(
         [FromQuery] GetMessagesRequest request,
         [FromHeader] string userId)
