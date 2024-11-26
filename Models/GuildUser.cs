@@ -12,7 +12,7 @@ namespace LiventCord.Models
 
         [Key]
         [Column("user_id", Order = 2)]
-        public required string UserId { get; set; }
+        public required string MemberId { get; set; }
 
         [ForeignKey("GuildId")]
         public virtual required Guild Guild { get; set; }

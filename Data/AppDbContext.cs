@@ -33,11 +33,17 @@ namespace LiventCord.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().ToTable("users");
-            modelBuilder.Entity<User>().HasKey(u => u.UserId);
-            modelBuilder.Entity<User>().Property(u => u.Email).IsRequired().HasMaxLength(128);
-            modelBuilder.Entity<User>().Property(u => u.Password).IsRequired().HasMaxLength(128);
-            modelBuilder.Entity<User>().Property(u => u.Nickname).HasMaxLength(128);
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.ToTable("users");
+                entity.HasKey(u => u.UserId);
+                entity.Property(u => u.UserId).HasColumnName("user_id").IsRequired();
+                entity.Property(u => u.Email).HasColumnName("email").IsRequired().HasMaxLength(128);
+                entity.Property(u => u.Password).HasColumnName("password").IsRequired().HasMaxLength(128);
+                entity.Property(u => u.Nickname).HasColumnName("nickname").HasMaxLength(128);
+
+                entity.HasIndex(u => u.Email).IsUnique();
+            });
 
             modelBuilder.Entity<Discriminator>().ToTable("discriminators");
             modelBuilder.Entity<Discriminator>().HasKey(d => d.Id);
@@ -65,12 +71,7 @@ namespace LiventCord.Data
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.GuildId).IsRequired();
             modelBuilder.Entity<TypingStatus>().Property(ts => ts.ChannelId).IsRequired();
 
-            modelBuilder.Entity<Channel>().ToTable("channels");
-            modelBuilder.Entity<Channel>().HasKey(c => c.ChannelId);
-            modelBuilder.Entity<Channel>()
-                .HasOne(c => c.Guild)
-                .WithMany(g => g.Channels)
-                .HasForeignKey(c => c.GuildId);
+
 
             modelBuilder.Entity<UserDm>().ToTable("user_dms");
             modelBuilder.Entity<UserDm>().HasKey(ud => new { ud.UserId, ud.FriendId });
@@ -86,7 +87,7 @@ namespace LiventCord.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<GuildUser>().ToTable("guild_users");
-            modelBuilder.Entity<GuildUser>().HasKey(gu => new { gu.GuildId, gu.UserId });
+            modelBuilder.Entity<GuildUser>().HasKey(gu => new { gu.GuildId, gu.MemberId });
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.Guild)
                 .WithMany(g => g.GuildMembers)
@@ -95,45 +96,43 @@ namespace LiventCord.Data
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.User)
                 .WithMany(u => u.GuildUsers)
-                .HasForeignKey(gu => gu.UserId)
+                .HasForeignKey(gu => gu.MemberId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<AttachmentFile>().ToTable("attachment_files");
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.FileId).HasColumnName("file_id").IsRequired();
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.FileName).HasColumnName("file_name").IsRequired();
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.GuildId).HasColumnName("guild_id").IsRequired(false);
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.ChannelId).HasColumnName("channel_id").IsRequired(false);
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.Content).HasColumnName("content").IsRequired();
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.Extension).HasColumnName("extension").IsRequired();
-            modelBuilder.Entity<AttachmentFile>().Property(a => a.UserId).HasColumnName("user_id").IsRequired(false);
-            modelBuilder.Entity<AttachmentFile>().HasKey(a => a.FileId);
+            modelBuilder.Entity<FileBase>(entity =>
+            {
+                entity.HasKey(f => f.FileId);
+                entity.Property(f => f.FileId).HasColumnName("file_id").IsRequired();
+                entity.Property(f => f.FileName).HasColumnName("file_name");
+                entity.Property(f => f.GuildId).HasColumnName("guild_id");
+                entity.Property(f => f.Content).HasColumnName("content").IsRequired();
+                entity.Property(f => f.Extension).HasColumnName("extension").IsRequired();
+            });
 
-            modelBuilder.Entity<EmojiFile>().ToTable("emoji_files");
-            modelBuilder.Entity<EmojiFile>().Property(e => e.FileId).HasColumnName("file_id").IsRequired();
-            modelBuilder.Entity<EmojiFile>().Property(e => e.FileName).HasColumnName("file_name").IsRequired();
-            modelBuilder.Entity<EmojiFile>().Property(e => e.GuildId).HasColumnName("guild_id").IsRequired(false);
-            modelBuilder.Entity<EmojiFile>().Property(e => e.Content).HasColumnName("content").IsRequired();
-            modelBuilder.Entity<EmojiFile>().Property(e => e.Extension).HasColumnName("extension").IsRequired();
-            modelBuilder.Entity<EmojiFile>().HasKey(e => e.FileId);
+            modelBuilder.Entity<AttachmentFile>(entity =>
+            {
+                entity.ToTable("attachment_files");
+                entity.Property(f => f.ChannelId).HasColumnName("channel_id");
+                entity.Property(f => f.UserId).HasColumnName("user_id");
+            });
 
-            modelBuilder.Entity<ProfileFile>().ToTable("profile_files");
-            modelBuilder.Entity<ProfileFile>().Property(p => p.FileId).HasColumnName("file_id").IsRequired();
-            modelBuilder.Entity<ProfileFile>().Property(p => p.FileName).HasColumnName("file_name").IsRequired();
-            modelBuilder.Entity<ProfileFile>().Property(p => p.GuildId).HasColumnName("guild_id").IsRequired(false);
-            modelBuilder.Entity<ProfileFile>().Property(p => p.Content).HasColumnName("content").IsRequired();
-            modelBuilder.Entity<ProfileFile>().Property(p => p.Extension).HasColumnName("extension").IsRequired();
-            modelBuilder.Entity<ProfileFile>().Property(p => p.UserId).HasColumnName("user_id").IsRequired(false);
-            modelBuilder.Entity<ProfileFile>().HasKey(p => p.FileId);
+            modelBuilder.Entity<EmojiFile>(entity =>
+            {
+                entity.ToTable("emoji_files");
+            });
 
-            modelBuilder.Entity<GuildFile>().ToTable("guilds_files");
-            modelBuilder.Entity<GuildFile>().Property(g => g.FileId).HasColumnName("file_id").IsRequired();
-            modelBuilder.Entity<GuildFile>().Property(g => g.FileName).HasColumnName("file_name").IsRequired();
-            modelBuilder.Entity<GuildFile>().Property(g => g.GuildId).HasColumnName("guild_id").IsRequired(false);
-            modelBuilder.Entity<GuildFile>().Property(g => g.ChannelId).HasColumnName("channel_id").IsRequired(false);
-            modelBuilder.Entity<GuildFile>().Property(g => g.UserId).HasColumnName("user_id").IsRequired(false);
-            modelBuilder.Entity<GuildFile>().Property(g => g.Content).HasColumnName("content").IsRequired();
-            modelBuilder.Entity<GuildFile>().Property(g => g.Extension).HasColumnName("extension").IsRequired();
-            modelBuilder.Entity<GuildFile>().HasKey(g => g.FileId);
+            modelBuilder.Entity<GuildFile>(entity =>
+            {
+                entity.ToTable("guild_files");
+                entity.Property(f => f.ChannelId).HasColumnName("channel_id");
+                entity.Property(f => f.UserId).HasColumnName("user_id");
+            });
+
+            modelBuilder.Entity<ProfileFile>(entity =>
+            {
+                entity.ToTable("profile_files");
+                entity.Property(f => f.UserId).HasColumnName("user_id");
+            });
 
             modelBuilder.Entity<UserChannel>().ToTable("user_channels");
             modelBuilder.Entity<UserChannel>()
@@ -172,19 +171,55 @@ namespace LiventCord.Data
                 .HasForeignKey(gp => gp.GuildId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Channel>(entity =>
+            {
+                entity.ToTable("channels");
+                entity.HasKey(c => c.ChannelId);
+                entity.Property(c => c.ChannelId).HasColumnName("channel_id").IsRequired();
+                entity.Property(c => c.ChannelName).HasColumnName("channel_name").IsRequired().HasMaxLength(128);
+                entity.Property(c => c.ChannelDescription).HasColumnName("channel_description").HasMaxLength(256);
+                entity.Property(c => c.IsTextChannel).HasColumnName("is_text_channel").IsRequired();
+                entity.Property(c => c.LastReadDateTime).HasColumnName("last_read_datetime");
+                entity.Property(c => c.GuildId).HasColumnName("guild_id").IsRequired();
+                entity.Property(c => c.Order).HasColumnName("order").IsRequired();
+
+                entity.HasIndex(c => c.GuildId); 
+                entity.HasOne(c => c.Guild).WithMany(g => g.Channels).HasForeignKey(c => c.GuildId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Guild>(entity =>
+            {
+                entity.ToTable("guilds");
+                entity.HasKey(g => g.GuildId);
+                entity.Property(g => g.GuildId).HasColumnName("guild_id").IsRequired();
+                entity.Property(g => g.OwnerId).HasColumnName("owner_id").IsRequired();
+                entity.Property(g => g.GuildName).HasColumnName("guild_name").IsRequired().HasMaxLength(128);
+                entity.Property(g => g.CreatedAt).HasColumnName("created_at").IsRequired();
+                entity.Property(g => g.RootChannel).HasColumnName("root_channel").IsRequired();
+                entity.Property(g => g.Region).HasColumnName("region").HasMaxLength(64);
+                entity.Property(g => g.Settings).HasColumnName("settings").HasMaxLength(1024);
+                entity.Property(g => g.IsGuildUploadedImg).HasColumnName("is_guild_uploaded_img").IsRequired();
+
+                entity.HasIndex(g => g.OwnerId); 
+            });
+
             modelBuilder.Entity<Message>(entity =>
             {
-                entity.ToTable("Message");
-                entity.HasKey(e => e.MessageId);
-                entity.Property(e => e.MessageId).HasColumnName("message_id");
-                entity.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
-                entity.Property(e => e.Content).HasColumnName("content").IsRequired();
-                entity.Property(e => e.ChannelId).HasColumnName("channel_id").IsRequired();
-                entity.Property(e => e.Date).HasColumnName("date").IsRequired();
-                entity.Property(e => e.LastEdited).HasColumnName("last_edited");
-                entity.Property(e => e.AttachmentUrls).HasColumnName("attachment_urls");
-                entity.Property(e => e.ReplyToId).HasColumnName("reply_to_id");
-                entity.Property(e => e.ReactionEmojisIds).HasColumnName("reaction_emojis_ids");
+                entity.ToTable("messages");
+                entity.HasKey(m => m.MessageId);
+                entity.Property(m => m.MessageId).HasColumnName("message_id").IsRequired();
+                entity.Property(m => m.UserId).HasColumnName("user_id").IsRequired();
+                entity.Property(m => m.ChannelId).HasColumnName("channel_id").IsRequired();
+                entity.Property(m => m.Content).HasColumnName("content").IsRequired().HasMaxLength(2000);
+                entity.Property(m => m.Date).HasColumnName("date").IsRequired();
+                entity.Property(m => m.LastEdited).HasColumnName("last_edited");
+                entity.Property(m => m.AttachmentUrls).HasColumnName("attachment_urls").HasMaxLength(2048);
+                entity.Property(m => m.ReplyToId).HasColumnName("reply_to_id");
+                entity.Property(m => m.ReactionEmojisIds).HasColumnName("reaction_emojis_ids").HasMaxLength(512);
+
+                entity.HasIndex(m => new { m.ChannelId, m.Date, m.MessageId });
+                entity.HasOne(m => m.User).WithMany().HasForeignKey(m => m.UserId).OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(m => m.Channel).WithMany().HasForeignKey(m => m.ChannelId).OnDelete(DeleteBehavior.Cascade);
             });
 
         }
