@@ -24,6 +24,8 @@ builder.Host.UseSerilog();
 builder.Services.AddScoped<FriendController>();
 builder.Services.AddScoped<TypingController>();
 builder.Services.AddScoped<MessageController>();
+builder.Services.AddScoped<RegisterController>();
+builder.Services.AddScoped<NickDiscriminatorController>();
 builder.Services.AddScoped<AppLogic>();
 builder.Services.AddScoped<SSEManager>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
