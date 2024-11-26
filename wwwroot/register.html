@@ -210,19 +210,15 @@
 		nickInput.addEventListener("input", async function(event) {
 			const newInputValue = nickInput.value.trim(); 
 
-			if (newInputValue !== currentInputValue && !isFetching) {
+			if (newInputValue && newInputValue !== currentInputValue && !isFetching) {
 				currentInputValue = newInputValue; 
 
 				clearTimeout(debounceTimer);
 				debounceTimer = setTimeout(async () => {
-					var formData = new FormData();
-					formData.append('nick', currentInputValue);
-					
 					try {
 						isFetching = true;
-						const response = await fetch('/api/get_nick_discriminator', {
-							method: 'POST',
-							body: formData,
+						const response = await fetch(`/api/discriminators?nick=${encodeURIComponent(currentInputValue)}`, {
+							method: 'GET',
 							credentials: 'same-origin'
 						});
 						
