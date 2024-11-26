@@ -14,13 +14,14 @@ namespace LiventCord.Helpers
     {
         private readonly AppDbContext _dbContext;
         private readonly GuildController _guildController;
+        private readonly MembersController _membersController;
         private readonly FriendController _friendController;
         private readonly TypingController _typingController;
         private readonly ILogger<AppLogic> _logger;
         private readonly PermissionsController _permissionsController;
 
 
-        public AppLogic(AppDbContext dbContext, FriendController friendController, GuildController guildController, TypingController typingController, ILogger<AppLogic> logger, PermissionsController permissionsController)
+        public AppLogic(AppDbContext dbContext, FriendController friendController, GuildController guildController, MembersController membersController,TypingController typingController, ILogger<AppLogic> logger, PermissionsController permissionsController)
         {
             _dbContext = dbContext;
             _guildController = guildController;
@@ -28,6 +29,7 @@ namespace LiventCord.Helpers
             _typingController = typingController;
             _logger = logger;
             _permissionsController = permissionsController;
+            _membersController = membersController;
         }
 
 
@@ -51,10 +53,8 @@ namespace LiventCord.Helpers
                     return; 
                 }
 
-                _logger.LogInformation("User retrieved: {UserName}", user.UserId);
-
                 _logger.LogInformation("Fetching guilds for user...");
-                var guilds = await _guildController.GetUserGuilds(userId);
+                var guilds = await _membersController.GetUserGuilds(userId);
   
 
                 _logger.LogInformation("Retrieving guild information for guildId: {GuildId}", guildId);
@@ -69,7 +69,7 @@ namespace LiventCord.Helpers
                 if (!string.IsNullOrEmpty(guildId))
                 {
                     _logger.LogInformation("Fetching guild users for guildId: {GuildId}", guildId);
-                    guildUsers = await _guildController.GetGuildUsers(guildId);
+                    guildUsers = await _membersController.GetGuildUsers(guildId);
 
                     if (!string.IsNullOrEmpty(channelId)) {
                         _logger.LogInformation("Fetching typing users...");
@@ -77,7 +77,7 @@ namespace LiventCord.Helpers
                     }
 
                     _logger.LogInformation("Fetching shared guilds...");
-                    sharedGuildsMap = await _guildController.GetSharedGuilds(guildId, userId) ?? new List<string>();
+                    sharedGuildsMap = await _membersController.GetSharedGuilds(guildId, userId) ?? new List<string>();
                 }
 
                 _logger.LogInformation("Fetching friends' statuses...");
