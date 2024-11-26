@@ -26,6 +26,23 @@ namespace LiventCord.Controllers
             return authorId == userId || await HasPermission(userId, guildId, PermissionFlags.ManageChannels);
         }
         [NonAction]
+        public async Task<bool> CanSendMessages(string userId, string guildId,string ?oldSenderId=null)
+        {
+            var authorId = await GetGuildAuthor(guildId);
+            if (authorId == userId) return true;
+
+            bool canSendMessages = await HasPermission(userId, guildId, PermissionFlags.SendMessages);
+
+            if (!canSendMessages) return false;
+
+            if(oldSenderId != null && oldSenderId == userId) {
+                return true; // user edits their message
+            }
+            return false;
+        }
+
+
+        [NonAction]
         public async Task<bool> IsUserAdmin(string guildId, string userId)
         {
             var authorId = await GetGuildAuthor(guildId);

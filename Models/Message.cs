@@ -1,17 +1,35 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LiventCord.Models
 {
     public class Message
     {
-        public required string MessageId { get; set; } // message_id
-        public required string UserId { get; set; } // user_id
-        public required string Content { get; set; } // content
-        public required string ChannelId { get; set; } // channel_id
-        public required DateTime Date { get; set; } // date
-        public DateTime? LastEdited { get; set; } // last_edited
-        public string? AttachmentUrls { get; set; } // attachment_urls
-        public string? ReplyToId { get; set; } // reply_to_id
-        public string? ReactionEmojisIds { get; set; } // reaction_emojis_ids
+        [Key]
+        [Column("message_id")]
+        public required string MessageId { get; set; } 
+
+        [ForeignKey("User")]
+        public required string UserId { get; set; } 
+
+        [ForeignKey("Channel")]
+        public required string ChannelId { get; set; } 
+
+        public required string Content { get; set; }
+
+        public required DateTime Date { get; set; }
+
+        public DateTime? LastEdited { get; set; }
+
+        public string? AttachmentUrls { get; set; }
+
+        public string? ReplyToId { get; set; }
+
+        public string? ReactionEmojisIds { get; set; }
+
+        public virtual User User { get; set; } = null!;
+        public virtual Channel Channel { get; set; } = null!;
     }
+
 }

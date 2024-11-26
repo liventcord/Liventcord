@@ -38,7 +38,7 @@ namespace LiventCord.Models
         public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
         [NotMapped]
-        public IEnumerable<string> UserIds => GuildMembers.Select(gu => gu.UserId);
+        public IEnumerable<string> UserIds => GuildMembers.Select(gu => gu.MemberId);
 
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
