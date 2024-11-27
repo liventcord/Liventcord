@@ -14,7 +14,6 @@ namespace LiventCord.Controllers
     [Authorize]
     public class ChannelController : ControllerBase
     {
-        private string DEFAULT_CHANNEL_NAME = "general";
         private readonly AppDbContext _dbContext;
         private readonly UploadController _uploadController;
         private readonly MembersController _membersController;
@@ -69,7 +68,7 @@ namespace LiventCord.Controllers
 
 
         // POST /api/guilds/{guildId}/channels
-        [HttpPost("{guildId}/channels")]
+        [HttpPost("/{guildId}/channels")]
         public async Task<IActionResult> CreateChannel([FromRoute] string guildId, [FromBody] CreateChannelRequest request, [FromHeader] string userId)
         {
             if (!await _permissionsController.CanManageChannels(userId, guildId))

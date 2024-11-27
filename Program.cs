@@ -27,6 +27,8 @@ builder.Services.AddScoped<MessageController>();
 builder.Services.AddScoped<RegisterController>();
 builder.Services.AddScoped<NickDiscriminatorController>();
 builder.Services.AddScoped<AppLogic>();
+builder.Services.AddScoped<MembersController>();
+builder.Services.AddScoped<ChannelController>();
 builder.Services.AddScoped<SSEManager>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<GuildController>();
@@ -73,14 +75,38 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 var app = builder.Build();
 app.UseSerilogRequestLogging();
 
-app.UseSwagger();
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    var swaggerFilePath = Path.Combine(builder.Environment.ContentRootPath, "swagger.json");
+
+    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+    {
+        File.WriteAllText(swaggerFilePath, System.Text.Json.JsonSerializer.Serialize(swaggerDoc));
+    });
+});
 
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LiventCord API V1");
     c.RoutePrefix = "docs";
 });
 
+app.MapGet("/docs2", async context =>
+{
+    var filePath = Path.Combine(app.Environment.WebRootPath, "redocs.html");
+
+    if (!File.Exists(filePath))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsync("Documentation not yet generated.");
+    }
+    else
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(filePath);
+    }
+});
 
 app.UseResponseCompression();
 
