@@ -28,17 +28,15 @@ namespace LiventCord.Controllers
         [NonAction]
         public async Task<bool> CanSendMessages(string userId, string guildId,string ?oldSenderId=null)
         {
+            if(oldSenderId != null && oldSenderId != userId) {
+                return false;
+            }
             var authorId = await GetGuildAuthor(guildId);
             if (authorId == userId) return true;
 
             bool canSendMessages = await HasPermission(userId, guildId, PermissionFlags.SendMessages);
 
-            if (!canSendMessages) return false;
-
-            if(oldSenderId != null && oldSenderId == userId) {
-                return true; // user edits their message
-            }
-            return false;
+            return canSendMessages;
         }
 
 

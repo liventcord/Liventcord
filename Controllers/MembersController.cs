@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LiventCord.Controllers
 {
-    [Route("api/guilds/{guildId}/members")]
+    [Route("")]
     [ApiController]
     [Authorize]
 
@@ -28,7 +28,7 @@ namespace LiventCord.Controllers
         }
 
         // GET /api/guilds/{guildId}/members
-        [HttpGet("{guildId}/members")]
+        [HttpGet("/api/guilds/{guildId}/members")]
         public async Task<IActionResult> HandleGetUsers([FromQuery] GetGuildMembersRequest request)
         {
             if (!ModelState.IsValid)
@@ -50,8 +50,8 @@ namespace LiventCord.Controllers
             return Ok(updateUsersMessage);
         }
 
-        // POST /api/guilds/{guild_id}/members
-        [HttpPost("/api/guilds/{guild_id}/members")]
+        // POST /api/guilds/{guildId}/members
+        [HttpPost("/api/guilds/{guildId}/members")]
         public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(joinId))

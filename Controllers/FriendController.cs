@@ -37,19 +37,16 @@ namespace LiventCord.Controllers
 
 
 
-        [HttpPost("add")]
+        [HttpPost("")]
         public async Task<IActionResult> AddFriendEndpoint([FromQuery] string userId, [FromQuery] string friendName, [FromQuery] string friendDiscriminator)
         {
-            if (string.IsNullOrEmpty(friendName) || string.IsNullOrEmpty(friendDiscriminator))
+            if (string.IsNullOrWhiteSpace(friendName) || string.IsNullOrWhiteSpace(friendDiscriminator))
             {
-                return BadRequest("Friend name and discriminator must be provided.");
+                return BadRequest(new { Type = "error", Message = "Friend name and discriminator must be provided." });
             }
 
-            return await ExecuteWithErrorHandling(async () =>
-            {
-                await AddFriend(userId, friendName, friendDiscriminator);
-                return Ok(new { Type = "success", Message = "Friend request sent." });
-            });
+            await AddFriend(userId, friendName, friendDiscriminator);
+            return Ok(new { Type = "success", Message = "Friend request sent." });
         }
 
         private async Task AddFriend(string userId, string friendName, string friendDiscriminator)
@@ -82,21 +79,6 @@ namespace LiventCord.Controllers
         }
 
 
-        private async Task<IActionResult> ExecuteWithErrorHandling(Func<Task<IActionResult>> action)
-        {
-            try
-            {
-                return await action();
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(new { Type = "error", Message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { Type = "error", Message = "An error occurred while processing the request.", Details = ex.Message });
-            }
-        }
 
 
     }
