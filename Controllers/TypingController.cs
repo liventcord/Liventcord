@@ -22,7 +22,7 @@ namespace LiventCord.Controllers
             _sseManager = sseManager;
             _membersController = membersController;
         }
-
+        [NonAction]
         public async Task<List<string>?> GetTypingUsers(string guildId, string channelId)
         {
             var typingUsers = await _dbContext.TypingStatuses

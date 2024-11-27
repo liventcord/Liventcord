@@ -138,7 +138,7 @@ namespace LiventCord.Controllers
 
 
         // DELETE /api/guilds/{guildId}
-        [HttpDelete("{guildId}")]
+        [HttpDelete("/api/guilds/{guildId}")]
         public async Task<IActionResult> DeleteGuildEndpoint([FromRoute] string guildId, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(guildId))

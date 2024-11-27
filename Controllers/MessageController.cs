@@ -12,7 +12,7 @@ namespace LiventCord.Controllers {
 
     [ApiController]
     [Authorize]
-    [Route("api/guilds/{guildId}/channels/{channelId}/messages")]
+    [Route("/api")]
     public class MessageController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -23,11 +23,9 @@ namespace LiventCord.Controllers {
             _permissionsController = permissionsController;
             _context = context;
         }
-
-
             
         // POST /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("")]
+        [HttpPost("/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
@@ -51,7 +49,7 @@ namespace LiventCord.Controllers {
         }
 
         // GET /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpGet("")]
+        [HttpGet("/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleGetMessages(
             [FromQuery] GetMessagesRequest request,
             [FromHeader] string userId)
@@ -74,7 +72,7 @@ namespace LiventCord.Controllers {
         }
 
         // PUT /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("")]
+        [HttpPost("/guilds/{guildId}/channels/{channelId}/messages/edit")]
         public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
@@ -92,6 +90,31 @@ namespace LiventCord.Controllers {
             
             return Ok(new { Type = "success", Message = "Message sent." });
         }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<Message>>> SearchMessages(string guildId, string query)
+        {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest("Query cannot be empty.");
+
+            try
+            {
+                var results = await _context.Messages
+                    .FromSqlInterpolated(
+                        $"SELECT * FROM messages WHERE guild_id = {guildId} AND search_vector @@ to_tsquery('english', {query})")
+                    .ToListAsync();
+
+                if (results.Count == 0)
+                    return NotFound("No messages found matching your query.");
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while searching: {ex.Message}");
+            }
+        }
+
 
 
         [NonAction]
