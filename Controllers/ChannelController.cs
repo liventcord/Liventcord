@@ -12,7 +12,7 @@ namespace LiventCord.Controllers
     [Route("api/guilds/{guildId}/channels")]
     [ApiController]
     [Authorize]
-    public class ChannelController : ControllerBase
+    public class ChannelController : BaseController
     {
         private readonly AppDbContext _dbContext;
         private readonly UploadController _uploadController;
@@ -32,9 +32,9 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds/{guildId}/channels
         [HttpGet("")]
-        public async Task<IActionResult> HandleGetChannels([FromRoute] string guildId, [FromHeader] string userId)
+        public async Task<IActionResult> HandleGetChannels([FromRoute] string guildId)
         {
-            var channels = await GetGuildChannels(userId, guildId);
+            var channels = await GetGuildChannels(UserId!, guildId);
 
             if (channels == null)
                 return BadRequest(new { Type = "error", Message = "Unable to retrieve channels." });
@@ -50,15 +50,15 @@ namespace LiventCord.Controllers
 
         // DELETE /api/guilds/{guildId}/channels/{channelId}
         [HttpDelete("/{guildId}/channels/{channelId}")]
-        public async Task<IActionResult> DeleteChannel([FromRoute] string guildId, string channelId, [FromHeader] string userId)
+        public async Task<IActionResult> DeleteChannel([FromRoute] string guildId, string channelId)
         {
             var channel = _dbContext.Channels.Find(channelId);
             if (channel == null)
                 return NotFound("Channel does not exist.");
 
-            if (!await _membersController.DoesUserExistInGuild(userId, guildId))
+            if (!await _membersController.DoesUserExistInGuild(UserId!, guildId))
                 return BadRequest(new { Type = "error", Message = "User not in guild." });
-            if (!await _permissionsController.HasPermission(userId,guildId,PermissionFlags.ManageChannels))
+            if (!await _permissionsController.HasPermission(UserId!,guildId,PermissionFlags.ManageChannels))
                 return Forbid("User is not authorized to delete this channel.");
 
             _dbContext.Channels.Remove(channel);
@@ -69,9 +69,9 @@ namespace LiventCord.Controllers
 
         // POST /api/guilds/{guildId}/channels
         [HttpPost("/{guildId}/channels")]
-        public async Task<IActionResult> CreateChannel([FromRoute] string guildId, [FromBody] CreateChannelRequest request, [FromHeader] string userId)
+        public async Task<IActionResult> CreateChannel([FromRoute] string guildId, [FromBody] CreateChannelRequest request)
         {
-            if (!await _permissionsController.CanManageChannels(userId, guildId))
+            if (!await _permissionsController.CanManageChannels(UserId!, guildId))
                 return Unauthorized(new { Type = "error", Message = "User does not have permission to manage channels." });
 
             var guild = await _dbContext.Guilds

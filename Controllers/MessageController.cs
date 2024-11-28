@@ -5,7 +5,6 @@ using LiventCord.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 
 namespace LiventCord.Controllers {
@@ -13,7 +12,7 @@ namespace LiventCord.Controllers {
     [ApiController]
     [Authorize]
     [Route("/api")]
-    public class MessageController : ControllerBase
+    public class MessageController : BaseController
     {
         private readonly AppDbContext _context;
         private readonly PermissionsController _permissionsController;
@@ -26,7 +25,7 @@ namespace LiventCord.Controllers {
             
         // POST /api/guilds/{guildId}/channels/{channelId}/messages
         [HttpPost("/guilds/{guildId}/channels/{channelId}/messages")]
-        public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request, [FromHeader] string userId)
+        public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
             {
@@ -38,12 +37,12 @@ namespace LiventCord.Controllers {
             string? reactionEmojisIds = request.ReactionEmojisIds;
             string? lastEdited = request.LastEdited;
 
-            if (!await _permissionsController.CanSendMessages(userId, request.GuildId))
+            if (!await _permissionsController.CanSendMessages(UserId!, request.GuildId))
             {
                 return Forbid();
             }
 
-            await NewMessage(userId, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
+            await NewMessage(UserId, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
             
             return Ok(new { Type = "success", Message = "Message sent." });
         }
@@ -51,8 +50,7 @@ namespace LiventCord.Controllers {
         // GET /api/guilds/{guildId}/channels/{channelId}/messages
         [HttpGet("/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleGetMessages(
-            [FromQuery] GetMessagesRequest request,
-            [FromHeader] string userId)
+            [FromQuery] GetMessagesRequest request)
         {
 
             var messages = await GetMessages(request.GuildId, request.ChannelId);

@@ -7,7 +7,7 @@ namespace LiventCord.Controllers
 {
     [Route("api")]
     [ApiController]
-    public class NickDiscriminatorController : ControllerBase
+    public class NickDiscriminatorController : BaseController
     {
         private readonly AppDbContext _context;
         private readonly IMemoryCache _cache;

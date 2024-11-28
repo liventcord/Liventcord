@@ -19,4 +19,6 @@ echo "Downloaded Swagger JSON to swagger.json"
 
 redocly build-docs swagger.json
 mv redoc-static.html wwwroot/redocs.html
-echo "Stopped Redocly server (PID: $REDOCLY_PID) and .NET application (PID: $DOTNET_PID)."
+echo "Generated redoc!"
+
+sleep infinity

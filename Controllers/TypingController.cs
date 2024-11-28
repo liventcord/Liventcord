@@ -10,7 +10,7 @@ namespace LiventCord.Controllers
     [ApiController]
     [Authorize]
 
-    public class TypingController : ControllerBase
+    public class TypingController : BaseController
     {
         private readonly AppDbContext _dbContext;
         private readonly SSEManager _sseManager;
@@ -38,8 +38,7 @@ namespace LiventCord.Controllers
         [HttpPost("/api/guilds/{guildId}/channels/{channelId}/writing")]
         public async Task<IActionResult> HandleStartWriting(
             [FromRoute] string guildId,
-            [FromRoute] string channelId,
-            [FromHeader] string userId)
+            [FromRoute] string channelId)
         {
 
             if (!writingMembersState.ContainsKey(guildId))
@@ -47,9 +46,9 @@ namespace LiventCord.Controllers
                 writingMembersState[guildId] = new List<string>();
             }
 
-            if (!writingMembersState[guildId].Contains(userId))
+            if (!writingMembersState[guildId].Contains(UserId!))
             {
-                writingMembersState[guildId].Add(userId);
+                writingMembersState[guildId].Add(UserId!);
             }
 
             var messageToEmit = new
@@ -57,7 +56,7 @@ namespace LiventCord.Controllers
                 Type = "start_writing",
                 Data = new
                 {
-                    userId,
+                    UserId,
                     guildId,
                     channelId
                 }
