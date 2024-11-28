@@ -10,7 +10,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LiventCord.Controllers
 {
-    public class PermissionsController : ControllerBase
+    public class PermissionsController : BaseController
     {
 
         private readonly AppDbContext _dbContext;

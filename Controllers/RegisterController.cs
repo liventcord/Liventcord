@@ -9,7 +9,7 @@ namespace LiventCord.Controllers
 {
     [Route("auth")]
     [ApiController]
-    public class RegisterController : ControllerBase
+    public class RegisterController : BaseController
     {
         private readonly AppDbContext _context;
 

@@ -12,7 +12,7 @@ namespace LiventCord.Controllers
     [ApiController]
     [Authorize]
 
-    public class MembersController : ControllerBase
+    public class MembersController : BaseController
     {
         private readonly AppDbContext _dbContext;
         private readonly GuildInviteService _guildInviteService;
@@ -52,7 +52,7 @@ namespace LiventCord.Controllers
 
         // POST /api/guilds/{guildId}/members
         [HttpPost("/api/guilds/{guildId}/members")]
-        public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId, [FromHeader] string userId)
+        public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId)
         {
             if (string.IsNullOrEmpty(joinId))
             {
@@ -67,7 +67,7 @@ namespace LiventCord.Controllers
 
             try
             {
-                await AddUserToGuild(userId, guildId);
+                await AddUserToGuild(UserId!, guildId);
                 return Ok(new { message = "Successfully joined the guild." });
             }
             catch (Exception ex)
