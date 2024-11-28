@@ -12,7 +12,7 @@ namespace LiventCord.Controllers
     [Route("api/guilds")]
     [ApiController]
     [Authorize]
-    public class GuildController : ControllerBase
+    public class GuildController : BaseController
     {
         private string DEFAULT_CHANNEL_NAME = "general";
         private readonly AppDbContext _dbContext;
@@ -37,9 +37,9 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds
         [HttpGet("")]
-        public async Task<IActionResult> HandleGetGuilds([FromHeader] string userId)
+        public async Task<IActionResult> HandleGetGuilds()
         {
-            var guilds = await _membersController.GetUserGuilds(userId) ?? new List<GuildDto>();
+            var guilds = await _membersController.GetUserGuilds(UserId!) ?? new List<GuildDto>();
 
             var messageToEmit = new
             {
@@ -54,14 +54,11 @@ namespace LiventCord.Controllers
 
         // POST api/guilds
         [HttpPost("")]
-        public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request, [FromHeader] string userId)
+        public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)
         {
             string rootChannel = Utils.CreateRandomId();
-            string? region = Request.Headers["Region"].ToString();
-            if (string.IsNullOrEmpty(region))
-                region = null;
-
-            var newGuild = await CreateGuild(userId, request.GuildName, rootChannel, region);
+  
+            var newGuild = await CreateGuild(UserId!, request.GuildName, rootChannel, request.region);
 
             if (request.Photo != null)
             {
@@ -139,14 +136,14 @@ namespace LiventCord.Controllers
 
         // DELETE /api/guilds/{guildId}
         [HttpDelete("/api/guilds/{guildId}")]
-        public async Task<IActionResult> DeleteGuildEndpoint([FromRoute] string guildId, [FromHeader] string userId)
+        public async Task<IActionResult> DeleteGuildEndpoint([FromRoute] string guildId)
         {
             if (string.IsNullOrEmpty(guildId))
                 return BadRequest(new { Type = "error", Message = "Guild ID is required." });
 
 
 
-            if (!await _permissionsController.IsUserAdmin(guildId, userId))
+            if (!await _permissionsController.IsUserAdmin(guildId, UserId!))
                 return Forbid("User is not authorized to delete this guild.");
 
             var guild = await _dbContext.Guilds.FindAsync(guildId);
@@ -172,6 +169,7 @@ namespace LiventCord.Controllers
 public class CreateGuildRequest
 {
     public required string GuildName { get; set; }
+    public required string region { get; set; }
     public IFormFile? Photo { get; set; }
 }
 

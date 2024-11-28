@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using LiventCord.Data;
 using LiventCord.Helpers;
-using Microsoft.Extensions.Logging;
+
 
 namespace LiventCord.Controllers
 {
@@ -13,7 +13,7 @@ namespace LiventCord.Controllers
 
     [ApiController]
     [Route("api")]
-    public class UploadController : ControllerBase
+    public class UploadController : BaseController
     {
         private readonly AppDbContext _context;
         private readonly FileExtensionContentTypeProvider _fileTypeProvider;

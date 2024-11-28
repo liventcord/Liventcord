@@ -639,12 +639,13 @@
     left: 30%;
 }
 #gifanny {
-    width: 400px; /* Specify width */
-    height: auto; /* Adjust height automatically */
-    position: absolute; /* Position relative to the parent */
-    top: 50%; /* Move down by 50% of the parent's height */
-    left: 50%; /* Move right by 50% of the parent's width */
-    transform: translate(-50%, -50%); /* Offset by 50% of its own width and height */
+    width: 400px; 
+    height: auto;
+    position: absolute; 
+    top: 50%;
+    left: 50%; 
+    transform: translate(-50%, -50%);
+    user-select: none;
 }
 
 

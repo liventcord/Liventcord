@@ -245,10 +245,6 @@ document.addEventListener('DOMContentLoaded', function () {
         handleFriendEventResponse(data.message);
     });
 
-    fetchUsersFromAPI(pending);
-
-
-
     
 }); 
 let messageTimeout;
@@ -337,6 +333,11 @@ function handleFriendEventResponse(message) {
     if(!message.error ){
         switch(type) {
             case RequestType.add_friend_request:
+                text = isSuccess
+                    ? `${user_nick} kullanıcısına arkadaşlık isteği gönderildi.`
+                    : errorMessages[ErrorType.FRIEND_REQUEST_EXISTS];
+                break;
+            case RequestType.add_friend_request_id:
                 text = isSuccess
                     ? `${user_nick} kullanıcısına arkadaşlık isteği gönderildi.`
                     : errorMessages[ErrorType.FRIEND_REQUEST_EXISTS];
@@ -727,19 +728,30 @@ function createFriendCard(friend,isPending,friendsContainer) {
 }
 
 
+let lastRequestTime = 0;
+
 async function fetchUsersFromAPI(request_type) {
+    const currentTime = Date.now();
+    
+    if (currentTime - lastRequestTime < 60000) {
+        console.log('Cooldown active, try again later.');
+        return; 
+    }
+
     if (!isFriendsOpen && !isPopulating) {
-        isFetchingUsers = true; 
+        isFetchingUsers = true;
         try {
-            socket.emit('fetch_users_event', { 'requestType': request_type });
+            socket.emit(EventType.GET_FRIENDS, { 'requestType': request_type });
+            lastRequestTime = currentTime;
         } catch (error) {
             console.error('Error fetching users:', error);
         }
         setTimeout(() => {
-            isFetchingUsers = false; 
+            isFetchingUsers = false;
         }, 100);
     }
 }
+
 let existingFriends = null;
 let isPopulating = false; 
 
@@ -956,7 +968,6 @@ function openAddFriend() {
 
     const imgElement = createEl('img',{id:'gifanny'});
     imgElement.src = 'https://64.media.tumblr.com/0637f963f01f172f6a525fae0faa3730/tumblr_ncc0wsA0VC1tmbpmjo1_500.gifv';
-    imgElement.style.userSelect = 'none';
     friendsContainer.appendChild(imgElement);
     
     
@@ -983,7 +994,7 @@ function parseUsernameDiscriminator(input) {
 }
 
 function addFriend(user_id) {
-    socket.emit('add_friend_request_id',{'friendId' : user_id});
+    socket.emit('add_friend_request',{'friendId' : user_id});
 }
 function submitAddFriend() {
     const addfriendinput = getId('addfriendinputfield');

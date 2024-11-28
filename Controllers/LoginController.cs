@@ -8,10 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LiventCord.Controllers
 {
+    public abstract class BaseController : ControllerBase
+    {
+        protected string? UserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
     [Route("auth")]
     [ApiController]
     public class LoginController : ControllerBase
     {
+
         private readonly AppDbContext _context;
         private readonly string _secretKey;
 

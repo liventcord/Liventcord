@@ -1,147 +1,153 @@
 const EventType = Object.freeze({
     CREATE_CHANNEL: 'create_channel',
     JOIN_GUILD: 'join_guild',
-    CREATE_GUILD: 'create_guild', // Added CREATE_GUILD event
+    CREATE_GUILD: 'create_guild',
     DELETE_GUILD: 'delete_guild',
     DELETE_GUILD_IMAGE: 'delete_guild_image',
     NEW_MESSAGE: 'new_message',
-    GET_USERS: 'get_users',
+    GET_MEMBERS: 'get_members',
+    GET_FRIENDS: 'get_friends',
     GET_HISTORY: 'get_history',
     GET_GUILDS: 'get_guilds',
-    START_WRITING: 'start_writing'
+    START_WRITING: 'start_writing',
+    ADD_FRIEND: 'add_friend',
+    ADD_FRIEND_ID: 'add_friend_id'
 });
-
 
 const HttpMethod = Object.freeze({
     POST: 'POST',
     GET: 'GET',
-    DELETE: 'DELETE'
+    PUT: 'PUT',
+    DELETE: 'DELETE',
 });
+
+const EventHttpMethodMap = {
+    [EventType.CREATE_CHANNEL]: HttpMethod.POST,
+    [EventType.JOIN_GUILD]: HttpMethod.POST,
+    [EventType.CREATE_GUILD]: HttpMethod.POST,
+    [EventType.DELETE_GUILD]: HttpMethod.DELETE,
+    [EventType.DELETE_GUILD_IMAGE]: HttpMethod.DELETE,
+    [EventType.NEW_MESSAGE]: HttpMethod.POST,
+    [EventType.GET_MEMBERS]: HttpMethod.GET,
+    [EventType.GET_FRIENDS]: HttpMethod.GET,
+    [EventType.GET_HISTORY]: HttpMethod.GET,
+    [EventType.GET_GUILDS]: HttpMethod.GET,
+    [EventType.START_WRITING]: HttpMethod.POST,
+    [EventType.ADD_FRIEND]: HttpMethod.POST,
+    [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
+};
 
 class CustomHttpConnection {
     constructor() {
         this.listeners = {};
-        this.connected = false;
-        this.requestQueue = [];
-        this.isProcessing = false;
-        this.connect();
     }
 
-    getUrlForEvent(event, data) {
-        const eventRoutes = {
-            [EventType.CREATE_CHANNEL]: { 
-                method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/channels' 
-            },
-            [EventType.JOIN_GUILD]: { 
-                method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/members'
-            },
-            [EventType.CREATE_GUILD]: { 
-                method: HttpMethod.POST, 
-                url: '/api/guilds'
-            },
-            [EventType.DELETE_GUILD]: { 
-                method: HttpMethod.DELETE, 
-                url: '/api/guilds/{guildId}' 
-            },
-            [EventType.DELETE_GUILD_IMAGE]: { 
-                method: HttpMethod.DELETE, 
-                url: '/api/guilds/{guildId}/image'
-            },
-            [EventType.NEW_MESSAGE]: { 
-                method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/messages'
-            },
-            [EventType.GET_USERS]: { 
-                method: HttpMethod.GET, 
-                url: '/api/guilds/{guildId}/members'
-            },
-            [EventType.GET_HISTORY]: { 
-                method: HttpMethod.GET, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/messages'
-            },
-            [EventType.GET_GUILDS]: { 
-                method: HttpMethod.GET, 
-                url: '/api/guilds' 
-            },
-            [EventType.START_WRITING]: { 
-                method: HttpMethod.POST, 
-                url: '/api/guilds/{guildId}/channels/{channelId}/typing'
-            }
-        };
-        
-        const route = eventRoutes[event];
-        if (!route) throw new Error(`Unknown event: ${event}`);
-
-        let url = route.url;
-        if (data.guildId) {
-            url = url.replace("{guildId}", data.guildId);
+    getHttpMethod(event) {
+        const method = EventHttpMethodMap[event];
+        if (!method) {
+            throw new Error(`HTTP method not defined for event: ${event}`);
         }
-        if (data.channelId) {
-            url = url.replace("{channelId}", data.channelId);
+        return method;
+    }
+
+    getUrlForEvent(event, data = {}) {
+        const basePath = "/api";
+        let url;
+
+        switch (event) {
+            case EventType.CREATE_CHANNEL:
+                url = `${basePath}/guilds/${data.guildId}/channels`;
+                break;
+            case EventType.JOIN_GUILD:
+                url = `${basePath}/guilds/${data.guildId}/members`;
+                break;
+            case EventType.CREATE_GUILD:
+                url = `${basePath}/guilds`;
+                break;
+            case EventType.DELETE_GUILD:
+                url = `${basePath}/guilds/${data.guildId}`;
+                break;
+            case EventType.DELETE_GUILD_IMAGE:
+                url = `${basePath}/guilds/${data.guildId}/image`;
+                break;
+            case EventType.NEW_MESSAGE:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
+                break;
+            case EventType.GET_MEMBERS:
+                url = `${basePath}/guilds/${data.guildId}/members`;
+                break;
+            case EventType.GET_FRIENDS:
+                url = `${basePath}/friends`;
+                break;
+            case EventType.GET_HISTORY:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
+                break;
+            case EventType.GET_GUILDS:
+                url = `${basePath}/guilds`;
+                break;
+            case EventType.START_WRITING:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;
+                break;
+            case EventType.ADD_FRIEND:
+                url = `${basePath}/friends`;
+                break;
+            case EventType.ADD_FRIEND_ID:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;
+                break;
+            default:
+                throw new Error(`Unknown event: ${event}`);
         }
 
-        return { method: route.method, url };
+        return { method: this.getHttpMethod(event), url };
     }
 
     async sendRequest(data, url, method) {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-            credentials: 'same-origin',
-        });
+        try {
+            const response = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: method === HttpMethod.GET ? undefined : JSON.stringify(data),
+                credentials: 'same-origin',
+            });
 
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error("Failed to send request:", error);
+            throw error;
         }
-        return response.json();
     }
 
     async emit(event, data = {}) {
+        if (!event) {
+            console.error("Event is required");
+            return;
+        }
+
         try {
-            if (this.connected) {
-                if (!event) {
-                    console.log("Event is required"); 
-                    return
-                }
+            const { url, method } = this.getUrlForEvent(event, data);
+            const payload = { action: event, value: data };
 
-                const { url, method } = this.getUrlForEvent(event, data);
-                const payload = {
-                    action: event,
-                    value: data
-                };
-
-                const response = await this.sendRequest(payload, url, method);
-                this.handleMessage(event, response.Type, response.Data);
-            } else {
-                console.log("Not connected. Queueing request...");
-                this.requestQueue.push({ event, data });
-            }
+            const response = await this.sendRequest(payload, url, method);
+            this.handleMessage(event, response);
         } catch (error) {
-            console.warn("Error during request:", error);
+            console.warn(`Error during request for event "${event}":`, error);
         }
     }
 
-    handleMessage(event, type, data) {
-        console.log("Got Response for", event, "as(", type, "):", data);
-        if (this.listeners[type]) {
-            this.listeners[type].forEach(callback => {
-                console.log("Triggered listener!");
+    handleMessage(event,  data) {
+        console.log(`Received response for event "${event}" `, data);
+        
+        if (this.listeners[event] && data != null) {
+            this.listeners[event].forEach(callback => {
                 callback(data);
             });
         }
     }
 
-    async processQueue() {
-        while (this.requestQueue.length > 0) {
-            const request = this.requestQueue.shift();
-            await this.emit(request.event, request.data);
-        }
-    }
 
     on(event, callback) {
         if (!this.listeners[event]) {
@@ -149,30 +155,13 @@ class CustomHttpConnection {
         }
         this.listeners[event].push(callback);
     }
-
-    async connect() {
-        try {
-            console.log("Connected to server");
-            this.connected = true;
-            this.processQueue();
-        } catch (error) {
-            console.error("Connection failed:", error);
-        }
-    }
-
-    disconnect() {
-        this.connected = false;
-        this.requestQueue = [];
-        console.log("Disconnected.");
-    }
 }
 
 const socket = new CustomHttpConnection();
 
 
 
-let isDisconnected = false;
-let disconnectTimer = null;
+
 let currentTimeout;
 
 
@@ -393,88 +382,6 @@ function removeguildImage() {
 
 
 
-socket.connect();
-
-socket.on('connect', function() {
-    console.log('Connected to server');
-
-    if(!currentTimeout) {
-        currentTimeout = setTimeout(function refresh_keep_alive() {
-            if(socket.connected) {
-                hideLoadingScreen();
-            }
-            setTimeout(refresh_keep_alive, 30000); 
-        }, 30000);
-
-    }
-
-    hideLoadingScreen();
-
-    if (isDisconnected) {
-        isDisconnected = false;
-        console.log('Reconnected after being disconnected');
-        if(isOnGuild) {
-            loadGuild(currentGuildId,currentChannelId,currentGuildName);
-        } else if(isOnDm){
-            OpenDm(currentDmId);
-        } else if(isOnMe) {
-            selectFriendMenu(online);
-        }
-    } else {
-
-    }
-    if (disconnectTimer) {
-        clearInterval(disconnectTimer);
-        disconnectTimer = null;
-    }
-});
-
-socket.on('reconnect', () => {
-    console.log('Reconnected to server');
-    isDisconnected = false;
-    if (disconnectTimer) {
-        clearInterval(disconnectTimer);
-        disconnectTimer = null;
-    }
-
-    hideLoadingScreen();
-    loadGuild(currentGuildId,currentChannelId,currentGuildName);
-});
-
-socket.on('disconnect', (reason, details) => {
-    console.log('Disconnected from server.', reason);
-    const domains = ['https://liventcord.serveo.net', 'https://liventcord.loophole.site'];
-    isDisconnected = true;
-    const checkDomain = (domain) => {
-        const img = new Image();
-        img.onload = () => {
-            console.log('Domain is up:', domain);
-            setTimeout(() => {
-                if (!socket.connected) {
-                    window.location.href = domain + window.location.pathname;
-                }
-            }, 5000);
-        };
-        img.onerror = () => {
-            console.log('Domain is down:', domain);
-            if (domains.indexOf(domain) === domains.length - 1) {
-                if (loadingScreen) {
-                    loadingScreen.style.display = 'flex';
-                }
-            }
-
-        };
-        img.src = `${domain}/static/images/icons/favicon.png`; 
-    };
-
-    //domains.forEach((domain) => checkDomain(domain));
-    setTimeout(() => {
-        if (!socket.connected && loadingScreen) {
-            loadingScreen.style.display = 'flex';
-        }
-        
-    }, 10000);
-});
 
 
 socket.on('update_guilds',data => {

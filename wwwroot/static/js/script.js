@@ -173,7 +173,6 @@ function onFocusInput() {
 
 
 function onBlurInput() {
-    return;
     const inputElement = getId('channelSearchInput');
     const dropdown = getId('search-dropdown');
     document.addEventListener('click', (event) => {
