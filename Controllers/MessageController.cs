@@ -42,7 +42,7 @@ namespace LiventCord.Controllers {
                 return Forbid();
             }
 
-            await NewMessage(UserId, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
+            await NewMessage(UserId!, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
             
             return Ok(new { Type = "success", Message = "Message sent." });
         }
