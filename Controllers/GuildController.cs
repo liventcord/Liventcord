@@ -58,7 +58,7 @@ namespace LiventCord.Controllers
         {
             string rootChannel = Utils.CreateRandomId();
   
-            var newGuild = await CreateGuild(UserId, request.GuildName, rootChannel,request.Photo);
+            var newGuild = await CreateGuild(UserId!, request.GuildName, rootChannel,request.Photo);
 
             if (request.Photo != null)
             {
