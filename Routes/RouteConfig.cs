@@ -94,7 +94,7 @@ namespace LiventCord.Routes
 
 
 
-            MapRoute("/w/loader/loader.js", "static/js/loader.js");
+            MapRoute("/w/loader/loader.js", "static/w/loader.js");
             MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/index-react.js", "static/w/assets/index-react.js");
             MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/styles.css", "static/w/assets/b960ac7f559c3a04d18e7cce9de42c4b94a33dd4/styles.css");
             MapRoute("/w/assets/5c6ef209aecf2721d4c8c8fbbdfa51481b04f3ed/styles.js", "static/w/assets/b960ac7f559c3a04d18e7cce9de42c4b94a33dd4/styles.css");
