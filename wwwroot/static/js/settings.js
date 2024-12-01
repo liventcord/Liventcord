@@ -1,168 +1,10 @@
-const EventType = Object.freeze({
-    CREATE_CHANNEL: 'create_channel',
-    JOIN_GUILD: 'join_guild',
-    CREATE_GUILD: 'create_guild',
-    DELETE_GUILD: 'delete_guild',
-    DELETE_GUILD_IMAGE: 'delete_guild_image',
-    NEW_MESSAGE: 'new_message',
-    GET_MEMBERS: 'get_members',
-    GET_FRIENDS: 'get_friends',
-    GET_HISTORY: 'get_history',
-    GET_GUILDS: 'get_guilds',
-    START_WRITING: 'start_writing',
-    ADD_FRIEND: 'add_friend',
-    ADD_FRIEND_ID: 'add_friend_id'
-});
 
-const HttpMethod = Object.freeze({
-    POST: 'POST',
-    GET: 'GET',
-    PUT: 'PUT',
-    DELETE: 'DELETE',
-});
-
-const EventHttpMethodMap = {
-    [EventType.CREATE_CHANNEL]: HttpMethod.POST,
-    [EventType.JOIN_GUILD]: HttpMethod.POST,
-    [EventType.CREATE_GUILD]: HttpMethod.POST,
-    [EventType.DELETE_GUILD]: HttpMethod.DELETE,
-    [EventType.DELETE_GUILD_IMAGE]: HttpMethod.DELETE,
-    [EventType.NEW_MESSAGE]: HttpMethod.POST,
-    [EventType.GET_MEMBERS]: HttpMethod.GET,
-    [EventType.GET_FRIENDS]: HttpMethod.GET,
-    [EventType.GET_HISTORY]: HttpMethod.GET,
-    [EventType.GET_GUILDS]: HttpMethod.GET,
-    [EventType.START_WRITING]: HttpMethod.POST,
-    [EventType.ADD_FRIEND]: HttpMethod.POST,
-    [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
-};
-
-class CustomHttpConnection {
-    constructor() {
-        this.listeners = {};
-    }
-
-    getHttpMethod(event) {
-        const method = EventHttpMethodMap[event];
-        if (!method) {
-            throw new Error(`HTTP method not defined for event: ${event}`);
-        }
-        return method;
-    }
-
-    getUrlForEvent(event, data = {}) {
-        const basePath = "/api";
-        let url;
-
-        switch (event) {
-            case EventType.CREATE_CHANNEL:
-                url = `${basePath}/guilds/${data.guildId}/channels`;
-                break;
-            case EventType.JOIN_GUILD:
-                url = `${basePath}/guilds/${data.guildId}/members`;
-                break;
-            case EventType.CREATE_GUILD:
-                url = `${basePath}/guilds`;
-                break;
-            case EventType.DELETE_GUILD:
-                url = `${basePath}/guilds/${data.guildId}`;
-                break;
-            case EventType.DELETE_GUILD_IMAGE:
-                url = `${basePath}/guilds/${data.guildId}/image`;
-                break;
-            case EventType.NEW_MESSAGE:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
-                break;
-            case EventType.GET_MEMBERS:
-                url = `${basePath}/guilds/${data.guildId}/members`;
-                break;
-            case EventType.GET_FRIENDS:
-                url = `${basePath}/friends`;
-                break;
-            case EventType.GET_HISTORY:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
-                break;
-            case EventType.GET_GUILDS:
-                url = `${basePath}/guilds`;
-                break;
-            case EventType.START_WRITING:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;
-                break;
-            case EventType.ADD_FRIEND:
-                url = `${basePath}/friends`;
-                break;
-            case EventType.ADD_FRIEND_ID:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;
-                break;
-            default:
-                throw new Error(`Unknown event: ${event}`);
-        }
-
-        return { method: this.getHttpMethod(event), url };
-    }
-
-    async sendRequest(data, url, method) {
-        try {
-            const response = await fetch(url, {
-                method,
-                headers: { 'Content-Type': 'application/json' },
-                body: method === HttpMethod.GET ? undefined : JSON.stringify(data),
-                credentials: 'same-origin',
-            });
-
-            if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
-            }
-
-            return response.json();
-        } catch (error) {
-            console.error("Failed to send request:", error);
-            throw error;
-        }
-    }
-
-    async emit(event, data = {}) {
-        if (!event) {
-            console.error("Event is required");
-            return;
-        }
-
-        try {
-            const { url, method } = this.getUrlForEvent(event, data);
-            const payload = { action: event, value: data };
-
-            const response = await this.sendRequest(payload, url, method);
-            this.handleMessage(event, response);
-        } catch (error) {
-            console.warn(`Error during request for event "${event}":`, error);
-        }
-    }
-
-    handleMessage(event,  data) {
-        console.log(`Received response for event "${event}" `, data);
-        
-        if (this.listeners[event] && data != null) {
-            this.listeners[event].forEach(callback => {
-                callback(data);
-            });
-        }
-    }
-
-
-    on(event, callback) {
-        if (!this.listeners[event]) {
-            this.listeners[event] = [];
-        }
-        this.listeners[event].push(callback);
-    }
-}
-
-const socket = new CustomHttpConnection();
 
 
 
 
 let currentTimeout;
+let isActivityShared = false;
 
 
 let isUnread = false;
@@ -244,87 +86,22 @@ function loadBooleanCookie(name) {
 
 
 
-
-
-
-
-
-
-
-
-function generateSettingsHtml(settings,isGuild=false) {
-    const buttons = settings.map(setting => `
-        <button class="settings-buttons" onclick="selectSettingCategory('${setting.category}')">${setting.label}</button>
-    `).join('\n');
-
-
-    if(isGuild) {  return buttons; }
-    
-    return `
-    ${buttons}
-        <button class="settings-buttons" style="bottom:10%; left:0px; position:fixed;" onclick="logOutPrompt()">Çıkış yap</button>
-    `;
-    
-
-
+function triggerFileInput() {
+    getId('profileImage').click();
+}
+function triggerguildImageUpdate() {
+    getId('guildImage').click();
 }
 
-const userSettings = [
-    { category: 'MyAccount', label: 'Hesabım' },
-    { category: 'SoundAndVideo', label: 'Ses Ve Görüntü' },
-    { category: 'Notifications', label: 'Bildirimler' },
-    { category: 'ActivityPresence', label: 'Etkinlik Gizliliği' },
-    { category: 'Appearance', label: 'Görünüm' }
-];
-
-const guildSettings = [
-    { category: 'Overview', label: 'Genel Görünüm' },
-    { category: 'Emoji', label: 'Emoji' },
-];
 
 
-
-
-function createDeleteGuildPrompt(guildId,guild_name) {
-    if(!guildId) { return }
-    var onClickHandler = function() {
-        socket.emit(EventType.DELETE_GUILD, guildId);
-    }
-    const successText = "Sunucuyu sil";
-    askUser(`${guild_name} Sunucusunu Sil`,'Bu işlem geri alınamaz.',successText,onClickHandler,isRed=true);
-
-} 
-async function requestMicrophonePermissions() {
-    try {
-        const isNoMic = false;
-        if(isNoMic) {
-            const response = await fetch('/static/notification.mp3');
-            const blob = await response.blob();
-            const reader = new FileReader();
-            reader.onload = function () {
-                const bytes = new Uint8Array(reader.result);
-                audioManager.emit('audio_data', bytes);
-            };
-            reader.readAsArrayBuffer(blob);
-        }
-        else
-        {
-            await sendAudioData();
-        }
-        
-    } catch (error) {
-        console.log(error);
-        alertUser('MİKROFON ERİŞİMİ ENGELLENDİ', 'Mikrofon izni reddedildi.');
-        return false; // Permission denied or error occurred
-    }
-} 
 
 
 
 function applySettings() {
     
     if(currentPopUp) {
-        hidePopUp(currentPopUp);
+        hideConfirmationPanel(currentPopUp);
         
     }
     console.log(isUnsaved);
@@ -355,32 +132,25 @@ function applySettings() {
 function onEditNick() {
     isUnsaved = true;
     if(!currentPopUp) {
-        let _currentPopUp = generateUnsavedPopUp();
+        let _currentPopUp = generateConfirmationPanel();
         currentPopUp = _currentPopUp;
 
     }
-    
-    showUnsavedPopUp(currentPopUp);
-
-
+    showConfirmationPanel(currentPopUp);
 }
-function removeElement(elementname) {
-    const element = document.getElementById(elementname);
-    if(element) {
-        element.remove();
-    }
-}
-
 
 function removeguildImage() {
     socket.emit(EventType.DELETE_GUILD_IMAGE,{'guildId': currentGuildId})
     getId('guildImage').value = '';
     getId('guild-image').src = createBlackImage();
-
-
 }
 
 
+
+let reply_cache = {};
+let messages_cache = {};
+let guildChatMessages = {};
+let messages_raw_cache = {};
 
 
 
@@ -487,10 +257,6 @@ socket.on('create_channel_response', data => {
     alertUser(`${currentGuildName} sunucusunda kanal yönetme iznin yok!`);
 });
 
-let reply_cache = {};
-let messages_cache = {};
-let guildChatMessages = {};
-let messages_raw_cache = {};
 
 
 socket.on('bulk_reply_response', data => {
@@ -645,3 +411,67 @@ socket.on('update_nick',data => {
 });
 
 
+let changeNicknameTimeout;
+function changeNickname() {
+    const newNicknameInput = getId('new-nickname-input');
+    const newNickname = newNicknameInput.value.trim();
+
+    if (newNickname !== '' && !changeNicknameTimeout && newNickname != currentUserName) {
+
+        console.log("Changed your nickname to: " + newNickname);
+        userNick = newNickname;
+        socket.emit('set_nick', {'nick' : newNickname});
+
+        newNicknameInput.value = newNickname;
+        changeNicknameTimeout = setTimeout(() => {
+            changeNicknameTimeout = null;
+        }, 1000);
+
+    }
+}
+
+let changeGuildNameTimeout;
+function changeGuildName() {
+    const newGuildInput = getId('guild-overview-name-input');
+    const newGuildName = newGuildInput.value.trim();
+    if (newGuildName !== '' && !changeGuildNameTimeout && newGuildName != currentGuildName) {
+        console.log("Changed guild name to: " + newGuildName);
+        const objecttosend = {'' : newGuildName,'guildId' : currentGuildId};
+        socket.emit('set_guild_name', objecttosend);
+        const setInfoNick = getId('set-info-nick');
+        if(setInfoNick) {
+            setInfoNick.innerText = newGuildName;
+        }
+        newGuildInput.value = newGuildName;
+        changeGuildNameTimeout = setTimeout(() => {
+            changeGuildNameTimeout = null;
+        }, 1000);
+    }
+}
+
+
+
+async function requestMicrophonePermissions() {
+    try {
+        const isNoMic = false;
+        if(isNoMic) {
+            const response = await fetch('/static/notification.mp3');
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = function () {
+                const bytes = new Uint8Array(reader.result);
+                audioManager.emit('audio_data', bytes);
+            };
+            reader.readAsArrayBuffer(blob);
+        }
+        else
+        {
+            await sendAudioData();
+        }
+        
+    } catch (error) {
+        console.log(error);
+        alertUser('MİKROFON ERİŞİMİ ENGELLENDİ', 'Mikrofon izni reddedildi.');
+        return false;
+    }
+} 
