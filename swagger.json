@@ -198,9 +198,6 @@
                   "GuildName": {
                     "type": "string"
                   },
-                  "region": {
-                    "type": "string"
-                  },
                   "Photo": {
                     "type": "string",
                     "format": "binary"
@@ -209,9 +206,6 @@
               },
               "encoding": {
                 "GuildName": {
-                  "style": "form"
-                },
-                "region": {
                   "style": "form"
                 },
                 "Photo": {

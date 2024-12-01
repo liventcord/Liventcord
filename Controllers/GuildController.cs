@@ -9,7 +9,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace LiventCord.Controllers
 {
-    [Route("api/guilds")]
+    [Route("/api/guilds")]
     [ApiController]
     [Authorize]
     public class GuildController : BaseController
@@ -52,13 +52,13 @@ namespace LiventCord.Controllers
 
 
 
-        // POST api/guilds
+        // POST /api/guilds
         [HttpPost("")]
         public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)
         {
             string rootChannel = Utils.CreateRandomId();
   
-            var newGuild = await CreateGuild(UserId!, request.GuildName, rootChannel, request.region);
+            var newGuild = await CreateGuild(UserId, request.GuildName, rootChannel,request.Photo);
 
             if (request.Photo != null)
             {
@@ -95,11 +95,11 @@ namespace LiventCord.Controllers
         
 
         
-        private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, string? region)
+        private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, IFormFile? formFile)
         {
             var guildId = Utils.CreateRandomId();
 
-            var guild = new Guild(guildId, ownerId, guildName, rootChannel, region, false);
+            var guild = new Guild(guildId, ownerId, guildName, rootChannel, null, formFile != null);
 
 
             guild.Channels.Add(new Channel
@@ -169,7 +169,6 @@ namespace LiventCord.Controllers
 public class CreateGuildRequest
 {
     public required string GuildName { get; set; }
-    public required string region { get; set; }
     public IFormFile? Photo { get; set; }
 }
 
