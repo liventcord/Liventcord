@@ -24,6 +24,7 @@ function UpdateDmUserList(friend_id,friendNick,friendDiscriminator) {
     updateUserList(usersData);
 }
 
+let isUpdatingUsers = false;
 
 function updateUserList(users,ignoreIsOnMe=false) {
     if(isOnMe && !ignoreIsOnMe) { console.log("Got users while on me page.");  return; }
@@ -123,4 +124,42 @@ function renderUsers(users, tbody, isOnline) {
 
         }
     }
+}
+function toggleUsersList() {
+    const userList = getId('user-list');
+    const isUsersOpen = userList.style.display === 'flex';
+    setUsersList(!isUsersOpen);
+}
+let isUsersOpen = true;
+
+function setUserListLine() {
+    const userLine = document.querySelector('.horizontal-line');
+    if(isUsersOpenGlobal) {
+        enableElement('user-list');
+        userLine.style.display = 'flex';
+    } else {
+        disableElement('user-list');
+        userLine.style.display = 'none';
+    }
+}
+let isUsersOpenGlobal;
+function setUsersList(isUsersOpen, isLoadingFromCookie = false) {
+    const displayToSet = isUsersOpen ? 'flex' : 'none';
+    const inputRightToSet = isUsersOpen ? '463px' : '76px';
+    const userList = getId('user-list');
+    userList.style.display = displayToSet;
+    
+    const userLine = document.querySelector('.horizontal-line');
+    if (userLine) {
+        userLine.style.display = displayToSet;
+    }
+    const addFriendInputButton = getId('addfriendinputbutton');
+    if (addFriendInputButton) {
+        addFriendInputButton.style.right = inputRightToSet;
+    }
+    if (!isLoadingFromCookie) {
+        saveBooleanCookie('isUsersOpen', isUsersOpen);
+    }
+    isUsersOpenGlobal = isUsersOpen;
+    updateChatWidth();
 }

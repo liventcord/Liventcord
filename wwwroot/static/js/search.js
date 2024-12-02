@@ -73,7 +73,9 @@ function getMonthValue(query) {
     return matchingMonths.length > 0 ? matchingMonths : ['Not Specified'];
 }
 
-
+function handleUserClick(userName) {
+    alert(`User ${userName} clicked!`);
+}
 function filterUsers(query) {
     const userSection = getId('userSection').querySelector('.search-content');
     const mentioningSection = getId('mentioningSection').querySelector('.search-content');

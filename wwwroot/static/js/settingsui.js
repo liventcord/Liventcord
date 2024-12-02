@@ -320,7 +320,20 @@ function selectSettingCategory(settingtype) {
     }
  
 }
+function closeSettings() {
+    if(isUnsaved) {
+        shakeScreen();
+        return;
+    }
+    enableSnowOnSettings()
+    getId('settings-menu').style.animation = 'settings-menu-disappear-animation 0.3s forwards';
 
+    setTimeout(() => {
+        getId('settings-overlay').style.display = 'none';
+    }, 300);
+    isSettingsOpen = false;
+
+}
 function getCloseButtonElement() {
     const button = createEl('button');
     button.id = 'close-settings-button';
@@ -485,3 +498,27 @@ function shakeScreen() {
 
     return;
 }
+function openGuildSettingsDd(event) {
+    const clicked_id = event.target.id;
+    toggleDropdown();
+
+    if ( clicked_id === 'invite-dropdown-button' ) {
+        createInviteUsersPop();
+    }
+    else if ( clicked_id ===  'settings-dropdown-button') {
+        reconstructSettings(true);
+        openSettings(true);
+        selectSettingCategory(Overview);
+    }
+    else if ( clicked_id===  "channel-dropdown-button") {
+        createChannelsPop();
+    }
+    else if (clicked_id ===  "notifications-dropdown-button") {
+        
+    }
+    else if ( clicked_id ===  "exit-dropdown-button") {
+        askUser('Sunucudan ayrıl', 'Sunucudan ayrılmak istediğine emin misin?','Sunucudan ayrıl',leaveCurrentGuild)
+    }
+    
+}
+

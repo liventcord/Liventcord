@@ -4,29 +4,20 @@ let chatContent;
 let userInput ;
 let userList;
 let channelInfo;
-let gifMenu;
-let gifsMenuSearchBar;
 let gifsMenuContainer;
-let fileImagePreview;
 let channelList;
 let channelsUl;
 let currentChannels;
 let currentGuildId;
 let currentDmId;
-let isDropdownOpen = false;
-let guildSettingsDropdown;
-let selfBubble;
-let replyInfo;
-let replyContainer;
-let replyCloseButton;
-let isUpdatingUsers = false;
+
+
 let imagePreviewContainer;
 let jsonPreviewContainer;
 let previewImage;
 let currentLastDate;
 let jsonPreviewElement;
 let fileInput;
-let fileButton;
 let current_invite_ids = {};
 let isGifsOpen = false;
 
@@ -180,22 +171,14 @@ function assignElements() {
     userInput = getId('user-input');
     userList = getId('user-list');
     channelInfo = getId("channel-info");
-    replyInfo = getId("reply-info");
-    replyContainer  = getId("reply-container");
-    replyCloseButton = getId("reply-close-button");
     imagePreviewContainer = getId('image-preview-container');
     jsonPreviewContainer = getId('json-preview-container');
     previewImage = getId('preview-image');
     jsonPreviewElement = getId('json-preview-element')
     chatContainer = getId('chat-container');
     chatContent = getId('chat-content');
-    guildSettingsDropdown = getId('guild-settings-dropdown');
-    gifMenu = getId('gif-menu');
-    gifsMenuSearchBar= getId('gifs-menu-searchbar');
     gifsMenuContainer = getId('gifs-menu-container');
-    fileImagePreview = getId('image-preview');
     fileInput = getId('fileInput');
-    fileButton = getId('file-button');
     guildsList = getId('guilds-list');
     channelList = getId('channel-list');
     inputElement = getId('channelSearchInput');
@@ -225,7 +208,6 @@ function assignElements() {
 
 
 
-
 document.addEventListener('DOMContentLoaded', function () {
     window.scrollTo(0,0)
     assignElements();
@@ -248,9 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
             toggleDropdown(); 
         }
     });
-    gifsMenuSearchBar.addEventListener('keydown', debounce(async function(event) {
-        await loadGifContent();
-    }, 300));
+
     createChatScrollButton();
     
     chatContainer.addEventListener('scroll', handleScroll);
@@ -300,7 +280,6 @@ document.addEventListener('DOMContentLoaded', function () {
     selfProfileImage.addEventListener("mouseout", function() { this.style.borderRadius = '50%'; });
 
 
-    selfBubble = getId("self-bubble");
     console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
 
     initialiseMe();
@@ -360,7 +339,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     
     
-
+    const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
+    setUsersList(isCookieUsersOpen, true);
 
     
 });
@@ -465,11 +445,6 @@ function getManageableGuilds() {
 
 
 
-let isUsersOpen = true;
-
-
-
-
 
 
 
@@ -500,16 +475,7 @@ function initialiseMe() {
 
 
 let isChangingPage = false;
-function setUserListLine() {
-    const userLine = document.querySelector('.horizontal-line');
-    if(isUsersOpenGlobal) {
-        enableElement('user-list');
-        userLine.style.display = 'flex';
-    } else {
-        disableElement('user-list');
-        userLine.style.display = 'none';
-    }
-}
+
 function userExistsDm(userId) {
     return userId in dm_users;
 }

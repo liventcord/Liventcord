@@ -284,9 +284,13 @@ function createInviteUsersPop() {
         closeBtnId: 'invite-close-button'
     });
 }
+let isDropdownOpen = false;
+
 
 function toggleDropdown() {
     if(!isOnGuild) { return }
+    let guildSettingsDropdown =  getId('guild-settings-dropdown');
+
     if (!isDropdownOpen) {
         isDropdownOpen = true;
         guildSettingsDropdown.style.display = 'flex'; 

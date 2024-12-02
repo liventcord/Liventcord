@@ -1,3 +1,5 @@
+let fileImagePreview;
+
 function initialiseUserInput() {
 
     userInput.addEventListener('input', adjustHeight);
@@ -28,7 +30,7 @@ function initialiseUserInput() {
         }
     });
 }
-
+let replyCloseButton;
 function showReplyMenu(replyToMsgId,replyToUserId) {
 
     replyCloseButton.style.display = "flex";
@@ -46,6 +48,8 @@ function closeReplyMenu() {
     currentReplyingTo = '';
     userInput.classList.remove('reply-opened')
 }
+
+
 function adjustHeight() {
     userInput.style.height = 'auto';
     userInput.style.height = (userInput.scrollHeight) + 'px';
@@ -205,6 +209,8 @@ function setDropHandler() {
             handleFileInput(files); 
         }
     }
+    let fileButton  = getId('file-button');
+
     fileButton.addEventListener('click', function() {
         fileInput.click();
     });
@@ -218,3 +224,12 @@ function updateFileImageBorder() {
         fileImagePreview.style.border = '20px solid #2b2d31';
     }
 }
+let replyInfo;
+
+document.addEventListener("DOMContentLoaded",()=> {
+    replyInfo = getId("reply-info");
+    replyCloseButton = getId("reply-close-button");
+    fileImagePreview = getId('image-preview');
+
+
+})

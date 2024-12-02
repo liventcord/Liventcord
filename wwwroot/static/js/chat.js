@@ -18,6 +18,49 @@ function createNonProfileImage(newMessage,  date) {
     return smallDateElement;
 }
 
+//reply&options button on message
+function createMsgOptionButton(message,isReply) {
+    const textc = isReply ? '↪' : '⋯'; 
+    
+    const newButton = createEl('button',{className:'message-button'});
+
+        const textEl = createEl('div', { textContent: textc, className: 'message-button-text' });
+        newButton.appendChild(textEl);
+    if(isReply) {
+        newButton.onclick = function() {
+            showReplyMenu(message.id,message.dataset.user_id);
+        }
+
+    }
+
+    newButton.addEventListener("mousedown", function() {
+        newButton.style.border = "2px solid #000000";
+    });    
+    newButton.addEventListener("mouseup", function() {
+        newButton.style.border = "none";
+    });
+    newButton.addEventListener("mouseover", function() {
+        newButton.style.backgroundColor = '#393a3b';
+    });    
+    newButton.addEventListener("mouseout", function() {
+        newButton.style.backgroundColor = '#313338';
+    });
+    newButton.addEventListener('focus', () => {
+        newButton.classList.add('is-focused');
+    });
+    newButton.addEventListener('blur', () => {
+        newButton.classList.remove('is-focused');
+    });
+    let buttonContainer = message.querySelector('.message-button-container');
+    if (!buttonContainer) {
+        buttonContainer = createEl('div');
+        buttonContainer.classList.add('message-button-container');
+        message.appendChild(buttonContainer);
+    }
+
+    buttonContainer.appendChild(newButton);
+    return newButton;
+}
 function createOptions3Button(message,messageId,user_id) {
     const button = createMsgOptionButton(message,false);
     button.dataset.m_id = messageId;

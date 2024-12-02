@@ -13,7 +13,6 @@ function getUserDiscriminator(user_id) {
 
 
 function logOut() {
-    socket.disconnect();
 
     fetch('/auth/logout', {
         method: 'POST',
@@ -149,4 +148,23 @@ function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploadin
         settingsSelfProfile.src = selfimagepath;
         
     }
+}
+
+function updateUserOnlineStatus(userId, isOnline) {
+    if(userId == currentUserId) {return; }
+    for (const guildId in guild_users_cache) {
+        if (guild_users_cache.hasOwnProperty(guildId)) {
+            const users = guild_users_cache[guildId];
+            for (const userKey in users) {
+                if (users.hasOwnProperty(userKey)) {
+                    if (users[userKey].user_id === userId) {
+                        users[userKey].is_online = isOnline;
+                        console.log(`User ${userId} online status updated to ${isOnline} in guild ${guildId}`);
+                        return; 
+                    }
+                }
+            }
+        }
+    }
+    console.log(`User ${userId} not found in any guild`);
 }

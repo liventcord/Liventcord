@@ -158,33 +158,8 @@ function updateDmsList(users) {
 
 
 
-let isUsersOpenGlobal;
-function setUsersList(isUsersOpen, isLoadingFromCookie = false) {
-    const displayToSet = isUsersOpen ? 'flex' : 'none';
-    const inputRightToSet = isUsersOpen ? '463px' : '76px';
-    const userList = getId('user-list');
-    userList.style.display = displayToSet;
-    
-    const userLine = document.querySelector('.horizontal-line');
-    if (userLine) {
-        userLine.style.display = displayToSet;
-    }
-    const addFriendInputButton = getId('addfriendinputbutton');
-    if (addFriendInputButton) {
-        addFriendInputButton.style.right = inputRightToSet;
-    }
-    if (!isLoadingFromCookie) {
-        saveBooleanCookie('isUsersOpen', isUsersOpen);
-    }
-    isUsersOpenGlobal = isUsersOpen;
-    updateChatWidth();
-}
 
-function toggleUsersList() {
-    const userList = getId('user-list');
-    const isUsersOpen = userList.style.display === 'flex';
-    setUsersList(!isUsersOpen);
-}
+
 
 function loadMainMenu() {
         
@@ -213,13 +188,9 @@ function selectFriendMenuStatus(status) {
 
 document.addEventListener('DOMContentLoaded', function () {
     
-    const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
-    setUsersList(isCookieUsersOpen, true);
+
     
     updateDmsList(dm_users);
-
-
-
     
     window.addEventListener('resize',handleResize);
     
@@ -237,13 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeButtonsList(ButtonsList);
     selectFriendMenu(OnlineButton);
 
-    socket.on('users_data_response', data => {
-       updateFriendsList(data.users,data.isPending);  
-    });
-
-    socket.on('friend_request_response', (data) => {
-        handleFriendEventResponse(data.message);
-    });
 
     
 }); 

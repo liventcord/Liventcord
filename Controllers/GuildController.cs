@@ -94,13 +94,11 @@ namespace LiventCord.Controllers
 
         
 
-        
         private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, IFormFile? formFile)
         {
             var guildId = Utils.CreateRandomId();
 
             var guild = new Guild(guildId, ownerId, guildName, rootChannel, null, formFile != null);
-
 
             guild.Channels.Add(new Channel
             {
@@ -114,24 +112,38 @@ namespace LiventCord.Controllers
 
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == ownerId);
             if (user == null)
-                throw new Exception("User not found");
+                throw new Exception("User not found. "+ ownerId);
 
             if (guild.GuildMembers.Any(gu => gu.MemberId == ownerId)) throw new Exception("User already in guild");
-                guild.GuildMembers.Add(new GuildUser { MemberId = ownerId , GuildId = guildId, Guild = guild, User=user});
 
+            var guildUser = new GuildUser
+            {
+                MemberId = ownerId,
+                GuildId = guildId,
+                Guild = guild,
+                User = user
+            };
+
+            Console.WriteLine($"Adding GuildUser: GuildId = {guildUser.GuildId}, MemberId = {guildUser.MemberId}, UserId = {guildUser.User.UserId}");
+
+            guild.GuildMembers.Add(guildUser);
+
+            Console.WriteLine($"Guild Details: GuildId = {guild.GuildId}, OwnerId = {guild.OwnerId}, GuildName = {guild.GuildName}");
 
             _dbContext.Guilds.Add(guild);
-            await _dbContext.SaveChangesAsync();  
+            await _dbContext.SaveChangesAsync();
 
             var permissions = PermissionFlags.ReadMessages 
-                            | PermissionFlags.SendMessages 
-                            | PermissionFlags.MentionEveryone;
-            await _permissionsController.AssignPermissions(guildId, ownerId, permissions); 
+                                | PermissionFlags.SendMessages 
+                                | PermissionFlags.MentionEveryone;
+            await _permissionsController.AssignPermissions(guildId, ownerId, permissions);
 
             await _dbContext.SaveChangesAsync();
 
-            return guild; 
+            return guild;
         }
+
+
 
 
         // DELETE /api/guilds/{guildId}
