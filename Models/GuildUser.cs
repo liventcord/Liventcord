@@ -14,10 +14,10 @@ namespace LiventCord.Models
         [Column("user_id", Order = 2)]
         public required string MemberId { get; set; }
 
-        [ForeignKey("GuildId")]
+        [ForeignKey("guild_id")]
         public virtual required Guild Guild { get; set; }
 
-        [ForeignKey("UserId")]
+        [ForeignKey("user_id")]
         public virtual required User User { get; set; }
     }
 }
