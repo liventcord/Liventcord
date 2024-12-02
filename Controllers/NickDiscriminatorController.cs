@@ -25,26 +25,11 @@ namespace LiventCord.Controllers
                 return BadRequest(new { error = "Invalid parameters" });
 
             bool isUnique = !await _context.Users.AnyAsync(u => u.Nickname.ToLower() == nick.ToLower());
+            string? result = isUnique ? "0000" : null; 
 
-            if (!_cache.TryGetValue("reserved_discriminators", out Dictionary<string, string>? reservedDiscriminators) || reservedDiscriminators == null)
-            {
-                reservedDiscriminators = new Dictionary<string, string>();
-            }
-
-            if (!reservedDiscriminators.ContainsKey(nick))
-            {
-                string? discriminator = isUnique ? "0000" : await GetOrCreateDiscriminator(nick);
-                if(discriminator != null) {
-                    reservedDiscriminators[nick] = discriminator;
-
-                }
-
-                _cache.Set("reserved_discriminators", reservedDiscriminators, TimeSpan.FromMinutes(10));
-            }
-
-            string result = reservedDiscriminators[nick];
             return Ok(new { result, nick });
         }
+
 
         [NonAction]
         public async Task<string?> GetOrCreateDiscriminator(string nickname)
@@ -60,6 +45,11 @@ namespace LiventCord.Controllers
                 {
                     existingDiscriminators.Add(reservedDiscriminators[nickname]);
                 }
+            }
+
+            if (!existingDiscriminators.Contains("0000"))
+            {
+                return "0000";
             }
 
             return existingDiscriminators.Count < 9999 
