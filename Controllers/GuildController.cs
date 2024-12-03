@@ -116,7 +116,7 @@ namespace LiventCord.Controllers
 
             if (guild.GuildMembers.Any(gu => gu.MemberId == ownerId)) throw new Exception("User already in guild");
 
-            var guildUser = new GuildUser
+            var guildUser = new GuildMember
             {
                 MemberId = ownerId,
                 GuildId = guildId,

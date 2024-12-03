@@ -56,7 +56,7 @@ namespace LiventCord.Controllers
             if (channel == null)
                 return NotFound("Channel does not exist.");
 
-            if (!await _membersController.DoesUserExistInGuild(UserId!, guildId))
+            if (!await _membersController.DoesMemberExistInGuild(UserId!, guildId))
                 return BadRequest(new { Type = "error", Message = "User not in guild." });
             if (!await _permissionsController.HasPermission(UserId!,guildId,PermissionFlags.ManageChannels))
                 return Forbid("User is not authorized to delete this channel.");
