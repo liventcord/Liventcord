@@ -1,4 +1,5 @@
-let lastConfirmedguildImg;
+let lastConfirmedProfileImg;
+let lastConfirmedGuildImg;
 
 function uploadImage(isGuild) {
     if (!isChangedProfile) { return; }
@@ -34,7 +35,7 @@ function uploadImage(isGuild) {
                 if (xhr.status === 200) {
                     if(isGuild) {
                         updateGuild(uploadedGuildId);
-                        lastConfirmedguildImg = file;
+                        lastConfirmedGuildImg = file;
                     } else {
                         updateSelfProfile(currentUserId,user_name,true);
                         lastConfirmedProfileImg = file;
@@ -45,7 +46,7 @@ function uploadImage(isGuild) {
             };
             xhr.onerror = function() {
                 if(isGuild) {
-                    getId('guild-image').src = lastConfirmedguildImg 
+                    getId('guild-image').src = lastConfirmedGuildImg 
                 } else {
                     getId('settings-self-profile').src = lastConfirmedProfileImg;
                 }
@@ -72,7 +73,7 @@ function onEditImage(isGuild) {
         function callbackAfterAccept(outputBase64) {
             console.log("Callback triggered!", isGuild)
             if(isGuild) {
-                lastConfirmedguildImg =  getBase64Image(getId('guild-image'))
+                lastConfirmedGuildImg =  getBase64Image(getId('guild-image'))
             } else {
                 lastConfirmedProfileImg =  getBase64Image(getId('settings-self-profile'))
             }

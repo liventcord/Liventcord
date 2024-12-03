@@ -1,3 +1,8 @@
+let currentGuildId;
+let currentDmId;
+let current_invite_ids = {};
+let currentGuildName = '';
+
 function hasSharedGuild(friend_id) {
     return shared_guilds_map.hasOwnProperty(friend_id);
 }

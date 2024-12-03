@@ -7,59 +7,28 @@ let channelInfo;
 let gifsMenuContainer;
 let channelList;
 let channelsUl;
-let currentChannels;
-let currentGuildId;
-let currentDmId;
 
 
-let imagePreviewContainer;
-let jsonPreviewContainer;
-let previewImage;
-let currentLastDate;
-let jsonPreviewElement;
+
 let fileInput;
-let current_invite_ids = {};
-let isGifsOpen = false;
 
 let isEmojisOpen = false;
 let isOldMessageCd = false;
 let isReachedChannelEnd = false;
-let isDeveloperMode = true;
-let chatContentInitHtml;
-let isLastSendMessageStart = false;
-let baseImagePath = `${location.origin}/images/`;
+
+
+
+
 let lastMessageDateTime = null;
-const maxWidth = 512;
-const maxHeight = 384;
-const maxTenorWidth = 512 *1.5;
-const maxTenorHeight = 384 * 1.5;
-const CLYDE_ID = '1';
-let defaultMediaImageUrl = '/static/images/defaultmediaimage.png'
-
-let currentCustomEmojis = [];
-
-function getEmojiPath(emojiName) {   return `${baseImagePath}${emojiName}.png`; }
-
 let lastSenderID = '';
-let typingTimeout;
-let currentChannelName = null;
+
+
+
+
+
 let currentReplyingTo = '';
-
-
-let currentUserId;
-let currentDiscriminator = null;
-let currentUserName;
-let currentChannelId;
-let currentVoiceChannelId;
-let lastConfirmedProfileImg;
-let currentGuildName = '';
 let currentGuildIndex = 0;
-let userNames = {};
-userNames['1'] = {
-    nick: 'Clyde',
-    discriminator: '0000',
-    is_blocked: false
-};
+
 
 let currentEscHandler;
 let isOnMe = true;
@@ -78,12 +47,6 @@ let usersInVoice = {};
 let readenMessagesCache = {};
 let guildAuthorIds = {};
 
-let permissionManager;
-
-
-
-
-
 const Permission = {
     READ_MESSAGES: 'read_messages',
     SEND_MESSAGES: 'send_messages',
@@ -96,17 +59,6 @@ const Permission = {
     IS_ADMIN: 'is_admin',
     CAN_INVITE: 'can_invite'
 };
-
-let inputElement;
-
-const observer = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            loadObservedContent(entry);
-        }
-    });
-}, { threshold: 0.1 });
-
 class PermissionManager {
     constructor(permissionsMap, currentGuildId) {
         this.permissionsMap = permissionsMap;
@@ -129,6 +81,26 @@ class PermissionManager {
         return Boolean(this.getPermission(Permission.IS_ADMIN));
     }
 }
+
+let permissionManager;
+
+
+
+
+
+
+
+let channelSearchInputElement;
+
+const observer = new IntersectionObserver((entries, observer) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            loadObservedContent(entry);
+        }
+    });
+}, { threshold: 0.1 });
+
+
 function getId(string) { return document.getElementById(string);}
 
 function reloadCSS() {
@@ -171,17 +143,14 @@ function assignElements() {
     userInput = getId('user-input');
     userList = getId('user-list');
     channelInfo = getId("channel-info");
-    imagePreviewContainer = getId('image-preview-container');
-    jsonPreviewContainer = getId('json-preview-container');
-    previewImage = getId('preview-image');
-    jsonPreviewElement = getId('json-preview-element')
+    
     chatContainer = getId('chat-container');
     chatContent = getId('chat-content');
     gifsMenuContainer = getId('gifs-menu-container');
     fileInput = getId('fileInput');
     guildsList = getId('guilds-list');
     channelList = getId('channel-list');
-    inputElement = getId('channelSearchInput');
+    channelSearchInputElement = getId('channelSearchInput');
 
     channelsUl = channelList.querySelector('ul');
     chatContentInitHtml = chatContent.innerHTML;
@@ -194,8 +163,8 @@ function assignElements() {
     document.addEventListener('click', (event) => {
         if (!event.target.closest('#channelSearchInput')) {
             searchDropdown.classList.add('hidden');
-            if(!inputElement.value.trim()) {
-                inputElement.style.width = '150px';
+            if(!channelSearchInputElement.value.trim()) {
+                channelSearchInputElement.style.width = '150px';
             }
         }
     });
@@ -247,7 +216,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setDropHandler();
     
-    updateFileImageBorder();
     const guildContainer = getId('guild-container');
     guildContainer.addEventListener('mouseover',function() {
         guildContainer.style.backgroundColor= '#333538';

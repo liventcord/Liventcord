@@ -17,6 +17,7 @@ function constructAbsoluteAppPage(guildId, channelId) {
 function isPathnameCorrect(url) {
     return /^\/channels\/\d{18}\/\d{18}$/.test(url);
 }
+function getEmojiPath(emojiName) {   return `/images/${emojiName}.png`; }
 
 function getFormattedDate(messageDate) {
     const today = new Date();

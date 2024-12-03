@@ -1,4 +1,6 @@
 let fileImagePreview;
+let typingTimeout;
+
 
 function initialiseUserInput() {
 
@@ -42,9 +44,8 @@ function showReplyMenu(replyToMsgId,replyToUserId) {
 }
 
 function closeReplyMenu() {
-
-    replyCloseButton.style.display = "none";
-    replyInfo.style.display = 'none';
+    if(replyCloseButton) replyCloseButton.style.display = "none";
+    if(replyInfo) replyInfo.style.display = 'none';
     currentReplyingTo = '';
     userInput.classList.remove('reply-opened')
 }
@@ -68,7 +69,7 @@ function adjustHeight() {
 
     const elementHeight = parseInt(userInput.style.height, 10);
     const topPosition = elementHeight;
-    replyInfo.style.bottom = `${topPosition}px`;
+    if(replyInfo) replyInfo.style.bottom = `${topPosition}px`;
 
 
 }

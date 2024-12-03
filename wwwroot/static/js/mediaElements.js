@@ -1,4 +1,11 @@
+let defaultMediaImageUrl = '/static/images/defaultmediaimage.png'
 
+
+const maxWidth = 512;
+const maxHeight = 384;
+
+const maxTenorWidth = 512 *1.5;
+const maxTenorHeight = 384 * 1.5;
 
 function createTenorElement(msgContentElement, inputText, url) {
     let tenorURL = '';

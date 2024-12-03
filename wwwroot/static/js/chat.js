@@ -1,10 +1,14 @@
 
 let bottomestChatDateStr;
 let lastMessageDate = null; 
+let currentLastDate;
 let unknownReplies = [];
 
+let isLastMessageStart = false;
+let chatContentInitHtml;
 
 
+const CLYDE_ID = '1';
 
 function createNonProfileImage(newMessage,  date) {
     const messageDate = new Date(date);
@@ -283,7 +287,7 @@ function displayChatMessage(data) {
         createMsgOptionButton(newMessage,true);
     }
     createOptions3Button(newMessage,messageId,user_id);
-    if(isLastSendMessageStart) {isLastSendMessageStart = false; }
+    if(isLastMessageStart) {isLastMessageStart = false; }
     if (addToTop) {
         chatContent.insertBefore(newMessage, chatContent.firstChild);
         chatContainer.scrollTop = chatContainer.scrollTop + newMessage.clientHeight;
@@ -458,7 +462,7 @@ function displayStartMessage() {
             message.appendChild(guildBornParent);
         }
         chatContent.insertBefore(message, chatContent.firstChild); 
-        isLastSendMessageStart = true;
+        isLastMessageStart = true;
         scrollToBottom();
         
     } else {
@@ -478,7 +482,7 @@ function displayStartMessage() {
         msgtitle.appendChild(msgdescription);
         
         chatContent.insertBefore(message, chatContent.firstChild); 
-        isLastSendMessageStart = true;
+        isLastMessageStart = true;
     }
 }
 
@@ -549,7 +553,7 @@ function handleHistoryResponse(data) {
 
     console.log("Data: ", data);
 
-    isLastSendMessageStart = false;
+    isLastMessageStart = false;
     chatContent.innerHTML = chatContentInitHtml;
     messages_cache = {};
 

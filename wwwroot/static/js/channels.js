@@ -1,3 +1,9 @@
+let currentChannels;
+let currentChannelName = null;
+let currentVoiceChannelId;
+let currentChannelId;
+
+
 function getChannels() {
     if(currentChannelId) {
         if(channels_cache[currentGuildId]) {

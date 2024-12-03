@@ -64,6 +64,7 @@ async function sendMessage(content, user_ids) {
 
 };
 function replaceCustomEmojis(message) {
+    let currentCustomEmojis = {};
     if(message) {
         const regex = /<:([^:>]+):(\d+)>/g;
         let message1 = message.replace(regex, (match, emojiName, emojiId) => {

@@ -1,3 +1,6 @@
+let isDeveloperMode = true;
+
+
 function openReactionMenu(messageId) {
     console.log("Opening react menu for: ",messageId);
 }

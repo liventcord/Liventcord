@@ -1,4 +1,6 @@
 // gifs/emojis/stickers section
+let isGifsOpen = false;
+
 
 function displayGIFs(gifDatas) {
     gifsMenuContainer.innerHTML = ''; 

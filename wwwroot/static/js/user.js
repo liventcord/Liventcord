@@ -1,6 +1,19 @@
+let currentUserId;
+let currentDiscriminator = null;
+let currentUserName;
 
 const deletedUser = 'Deleted User';
 let lastTopSenderId = null;
+
+let userNames = {};
+userNames['1'] = {
+    nick: 'Clyde',
+    discriminator: '0000',
+    is_blocked: false
+};
+
+
+
 function getUserNick(user_id) { 
     if(user_id && currentUserId && currentUserId == user_id) {
         return currentUserName;

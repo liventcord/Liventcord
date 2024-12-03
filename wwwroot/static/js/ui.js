@@ -298,7 +298,8 @@ function beautifyJson(jsonData) {
 
 
 function displayImagePreview(sourceimage) {
-    imagePreviewContainer.style.display = 'flex';
+    enableElement('image-preview-container');
+    let previewImage = getId('preview-image');
     previewImage.style.animation = 'preview-image-animation 0.2s forwards';
     previewImage.src = sourceimage;
     currentSelectedImg = sourceimage;
@@ -314,7 +315,11 @@ function displayImagePreview(sourceimage) {
 }
 
 function displayJsonPreview(sourceJson) {
+    let jsonPreviewContainer = getId('json-preview-container');
+
     jsonPreviewContainer.style.display = 'flex';
+    let jsonPreviewElement = getId('json-preview-element')
+
     jsonPreviewElement.dataset.content_observe = sourceJson;
     jsonPreviewElement.style.userSelect = 'text';
     jsonPreviewElement.style.whiteSpace = 'pre-wrap';
@@ -328,9 +333,11 @@ function hideImagePreviewRequest(event) {
     }
 }
 function hideImagePreview() {
+    let previewImage = getId('preview-image');
     previewImage.style.animation = 'preview-image-disappear-animation 0.15s forwards';
     setTimeout(() => {
-        imagePreviewContainer.style.display = 'none';
+        disableElement('image-preview-container');
+
         previewImage.src = '';
     }, 150);
 
@@ -339,7 +346,7 @@ function hideImagePreview() {
 
 function hideJsonPreview(event) {
     if(event.target.id ==='json-preview-container') {
-        
+        let jsonPreviewContainer = getId('json-preview-container');
         jsonPreviewContainer.style.display = 'none';
     }
 }
