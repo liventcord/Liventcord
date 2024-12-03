@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LiventCord.Models
 {
-    public class GuildUser
+    public class GuildMember
     {
         [Key]
         [Column("guild_id")]

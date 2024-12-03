@@ -62,11 +62,11 @@ public class SSEManager
         }
     }
 
-    public async Task EmitToGuild(Task<List<string>> guildUsersTask, object messageToEmit)
+    public async Task EmitToGuild(Task<List<string>> guildMembersTask, object messageToEmit)
     {
-        List<string> guildUsers = await guildUsersTask; 
+        List<string> guildMembers = await guildMembersTask; 
         
-        foreach (var user in guildUsers)
+        foreach (var user in guildMembers)
         {
             await EmitToUser(user, "guild_event", messageToEmit);
         }

@@ -14,7 +14,7 @@ namespace LiventCord.Data
         public DbSet<TypingStatus> TypingStatuses { get; set; }
         public DbSet<Guild> Guilds { get; set; }
         public DbSet<Channel> Channels { get; set; }
-        public DbSet<GuildUser> GuildUsers { get; set; } 
+        public DbSet<GuildMember> GuildMembers { get; set; } 
         public DbSet<GuildPermissions> GuildPermissions { get; set; }
         public DbSet<AttachmentFile> AttachmentFiles { get; set; }
         public DbSet<EmojiFile> EmojiFiles { get; set; }
@@ -86,15 +86,15 @@ namespace LiventCord.Data
                 .HasForeignKey(ud => ud.FriendId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<GuildUser>()
+            modelBuilder.Entity<GuildMember>()
                 .HasKey(gu => new { gu.GuildId, gu.MemberId });
 
-            modelBuilder.Entity<GuildUser>()
+            modelBuilder.Entity<GuildMember>()
                 .HasOne(gu => gu.Guild)
                 .WithMany(g => g.GuildMembers)
                 .HasForeignKey(gu => gu.GuildId);
 
-            modelBuilder.Entity<GuildUser>()
+            modelBuilder.Entity<GuildMember>()
                 .HasOne(gu => gu.User)
                 .WithMany()
                 .HasForeignKey(gu => gu.MemberId);
