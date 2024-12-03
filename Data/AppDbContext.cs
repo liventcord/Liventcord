@@ -86,37 +86,18 @@ namespace LiventCord.Data
                 .HasForeignKey(ud => ud.FriendId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<GuildUser>().ToTable("guild_users");
-
-            modelBuilder.Entity<GuildUser>().HasKey(gu => new { gu.GuildId, gu.MemberId });
+            modelBuilder.Entity<GuildUser>()
+                .HasKey(gu => new { gu.GuildId, gu.MemberId });
 
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.Guild)
                 .WithMany(g => g.GuildMembers)
-                .HasForeignKey(gu => gu.GuildId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(gu => gu.GuildId);
 
             modelBuilder.Entity<GuildUser>()
                 .HasOne(gu => gu.User)
-                .WithMany(u => u.GuildUsers)
-                .HasForeignKey(gu => gu.MemberId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<GuildUser>()
-                .Property(gu => gu.GuildId)
-                .HasColumnName("guild_id");
-
-            modelBuilder.Entity<GuildUser>()
-                .Property(gu => gu.MemberId)
-                .HasColumnName("user_id");
-
-            modelBuilder.Entity<GuildUser>()
-                .Property(gu => gu.GuildId)
-                .IsRequired();
-
-            modelBuilder.Entity<GuildUser>()
-                .Property(gu => gu.MemberId)
-                .IsRequired();
+                .WithMany()
+                .HasForeignKey(gu => gu.MemberId);
 
             modelBuilder.Entity<FileBase>(entity =>
             {
