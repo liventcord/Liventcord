@@ -29,25 +29,29 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds/{guildId}/members
         [HttpGet("/api/guilds/{guildId}/members")]
-        public async Task<IActionResult> HandleGetUsers([FromQuery] GetGuildMembersRequest request)
+        public async Task<IActionResult> HandleGetUsers([FromRoute] string guildId)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            if (!await _dbContext.DoesGuildExist(guildId)) {
+                return NotFound(new { Type = "error", Message = "Guild does not exist1." });
+            }
 
-            if (!await DoesMemberExistInGuild(UserId!, request.GuildId))
-                return BadRequest(new { Type = "error", Message = "Member not in guild." });
+            if (!await DoesMemberExistInGuild(UserId!, guildId)) {
+                return NotFound(new { Type = "error", Message = "Guild does not exist2." });
+            }
 
-            var members = await GetGuildMembers(request.GuildId).ConfigureAwait(false);
-            if (members == null)
+            var members = await GetGuildMembers(guildId).ConfigureAwait(false);
+            if (members == null) {
                 return BadRequest(new { Type = "error", Message = "Unable to retrieve members." });
+            }
 
             var updateMembersMessage = new
             {
                 Type = "update_members",
-                Data = new { guildId = request.GuildId, members }
+                Data = new { guildId = guildId, members }
             };
 
             return Ok(updateMembersMessage);
+
         }
 
         // POST /api/guilds/{guildId}/members
@@ -76,7 +80,7 @@ namespace LiventCord.Controllers
             }
         }
 
-                
+        
     
 
         private async Task AddMemberToGuild(string userId, string guildId)
@@ -105,6 +109,61 @@ namespace LiventCord.Controllers
 
             await _dbContext.SaveChangesAsync();
         }
+
+        [HttpGet("/api/guilds/all")]
+        public async Task<IActionResult> GetAllGuilds()
+        {
+            var guilds = await _dbContext.Guilds
+                .Include(g => g.GuildMembers)
+                    .ThenInclude(gm => gm.User) // Include User details via GuildMember
+                .Include(g => g.Channels)
+                    .ThenInclude(c => c.UserChannels)
+                .ToListAsync();
+
+            if (guilds == null || !guilds.Any())
+                return NotFound(new { Type = "error", Message = "No guilds found." });
+
+            var result = guilds.Select(guild => new
+            {
+                guild.GuildId,
+                guild.GuildName,
+                guild.OwnerId,
+                guild.CreatedAt,
+                guild.Region,
+                guild.IsGuildUploadedImg,
+                guild.IsPublic,
+                Channels = guild.Channels.Select(c => new
+                {
+                    c.ChannelId,
+                    c.ChannelName,
+                    c.ChannelDescription,
+                    c.IsTextChannel,
+                    c.Order,
+                }),
+                Members = guild.GuildMembers.Select(m => new
+                {
+                    m.MemberId,
+                    m.GuildId,
+                    User = m.User.GetPublicUser()  // Using the GetPublicUser method
+                })
+            });
+
+            return Ok(new { Type = "success", Data = result });
+        }
+
+
+
+        [NonAction]
+        public async Task<bool> DoesMemberExistInGuild(string userId, string guildId)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
+                return false;
+
+            return await _dbContext.GuildMembers
+                .Where(gu => gu.MemberId == userId && gu.GuildId == guildId)
+                .AnyAsync();
+        }
+
 
         [NonAction]
         public async Task SetMemberOnlineStatus(string userId, bool isOnline)
@@ -165,15 +224,7 @@ namespace LiventCord.Controllers
             return sharedGuilds.Where(g => g != guildId).ToList();
         }
 
-        [NonAction]
-        public async Task<bool> DoesMemberExistInGuild(string userId, string guildId)
-        {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(guildId))
-                return false;
 
-            return await _dbContext.GuildMembers
-                .AnyAsync(gu => gu.MemberId == userId && gu.GuildId == guildId);
-        }
 
         [NonAction]
         public async Task<List<GuildDto>> GetUserGuilds(string userId)
@@ -230,10 +281,4 @@ namespace LiventCord.Controllers
 
         
     }
-}
-public class GetGuildMembersRequest
-{
-    [Required(ErrorMessage = "Guild ID is required.")]
-    public required string GuildId { get; set; }
-
 }

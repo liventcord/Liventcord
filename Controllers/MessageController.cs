@@ -70,7 +70,7 @@ namespace LiventCord.Controllers {
         }
 
         // PUT /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("/api/guilds/{guildId}/channels/{channelId}/messages/edit")]
+        [HttpPut("/api/guilds/{guildId}/channels/{channelId}/messages/edit")]
         public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
