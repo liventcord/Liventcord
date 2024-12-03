@@ -52,7 +52,7 @@ function getUserIdFromNick(nick) {
     }
     return null;
 }
-function getCurrentDmUsers() {
+function getCurrentDmFriends() {
     return {
         currentUserId: { nick:  currentUserName },
         currentDmId: { nick : getUserNick(currentDmId)}
@@ -165,9 +165,9 @@ function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploadin
 
 function updateUserOnlineStatus(userId, isOnline) {
     if(userId == currentUserId) {return; }
-    for (const guildId in guild_users_cache) {
-        if (guild_users_cache.hasOwnProperty(guildId)) {
-            const users = guild_users_cache[guildId];
+    for (const guildId in guild_members_cache) {
+        if (guild_members_cache.hasOwnProperty(guildId)) {
+            const users = guild_members_cache[guildId];
             for (const userKey in users) {
                 if (users.hasOwnProperty(userKey)) {
                     if (users[userKey].user_id === userId) {

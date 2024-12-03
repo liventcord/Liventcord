@@ -174,10 +174,11 @@
 
         function renderGuilds(guilds) {
             return guilds.map(guild => {
+                console.log(guild);
                 const imgSrc = guild.src && guild.src !== 'black' ? guild.src : createBlackImage();
                 guildAuthorIds[guild.id] = guild.owner_id;
                 const guildId = String(guild.id);
-                const firstChannelId = guild.first_channel_id ? String(guild.first_channel_id) : '';
+                const rootChannel = guild.first_channel_id ? String(guild.first_channel_id) : '';
                 const guildName = guild.name ? String(guild.name) : '';
         
                 return `
@@ -185,7 +186,7 @@
                         <img id="${guildId}" 
                              data-src="${imgSrc}" 
                              style="width: 50px; height: 50px; border: none;" 
-                             onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
+                             onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(rootChannel)}', '${guildName}')" />
                         <div class="white-rod"></div>
                     </li>
                 `;
@@ -382,7 +383,7 @@
         var passed_channel_id = "{{ channel_id }}";
         var passed_guild_name = "{{ guild_name }}";
         var passed_author_id = "{{ author_id }}";
-        var typing_users = "{{ typing_users }}";
+        var typing_members = "{{ typing_members }}";
     
         var shared_guilds_map = {{ shared_guilds_map|tojson|safe }};
         var passed_message_readen = JSON.parse('{{ message_readen|tojson|safe }}');
@@ -392,7 +393,7 @@
 
         var friends_status = JSON.parse({{ friends_status|tojson|safe }});
         
-        var dm_users = JSON.parse({{ dm_users|tojson|safe }});
+        var dm_members = JSON.parse({{ dm_members|tojson|safe }});
     </script>
 
 

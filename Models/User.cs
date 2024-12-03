@@ -28,7 +28,7 @@ namespace LiventCord.Models
     {
         [Key][Column("user_id")]
         public required string UserId { get; set; }
-        public virtual ICollection<GuildUser>? GuildUsers { get; set; } 
+        public virtual ICollection<GuildMember>? GuildUsers { get; set; } 
         
         [Required][StringLength(128)][Column("email")]
         [NotMapped]

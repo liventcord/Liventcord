@@ -5,7 +5,7 @@ function updateUserMentionDropdown(value) {
     if (match && match.length) {
         const lastMention = match[match.length - 1];
         if (lastMention) {
-            const currentUsers = isOnGuild ? guild_users_cache[currentGuildId] : getCurrentDmUsers();
+            const currentUsers = isOnGuild ? guild_members_cache[currentGuildId] : getCurrentDmFriends();
             if (!currentUsers) return;
 
             const usersArray = Object.values(currentUsers);

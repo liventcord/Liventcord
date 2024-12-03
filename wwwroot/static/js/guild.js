@@ -45,7 +45,7 @@ function updateGuildList(guildData) {
         const li = createEl('li');
         const img = createEl('img', { className: 'guilds-list', id: guild.GuildId, src: imgSrc });
         img.addEventListener('click', () => {
-            loadGuild(guild.GuildId, guild.FirstChannelId, guild.GuildName);
+            loadGuild(guild.GuildId, guild.RootChannel, guild.GuildName);
         });
         
         li.appendChild(img);
@@ -64,7 +64,7 @@ function appendToGuildList(guild) {
     const li = createEl('li');
     const img = createEl('img', { className: 'guilds-list', id: guild.id, src: guild.src });
     img.addEventListener('click', () => {
-        loadGuild(guild.id, guild.firstChannelId, guild.name);
+        loadGuild(guild.id, guild.rootChannel, guild.name);
     });
     
     li.appendChild(img);
@@ -162,7 +162,10 @@ function selectGuildList(guildId) {
 }
 
 function loadGuild(guildId,channelId,guildName,guildAuthorId,isChangingUrl=true) {
-    if(!guildId || !channelId ) { return; }
+    if(!guildId || !channelId ) {
+        console.error("Load guild called with null values: ", guildId,channelId)
+        return; 
+    }
     console.log("Loading guild: ",guildId,channelId,guildName);
     
     if (isChangingUrl) {
@@ -270,10 +273,10 @@ function changeUrlWithFireWorks(guildId,channelId,guildName) {
 }
 function fetchUsers() {
     if(currentGuildId) {
-        if(guild_users_cache[currentGuildId]) {
-            updateUserList(guild_users_cache[currentGuildId]);
+        if(guild_members_cache[currentGuildId]) {
+            updateUserList(guild_members_cache[currentGuildId]);
         } else {
-            socket.emit('get_users',{'guildId' : currentGuildId});
+            socket.emit('get_members',{'guildId' : currentGuildId});
         }
 
 
@@ -284,22 +287,22 @@ function fetchUsers() {
 
 
 function getGuildUsers() {
-    if (!guild_users_cache || !currentGuildId) { return; }
+    if (!guild_members_cache || !currentGuildId) { return; }
     
-    const guildUsers = guild_users_cache[currentGuildId];
-    if (!guildUsers) { return; }
+    const guildMembers = guild_members_cache[currentGuildId];
+    if (!guildMembers) { return; }
 
     let usersToReturn = [];
 
-    for (const userId in guildUsers) {
-        const user = guildUsers[userId];
+    for (const userId in guildMembers) {
+        const user = guildMembers[userId];
         usersToReturn.push({
             name: user.name,
             image: getProfileUrl(user.user_id) 
         });
     }
     console.log(usersToReturn)
-    console.log(guildUsers);
+    console.log(guildMembers);
 
     return usersToReturn; 
 }

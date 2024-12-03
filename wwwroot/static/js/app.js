@@ -41,7 +41,7 @@ let contextList = {};
 let messageContextList = {};
 
 let channels_cache = {}; // <guildId> <channels_list>
-let guild_users_cache = {}; // <guildId> <users_list>
+let guild_members_cache = {}; // <guildId> <users_list>
 
 let usersInVoice = {};
 let readenMessagesCache = {};
@@ -277,8 +277,8 @@ document.addEventListener('DOMContentLoaded', function () {
             window.history.pushState(null,null, "/channels/@me")
         }
     }
-    if(guild_users) {
-        updateUserList(guild_users,true);
+    if(guild_members) {
+        updateUserList(guild_members,true);
     }
     addContextListeners();
     const val = loadBooleanCookie('isParty');
@@ -445,7 +445,7 @@ function initialiseMe() {
 let isChangingPage = false;
 
 function userExistsDm(userId) {
-    return userId in dm_users;
+    return userId in dm_friends;
 }
 function OpenDm(friend_id) {
     const wasOnDm = isOnDm;
@@ -601,7 +601,7 @@ function loadApp(friend_id=null) {
         setProfilePic(dmProfSign,friend_id);
         dmProfSign.dataset.cid = friend_id;
         
-        UpdateDmUserList(friend_id,friendNick,passed_friend_discriminator);
+        UpdateDmFriendList(friend_id,friendNick,passed_friend_discriminator);
     }
     
     
@@ -631,7 +631,7 @@ function changeCurrentDm(friend_id) {
     const dmProfSign = getId('dm-profile-sign');
     setProfilePic(dmProfSign,friend_id);
     dmProfSign.dataset.cid = friend_id;
-    UpdateDmUserList(friend_id,friendNick)
+    UpdateDmFriendList(friend_id,friendNick)
 
     isChangingPage = false;
 }

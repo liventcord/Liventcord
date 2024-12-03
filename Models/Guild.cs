@@ -34,7 +34,7 @@ namespace LiventCord.Models
         [Column("is_guild_uploaded_img")]
         public bool IsGuildUploadedImg { get; set; }
 
-        public virtual ICollection<GuildUser> GuildMembers { get; set; } = new List<GuildUser>();
+        public virtual ICollection<GuildMember> GuildMembers { get; set; } = new List<GuildMember>();
         public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
 
         [NotMapped]

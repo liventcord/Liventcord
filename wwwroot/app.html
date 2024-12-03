@@ -339,10 +339,12 @@
     <script src="/static/js/friends.js"></script> 
     <script src="/static/js/guild.js"></script> 
     <script src="/static/js/mediaElements.js"></script> 
+    <script src="/static/js/mediaPanel.js"></script> 
     <script src="/static/js/message.js"></script> 
     <script src="/static/js/popups.js"></script> 
     <script src="/static/js/routing.js"></script> 
     <script src="/static/js/search.js"></script> 
+    <script src="/static/js/serverEvents.js"></script> 
     <script src="/static/js/settings.js"></script>
     <script src="/static/js/settingsui.js"></script>
     <script src="/static/js/ui.js"></script>
@@ -466,33 +468,32 @@
         var passed_channel_id = jsonData.channelId;
         var passed_guild_name = jsonData.guildName;
         var passed_author_id = jsonData.authorId;
-        var typing_users = jsonData.typingUsers;
+        var typing_members = jsonData.typingUsers;
         var shared_guilds_map = jsonData.sharedGuildsMap;
         var permissions_map = jsonData.permissionsMap;
         var friends_status = jsonData.friendsStatus;
-        var dm_users = jsonData.dmUsers || [];
+        var dm_friends = jsonData.dmFriends || [];
         var guilds_data = jsonData.guildsJson;
-        var guild_users = jsonData.guildUsers;
+        var guild_members = jsonData.guildMembers;
 
 
         currentGuildId = passed_guild_id; 
 
-        guild_users_cache = guild_users;
+        guild_members_cache = guild_members;
 
         console.log('Data loaded:', jsonData);
         function renderGuilds(guilds) {
-            return guilds.map(({ GuildId, FirstChannelId, GuildName, OwnerId }) => {
+            return guilds.map(({ GuildId, RootChannel, GuildName, OwnerId }) => {
                 guildAuthorIds[GuildId] = OwnerId;
                 const guildId = String(GuildId);
                 const imgSrc = `/guilds/${guildId}`;
-                const firstChannelId = FirstChannelId ? String(FirstChannelId) : '';
                 const guildName = GuildName ? String(GuildName) : '';
 
                 return `
                     <li>
                         <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
                         onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/images/server_avatars/default.png';" 
-                        onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(firstChannelId)}', '${guildName}')" />
+                        onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(RootChannel)}', '${guildName}')" />
                         <div class="white-rod"></div>
                     </li>
                 `;

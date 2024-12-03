@@ -1172,7 +1172,7 @@
             "type": "string",
             "nullable": true
           },
-          "guildUsers": {
+          "guildMembers": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/GuildUser"

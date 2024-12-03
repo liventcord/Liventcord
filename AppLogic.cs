@@ -60,20 +60,20 @@ namespace LiventCord.Helpers
                 _logger.LogInformation("Retrieving guild information for guildId: {GuildId}", guildId);
                 var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
                 
-                _logger.LogInformation("Checking typing users...");
-                var typingUsers = new List<string>();
+                _logger.LogInformation("Checking typing members...");
+                var typingMembers = new List<string>();
                 var sharedGuildsMap = new List<string>();
-                var guildUsers = new List<PublicUser>();
+                var guildMembers = new List<PublicUser>();
                 var permissionsMap = _permissionsController.GetPermissionsMapForUser(userId);
 
                 if (!string.IsNullOrEmpty(guildId))
                 {
-                    _logger.LogInformation("Fetching guild users for guildId: {GuildId}", guildId);
-                    guildUsers = await _membersController.GetGuildUsers(guildId);
+                    _logger.LogInformation("Fetching guild members for guildId: {GuildId}", guildId);
+                    guildMembers = await _membersController.GetGuildMembers(guildId);
 
                     if (!string.IsNullOrEmpty(channelId)) {
-                        _logger.LogInformation("Fetching typing users...");
-                        typingUsers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
+                        _logger.LogInformation("Fetching typing members...");
+                        typingMembers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
                     }
 
                     _logger.LogInformation("Fetching shared guilds...");
@@ -83,8 +83,8 @@ namespace LiventCord.Helpers
                 _logger.LogInformation("Fetching friends' statuses...");
                 var friendsStatus = await _friendController.GetFriendsStatus(userId) ?? null;
 
-                _logger.LogInformation("Fetching DM users...");
-                var dmUsers = await _dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
+                _logger.LogInformation("Fetching DM members...");
+                var dmFriends = await _dbContext.UserDms.Where(ud => ud.UserId == userId).Select(ud => ud.FriendId).ToListAsync() ?? new List<string>();
 
                 _logger.LogInformation("Generating JSON data...");
                 var jsonData = new
@@ -97,12 +97,12 @@ namespace LiventCord.Helpers
                     channelId,
                     guildName = guild?.GuildName ?? "",
                     authorId = guild?.OwnerId ?? "",
-                    guildUsers,
-                    typingUsers,
+                    guildMembers,
+                    typingMembers,
                     sharedGuildsMap,
                     permissionsMap,
                     friendsStatus,
-                    dmUsers,
+                    dmFriends,
                     guildsJson = guilds
                 };
 

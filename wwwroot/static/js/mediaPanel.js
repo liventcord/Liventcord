@@ -49,9 +49,7 @@ async function loadGifContent() {
     }
 }
 
-gifMenu = getId('gif-menu');
-let gifMenu;
-
+let gifMenu = getId('gif-menu');
 
 function toggleEmojis() {
     if(isGifsOpen) {

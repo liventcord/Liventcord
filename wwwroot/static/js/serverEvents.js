@@ -125,7 +125,7 @@ socket.on('bulk_reply_response', data => {
 socket.on('update_users', data => {
     if (!data || !data.users || !data.guildId) { return; }
     
-    guild_users_cache[data.guildId] = data.users;
+    guild_members_cache[data.guildId] = data.users;
     updateUserList(data.users);   
     
 });

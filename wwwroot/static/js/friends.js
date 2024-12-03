@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
     
 
     
-    updateDmsList(dm_users);
+    updateDmsList(dm_friends);
     
     window.addEventListener('resize',handleResize);
     

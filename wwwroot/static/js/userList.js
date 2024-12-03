@@ -6,7 +6,7 @@ function renderTitle(titleText, container, headingLevel = 1) {
     container.appendChild(titleElement);
 }
 
-function UpdateDmUserList(friend_id,friendNick,friendDiscriminator) {
+function UpdateDmFriendList(friend_id,friendNick,friendDiscriminator) {
     const usersData = {
         currentUserId: {
             user_id:  currentUserId,
