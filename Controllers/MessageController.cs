@@ -11,7 +11,7 @@ namespace LiventCord.Controllers {
 
     [ApiController]
     [Authorize]
-    [Route("/api")]
+    [Route("")]
     public class MessageController : BaseController
     {
         private readonly AppDbContext _context;
@@ -23,11 +23,10 @@ namespace LiventCord.Controllers {
             _context = context;
         }
             
-        // POST /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("/guilds/{guildId}/channels/{channelId}/messages")]
-        public async Task<IActionResult> HandleNewMessage([FromBody] NewMessageRequest request)
+        [HttpPost("/api/guilds/{guildId}/channels/{channelId}/messages")]
+        public async Task<IActionResult> HandleNewMessage([FromRoute] string guildId, [FromRoute] string channelId, [FromBody] NewMessageRequest request)
         {
-            if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
+            if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(request.Content))
             {
                 return BadRequest(new { Type = "error", Message = "Required properties (guildId, channelId, content) are missing." });
             }
@@ -37,25 +36,26 @@ namespace LiventCord.Controllers {
             string? reactionEmojisIds = request.ReactionEmojisIds;
             string? lastEdited = request.LastEdited;
 
-            if (!await _permissionsController.CanSendMessages(UserId!, request.GuildId))
+            if (!await _permissionsController.CanSendMessages(UserId!, guildId))
             {
                 return Forbid();
             }
 
-            await NewMessage(UserId!, request.GuildId, request.ChannelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
-            
+            await NewMessage(UserId!, guildId, channelId, request.Content, attachmentUrls, replyToId, reactionEmojisIds);
+
             return Ok(new { Type = "success", Message = "Message sent." });
         }
 
         // GET /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpGet("/guilds/{guildId}/channels/{channelId}/messages")]
+        [HttpGet("/api/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleGetMessages(
-            [FromQuery] GetMessagesRequest request)
+            [FromRoute] string guildId, 
+            [FromRoute] string channelId)
         {
-
-            var messages = await GetMessages(request.GuildId, request.ChannelId);
+            var messages = await GetMessages(guildId, channelId);
+            
             var oldestMessageDate = await _context.Messages
-                .Where(m => m.ChannelId == request.ChannelId)
+                .Where(m => m.ChannelId == channelId)
                 .OrderBy(m => m.Date)
                 .Select(m => m.Date)
                 .FirstOrDefaultAsync();
@@ -70,7 +70,7 @@ namespace LiventCord.Controllers {
         }
 
         // PUT /api/guilds/{guildId}/channels/{channelId}/messages
-        [HttpPost("/guilds/{guildId}/channels/{channelId}/messages/edit")]
+        [HttpPost("/api/guilds/{guildId}/channels/{channelId}/messages/edit")]
         public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request, [FromHeader] string userId)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
@@ -89,7 +89,7 @@ namespace LiventCord.Controllers {
             return Ok(new { Type = "success", Message = "Message sent." });
         }
 
-        [HttpGet("search")]
+        [HttpGet("/api/guilds/search")]
         public async Task<ActionResult<IEnumerable<Message>>> SearchMessages(string guildId, string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -186,21 +186,9 @@ namespace LiventCord.Controllers {
     }
 }
 
-public class GetMessagesRequest
-{
-    [Required(ErrorMessage = "GuildId is required.")]
-    public required string GuildId { get; set; }
-    [Required(ErrorMessage = "ChannelId is required.")]
-    public required string ChannelId { get; set; }
-}
+
 public class NewMessageRequest
 {
-    [Required(ErrorMessage = "GuildId is required.")]
-    public required string GuildId { get; set; }
-
-    [Required(ErrorMessage = "ChannelId is required.")]
-    public required string ChannelId { get; set; }
-
     [Required(ErrorMessage = "Content is required.")]
     [StringLength(2000, ErrorMessage = "Content must not exceed 2000 characters.")]
     public required string Content { get; set; }
