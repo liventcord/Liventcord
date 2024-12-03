@@ -30,6 +30,24 @@ namespace LiventCord.Data
             Database.EnsureCreated();
         }
 
+        public async Task<bool> DoesGuildExist(string guildId)
+        {
+            if (string.IsNullOrEmpty(guildId))
+                return false; 
+
+            return await Guilds.AnyAsync(g => g.GuildId == guildId);
+        }
+
+        public async Task<bool> IsGuildPublic(string guildId)
+        {
+            if (string.IsNullOrEmpty(guildId))
+                return false;
+
+            return await Guilds.AnyAsync(g => g.GuildId == guildId && g.IsPublic);
+        }
+
+                
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

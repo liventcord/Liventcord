@@ -33,6 +33,8 @@ namespace LiventCord.Models
 
         [Column("is_guild_uploaded_img")]
         public bool IsGuildUploadedImg { get; set; }
+        [Column("is_public")]
+        public bool IsPublic { get; set; }
 
         public virtual ICollection<GuildMember> GuildMembers { get; set; } = new List<GuildMember>();
         public virtual ICollection<Channel> Channels { get; set; } = new List<Channel>();
@@ -42,7 +44,7 @@ namespace LiventCord.Models
 
         public virtual ICollection<GuildPermissions> GuildPermissions { get; set; } = new List<GuildPermissions>();
 
-        public Guild(string guildId, string ownerId, string guildName, string rootChannel, string? region = null, bool isGuildUploadedImg = false)
+        public Guild(string guildId, string ownerId, string guildName, string rootChannel, string? region = null, bool isGuildUploadedImg = false,bool isPublic=false)
         {
             GuildId = guildId;
             OwnerId = ownerId;
@@ -50,6 +52,7 @@ namespace LiventCord.Models
             RootChannel = rootChannel;
             Region = region;
             IsGuildUploadedImg = isGuildUploadedImg;
+            IsPublic = isPublic;
         }
     }
 
