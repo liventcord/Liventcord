@@ -58,7 +58,7 @@ namespace LiventCord.Controllers
         {
             string rootChannel = Utils.CreateRandomId();
   
-            var newGuild = await CreateGuild(UserId!, request.GuildName, rootChannel,request.Photo);
+            var newGuild = await CreateGuild(UserId!, request.GuildName, rootChannel,request.Photo,request.IsPublic);
 
             if (request.Photo != null)
             {
@@ -94,11 +94,11 @@ namespace LiventCord.Controllers
 
         
 
-        private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, IFormFile? formFile)
+        private async Task<Guild> CreateGuild(string ownerId, string guildName, string rootChannel, IFormFile? formFile,bool isPublic)
         {
             var guildId = Utils.CreateRandomId();
 
-            var guild = new Guild(guildId, ownerId, guildName, rootChannel, null, formFile != null);
+            var guild = new Guild(guildId, ownerId, guildName, rootChannel, null, formFile != null,isPublic);
 
             guild.Channels.Add(new Channel
             {
@@ -116,7 +116,7 @@ namespace LiventCord.Controllers
 
             if (guild.GuildMembers.Any(gu => gu.MemberId == ownerId)) throw new Exception("User already in guild");
 
-            var guildUser = new GuildMember
+            var guildMember = new GuildMember
             {
                 MemberId = ownerId,
                 GuildId = guildId,
@@ -124,9 +124,9 @@ namespace LiventCord.Controllers
                 User = user
             };
 
-            Console.WriteLine($"Adding GuildUser: GuildId = {guildUser.GuildId}, MemberId = {guildUser.MemberId}, UserId = {guildUser.User.UserId}");
+            Console.WriteLine($"Adding GuildUser: GuildId = {guildMember.GuildId}, MemberId = {guildMember.MemberId}, UserId = {guildMember.User.UserId}");
 
-            guild.GuildMembers.Add(guildUser);
+            guild.GuildMembers.Add(guildMember);
 
             Console.WriteLine($"Guild Details: GuildId = {guild.GuildId}, OwnerId = {guild.OwnerId}, GuildName = {guild.GuildName}");
 
@@ -154,13 +154,13 @@ namespace LiventCord.Controllers
                 return BadRequest(new { Type = "error", Message = "Guild ID is required." });
 
 
+            var guild = await _dbContext.Guilds.FindAsync(guildId);
+            if (guild == null)
+                return NotFound(new { Type = "error", Message = "Guild not found." });
 
             if (!await _permissionsController.IsUserAdmin(guildId, UserId!))
                 return Forbid("User is not authorized to delete this guild.");
 
-            var guild = await _dbContext.Guilds.FindAsync(guildId);
-            if (guild == null)
-                return NotFound(new { Type = "error", Message = "Guild not found." });
 
             _dbContext.Guilds.Remove(guild);
             await _dbContext.SaveChangesAsync();
@@ -181,6 +181,7 @@ namespace LiventCord.Controllers
 public class CreateGuildRequest
 {
     public required string GuildName { get; set; }
+    public required bool IsPublic {get; set; }
     public IFormFile? Photo { get; set; }
 }
 
