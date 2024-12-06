@@ -9,13 +9,15 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) 
+    .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
+    .Filter.ByExcluding(logEvent => logEvent.MessageTemplate.Text.Contains("db query"))
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 builder.Host.UseSerilog(); 

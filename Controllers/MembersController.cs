@@ -110,48 +110,6 @@ namespace LiventCord.Controllers
             await _dbContext.SaveChangesAsync();
         }
 
-        [HttpGet("/api/guilds/all")]
-        public async Task<IActionResult> GetAllGuilds()
-        {
-            var guilds = await _dbContext.Guilds
-                .Include(g => g.GuildMembers)
-                    .ThenInclude(gm => gm.User) // Include User details via GuildMember
-                .Include(g => g.Channels)
-                    .ThenInclude(c => c.UserChannels)
-                .ToListAsync();
-
-            if (guilds == null || !guilds.Any())
-                return NotFound(new { Type = "error", Message = "No guilds found." });
-
-            var result = guilds.Select(guild => new
-            {
-                guild.GuildId,
-                guild.GuildName,
-                guild.OwnerId,
-                guild.CreatedAt,
-                guild.Region,
-                guild.IsGuildUploadedImg,
-                guild.IsPublic,
-                Channels = guild.Channels.Select(c => new
-                {
-                    c.ChannelId,
-                    c.ChannelName,
-                    c.ChannelDescription,
-                    c.IsTextChannel,
-                    c.Order,
-                }),
-                Members = guild.GuildMembers.Select(m => new
-                {
-                    m.MemberId,
-                    m.GuildId,
-                    User = m.User.GetPublicUser()  // Using the GetPublicUser method
-                })
-            });
-
-            return Ok(new { Type = "success", Data = result });
-        }
-
-
 
         [NonAction]
         public async Task<bool> DoesMemberExistInGuild(string userId, string guildId)
