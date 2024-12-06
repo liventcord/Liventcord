@@ -1,3 +1,8 @@
+let channelList;
+let channelsUl;
+
+let channelTitle;
+
 let currentChannels;
 let currentChannelName = null;
 let currentVoiceChannelId;
@@ -31,11 +36,10 @@ async function changeChannel(newChannel) {
     if(isTextChannel) {
         currentChannelId = channelId;
         currentChannelName = newChannelName;
-        userInput.placeholder = '#' + truncateString(newChannelName,30) + ' kanalına mesaj gönder';
-        channelInfo.textContent = newChannelName;
+        chatInput.placeholder = '#' + truncateString(newChannelName,30) + ' kanalına mesaj gönder';
+        channelTitle.textContent = newChannelName;
         lastSenderID = '';
         chatContent.innerHTML = '';
-        lastMessageDateTime = null;
         currentLastDate = '';
         GetHistoryFromOneChannel(currentChannelId);
         closeReplyMenu();

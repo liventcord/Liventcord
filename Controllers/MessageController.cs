@@ -60,18 +60,14 @@ namespace LiventCord.Controllers {
                 .Select(m => m.Date)
                 .FirstOrDefaultAsync();
 
-            var messageToEmit = new
-            {
-                Type = "history_response",
-                Data = new { messages, oldestMessageDate }
-            };
+            var messageToEmit = new { messages, oldestMessageDate,guildId,channelId };
 
             return Ok(messageToEmit);
         }
 
         // PUT /api/guilds/{guildId}/channels/{channelId}/messages
         [HttpPut("/api/guilds/{guildId}/channels/{channelId}/messages/edit")]
-        public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request, [FromHeader] string userId)
+        public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request)
         {
             if (string.IsNullOrEmpty(request.GuildId) || string.IsNullOrEmpty(request.ChannelId) || string.IsNullOrEmpty(request.Content))
             {
@@ -79,7 +75,7 @@ namespace LiventCord.Controllers {
             }
 
             string? attachmentUrls = request.AttachmentUrls;
-            if (!await _permissionsController.CanManageChannels(userId, request.GuildId))
+            if (!await _permissionsController.CanManageChannels(UserId!, request.GuildId))
             {
                 return Forbid();
             }
@@ -89,7 +85,7 @@ namespace LiventCord.Controllers {
             return Ok(new { Type = "success", Message = "Message sent." });
         }
 
-        [HttpGet("/api/guilds/search")]
+        [HttpGet("/api/guilds/{guildId}search")]
         public async Task<ActionResult<IEnumerable<Message>>> SearchMessages(string guildId, string query)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -189,15 +185,14 @@ namespace LiventCord.Controllers {
 
 public class NewMessageRequest
 {
-    [Required(ErrorMessage = "Content is required.")]
     [StringLength(2000, ErrorMessage = "Content must not exceed 2000 characters.")]
-    public required string Content { get; set; }
-
+    public required string? Content { get; set; }
     public string? AttachmentUrls { get; set; }
     public string? ReplyToId { get; set; }
     public string? ReactionEmojisIds { get; set; }
     public string? LastEdited { get; set; }
 }
+
 public class EditMessageRequest
 {
     [Required(ErrorMessage = "GuildId is required.")]

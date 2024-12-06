@@ -1,44 +1,16 @@
 let isDomLoaded = false;
-let chatContainer;
-let chatContent;
-let userInput ;
-let userList;
-let channelInfo;
-let gifsMenuContainer;
-let channelList;
-let channelsUl;
-
-
-
-let fileInput;
-
-let isEmojisOpen = false;
-let isOldMessageCd = false;
-let isReachedChannelEnd = false;
-
-
-
-
-let lastMessageDateTime = null;
-let lastSenderID = '';
 
 
 
 
 
-let currentReplyingTo = '';
-let currentGuildIndex = 0;
-
-
-let currentEscHandler;
 let isOnMe = true;
 let isOnDm = false;
 
 let cachedFriMenuContent;
 let userListFriActiveHtml;
 
-let contextList = {};
-let messageContextList = {};
+
 
 let channels_cache = {}; // <guildId> <channels_list>
 let guild_members_cache = {}; // <guildId> <users_list>
@@ -87,15 +59,10 @@ let permissionManager;
 
 
 
-
-
-
-let channelSearchInputElement;
-
 const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            loadObservedContent(entry);
+            loadObservedContent(entry.target);
         }
     });
 }, { threshold: 0.1 });
@@ -140,34 +107,19 @@ function assignElements() {
         enableSnow();
     }
     isSnow = cookieSnow;
-    userInput = getId('user-input');
+    chatInput = getId('user-input');
     userList = getId('user-list');
-    channelInfo = getId("channel-info");
+    channelTitle = getId("channel-info");
     
-    chatContainer = getId('chat-container');
-    chatContent = getId('chat-content');
-    gifsMenuContainer = getId('gifs-menu-container');
-    fileInput = getId('fileInput');
+    
     guildsList = getId('guilds-list');
     channelList = getId('channel-list');
-    channelSearchInputElement = getId('channelSearchInput');
-
     channelsUl = channelList.querySelector('ul');
-    chatContentInitHtml = chatContent.innerHTML;
-
-    const searchDropdown = getId('search-dropdown');
     
 
 
-
-    document.addEventListener('click', (event) => {
-        if (!event.target.closest('#channelSearchInput')) {
-            searchDropdown.classList.add('hidden');
-            if(!channelSearchInputElement.value.trim()) {
-                channelSearchInputElement.style.width = '150px';
-            }
-        }
-    });
+    addChannelSearchListeners();
+    
 
 }
 
@@ -180,6 +132,7 @@ function assignElements() {
 document.addEventListener('DOMContentLoaded', function () {
     window.scrollTo(0,0)
     assignElements();
+    initializeChatComponents();
 
     urlToBase64(defaultProfileImageUrl)
         .then(base64 => defaultProfileImageUrl = base64)
@@ -204,9 +157,9 @@ document.addEventListener('DOMContentLoaded', function () {
     
     chatContainer.addEventListener('scroll', handleScroll);
 
-    initialiseUserInput();
+    initialisechatInput();
     document.addEventListener('click', (event) => {
-        if (!userMentionDropdown.contains(event.target) && event.target !== userInput) {
+        if (!userMentionDropdown.contains(event.target) && event.target !== chatInput) {
             userMentionDropdown.style.display = 'none';
         }
     });
@@ -321,7 +274,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function readCurrentMessages() {
     if (!currentChannelId ) { return; }
-    //const lasttime = lastMessageDateTime;   'last_time' : lasttime,
     socket.emit('read_message',{'channelId' : currentChannelId,'guildId' : currentGuildId});
     getId('newMessagesBar').style.display = 'none';
 }
@@ -416,21 +368,6 @@ function getManageableGuilds() {
 
 
 
-function getLastSecondMessageDate() {
-    const messages = chatContent.children;
-    if (messages.length < 2) return  '';
-
-    const secondToLastMessage = messages[messages.length - 2];
-    if (secondToLastMessage) {
-        const dateGathered = secondToLastMessage.getAttribute('data-date');
-        if(dateGathered) {
-            const parsedDate = new Date(dateGathered);
-            const formattedDate = formatDate(parsedDate);
-            return formattedDate;
-        }
-    }
-    return '';
-}
 
 
 
@@ -452,7 +389,6 @@ function OpenDm(friend_id) {
     isOnDm = true;
     currentDmId = friend_id;
     lastSenderID = '';
-    lastMessageDateTime = null;
     activateDmContainer(friend_id);
     const url = constructDmPage(friend_id);
     if(url != window.location.pathname) {
@@ -572,7 +508,6 @@ function loadApp(friend_id=null) {
         
         fetchUsers();
         getChannels();
-        refreshInviteId();
         disableElement('dms-title');
         disableElement('dm-container-parent');
         disableElement('friend-container-item');
@@ -593,8 +528,8 @@ function loadApp(friend_id=null) {
         disableElement('guild-settings-button');
         activateDmContainer(friend_id);
         const friendNick = passed_friend_name != undefined && passed_friend_id == friend_id ? passed_friend_name : getUserNick(friend_id);
-        userInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
-        channelInfo.textContent = friendNick;
+        chatInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+        channelTitle.textContent = friendNick;
         disableElement('hash-sign');
         enableElement('dm-profile-sign')
         const dmProfSign = getId('dm-profile-sign');
@@ -626,8 +561,8 @@ function changeCurrentDm(friend_id) {
     isReachedChannelEnd = false;
     
     const friendNick = getUserNick(friend_id);
-    channelInfo.textContent = friendNick;
-    userInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+    channelTitle.textContent = friendNick;
+    chatInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
     const dmProfSign = getId('dm-profile-sign');
     setProfilePic(dmProfSign,friend_id);
     dmProfSign.dataset.cid = friend_id;

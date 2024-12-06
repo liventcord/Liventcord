@@ -3,6 +3,21 @@ socket.on('update_guilds',data => {
     updateGuildList(data);
 });
 
+function getLastSecondMessageDate() {
+    const messages = chatContent.children;
+    if (messages.length < 2) return  '';
+
+    const secondToLastMessage = messages[messages.length - 2];
+    if (secondToLastMessage) {
+        const dateGathered = secondToLastMessage.getAttribute('data-date');
+        if(dateGathered) {
+            const parsedDate = new Date(dateGathered);
+            const formattedDate = formatDate(parsedDate);
+            return formattedDate;
+        }
+    }
+    return '';
+}
 
 socket.on('deletion_message', data=> {
     deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
@@ -209,7 +224,7 @@ socket.on('message_date_response', (data)=> {
 
 
 
-socket.on('history_response', (data) => {
+socket.on('get_history', (data) => {
     handleHistoryResponse(data);  
 });
 

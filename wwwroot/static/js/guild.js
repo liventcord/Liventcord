@@ -229,7 +229,7 @@ function joinVoiceChannel(channelId) {
 
 function refreshInviteId() {
     if(!current_invite_ids) { return; }
-    socket.emit('get_current_invite_id',{'guildId' : currentGuildId});
+    socket.emit('get_invites',{'guildId' : currentGuildId});
 }
 
 

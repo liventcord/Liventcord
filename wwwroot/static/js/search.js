@@ -1,3 +1,5 @@
+let channelSearchInputElement;
+
 let currentSearchUiIndex = -1;
 function updateUserMentionDropdown(value) {
     const mentionRegex = /@\w*/g;
@@ -38,12 +40,12 @@ function highlightOption(index) {
 }
 
 function selectUser(userId, userNick) {
-    const message = userInput.value;
-    const position = userInput.selectionStart;
+    const message = chatInput.value;
+    const position = chatInput.selectionStart;
     const newMessage = message.slice(0, position - message.length) + `@${userNick} ` + message.slice(position);
-    userInput.value = newMessage;
+    chatInput.value = newMessage;
     userMentionDropdown.style.display = 'none'; 
-    userInput.focus(); 
+    chatInput.focus(); 
 }
 
 
@@ -139,12 +141,11 @@ function displayDefaultContent() {
 function onFocusInput() {
     const dropdown = getId('search-dropdown');
     dropdown.classList.remove('hidden');
-    inputElement.style.width = '225px'; 
+    channelSearchInputElement.style.width = '225px'; 
 }
 
 
 function onBlurInput() {
-    const inputElement = getId('channelSearchInput');
     const dropdown = getId('search-dropdown');
     document.addEventListener('click', (event) => {
         if (!event.target.closest('.search-container')) {
@@ -155,15 +156,15 @@ function onBlurInput() {
 function onInputSearchInput() {
     const dropdown = getId('search-dropdown');
     dropdown.classList.remove('hidden');
-    inputElement.style.width = '225px';
+    channelSearchInputElement.style.width = '225px';
 
-    if (inputElement.value.length > 0) {
+    if (channelSearchInputElement.value.length > 0) {
         dropdown.classList.remove('hidden');
-        inputElement.style.width = '225px'; 
+        channelSearchInputElement.style.width = '225px'; 
     }
 
     
-    const query = inputElement.value.toLowerCase();
+    const query = channelSearchInputElement.value.toLowerCase();
     if (query) {
         filterUsers(query);
     } else {
@@ -173,3 +174,15 @@ function onInputSearchInput() {
 
 }
 
+function addChannelSearchListeners() {
+    channelSearchInputElement = getId('channelSearchInput');;
+    document.addEventListener('click', (event) => {
+        if (!event.target.closest('#channelSearchInput')) {
+            const searchDropdown = getId('search-dropdown');
+            searchDropdown.classList.add('hidden');
+            if(!channelSearchInputElement.value.trim()) {
+                channelSearchInputElement.style.width = '150px';
+            }
+        }
+    });
+}

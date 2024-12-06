@@ -267,7 +267,8 @@ function logOutPrompt() {
     askUser('Çıkış Yap','Çıkış yapmak istediğine emin misin?','Çıkış Yap',logOut,color=isRed=true);
 }
 
-function loadObservedContent(jsonData) {
+function loadObservedContent(targetElement) {
+    const jsonData = targetElement.dataset.content_observe;
 
     const sanitizedHTML = sanitizeHTML(jsonData);
 
@@ -275,10 +276,10 @@ function loadObservedContent(jsonData) {
     tempDiv.innerHTML = sanitizedHTML;
 
     while (tempDiv.firstChild) {
-        entry.target.appendChild(tempDiv.firstChild);
+        targetElement.appendChild(tempDiv.firstChild);
     }
 
-    observer.unobserve(entry.target);
+    observer.unobserve(targetElement);
 }
 
 

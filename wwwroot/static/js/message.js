@@ -21,7 +21,7 @@ async function sendMessage(content, user_ids) {
             lastEdited: null
         };
         socket.emit('new_message', message);
-        userInput.value = '';
+        chatInput.value = '';
         closeReplyMenu();
         return;
     } 
@@ -50,7 +50,7 @@ async function sendMessage(content, user_ids) {
                 alertUser('Implement Direct messages ');
             }
             
-            userInput.value = '';
+            chatInput.value = '';
             closeReplyMenu();
             fileImagePreview.innerHTML = '';
             
@@ -78,4 +78,22 @@ function replaceCustomEmojis(message) {
     }
     return message
 
+}
+function displayWelcomeMessage(userName,date) {
+    const newMessage = createEl('div',{className : 'message'});
+    const messageContentElement = createEl('div', {id:'message-content-element'});
+    const authorAndDate = createEl('div');
+    authorAndDate.classList.add('author-and-date');
+    const nickElement = createEl('span');
+    nickElement.textContent = userName;
+    nickElement.classList.add('nick-element');
+    authorAndDate.appendChild(nickElement);
+    const dateElement = createEl('span');
+    dateElement.textContent = getFormattedDate(new Date(date));
+    dateElement.classList.add('date-element');
+    authorAndDate.appendChild(dateElement);
+    newMessage.appendChild(authorAndDate);
+    newMessage.appendChild(messageContentElement);
+    chatContent.appendChild(newMessage);
+    console.log(newMessage.parentNode);
 }

@@ -1,3 +1,5 @@
+let userList;
+
 function renderTitle(titleText, container, headingLevel = 1) {
     const titleElement = createEl(`h${headingLevel}`);
     titleElement.innerText = titleText;

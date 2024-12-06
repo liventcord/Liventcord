@@ -114,8 +114,8 @@ function enableSnow() {
 }
 
 function popKeyboardConfetti() {
-    const { x, y } = getCursorXY(userInput, userInput.selectionStart);
-    const inputRect = userInput.getBoundingClientRect();
+    const { x, y } = getCursorXY(chatInput, chatInput.selectionStart);
+    const inputRect = chatInput.getBoundingClientRect();
     
     let ratioY = y / window.innerHeight + 0.95;
     let ratioX = (inputRect.left + x) / window.innerWidth;

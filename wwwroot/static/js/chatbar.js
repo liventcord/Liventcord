@@ -1,17 +1,22 @@
+let fileInput;
+let currentReplyingTo = '';
+let chatInput ;
+
 let fileImagePreview;
 let typingTimeout;
+let chatContainer;
+let chatContent;
 
+function initialisechatInput() {
 
-function initialiseUserInput() {
+    chatInput.addEventListener('input', adjustHeight);
+    chatInput.addEventListener('keydown', handleUserKeydown);
 
-    userInput.addEventListener('input', adjustHeight);
-    userInput.addEventListener('keydown', handleUserKeydown);
-
-    userInput.addEventListener('input', (event) => {
+    chatInput.addEventListener('input', (event) => {
         updateUserMentionDropdown(event.target.value);
     });
 
-    userInput.addEventListener('keydown', (event) => {
+    chatInput.addEventListener('keydown', (event) => {
         const options = userMentionDropdown.querySelectorAll('.mention-option');
         if (event.key === 'ArrowDown') {
             currentSearchUiIndex = (currentSearchUiIndex + 1) % options.length;
@@ -39,7 +44,7 @@ function showReplyMenu(replyToMsgId,replyToUserId) {
     replyInfo.textContent = getUserNick(replyToUserId) + ' kişisine yanıt veriliyor';
     replyInfo.style.display = 'flex';
     currentReplyingTo = replyToMsgId;
-    userInput.classList.add('reply-opened')
+    chatInput.classList.add('reply-opened')
     
 }
 
@@ -47,27 +52,27 @@ function closeReplyMenu() {
     if(replyCloseButton) replyCloseButton.style.display = "none";
     if(replyInfo) replyInfo.style.display = 'none';
     currentReplyingTo = '';
-    userInput.classList.remove('reply-opened')
+    chatInput.classList.remove('reply-opened')
 }
 
 
 function adjustHeight() {
-    userInput.style.height = 'auto';
-    userInput.style.height = (userInput.scrollHeight) + 'px';
+    chatInput.style.height = 'auto';
+    chatInput.style.height = (chatInput.scrollHeight) + 'px';
 
-    let userInputHeight = userInput.scrollHeight;
-    userInput.scrollTop = userInput.scrollHeight - userInput.clientHeight;
-    if(userInputHeight > 500)  {
+    let chatInputHeight = chatInput.scrollHeight;
+    chatInput.scrollTop = chatInput.scrollHeight - chatInput.clientHeight;
+    if(chatInputHeight > 500)  {
         return;
     }
-    chatContainer.style.height = `calc(87vh - ${userInputHeight-60}px)`;
+    chatContainer.style.height = `calc(87vh - ${chatInputHeight-60}px)`;
 
-    if(userInputHeight == 60) {
-        userInput.style.paddingTop = '-5px';
-        userInput.style.height = '45px';
+    if(chatInputHeight == 60) {
+        chatInput.style.paddingTop = '-5px';
+        chatInput.style.height = '45px';
     }
 
-    const elementHeight = parseInt(userInput.style.height, 10);
+    const elementHeight = parseInt(chatInput.style.height, 10);
     const topPosition = elementHeight;
     if(replyInfo) replyInfo.style.bottom = `${topPosition}px`;
 
@@ -89,7 +94,7 @@ function extractUserIds(message) {
 
 async function handleUserKeydown(event) {
     
-    if (userInput.value !== '') {
+    if (chatInput.value !== '') {
         if (typingTimeout) {
             clearTimeout(typingTimeout);
         }
@@ -103,19 +108,19 @@ async function handleUserKeydown(event) {
     }
     if (event.key === 'Enter' && event.shiftKey) {
         event.preventDefault();
-        let startPos = userInput.selectionStart;
-        let endPos = userInput.selectionEnd;
-        userInput.value = userInput.value.substring(0, startPos) + '\n' + userInput.value.substring(endPos);
-        userInput.selectionStart = userInput.selectionEnd = startPos + 1;
+        let startPos = chatInput.selectionStart;
+        let endPos = chatInput.selectionEnd;
+        chatInput.value = chatInput.value.substring(0, startPos) + '\n' + chatInput.value.substring(endPos);
+        chatInput.selectionStart = chatInput.selectionEnd = startPos + 1;
         const difference = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight)
         console.log(difference);
         if(difference < 10) {
             scrollToBottom();
         }
-        userInput.dispatchEvent(new Event('input'));
+        chatInput.dispatchEvent(new Event('input'));
     } else if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault(); 
-        const message = userInput.value;
+        const message = chatInput.value;
         const userIdsInMessage = extractUserIds(message);
         await sendMessage(message,userIdsInMessage );
         adjustHeight();
@@ -154,6 +159,7 @@ function handleFileInput(eventOrFiles = null) {
                 src: e.target.result
             });
             fileImagePreview.appendChild(img);
+            enableElement("image-preview");
             img.addEventListener('click', function() {
                 displayImagePreview(img.src);
             });
@@ -227,10 +233,15 @@ function updateFileImageBorder() {
 }
 let replyInfo;
 
-document.addEventListener("DOMContentLoaded",()=> {
+function initializeChatComponents() {
     replyInfo = getId("reply-info");
     replyCloseButton = getId("reply-close-button");
     fileImagePreview = getId('image-preview');
+    chatContainer = getId('chat-container');
+    chatContent = getId('chat-content');
+    chatContentInitHtml = chatContent.innerHTML;
+
+    fileInput = getId('fileInput');
 
 
-})
+}

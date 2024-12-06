@@ -1,5 +1,6 @@
 let isDeveloperMode = true;
-
+let contextList = {};
+let messageContextList = {};
 
 function openReactionMenu(messageId) {
     console.log("Opening react menu for: ",messageId);
@@ -40,7 +41,7 @@ function reportUser(user_id) {
 
 function mentionUser(user_id) {
     const usernick = getUserNick(user_id);
-    userInput.value += `@${usernick}`; 
+    chatInput.value += `@${usernick}`; 
 }
 
 

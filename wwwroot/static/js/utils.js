@@ -336,6 +336,7 @@ function openExternalUrl(url) {
 }
 
 function sanitizeHTML(html) {
+    if(typeof html != 'string') return;
     function isValidForColoring(content) {
         return /^[a-zA-Z0-9\s\-_.,!?]+$/.test(content.trim());
     }

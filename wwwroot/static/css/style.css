@@ -178,7 +178,7 @@
 
 #image-preview {
     border: 20px solid #2b2d31;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     max-width: 200px;
@@ -235,19 +235,19 @@
 }
 
 #gifs-menu-container {
-    display: flex; /* Use Flexbox for layout */
-    flex-wrap: wrap; /* Allow items to wrap to the next line */
+    display: flex; 
+    flex-wrap: wrap; 
     margin-top: 20px;
     max-height: 600px;
-    overflow-y: auto; /* Enable scrolling */
-    justify-content: center; /* Align items to the start */
+    overflow-y: auto; 
+    justify-content: center; 
 }
 
 .gif-content {
-    flex: 0 1 auto; /* Allow items to keep their natural width and height */
-    margin: 10px; /* Minimal gap */
-    max-width: 220px; /* Set a max width */
-    max-height: 220px; /* Limit height to prevent overflow */
+    flex: 0 1 auto; 
+    margin: 9px; 
+    max-width: 220px; 
+    max-height: 220px;
     border: 1px solid rgb(39, 40, 44);
     border-radius: 8px;
     overflow: hidden;
@@ -258,11 +258,11 @@
 }
 
 .gif-content img {
-    max-width: 100%; /* Ensure it fits the container */
-    max-height: 100%; /* Maintain height without overflow */
+    max-width: 100%; 
+    max-height: 100%; 
     display: block;
     border-radius: 8px;
-    object-fit: contain; /* Maintain aspect ratio */
+    object-fit: contain; 
 }
 
 
@@ -1077,11 +1077,10 @@
     animation: preview-image-animation 0.3s forwards;
     max-width: 80%;
     max-height: 80%;
-    position: relative; /* Add this line */
+    position: relative; 
 }
 
 #preview-image-button {
-    margin-bottom: 20%;
     left: 50%; 
     color: white;
     padding: 5px 10px; 
@@ -1378,33 +1377,32 @@ textarea::-webkit-scrollbar-track {
 }
 
 .author-and-date {
-
     width: 10px;
     margin-left: 10px;
 
 
     display: flex;
     flex-direction: row;
+    display: flex;
 }
 
 .nick-element {
-
     user-select: text;
     white-space: nowrap;
     font-weight: bold;
-    margin-left: 8px;
     color: white;
 }
 
 .date-element {
+    margin-top: 5px;
     user-select: none;
-    margin-top: 2px;
-    user-select: text;
     white-space: nowrap;
     font-size: 0.7em;
     color: grey;
     filter: brightness(1.4);
+    margin-left: 20px; /* Ensures 20px gap after the nickname */
 }
+
 
 .small-date-element {
     display: none;

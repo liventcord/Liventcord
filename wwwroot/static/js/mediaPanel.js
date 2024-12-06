@@ -1,4 +1,6 @@
 // gifs/emojis/stickers section
+let gifsMenuContainer;
+
 let isGifsOpen = false;
 
 
@@ -15,7 +17,7 @@ function displayGIFs(gifDatas) {
     });
 
 }
-async function loadGifContent() {
+async function loadGifContent(gifsMenuSearchBar) {
     const query = gifsMenuSearchBar.value;
     if(!query) {
         gifsMenuContainer.innerHTML = '';
@@ -50,12 +52,14 @@ async function loadGifContent() {
 }
 
 let gifMenu = getId('gif-menu');
-
+function openGifs() {
+    gifMenu.style.display = 'block';
+}
 function toggleEmojis() {
     if(isGifsOpen) {
         closeGifs();
     } else {
-        gifMenu.style.display = 'block';
+        openGifs();
     }
     isGifsOpen = !isGifsOpen;
 }
@@ -66,7 +70,7 @@ async function toggleGifs() {
     if (isGifsOpen) {
         closeGifs();
     } else {
-        gifMenu.style.display = 'block';
+        openGifs();
     }
     isGifsOpen = !isGifsOpen;
 }
@@ -76,10 +80,11 @@ async function toggleGifs() {
 
 document.addEventListener('DOMContentLoaded',()=> {
     let gifsMenuSearchBar = getId('gifs-menu-searchbar');
+    gifsMenuContainer = getId('gifs-menu-container');
 
 
     gifsMenuSearchBar.addEventListener('keydown', debounce(async function(event) {
-        await loadGifContent();
+        await loadGifContent(gifsMenuSearchBar);
     }, 300));
 
     document.body.addEventListener('click', function(event) {
