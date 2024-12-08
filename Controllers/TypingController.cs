@@ -37,8 +37,8 @@ namespace LiventCord.Controllers
         // POST /api/guilds/{guildId}/channels/{channelId}/writing
         [HttpPost("/api/guilds/{guildId}/channels/{channelId}/writing")]
         public async Task<IActionResult> HandleStartWriting(
-            [FromRoute] string guildId,
-            [FromRoute] string channelId)
+            [FromRoute][IdLengthValidation] string guildId,
+            [FromRoute][IdLengthValidation] string channelId)
         {
 
             if (!writingMembersState.ContainsKey(guildId))

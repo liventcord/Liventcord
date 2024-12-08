@@ -3,7 +3,6 @@ using LiventCord.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LiventCord.Models;
-using System.ComponentModel.DataAnnotations;
 
 
 namespace LiventCord.Controllers
@@ -15,11 +14,11 @@ namespace LiventCord.Controllers
     public class MembersController : BaseController
     {
         private readonly AppDbContext _dbContext;
-        private readonly GuildInviteService _guildInviteService;
+        private readonly InviteController _guildInviteService;
         private readonly PermissionsController _permissionsController;
         private static List<string> OnlineMembers = new();
         private static bool IsOnline(string userId){return OnlineMembers.Contains(userId);}
-        public MembersController(AppDbContext dbContext,GuildInviteService guildInviteService,PermissionsController permissionsController)
+        public MembersController(AppDbContext dbContext,InviteController guildInviteService,PermissionsController permissionsController)
         {
             _dbContext = dbContext;
             _guildInviteService = guildInviteService;
@@ -29,7 +28,7 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds/{guildId}/members
         [HttpGet("/api/guilds/{guildId}/members")]
-        public async Task<IActionResult> HandleGetUsers([FromRoute] string guildId)
+        public async Task<IActionResult> HandleGetUsers([FromRoute][IdLengthValidation] string guildId)
         {
             if (!await _dbContext.DoesGuildExist(guildId)) {
                 return NotFound(new { Type = "error", Message = "Guild does not exist1." });
