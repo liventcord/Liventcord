@@ -247,6 +247,7 @@ async function setProfilePic(profileImg, userId, isTimestamp = false) {
 }
 
 function clickMainLogo() {
+    console.log("Main logo clicked!");
     logoClicked ++;
     if(logoClicked >= 14) {
         logoClicked = 0;

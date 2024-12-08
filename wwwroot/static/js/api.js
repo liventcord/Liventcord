@@ -93,7 +93,7 @@ class CustomHttpConnection {
                 url = `${basePath}/guilds`;
                 break;
             case EventType.GET_INVITES:
-                url = `${basePath}/guilds/${data.guildId}/invites}`;
+                url = `${basePath}/guilds/${data.guildId}/invites`;
                 break;
             case EventType.START_WRITING:
                 url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;

@@ -147,10 +147,7 @@ function removeguildImage() {
 
 
 
-let reply_cache = {};
-let messages_cache = {};
-let guildChatMessages = {};
-let messages_raw_cache = {};
+
 
 
 

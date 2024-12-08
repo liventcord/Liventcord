@@ -32,7 +32,7 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds/{guildId}/channels
         [HttpGet("")]
-        public async Task<IActionResult> HandleGetChannels([FromRoute] string guildId)
+        public async Task<IActionResult> HandleGetChannels([FromRoute][IdLengthValidation] string guildId)
         {
             var channels = await GetGuildChannels(UserId!, guildId);
 
@@ -50,7 +50,7 @@ namespace LiventCord.Controllers
 
         // DELETE /api/guilds/{guildId}/channels/{channelId}
         [HttpDelete("/{guildId}/channels/{channelId}")]
-        public async Task<IActionResult> DeleteChannel([FromRoute] string guildId, string channelId)
+        public async Task<IActionResult> DeleteChannel([FromRoute][IdLengthValidation] string guildId,[IdLengthValidation] string channelId)
         {
             var channel = _dbContext.Channels.Find(channelId);
             if (channel == null)
@@ -69,7 +69,7 @@ namespace LiventCord.Controllers
 
         // POST /api/guilds/{guildId}/channels
         [HttpPost("/{guildId}/channels")]
-        public async Task<IActionResult> CreateChannel([FromRoute] string guildId, [FromBody] CreateChannelRequest request)
+        public async Task<IActionResult> CreateChannel([FromRoute][IdLengthValidation] string guildId, [FromBody] CreateChannelRequest request)
         {
             if (!await _permissionsController.CanManageChannels(UserId!, guildId))
                 return Unauthorized(new { Type = "error", Message = "User does not have permission to manage channels." });

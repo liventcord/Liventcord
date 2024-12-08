@@ -16,13 +16,11 @@ namespace LiventCord.Controllers
     public class UploadController : BaseController
     {
         private readonly AppDbContext _context;
-        private readonly FileExtensionContentTypeProvider _fileTypeProvider;
         private readonly ILogger<UploadController> _logger;
 
-        public UploadController(AppDbContext context, FileExtensionContentTypeProvider fileTypeProvider, ILogger<UploadController> logger)
+        public UploadController(AppDbContext context, ILogger<UploadController> logger)
         {
             _context = context;
-            _fileTypeProvider = fileTypeProvider ?? new FileExtensionContentTypeProvider();
             _logger = logger;
         }
 

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <script src="/static/js/app.js"></script> 
+    <script src="/static/js/app.js" defer></script> 
 
     
     
@@ -364,22 +364,18 @@
 
         async function fetchAndModifyScript(url) {
             try {
-                // Fetch the script content
                 const response = await fetch(url);
                 const scriptContent = await response.text();
 
-                // Calculate SHA-256 hash
                 const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
                 const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
                 const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
                 
-                // Verify the hash
                 if (hashHex !== expectedHash) {
                     console.error('Hash verification failed. Script content has changed or is corrupt.');
-                    return; // Exit if hash doesn't match
+                    return; 
                 }
 
-                // Modify the script content
                 let scriptLines = scriptContent.split('\n');
                 let lineNumberToModify = 1088; 
                 if (lineNumberToModify - 1 < scriptLines.length) {
@@ -397,7 +393,6 @@
             }
         }
 
-        // Call the function to fetch and modify the script
         fetchAndModifyScript(croppieUrl);
     </script>
 
@@ -468,23 +463,28 @@
         var passed_channel_id = jsonData.channelId;
         var passed_guild_name = jsonData.guildName;
         var passed_author_id = jsonData.authorId;
-        var typing_members = jsonData.typingUsers;
+        var passed_typing_members = jsonData.typingUsers;
         var shared_guilds_map = jsonData.sharedGuildsMap;
-        var permissions_map = jsonData.permissionsMap;
+        var permissionsMap = jsonData.permissionsMap;
         var friends_status = jsonData.friendsStatus;
         var dm_friends = jsonData.dmFriends || [];
         var guilds_data = jsonData.guildsJson;
         var guild_members = jsonData.guildMembers;
-
-
+        
+        
         currentGuildId = passed_guild_id; 
-
+        
         guild_members_cache = guild_members;
-
+        
+        const guildsList = document.getElementById('guilds-list');
+        
+        
         console.log('Data loaded:', jsonData);
+        var passedGuildAuthorIds = {};
+
         function renderGuilds(guilds) {
             return guilds.map(({ GuildId, RootChannel, GuildName, OwnerId }) => {
-                guildAuthorIds[GuildId] = OwnerId;
+                passedGuildAuthorIds[GuildId] = OwnerId;
                 const guildId = String(GuildId);
                 const imgSrc = `/guilds/${guildId}`;
                 const guildName = GuildName ? String(GuildName) : '';
@@ -501,15 +501,12 @@
         }
 
 
-        const guildsList = document.getElementById('guilds-list');
         if (guilds_data && guilds_data.length > 0) {
-            console.log(guildAuthorIds);
 
             guilds_data.forEach(({ GuildId, GuildName, OwnerId }) => {
                 if (GuildId) {
                     currentGuildData[GuildId] = { GuildId, GuildName, OwnerId };
                     guildNames[GuildId] = GuildName;
-                    guildAuthorIds[GuildId] = OwnerId;
                 } else {
                     console.warn('Guild data is missing or malformed');
                 }

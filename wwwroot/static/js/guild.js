@@ -1,7 +1,21 @@
 let currentGuildId;
 let currentDmId;
-let current_invite_ids = {};
 let currentGuildName = '';
+
+
+
+let channels_cache = {}; // <guildId> <channels_list>
+let guild_members_cache = {}; // <guildId> <users_list>
+
+let usersInVoice = {};// <channelId> <users_list>
+let guildAuthorIds = {};// <guildId> <author_id>
+let current_invite_ids = {};// <guildId> <invite_ids_list>
+let typing_members = {};// <guildId> <typingMembers>
+
+let replyCache = {};//<messageId> <replies>
+let currentMessagesCache = {};//<messageId> <messageElements>
+let guildChatMessages = {};//<channelId> <messageObjects>
+let messages_raw_cache = {};//<channelId> <messageRawJsons>
 
 function hasSharedGuild(friend_id) {
     return shared_guilds_map.hasOwnProperty(friend_id);
@@ -181,7 +195,7 @@ function loadGuild(guildId,channelId,guildName,guildAuthorId,isChangingUrl=true)
         return;
     }
     currentGuildId = guildId;
-    permissionManager = new PermissionManager(permissions_map, currentGuildId);
+    permissionManager = new PermissionManager(permissionsMap, currentGuildId);
     selectGuildList(guildId);
     if(guildName) {
         currentGuildName = guildName;
@@ -205,6 +219,10 @@ function loadGuild(guildId,channelId,guildName,guildAuthorId,isChangingUrl=true)
     } 
     
 }
+function disableDropdown() {
+    disableElement("settings-dropdown-button");
+
+}
 function changecurrentGuild() {
     isChangingPage = true;
     isOnMe = false;
@@ -215,7 +233,7 @@ function changecurrentGuild() {
     getId('channel-info').textContent = currentChannelName;
     getId('guild-name').innerText = currentGuildName;
     isDropdownOpen = false;
-    dropDown.style.display = 'none';
+    disableDropdown();
   
     isChangingPage = false;
 }
@@ -258,7 +276,7 @@ function changeUrlWithFireWorks(guildId,channelId,guildName) {
     addGuild(guildId,guildName,currentUserId);
 
     createFireWorks();
-    permissions_map[guildId] = {
+    permissionManager.permissionsMap[guildId] = {
         "read_messages": 1,
         "send_messages": 1,
         "manage_roles": 1,

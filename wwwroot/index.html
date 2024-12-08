@@ -46,42 +46,34 @@
         const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e"
 
         async function fetchAndModifyScript(url) {
-            try {
-                // Fetch the script content
-                const response = await fetch(url);
-                const scriptContent = await response.text();
+            const response = await fetch(url);
+            const scriptContent = await response.text();
 
-                // Calculate SHA-256 hash
-                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
-                const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
-                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
-                
-                // Verify the hash
-                if (hashHex !== expectedHash) {
-                    console.error('Hash verification failed. Script content has changed or is corrupt.');
-                    return; // Exit if hash doesn't match
-                }
+            const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); 
+            const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+            
+            if (hashHex !== expectedHash) return;
 
-                // Modify the script content
-                let scriptLines = scriptContent.split('\n');
-                let lineNumberToModify = 1088; 
-                if (lineNumberToModify - 1 < scriptLines.length) {
-                    scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
-                }
-                let modifiedScriptContent = scriptLines.join('\n');
-                let newScript = document.createElement('script');
-                newScript.type = 'text/javascript';
-                newScript.text = modifiedScriptContent;
-                document.body.appendChild(newScript);
-                isCropieInitialized = true;
-
-            } catch (error) {
-                console.error('Error fetching or modifying the script:', error);
+            let scriptLines = scriptContent.split('\n');
+            let lineNumberToModify = 1088; 
+            if (lineNumberToModify - 1 < scriptLines.length) {
+                scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
             }
+            let modifiedScriptContent = scriptLines.join('\n');
+            let newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            newScript.text = modifiedScriptContent;
+            document.body.appendChild(newScript);
+            isCropieInitialized = true;
+
+        }
+        try {
+            fetchAndModifyScript(croppieUrl);
+        } catch (error) {
+                console.error('Error fetching or modifying the script:', error);
         }
 
-        // Call the function to fetch and modify the script
-        fetchAndModifyScript(croppieUrl);
     </script>
 
 
@@ -383,19 +375,20 @@
         var passed_channel_id = "{{ channel_id }}";
         var passed_guild_name = "{{ guild_name }}";
         var passed_author_id = "{{ author_id }}";
-        var typing_members = "{{ typing_members }}";
+        var passed_typing_members = "{{ typing_members }}";
     
         var shared_guilds_map = {{ shared_guilds_map|tojson|safe }};
         var passed_message_readen = JSON.parse('{{ message_readen|tojson|safe }}');
 
-        var permissions_map = {{ permissions_map|tojson }};
-        permissions_map = JSON.parse(permissions_map);
+        let passedPermissionsMap = JSON.parse('{{ permissionsMap|tojson|safe }};');
 
         var friends_status = JSON.parse({{ friends_status|tojson|safe }});
         
         var dm_members = JSON.parse({{ dm_members|tojson|safe }});
+        var passed_typing_members = JSON.parse({{ typing_members|tojson|safe }});
+            
+    
     </script>
-
 
 
     

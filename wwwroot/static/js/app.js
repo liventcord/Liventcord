@@ -1,9 +1,5 @@
 let isDomLoaded = false;
 
-
-
-
-
 let isOnMe = true;
 let isOnDm = false;
 
@@ -12,12 +8,9 @@ let userListFriActiveHtml;
 
 
 
-let channels_cache = {}; // <guildId> <channels_list>
-let guild_members_cache = {}; // <guildId> <users_list>
 
-let usersInVoice = {};
+
 let readenMessagesCache = {};
-let guildAuthorIds = {};
 
 const Permission = {
     READ_MESSAGES: 'read_messages',
@@ -221,6 +214,9 @@ document.addEventListener('DOMContentLoaded', function () {
     if(typeof passed_friend_id !== 'undefined') {
         addUser(passed_friend_id,passed_friend_name,passed_friend_discriminator,passed_friend_blocked)
     }
+    if(typeof passed_typing_members !== 'undefined') {
+        typing_members = passed_typing_members;
+    }
 
     if(isOnMe) {
         if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
@@ -258,7 +254,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    
+    guildAuthorIds = passedGuildAuthorIds;
+
     
     const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
     setUsersList(isCookieUsersOpen, true);
@@ -346,11 +343,11 @@ function getGuildName(guildId) {
 }
 
 function getManageableGuilds() {
-    if(!permissions_map) { return [] }
+    if(!permissionsMap) { return [] }
     const guildsWeAreAdminOn = [];
     let isFoundAny = false;
-    for (const key in permissions_map) {
-        if (permissions_map[key].is_admin) {
+    for (const key in permissionsMap) {
+        if (permissionsMap[key].isAdmin) {
             guildsWeAreAdminOn.push(key);
             isFoundAny = true;
         }
@@ -407,6 +404,7 @@ function OpenDm(friend_id) {
 
 let lastDmId;
 function loadMainMenu(isChangingUrl=true) {
+    console.log("Loading main menu...");
     if(isOnGuild && currentChannelId) {
         guildChatMessages[currentChannelId] = messages_raw_cache;
     }

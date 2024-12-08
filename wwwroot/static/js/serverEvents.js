@@ -43,10 +43,10 @@ socket.on('join_guild_response',data=> {
         getId('create-guild-title').style.color = 'red';
         return;
     }
-    if(!permissions_map[data.guildId]) { permissions_map[data.guildId] = [] };
+    if(!permissionManager.permissionsMap[data.guildId]) { permissionManager.permissionsMap[data.guildId] = [] };
     
     
-    permissions_map[data.guildId] = data.permissions_map;
+    permissionManager.permissionsMap[data.guildId] = data.permissionsMap;
     loadGuild(data.joined_guildId,data.joined_channelId,data.joined_guild_name,data.joined_author_id);
 
     if(closeCurrentJoinPop) {
@@ -83,7 +83,7 @@ socket.on('current_invite_ids_response', data => {
         if (!current_invite_ids[data.guildId]) {
             current_invite_ids[data.guildId] = [];
         }
-        current_invite_ids[data.guildId] = data.invite_ids;
+        current_invite_ids[data.guildId] = data.inviteIds;
     } else {
         console.warn("Invite ids do not exist.");
     }
@@ -123,13 +123,13 @@ socket.on('bulk_reply_response', data => {
     const replies = data.bulk_replies;
     replies.forEach(reply => {
         const { messageId, user_id, content, attachment_urls } = reply;
-        if (!reply_cache[messageId]) {
-            reply_cache[messageId] = {
+        if (!replyCache[messageId]) {
+            replyCache[messageId] = {
                 messageId: messageId,
                 replies: []
             };
         }
-        reply_cache[messageId].replies.push({ user_id, content, attachment_urls });
+        replyCache[messageId].replies.push({ user_id, content, attachment_urls });
     });
     setTimeout(() => {
         handleReplies();

@@ -197,15 +197,22 @@ function displayChatMessage(data) {
     const isBot = data.isBot;
     const replyOf = data.replyOf;
 
-    if(messages_cache[messageId])  {
+    if(currentMessagesCache[messageId])  {
         console.log("Skipping adding message:", content);
         return;
     }
     if (!channelId || !date ) {return; }
     if (!attachment_urls && content == ''){ return; }
+
+
+
     const nick = getUserNick(user_id);
     const newMessage = createEl('div',{className : 'message'});
     const messageContentElement = createEl('p', {id:'message-content-element'});
+
+    currentMessagesCache[messageId] = newMessage;
+    messages_raw_cache[messageId] = data;
+    
     let isCreatedProfile = false;
     if (addToTop) {
         if(willDisplayProfile) {
@@ -263,8 +270,7 @@ function displayChatMessage(data) {
     } else {
         currentLastDate = date;
     }
-    messages_cache[messageId] = newMessage;
-    messages_raw_cache[messageId] = data;
+
     if (!addToTop) { 
         lastSenderID = user_id;
     } else {
@@ -483,7 +489,7 @@ function handleHistoryResponse(data) {
 
 
     isLastMessageStart = false;
-    messages_cache = {};
+    currentMessagesCache = {};
 
     const firstMessageDateOnChannel = new Date(data.oldestMessageDate); 
     const { messages: Messages, channelId, guildId } = data;
@@ -569,7 +575,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
     const messagesArray = Array.isArray(messages) ? messages : [messages];
 
     const replyIds = messagesArray
-        .filter(msg => !repliesList.has(msg.messageId) && !reply_cache[msg.messageId])
+        .filter(msg => !repliesList.has(msg.messageId) && !replyCache[msg.messageId])
         .filter(msg => msg.reply_to_id !== undefined && msg.reply_to_id !== null && msg.reply_to_id !== '')
         .map(msg => msg.reply_to_id);
 
@@ -720,13 +726,13 @@ function GetOldMessages(date,messageId=null) {
 
 
 function GetHistoryFromOneChannel(channelId,isDm=false) {
-    console.log('called history');
+    console.log('Requesting history...');
     const rawMessages = guildChatMessages[channelId];
     if(!isDm && guildChatMessages[channelId]&& Array.isArray(rawMessages)) {
         let repliesList = new Set();
         
         if (rawMessages ) {
-            messages_cache = {};
+            currentMessagesCache = {};
             for (const msg of rawMessages) {
                 const foundReply = displayChatMessage(msg);
                 if (foundReply) {
@@ -781,8 +787,8 @@ function scrollToBottom() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 function handleReplies() {
-    console.log(reply_cache);
-    Object.values(reply_cache).forEach(message => {
+    console.log(replyCache);
+    Object.values(replyCache).forEach(message => {
         const replierElements = Array.from(chatContent.children).filter(element => element.dataset.reply_to_id == message.messageId);
         console.log(replierElements, message.replies);
         replierElements.forEach(replier => {
