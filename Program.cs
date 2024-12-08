@@ -4,6 +4,7 @@ using LiventCord.Data;
 using LiventCord.Helpers;
 using LiventCord.Routes;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.WebUtilities;
@@ -37,7 +38,7 @@ builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<GuildController>();
 builder.Services.AddScoped<PermissionsController>();
 builder.Services.AddScoped<UploadController>();
-builder.Services.AddScoped<GuildInviteService>();
+builder.Services.AddScoped<InviteController>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
@@ -50,9 +51,27 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
         options.LoginPath = "/auth/login";
     });
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var errors = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0) 
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value?.Errors
+                        .Where(e => e != null) 
+                        .Select(e => e.ErrorMessage)
+                        .ToArray() ?? Array.Empty<string>() 
+                );
+
+            return new BadRequestObjectResult(errors);
+        };
+    });
+
 
 builder.Services.AddMemoryCache();
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();

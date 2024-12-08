@@ -24,7 +24,7 @@ namespace LiventCord.Controllers {
         }
             
         [HttpPost("/api/guilds/{guildId}/channels/{channelId}/messages")]
-        public async Task<IActionResult> HandleNewMessage([FromRoute] string guildId, [FromRoute] string channelId, [FromBody] NewMessageRequest request)
+        public async Task<IActionResult> HandleNewMessage([FromRoute][IdLengthValidation] string guildId, [FromRoute][IdLengthValidation] string channelId, [FromBody] NewMessageRequest request)
         {
             if (string.IsNullOrEmpty(guildId) || string.IsNullOrEmpty(channelId) || string.IsNullOrEmpty(request.Content))
             {
@@ -49,8 +49,8 @@ namespace LiventCord.Controllers {
         // GET /api/guilds/{guildId}/channels/{channelId}/messages
         [HttpGet("/api/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleGetMessages(
-            [FromRoute] string guildId, 
-            [FromRoute] string channelId)
+            [FromRoute][IdLengthValidation] string guildId, 
+            [FromRoute][IdLengthValidation] string channelId)
         {
             var messages = await GetMessages(guildId, channelId);
             
@@ -85,8 +85,8 @@ namespace LiventCord.Controllers {
             return Ok(new { Type = "success", Message = "Message sent." });
         }
 
-        [HttpGet("/api/guilds/{guildId}search")]
-        public async Task<ActionResult<IEnumerable<Message>>> SearchMessages(string guildId, string query)
+        [HttpGet("/api/guilds/{guildId}/search")]
+        public async Task<ActionResult<IEnumerable<Message>>> SearchMessages([FromRoute]string guildId, [FromBody]string query)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest("Query cannot be empty.");
@@ -195,12 +195,12 @@ public class NewMessageRequest
 
 public class EditMessageRequest
 {
-    [Required(ErrorMessage = "GuildId is required.")]
+    [IdLengthValidation][Required(ErrorMessage = "GuildId is required.")]
     public required string GuildId { get; set; }
-    [Required(ErrorMessage = "MessageId is required.")]
+    [IdLengthValidation][Required(ErrorMessage = "MessageId is required.")]
     public required string MessageId { get; set; }
 
-    [Required(ErrorMessage = "ChannelId is required.")]
+    [IdLengthValidation][Required(ErrorMessage = "ChannelId is required.")]
     public required string ChannelId { get; set; }
 
     [Required(ErrorMessage = "Content is required.")]

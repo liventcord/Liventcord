@@ -37,6 +37,12 @@ namespace LiventCord.Data
 
             return await Guilds.AnyAsync(g => g.GuildId == guildId);
         }
+        public async Task<bool> DoesMemberExistInGuild(string userId, string guildId)
+        {
+            return await GuildMembers
+                .AnyAsync(gu => gu.MemberId == userId && gu.GuildId == guildId);
+        }
+
 
         public async Task<bool> IsGuildPublic(string guildId)
         {

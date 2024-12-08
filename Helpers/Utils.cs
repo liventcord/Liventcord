@@ -1,5 +1,22 @@
-using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+
+public class IdLengthValidationAttribute : ValidationAttribute
+{
+    private const int RequiredLength = 18;
+
+    public IdLengthValidationAttribute() : base("The id must be 18 characters long.") {}
+
+    public override bool IsValid(object? value)
+    {
+        if (value is string id)
+        {
+            return id.Length == RequiredLength;
+        }
+        return false;
+    }
+}
+
 
 namespace LiventCord.Helpers
 {
