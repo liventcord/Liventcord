@@ -481,3 +481,24 @@ async function urlToBase64(url) {
         throw error;
     }
 }
+function reloadCSS() {
+    const approvedDomains = ['localhost'];
+    function getDomain(url) {
+        const link = createEl('a');
+        link.href = url;
+        return link.hostname;
+    }
+    const links = document.getElementsByTagName('link');
+    for (let i = 0; i < links.length; i++) {
+        const link = links[i];
+        if (link.rel === 'stylesheet') {
+            const href = link.href;
+            const domain = getDomain(href);
+            if (approvedDomains.includes(domain)) {
+                const newHref = href.indexOf('?') !== -1 ? `${href}&_=${new Date().getTime()}` : `${href}?_=${new Date().getTime()}`;
+                link.href = newHref;
+            }
+        }
+    }
+}
+//window.addEventListener('focus', reloadCSS);

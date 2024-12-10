@@ -112,7 +112,7 @@ function fillDropDownContent() {
         disableElement('invite-dropdown-button');
     }
 
-    if(isSelfAuthor()) {
+    if(permissionManager.IsSelfOwner) {
         disableElement('exit-dropdown-button');
     } else {
         enableElement('exit-dropdown-button');

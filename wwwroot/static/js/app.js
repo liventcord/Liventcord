@@ -12,42 +12,7 @@ let userListFriActiveHtml;
 
 let readenMessagesCache = {};
 
-const Permission = {
-    READ_MESSAGES: 'read_messages',
-    SEND_MESSAGES: 'send_messages',
-    MANAGE_ROLES: 'manage_roles',
-    KICK_MEMBERS: 'kick_members',
-    BAN_MEMBERS: 'ban_members',
-    MANAGE_CHANNELS: 'manage_channels',
-    MENTION_EVERYONE: 'mention_everyone',
-    ADD_REACTION: 'add_reaction',
-    IS_ADMIN: 'is_admin',
-    CAN_INVITE: 'can_invite'
-};
-class PermissionManager {
-    constructor(permissionsMap, currentGuildId) {
-        this.permissionsMap = permissionsMap;
-        this.currentGuildId = currentGuildId;
-    }
 
-    getPermission(permType) {
-        return this.permissionsMap[this.currentGuildId]?.[permType] || 0;
-    }
-
-    canInvite() {
-        return Boolean(this.getPermission(Permission.CAN_INVITE));
-    }
-
-    canManageChannels() {
-        return Boolean(this.getPermission(Permission.MANAGE_CHANNELS));
-    }
-    
-    isSelfAdmin() {
-        return Boolean(this.getPermission(Permission.IS_ADMIN));
-    }
-}
-
-let permissionManager;
 
 
 
@@ -63,36 +28,10 @@ const observer = new IntersectionObserver((entries, observer) => {
 
 function getId(string) { return document.getElementById(string);}
 
-function reloadCSS() {
-    const approvedDomains = ['localhost'];
-    function getDomain(url) {
-        const link = createEl('a');
-        link.href = url;
-        return link.hostname;
-    }
-    const links = document.getElementsByTagName('link');
-    for (let i = 0; i < links.length; i++) {
-        const link = links[i];
-        if (link.rel === 'stylesheet') {
-            const href = link.href;
-            const domain = getDomain(href);
-            if (approvedDomains.includes(domain)) {
-                const newHref = href.indexOf('?') !== -1 ? `${href}&_=${new Date().getTime()}` : `${href}?_=${new Date().getTime()}`;
-                link.href = newHref;
-            }
-        }
-    }
-}
-
-//window.addEventListener('focus', reloadCSS);
 
 
 
 
-
-function openSearchPop() {
-
-}
 
 function assignElements() {
     const cookieSnow = loadBooleanCookie('isSnow');
@@ -136,9 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(error => console.error(error));
 
     
-    getId('globalSearchInput').addEventListener('click', function(){
-        openSearchPop();
-    });
+
 
     getId('guild-container').addEventListener('click', function(event) {
         if (event.target.id === 'guild-container' || event.target.id === 'guild-name') {
@@ -194,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
     selfProfileImage.addEventListener("mouseout", function() { this.style.borderRadius = '50%'; });
 
 
-    console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
+    console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_owner_id);
 
     initialiseMe();
     if (window.location.pathname.startsWith('/channels/@me/')) {
@@ -202,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const friendId = parts[3];
         OpenDm(friendId);
         
-    } else  if (typeof passed_guild_id !== 'undefined' && typeof passed_channel_id !== 'undefined' && typeof passed_author_id !== 'undefined') {
-        loadGuild(passed_guild_id,passed_channel_id,passed_guild_name,passed_author_id);
+    } else  if (typeof passed_guild_id !== 'undefined' && typeof passed_channel_id !== 'undefined' && typeof passed_owner_id !== 'undefined') {
+        loadGuild(passed_guild_id,passed_channel_id,passed_guild_name,passed_owner_id);
     }
     if (typeof passed_message_readen !== 'undefined') {
         readenMessagesCache = passed_message_readen;
@@ -226,9 +163,13 @@ document.addEventListener('DOMContentLoaded', function () {
             window.history.pushState(null,null, "/channels/@me")
         }
     }
+
     if(guild_members) {
+        guildCache.addMembers(guild_members);
         updateUserList(guild_members,true);
     }
+
+    
     addContextListeners();
     const val = loadBooleanCookie('isParty');
     isParty = val;
@@ -247,14 +188,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
             console.warn(data,isOnGuild);
-            channels_cache[data.GuildId] = data.GuildChannels;
+            guildCache.addChannel(data.GuildId,data.GuildChannels);
             if(isOnGuild) {
                 updateChannels(data.GuildChannels);
             }
         });
     }
 
-    guildAuthorIds = passedGuildAuthorIds;
+    guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
 
     
     const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
@@ -276,12 +217,7 @@ function readCurrentMessages() {
 }
 
 
-function isAuthor(user_id){
-    return guildAuthorIds[currentGuildId] == user_id 
-}
-function isSelfAuthor() {
-    return isAuthor(currentUserId);
-}
+
 
 
 function createReplyBar(newMessage,messageId,user_id,content,attachment_urls) {
@@ -504,7 +440,7 @@ function loadApp(friend_id=null) {
         }
         console.log(isDomLoaded);
         
-        fetchUsers();
+        fetchMembers();
         getChannels();
         disableElement('dms-title');
         disableElement('dm-container-parent');

@@ -164,20 +164,20 @@ function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploadin
 }
 
 function updateUserOnlineStatus(userId, isOnline) {
-    if(userId == currentUserId) {return; }
-    for (const guildId in guild_members_cache) {
-        if (guild_members_cache.hasOwnProperty(guildId)) {
-            const users = guild_members_cache[guildId];
-            for (const userKey in users) {
-                if (users.hasOwnProperty(userKey)) {
-                    if (users[userKey].user_id === userId) {
-                        users[userKey].is_online = isOnline;
-                        console.log(`User ${userId} online status updated to ${isOnline} in guild ${guildId}`);
-                        return; 
-                    }
-                }
-            }
+    if (userId === currentUserId) return; 
+
+    const guildMembers = guildCache.guildMembers.getGuildMembers(currentGuildId);
+
+    for (const guildId in guildMembers) {
+        const users = guildMembers[guildId];
+        
+        const user = users.find(user => user.user_id === userId);
+        if (user) {
+            user.is_online = isOnline;
+            console.log(`User ${userId} online status updated to ${isOnline} in guild ${guildId}`);
+            return;
         }
     }
+
     console.log(`User ${userId} not found in any guild`);
 }

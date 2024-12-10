@@ -168,7 +168,7 @@
             return guilds.map(guild => {
                 console.log(guild);
                 const imgSrc = guild.src && guild.src !== 'black' ? guild.src : createBlackImage();
-                guildAuthorIds[guild.id] = guild.owner_id;
+                guildOwnerIds[guild.id] = guild.owner_id;
                 const guildId = String(guild.id);
                 const rootChannel = guild.first_channel_id ? String(guild.first_channel_id) : '';
                 const guildName = guild.name ? String(guild.name) : '';
@@ -374,7 +374,7 @@
         var passed_friend_name = "{{ friend_name }}";
         var passed_channel_id = "{{ channel_id }}";
         var passed_guild_name = "{{ guild_name }}";
-        var passed_author_id = "{{ author_id }}";
+        var passed_owner_id = "{{ owner_id }}";
         var passed_typing_members = "{{ typing_members }}";
     
         var shared_guilds_map = {{ shared_guilds_map|tojson|safe }};

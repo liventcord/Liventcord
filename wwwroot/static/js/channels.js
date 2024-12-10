@@ -10,17 +10,18 @@ let currentChannelId;
 
 
 function getChannels() {
-    if(currentChannelId) {
-        if(channels_cache[currentGuildId]) {
-            updateChannels(channels_cache[currentGuildId]);
+    if (currentChannelId) {
+        const channels = guildCache.getChannels(currentGuildId);
+        if (channels.length > 0) {
+            updateChannels(channels);
         } else {
-            socket.emit('get_channels',{'guildId' : currentGuildId});
+            socket.emit('get_channels', { 'guildId': currentGuildId }); 
         }
     } else {
         console.warn("Current channel id is null!");
     }
-
 }
+
 async function changeChannel(newChannel) {
     console.log("channel changed: ",newChannel);
     if(isOnMe || isOnDm) { return; }
@@ -183,7 +184,7 @@ function createChannelElement(channel) {
     settingsSpan.addEventListener('click', () => {
         console.log("Click to settings on:", channel_name);
     })
-    if(isSelfAuthor()) {
+    if(permissionManager.canInvite()) {
         const inviteSpan = createEl('span', { innerHTML: inviteHtml });
         inviteSpan.addEventListener('click', () => {
             console.log("Click to invite on:", channel_name);
@@ -224,22 +225,7 @@ function resetKeydown() {
     isKeyDown = false;
 }
 
-function addChannel(channel) {
-    console.log(typeof(channel), channel);
-    currentChannels.push(channel);
 
-    let guildChannels = channels_cache[channel.guild_id] ? JSON.parse(channels_cache[channel.guild_id]) : [];
-    guildChannels.push(channel);
-    channels_cache[channel.guild_id] = JSON.stringify(guildChannels);
-    
-    document.removeEventListener('keydown', handleKeydown);
-    document.removeEventListener('keyup', resetKeydown);
-    createChannelElement(channel);
-    if (currentChannels.length > 1) {
-        document.addEventListener('keydown', handleKeydown);
-        document.addEventListener('keyup', resetKeydown);
-    }
-}
 function updateChannels(channels) {
     console.log("updating channels with:",channels)
     if (channels == null || !Array.isArray(channels)) { 
@@ -292,42 +278,40 @@ function moveChannel(direction) {
 }
 
 
-function removeChannel(data) {
-    let cachedChannels = channels_cache[data.guild_id];
-    let channelsArray = [];
+function addChannel(channel) {
+    console.log(typeof(channel), channel);
+    currentChannels.push(channel);
 
-    if (cachedChannels) {
-        channelsArray = JSON.parse(cachedChannels);
-        channelsArray = channelsArray.filter(channel => channel.ChannelId !== data.ChannelId);
-        channels_cache[data.guild_id] = JSON.stringify(channelsArray);
+    guildCache.channels.addChannel(channel.guild_id, channel);
+
+    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keyup', resetKeydown);
+    createChannelElement(channel);
+    if (currentChannels.length > 1) {
+        document.addEventListener('keydown', handleKeydown);
+        document.addEventListener('keyup', resetKeydown);
     }
+}
 
+function removeChannel(data) {
+    guildCache.removeChannel(data.guild_id, data.ChannelId);
+
+    const channelsArray = guildCache.channels.getChannels(data.guild_id);
     currentChannels = channelsArray;
     removeChannelElement(data.ChannelId);
     if(currentChannelId == data.ChannelId) {
-        const channelsArray = JSON.parse(channels_cache[currentGuildId])
         const firstChannel = channelsArray[0].ChannelId;
-        loadGuild(currentGuildId,firstChannel)
+        loadGuild(currentGuildId, firstChannel);
     }
 }
 
 function editChannel(data) {
-    let cachedChannels = channels_cache[data.guild_id];
-    let channelsArray = [];
+    guildCache.editChannel(data.guild_id, data.ChannelId, { ChannelName: data.ChannelName });
 
-    if (cachedChannels) {
-        channelsArray = JSON.parse(cachedChannels);
-        channelsArray.forEach((channel, index) => {
-            if (channel.ChannelId === data.ChannelId) {
-                editChannelElement(channel.ChannelId,channel.ChannelName);
-            }
-        });
-    } else {
-        channelsArray = [];
-    }
-
+    const channelsArray = guildCache.channels.getChannels(data.guild_id);
     currentChannels = channelsArray;
 }
+
 
 // voice
 

@@ -787,7 +787,6 @@ function scrollToBottom() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 function handleReplies() {
-    console.log(replyCache);
     Object.values(replyCache).forEach(message => {
         const replierElements = Array.from(chatContent.children).filter(element => element.dataset.reply_to_id == message.messageId);
         console.log(replierElements, message.replies);

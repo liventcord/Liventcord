@@ -304,7 +304,9 @@ function toggleDropdown() {
         }, 300); 
     }
 }
+function openSearchPop() {
 
+}
 
 function showGuildPop(subject, content) {
 
@@ -581,3 +583,7 @@ function createCropPop(inputSrc, callbackAfterAccept) {
 
     imageContainer.querySelector('.cr-slider-wrap').querySelector('.cr-slider').style.transform = 'scale(1.5);';
 }
+
+getId('globalSearchInput').addEventListener('click', function(){
+    openSearchPop();
+});

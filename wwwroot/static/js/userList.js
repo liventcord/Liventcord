@@ -28,36 +28,55 @@ function UpdateDmFriendList(friend_id,friendNick,friendDiscriminator) {
 
 let isUpdatingUsers = false;
 
-function updateUserList(users,ignoreIsOnMe=false) {
-    if(isOnMe && !ignoreIsOnMe) { console.log("Got users while on me page.");  return; }
-    if(isUpdatingUsers) {  console.warn("Already updating users!");  return; }
-    isUpdatingUsers = true;
-    console.log("Updating users with: ",users);
-
-    for (const userData of users) {
-        console.log(userData);
-        addUser(userData.UserId,userData.Nickname,userData.Discriminator,userData.IsBlocked);
+function updateUserList(users, ignoreIsOnMe = false) {
+    if (isOnMe && !ignoreIsOnMe) {
+        console.log("Got users while on me page.");
+        return;
     }
+    if (isUpdatingUsers) {
+        console.warn("Already updating users!");
+        return;
+    }
+
+    isUpdatingUsers = true;
+    const { onlineUsers, offlineUsers } = categorizeUsers(users);
+    console.log("Updating users with:", users);
 
     userList.innerHTML = '';
-    const tableWrapper = createEl('div',{className:'user-table-wrapper'});
-    const table = createEl('table',{className:'user-table'});
+    const tableWrapper = createEl('div', { className: 'user-table-wrapper' });
+    const table = createEl('table', { className: 'user-table' });
     const tbody = createEl('tbody');
 
-    const onlineUsers = users.filter(user => user.IsOnline === true);
-    const offlineUsers = users.filter(user => user.IsOnline !== true);
     if (onlineUsers.length > 0) {
         renderTitle(`ÇEVRİM İÇİ — ${onlineUsers.length}`, tbody);
-        renderUsers(onlineUsers, tbody, true); 
+        renderUsers(onlineUsers, tbody, true);
     }
+
     if (offlineUsers.length > 0) {
         renderTitle(`ÇEVRİM DIŞI — ${offlineUsers.length}`, tbody);
-        renderUsers(offlineUsers, tbody, false); 
+        renderUsers(offlineUsers, tbody, false);
     }
+
     table.appendChild(tbody);
     tableWrapper.appendChild(table);
     userList.appendChild(tableWrapper);
+
     isUpdatingUsers = false;
+}
+
+function categorizeUsers(users) {
+    const onlineUsers = [];
+    const offlineUsers = [];
+
+    users.forEach(user => {
+        if (user.IsOnline) {
+            onlineUsers.push(user);
+        } else {
+            offlineUsers.push(user);
+        }
+    });
+
+    return { onlineUsers, offlineUsers };
 }
 
 
@@ -96,7 +115,7 @@ function renderUsers(users, tbody, isOnline) {
             profileContainer.appendChild(userNameDiv); 
 
             if(isOnGuild) {
-                if(isAuthor(userData.UserId)) {
+                if(guildCache.isOwner(userData.UserId,currentGuildId)) {
                     const crownEmoji = createEl('img', { src: crownEmojibase64, id: 'crown-symbol' });
                     userNameDiv.appendChild(crownEmoji);
                 }

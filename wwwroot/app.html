@@ -338,6 +338,7 @@
     <script src="/static/js/extras.js"></script> 
     <script src="/static/js/friends.js"></script> 
     <script src="/static/js/guild.js"></script> 
+    <script src="/static/js/guildPermissions.js"></script> 
     <script src="/static/js/mediaElements.js"></script> 
     <script src="/static/js/mediaPanel.js"></script> 
     <script src="/static/js/message.js"></script> 
@@ -462,7 +463,7 @@
         var passed_guild_id = jsonData.guildId;
         var passed_channel_id = jsonData.channelId;
         var passed_guild_name = jsonData.guildName;
-        var passed_author_id = jsonData.authorId;
+        var passed_owner_id = jsonData.authorId;
         var passed_typing_members = jsonData.typingUsers;
         var shared_guilds_map = jsonData.sharedGuildsMap;
         var permissionsMap = jsonData.permissionsMap;
@@ -474,17 +475,16 @@
         
         currentGuildId = passed_guild_id; 
         
-        guild_members_cache = guild_members;
         
         const guildsList = document.getElementById('guilds-list');
         
         
         console.log('Data loaded:', jsonData);
-        var passedGuildAuthorIds = {};
+        var passedGuildOwnerIds = {};
 
         function renderGuilds(guilds) {
             return guilds.map(({ GuildId, RootChannel, GuildName, OwnerId }) => {
-                passedGuildAuthorIds[GuildId] = OwnerId;
+                passedGuildOwnerIds[GuildId] = OwnerId;
                 const guildId = String(GuildId);
                 const imgSrc = `/guilds/${guildId}`;
                 const guildName = GuildName ? String(GuildName) : '';

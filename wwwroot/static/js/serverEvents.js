@@ -47,7 +47,7 @@ socket.on('join_guild_response',data=> {
     
     
     permissionManager.permissionsMap[data.guildId] = data.permissionsMap;
-    loadGuild(data.joined_guildId,data.joined_channelId,data.joined_guild_name,data.joined_author_id);
+    loadGuild(data.joined_guildId,data.joined_channelId,data.joined_guild_name,data.joined_owner_id);
 
     if(closeCurrentJoinPop) {
         closeCurrentJoinPop();
@@ -89,7 +89,7 @@ socket.on('current_invite_ids_response', data => {
     }
 });
 
-socket.on('update_',data => {
+socket.on('update_guild_name',data => {
     if(data.guildId == currentGuildId) {
         getId('guild-name').innerText = currentGuildName;
     }
@@ -137,25 +137,20 @@ socket.on('bulk_reply_response', data => {
 });
 
 
-socket.on('update_users', data => {
-    if (!data || !data.users || !data.guildId) { return; }
-    
-    guild_members_cache[data.guildId] = data.users;
-    updateUserList(data.users);   
-    
-});
+
 
 socket.on('update_channels', data => {
-    console.log("updated channels with: ", data);
-    if(!data || !data.channels || !data.guildId) { return; }
-    channels_cache[data.guildId] = data.channels;
-    updateChannels(data.channels);
-
+    const guildCache = new GuildCache(); 
+    if (data && data.channels && data.guildId) {
+        guildCache.setChannels(data.guildId, data.channels);
+        updateChannels(data.channels); 
+    }
 });
 
 
 socket.on('channel_update', data => {
     if (!data) return;
+    // TODO edit this to use post put delete
     const updateType = data.type;
     const removeType = 'remove';
     const editType = 'edit';

@@ -110,7 +110,7 @@ function applySettings() {
         if(isGuildSettings) {
             changeGuildName();
             
-            if(isSelfAuthor()) {
+            if(permissionManager.canManageGuild()) {
                 uploadImage(true);
             }
 

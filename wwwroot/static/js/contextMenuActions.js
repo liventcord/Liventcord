@@ -267,7 +267,7 @@ function createChannelsContext(channelId) {
     context[ChannelsActionType.MUTE_CHANNEL] = { action: () => muteChannel(channelId) };
     context[ChannelsActionType.NOTIFY_SETTINGS] = { action: () => showNotifyMenu(channelId) };
 
-    if (isSelfAuthor()) {
+    if (permissionManager.canManageChannels()) {
         context[ChannelsActionType.EDIT_CHANNEL] = { action: () => editChannel(channelId) };
         context[ChannelsActionType.DELETE_CHANNEL] = { action: () => deleteChannel(channelId, currentGuildId) };
     }
@@ -288,15 +288,21 @@ function createMessageContext(messageId, user_id) {
         context[MessagesActionType.EDIT_MESSAGE] = { action: () => openEditMessage(messageId) };
     }
 
-    if (isSelfAuthor() || (isOnDm && user_id === currentUserId)) {
+    if (permissionManager.canManageMessages() || (isOnDm && user_id === currentUserId)) {
         context[MessagesActionType.PIN_MESSAGE] = { action: () => pinMessage(messageId) };
     }
 
     context[MessagesActionType.REPLY] = { action: () => showReplyMenu(messageId, user_id) };
     context[MessagesActionType.MARK_AS_UNREAD] = { action: () => markAsUnread(messageId) };
 
-    if (isSelfAuthor() || (isOnDm && user_id === currentUserId)) {
+    if(isOnDm) {
+        if (user_id === currentUserId) {
+            context[MessagesActionType.DELETE_MESSAGE] = { action: () => deleteMessage(messageId) };
+        }
+    } else {
+        if(permissionManager.canManageMessages())
         context[MessagesActionType.DELETE_MESSAGE] = { action: () => deleteMessage(messageId) };
+
     }
 
     if (isDeveloperMode) {

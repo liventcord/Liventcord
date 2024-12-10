@@ -192,7 +192,7 @@ function toggleCheckBox(toggleElement, value) {
 
 function getGuildSettings() {
     let setToReturn = [...guildSettings]; 
-    if (isSelfAuthor()) {
+    if (permissionManager.canManageGuild()) {
         setToReturn.push({ category: Invites, label: 'Davetler' });
         setToReturn.push({ category: Roles, label: 'Roller' });
         setToReturn.push({ category: DeleteGuild, label: 'Sunucuyu Sil' });
