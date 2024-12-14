@@ -50,7 +50,7 @@ namespace LiventCord.Controllers
                 .ToArray());
         }
 
-        public async Task AddInviteAsync(string guildId)
+        private async Task AddInviteAsync(string guildId)
         {
             var inviteId = CreateRandomInviteId();
 
@@ -64,7 +64,7 @@ namespace LiventCord.Controllers
             _dbContext.GuildInvites.Add(guildInvite);
             await _dbContext.SaveChangesAsync();
         }
-
+        [NonAction]
         public async Task<string?> GetGuildIdByInviteAsync(string inviteId)
         {
             var guildInvite = await _dbContext.GuildInvites

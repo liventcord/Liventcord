@@ -39,13 +39,7 @@ namespace LiventCord.Controllers
             if (channels == null)
                 return BadRequest(new { Type = "error", Message = "Unable to retrieve channels." });
 
-            var updateChannelsMessage = new
-            {
-                Type = "update_channels",
-                Data = new { guildId, channels }
-            };
-
-            return Ok(updateChannelsMessage);
+            return Ok(new { guildId, channels });
         }
 
         // DELETE /api/guilds/{guildId}/channels/{channelId}
@@ -63,7 +57,7 @@ namespace LiventCord.Controllers
 
             _dbContext.Channels.Remove(channel);
             await _dbContext.SaveChangesAsync();
-            return Ok(new { Type = "success", Message = "Channel deleted successfully." });
+            return Ok();
         }
 
 
@@ -93,7 +87,7 @@ namespace LiventCord.Controllers
             guild.Channels.Add(newChannel);
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new { Type = "success", Message = "Channel created.", ChannelId = newChannel.ChannelId });
+            return Ok();
         }
 
 

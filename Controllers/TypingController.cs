@@ -51,19 +51,10 @@ namespace LiventCord.Controllers
                 writingMembersState[guildId].Add(UserId!);
             }
 
-            var messageToEmit = new
-            {
-                Type = "start_writing",
-                Data = new
-                {
-                    UserId,
-                    guildId,
-                    channelId
-                }
-            };
+            var messageToEmit = new {UserId, guildId, channelId };
 
             await _sseManager.EmitToGuild(_membersController.GetGuildUsersIds(guildId),messageToEmit);
-            return Ok(new { Type = "success", Message = "Writing started." });
+            return Accepted();
         }
     }
 }
