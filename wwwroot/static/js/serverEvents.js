@@ -21,9 +21,7 @@ function getLastSecondMessageDate() {
 
 socket.on('deletion_message', data=> {
     deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
-    if(guildChatMessages && guildChatMessages[currentChannelId] && guildChatMessages[currentChannelId] [data.messageId]) {
-        delete guildChatMessages[currentChannelId][data.messageId];
-    }
+    guildCache.removeMessage(data.messageId,data.channelId,data.guildId);
     const msgdate = messages_raw_cache[data.messageId].date;
     if(lastMessageDate == new Date(msgdate).setHours(0, 0, 0, 0)) {
         lastMessageDate = new Date(getLastSecondMessageDate()).setHours(0, 0, 0, 0)
@@ -32,7 +30,6 @@ socket.on('deletion_message', data=> {
     if(bottomestChatDateStr  == msgdate) {
         bottomestChatDateStr = getLastSecondMessageDate();
     }
-    delete guildChatMessages[currentChannelId][data.messageId];
     delete messages_raw_cache[data.messageId];
 });
 
@@ -78,14 +75,11 @@ socket.on('deleted_guild', data => {
         alertUser('Sunucu silme hatası',data);
     }
 });
-socket.on('current_invite_ids_response', data => {
+socket.on('get_invites', data => {
     if (data && data.invite_ids) {
-        if (!current_invite_ids[data.guildId]) {
-            current_invite_ids[data.guildId] = [];
-        }
-        current_invite_ids[data.guildId] = data.inviteIds;
+        guildCache.addInvites(guildId,data.invite_ids);
     } else {
-        console.warn("Invite ids do not exist.");
+        console.warn("Invite ids do not exist. ",data);
     }
 });
 
@@ -174,7 +168,18 @@ socket.on('channel_update', data => {
     }
 });
 
-
+socket.on('get_members', data => {
+    const members = data.members;
+    const guildId = data.guildId;
+    if (!data || !members || !guildId) { 
+        console.error("Malformed members data: ",data);
+        return; 
+    }
+    
+    guildCache.addMembers(guildId,members);
+    updateMemberList(members);   
+    
+});
 
 
 socket.on('user_status', (data) => {

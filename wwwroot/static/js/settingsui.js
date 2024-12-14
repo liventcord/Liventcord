@@ -63,7 +63,7 @@ function getMissingHtml(title) {
     <div id="settings-title">Sunucuya Genel Bakış</div>
     <div id="guild-settings-rightbar">
         <p style="font-size:20px; color:white; font-weight:bold; margin-top: -150px;">${title}</p>
-        <img src="https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif"><img>
+        <img src="https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404_files/noodle.gif"><img>
 
     </div>
     `

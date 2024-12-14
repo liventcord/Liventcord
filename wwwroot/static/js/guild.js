@@ -31,7 +31,7 @@ class Guild {
         this.channels = new ChannelCache();
         this.members = new GuildMembersCache();
         this.typingMembers = new BaseCache();
-        this.inviteIds = new BaseCache();
+        this.inviteIds = new InviteIdsCache();
         this.messages = new MessagesCache();
         this.ownerId = null;
     }
@@ -55,17 +55,20 @@ class Guild {
 
 class ChannelCache extends BaseCache {
     setChannels(guildId, channels) {
-        this.setArray(guildId, channels);
+        this.setArray(guildId, Array.isArray(channels) ? channels.flat() : []);
     }
 
     getChannels(guildId) {
-        return this.get(guildId) || [];
+        const channels = this.get(guildId) || [];
+        return Array.isArray(channels) ? channels.flat() : [];
     }
 
     addChannel(guildId, channel) {
-        const channels = this.getChannels(guildId);
-        channels.push(channel);
-        this.setChannels(guildId, channels);
+        const channels = this.getChannels(guildId); 
+        if (!channels.some(existingChannel => existingChannel.ChannelId === channel.ChannelId)) {
+            channels.push(channel);
+            this.setChannels(guildId, channels); 
+        }
     }
 
     editChannel(guildId, channelId, newChannelData) {
@@ -82,6 +85,8 @@ class ChannelCache extends BaseCache {
         this.setChannels(guildId, channels);
     }
 }
+
+
 
 class GuildMembersCache extends BaseCache {
     assignGuildMembers(guildId, guildMembers) {
@@ -101,7 +106,6 @@ class GuildMembersCache extends BaseCache {
         return this.get(guildId) || [];
     }
 }
-
 class MessagesCache extends BaseCache {
     setChannelMessages(channelId, messages) {
         this.setArray(channelId, messages);
@@ -118,8 +122,30 @@ class MessagesCache extends BaseCache {
     getRawMessages(channelId) {
         return this.get(channelId) || [];
     }
+
+    removeMessage(messageId, channelId) {
+        const currentMessages = this.getChannelMessages(channelId);
+
+        if (!Array.isArray(currentMessages)) {
+            console.warn(`No messages found for channel ${channelId}`);
+            return;
+        }
+        const updatedMessages = currentMessages.filter(msg => msg.messageId !== messageId);
+        this.setChannelMessages(channelId, updatedMessages);
+
+        console.log(`Message with ID ${messageId} removed from channel ${channelId}`);
+    }
 }
 
+class InviteIdsCache extends BaseCache {
+    assignInviteIds(guildId, inviteId) {
+        this.setObject(guildId, inviteId);
+    }
+
+    getInviteIds(guildId) {
+        return this.get(guildId) || [];
+    }
+}
 class GuildCache {
     constructor() {
         if (GuildCache.instance) {
@@ -196,7 +222,27 @@ class GuildCache {
     }
 
     addMembers(guildId, members) {
+        console.error("settings members: " ,guildId, members);
         this.getGuild(guildId).members.setGuildMembers(guildId, members);
+    }
+
+    isInvitesEmpty(guildId) {
+        return this.getGuild(guildId).isInvitesEmpty(guildId);
+    }
+    addInvites(guildId,invites) {
+        this.getGuild(guildId).inviteIds.assignInviteIds(guildId,invites);
+    }
+    getInviteId(guildId) {
+        return this.getGuild(guildId).inviteIds.getInviteIds(guildId);
+    }
+    getRawMessages(channelId,guildId) {
+        return this.getGuild(guildId).messages.getRawMessages(channelId);
+    }
+    setRawMessages(channelId,guildId,rawMessages) {
+        this.getGuild(guildId).messages.setRawMessages(channelId,rawMessages);
+    }
+    removeMessage(messageId,channelId,guildId) {
+        this.getGuild(guildId).messages.removeMessage(messageId,channelId,guildId);
     }
 }
 
@@ -441,7 +487,7 @@ function joinVoiceChannel(channelId) {
 
 
 function refreshInviteId() {
-    if(!current_invite_ids) { return; }
+    if(!guildCache.isInvitesEmpty(currentGuildId)) { return; }
     socket.emit('get_invites',{'guildId' : currentGuildId});
 }
 
@@ -479,21 +525,25 @@ function fetchMembers() {
         console.warn("Current guild id is null! cant fetch members");
         return
     }
+    const members = guildCache.getMembers(currentGuildId);
 
+    if(members) {
+        console.log("Using cached members...");
+        updateMemberList(guildCache.getMembers(currentGuildId));
 
-    if(guildCache.isMembersEmpty(currentGuildId)) {
-        updateUserList(guildCache.guildMembers.getGuildMembers(currentGuildId));
     } else {
+        console.log("Fetching members...");
         socket.emit('get_members',{'guildId' : currentGuildId});
+
     }
 
 }
 
 
 function getGuildUsers() {
-    if (!guildCache.guildMembers.getGuildMembers() || !currentGuildId) { return; }
+    if (!guildCache.isMembersEmpty(currentGuildId) || !currentGuildId) { return; }
     
-    const guildMembers = guildCache.guildMembers.getGuildMembers(currentGuildId);
+    const guildMembers = guildCache.getMembers(currentGuildId);
     if (!guildMembers) { return; }
 
     let usersToReturn = [];
@@ -524,10 +574,3 @@ function startGuildJoinCreate() {
     showGuildPop('Sunucunu Oluştur','Sunucun, arkadaşlarınla takıldığınız yerdir. Kendi sunucunu oluştur ve konuşmaya başla.');
 }
 
-function getCurrentInviteId() {
-    let currentGuild = currentGuildId;
-    if (!current_invite_ids || !current_invite_ids[currentGuild] || current_invite_ids[currentGuild].length === 0) {
-        return null; 
-    }
-    return current_invite_ids[currentGuild][current_invite_ids[currentGuild].length - 1];
-}

@@ -511,17 +511,9 @@ function handleHistoryResponse(data) {
 
     Messages.sort((a, b) => new Date(a.Date) - new Date(b.Date));
 
-    if (!Array.isArray(guildChatMessages[channelId])) {
-        guildChatMessages[channelId] = [];
-    }
-
-    console.log('Current value:', guildChatMessages[channelId]);
-
-    try {
-        guildChatMessages[channelId].push(...Messages);
-    } catch (error) {
-        console.error(`Failed to push messages for channel ${channelId}:`, error);
-    }
+    guildCache.setRawMessages(channelId,guildId,Messages);
+        
+        
 
     if (Messages[0] && Messages[0].Date && new Date(Messages[0].Date).getTime() === firstMessageDateOnChannel.getTime()) {
         displayStartMessage();
@@ -725,13 +717,15 @@ function GetOldMessages(date,messageId=null) {
 
 
 
-function GetHistoryFromOneChannel(channelId,isDm=false) {
-    console.log('Requesting history...');
-    const rawMessages = guildChatMessages[channelId];
-    if(!isDm && guildChatMessages[channelId]&& Array.isArray(rawMessages)) {
+function GetHistoryFromOneChannel(channelId, isDm = false) {
+    console.log('Retrieving history from cache...');
+
+    const rawMessages = guildCache.getRawMessages(channelId,currentGuildId);
+
+    if (!isDm && rawMessages && Array.isArray(rawMessages)) {
         let repliesList = new Set();
-        
-        if (rawMessages ) {
+
+        if (rawMessages.length > 0) {
             currentMessagesCache = {};
             for (const msg of rawMessages) {
                 const foundReply = displayChatMessage(msg);
@@ -739,29 +733,38 @@ function GetHistoryFromOneChannel(channelId,isDm=false) {
                     repliesList.add(msg.messageId);
                 }
             }
+            fetchReplies(rawMessages, repliesList);
+            return; 
 
         } else {
-            console.error('rawMessages is not an array or is undefined');
+            console.warn('No messages found in cache for this channel.');
         }
-        fetchReplies(rawMessages,repliesList);
-        return
     }
+
+    fetchMessagesFromServer(channelId, isDm);
+}
+
+function fetchMessagesFromServer(channelId, isDm = false) {
+    console.warn('Falling back to fetching messages from the server...');
+
     let requestData = {
         channelId: channelId,
-        isDm : isDm
+        isDm: isDm,
     };
-    if(isOnGuild) {
+    if (isOnGuild) {
         requestData['guildId'] = currentGuildId;
     }
+
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
     }, 1000);
-    socket.emit('get_history',requestData);
 
+    socket.emit('get_history', requestData);
 }
 
-function createChatScrollButton()
-{
+
+
+function createChatScrollButton() {
     let scrollButton = getId('scroll-to-bottom');
     
     if(!chatContainer) chatContainer = getId('chat-container');

@@ -40,14 +40,7 @@ namespace LiventCord.Controllers
         public async Task<IActionResult> HandleGetGuilds()
         {
             var guilds = await _membersController.GetUserGuilds(UserId!) ?? new List<GuildDto>();
-
-            var messageToEmit = new
-            {
-                Type = "update_guilds",
-                Data = new { guilds }
-            };
-
-            return Ok(messageToEmit);
+            return Ok(guilds);
         }
 
 
@@ -165,7 +158,7 @@ namespace LiventCord.Controllers
             _dbContext.Guilds.Remove(guild);
             await _dbContext.SaveChangesAsync();
 
-            return Ok(new { Type = "success", Message = "Guild deleted successfully." });
+            return Ok();
         }
 
         

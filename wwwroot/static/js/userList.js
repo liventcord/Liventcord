@@ -23,24 +23,24 @@ function UpdateDmFriendList(friend_id,friendNick,friendDiscriminator) {
             discriminator: friendDiscriminator
         }
     };
-    updateUserList(usersData);
+    updateMemberList(usersData);
 }
 
 let isUpdatingUsers = false;
 
-function updateUserList(users, ignoreIsOnMe = false) {
+function updateMemberList(members, ignoreIsOnMe = false) {
     if (isOnMe && !ignoreIsOnMe) {
         console.log("Got users while on me page.");
         return;
     }
     if (isUpdatingUsers) {
-        console.warn("Already updating users!");
+        console.warn("Already updating members!");
         return;
     }
 
     isUpdatingUsers = true;
-    const { onlineUsers, offlineUsers } = categorizeUsers(users);
-    console.log("Updating users with:", users);
+    const { onlineUsers, offlineUsers } = categorizeMembers(members);
+    console.error("Updating members with:", members);
 
     userList.innerHTML = '';
     const tableWrapper = createEl('div', { className: 'user-table-wrapper' });
@@ -63,19 +63,9 @@ function updateUserList(users, ignoreIsOnMe = false) {
 
     isUpdatingUsers = false;
 }
-
-function categorizeUsers(users) {
-    const onlineUsers = [];
-    const offlineUsers = [];
-
-    users.forEach(user => {
-        if (user.IsOnline) {
-            onlineUsers.push(user);
-        } else {
-            offlineUsers.push(user);
-        }
-    });
-
+function categorizeMembers(members) {
+    const onlineUsers = members.filter(member => member.Status === "online");
+    const offlineUsers = members.filter(member => member.Status !== "online");
     return { onlineUsers, offlineUsers };
 }
 

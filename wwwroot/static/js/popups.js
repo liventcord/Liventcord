@@ -263,7 +263,7 @@ function createPopUp({contentElements, id, closeBtnId=null}) {
 function createInviteUsersPop() {
     const title = `Arkadaşlarını ${currentGuildName} sunucusuna davet et`;
     const sendText = "VEYA BİR ARKADAŞINA SUNUCU DAVETİ BAĞLANTISI YOLLA";
-    const invitelink = `${window.location.protocol}//${window.location.hostname}/join-guild/${getCurrentInviteId()}`;
+    const invitelink = `${window.location.protocol}//${window.location.hostname}/join-guild/${guildCache.getInviteId(guildId)}`;
 
     const inviteTitle = createEl('p', { id: 'invite-users-title', textContent: title });
     const channelnamehash = createEl('p', { id: 'invite-users-channel-name-hash', innerHTML:textChanHtml });

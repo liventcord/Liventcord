@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(base64 => defaultMediaImageUrl = base64)
             .catch(error => console.error(error));
 
-    
 
 
     getId('guild-container').addEventListener('click', function(event) {
@@ -111,8 +110,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const friendContainer = getId('friend-container-item');
     friendContainer.addEventListener('click',loadMainMenu);
 
-
-   
 
     isDomLoaded = true;
     currentUserId = passed_user_id;
@@ -164,9 +161,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    if(guild_members) {
-        guildCache.addMembers(guild_members);
-        updateUserList(guild_members,true);
+    if(guild_members && typeof(passed_guild_id != 'undefined')) {
+        guildCache.addMembers(passed_guild_id,guild_members);
+        updateMemberList(guild_members,true);
     }
 
     
@@ -188,8 +185,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
             console.warn(data,isOnGuild);
-            guildCache.addChannel(data.GuildId,data.GuildChannels);
             if(isOnGuild) {
+                guildCache.addChannel(data.GuildId,data.GuildChannels);
                 updateChannels(data.GuildChannels);
             }
         });
@@ -197,9 +194,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
 
+
     
     const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
     setUsersList(isCookieUsersOpen, true);
+    disableElement('loading-screen');
 
     
 });
@@ -341,9 +340,7 @@ function OpenDm(friend_id) {
 let lastDmId;
 function loadMainMenu(isChangingUrl=true) {
     console.log("Loading main menu...");
-    if(isOnGuild && currentChannelId) {
-        guildChatMessages[currentChannelId] = messages_raw_cache;
-    }
+
     function handleMenu() {
         selectGuildList('main-logo');
         if(isChangingUrl) {

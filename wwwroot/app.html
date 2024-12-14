@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LiventCord</title>
-    
     <link rel="stylesheet" href="/static/css/friendstyle.css">
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -30,6 +29,7 @@
       
 </style>
 <body>
+    <div id="loading-screen"><img id="loading-element" src="/static/images/icons/icon.png"></div>
 
     <div id="channel-list">
 
@@ -492,7 +492,7 @@
                 return `
                     <li>
                         <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-                        onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/images/server_avatars/default.png';" 
+                        onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/images/server_avatars/default.png';" 
                         onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(RootChannel)}', '${guildName}')" />
                         <div class="white-rod"></div>
                     </li>

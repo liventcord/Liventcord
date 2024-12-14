@@ -37,18 +37,17 @@ namespace LiventCord.Routes
                     {
                         if (fileName.EndsWith("404_files/noodle.gif"))
                         {
-                            context.Response.Redirect("https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+                            context.Response.Redirect("https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
                         }
                         else
                         {
-                            string redirectUrl = "https://raw.githubusercontent.com/TheLp281/LiventCordPages/refs/heads/main/static/404filesnew/output/" + Path.GetFileName(fileName);
+                            string redirectUrl = "https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404filesnew/output/" + Path.GetFileName(fileName);
                             context.Response.Redirect(redirectUrl);
                         }
                     }
                 });
             }
 
-            MapRoute("/", "beta.html"); //mainpage.html
             MapRoute("/beta", "beta.html");
             MapRoute("/download", "download.html");
             MapRoute("/register", "register.html");

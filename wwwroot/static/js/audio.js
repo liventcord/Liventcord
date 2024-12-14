@@ -7,7 +7,7 @@ let isAudioPlaying = false;
 let analyser = null; 
 let source = null; 
 let isAnalyzing = false; 
-let youtubeIds = ['hOYzB3Qa9DE'] 
+let youtubeIds = ['hOYzB3Qa9DE','UgSHUZvs8jg'] 
 let youtubeIndex = 0;
 
 
@@ -147,13 +147,13 @@ function initializeMp3Yt() {
 }
 async function fetchAudioStreamUrl(videoId) {
     try {
-        const response = await fetch(`http://localhost:5009/ytstream/?videoId=${encodeURIComponent(videoId)}`);
+        const response = await fetch(`https://localhost:5009/ytstream/?videoId=${encodeURIComponent(videoId)}`);
         
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
 
-        return response.url; // Use the response URL directly for the audio stream
+        return response.url;
     } catch (error) {
         console.error('Error fetching audio stream URL:', error);
         return null;
@@ -548,7 +548,7 @@ let cachedAudioNotify = null;
 function playNotification() {
     try {
         if (!cachedAudioNotify) {
-            cachedAudioNotify = new Audio("https://raw.githubusercontent.com/TheLp281/LiventCord/main/notification.mp3");
+            cachedAudioNotify = new Audio("https://raw.githubusercontent.com/liventcord/LiventCord/main/notification.mp3");
         }
         cachedAudioNotify.play();
     } catch (error) {

@@ -18,13 +18,13 @@ const selectedChanColor = 'rgb(64, 66, 73)';
 const hoveredChanColor = 'rgb(53, 55, 60';
 
 
-
-const loadingScreen = createEl('div', { id: 'loading-screen' });
-document.body.appendChild(loadingScreen);
-const loadingElement = createEl('img', { id: 'loading-element' });
-loadingScreen.appendChild(loadingElement);
-loadingElement.src = '/static/images/icons/icon.png';
-
+function enableLoadingScreen() {
+    const loadingScreen = createEl('div', { id: 'loading-screen' });
+    document.body.appendChild(loadingScreen);
+    const loadingElement = createEl('img', { id: 'loading-element' });
+    loadingScreen.appendChild(loadingElement);
+    loadingElement.src = '/static/images/icons/icon.png';
+}
 
 
 

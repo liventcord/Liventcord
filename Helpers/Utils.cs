@@ -1,21 +1,30 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
+
 public class IdLengthValidationAttribute : ValidationAttribute
 {
     private const int RequiredLength = 18;
 
-    public IdLengthValidationAttribute() : base("The id must be 18 characters long.") {}
+    public IdLengthValidationAttribute() 
+        : base($"The value must be {RequiredLength} characters long and cannot be null or empty.") { }
 
-    public override bool IsValid(object? value)
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is string id)
+        if (value is not string id || string.IsNullOrWhiteSpace(id))
         {
-            return id.Length == RequiredLength;
+            return new ValidationResult($"The {validationContext.MemberName ?? "value"} is required and cannot be null or empty.");
         }
-        return false;
+
+        if (id.Length != RequiredLength)
+        {
+            return new ValidationResult($"The {validationContext.MemberName ?? "value"} must be exactly {RequiredLength} characters long.");
+        }
+
+        return ValidationResult.Success;
     }
 }
+
 
 
 namespace LiventCord.Helpers

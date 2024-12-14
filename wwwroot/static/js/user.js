@@ -166,7 +166,7 @@ function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploadin
 function updateUserOnlineStatus(userId, isOnline) {
     if (userId === currentUserId) return; 
 
-    const guildMembers = guildCache.guildMembers.getGuildMembers(currentGuildId);
+    const guildMembers = guildCache.getMembers(currentGuildId);
 
     for (const guildId in guildMembers) {
         const users = guildMembers[guildId];

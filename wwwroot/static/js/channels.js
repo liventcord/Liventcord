@@ -14,6 +14,8 @@ function getChannels() {
         const channels = guildCache.getChannels(currentGuildId);
         if (channels.length > 0) {
             updateChannels(channels);
+            console.log("Using cached channels: ",channels);
+
         } else {
             socket.emit('get_channels', { 'guildId': currentGuildId }); 
         }
@@ -160,12 +162,18 @@ function removeChannelElement(channelId) {
 }
 function createChannelElement(channel) {
     const channelId = channel.ChannelId;
-    const channel_name = channel.ChannelName;
+    const channelName = channel.ChannelName;
     const isTextChannel = channel.IsTextChannel;
     const last_read_datetime = channel.LastReadDatetime;
-    console.log(channelId,channel_name,isTextChannel);
+
+    console.log(channel);
+    if(!channelId | !channelName || !isTextChannel) {
+        console.error("Channel element called with empty value: ",channel);
+    }
+    
     const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (existingChannelButton) { return; }
+
     const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
     const channelButton = createEl('li', { className: 'channel-button', id: channelId });
     channelButton.style.marginLeft = '-80px';
@@ -174,7 +182,7 @@ function createChannelElement(channel) {
     contentWrapper.style.display = 'none';
     const hashtagSpan = createEl('span', { innerHTML: htmlToSet, marginLeft: '50px' });
     hashtagSpan.style.color = 'rgb(128, 132, 142)';
-    const channelSpan = createEl('span', { className: 'channelSpan', textContent: channel_name, });
+    const channelSpan = createEl('span', { className: 'channelSpan', textContent: channelName, });
     channelSpan.style.marginRight = '30px';
     channelSpan.style.width = '100%';
     channelButton.style.width = '70%';
@@ -182,12 +190,12 @@ function createChannelElement(channel) {
     contentWrapper.style.marginTop = '4px';
     const settingsSpan = createEl('span', { innerHTML: settingsHtml });
     settingsSpan.addEventListener('click', () => {
-        console.log("Click to settings on:", channel_name);
+        console.log("Click to settings on:", channelName);
     })
     if(permissionManager.canInvite()) {
         const inviteSpan = createEl('span', { innerHTML: inviteHtml });
         inviteSpan.addEventListener('click', () => {
-            console.log("Click to invite on:", channel_name);
+            console.log("Click to invite on:", channelName);
         })
         contentWrapper.appendChild(inviteSpan);
     }
