@@ -28,14 +28,14 @@ namespace LiventCord.Controllers
 
         // GET /api/guilds/{guildId}/members
         [HttpGet("/api/guilds/{guildId}/members")]
-        public async Task<IActionResult> HandleGetUsers([FromRoute][IdLengthValidation] string guildId)
+        public async Task<IActionResult> HandleGetMembers([FromRoute][IdLengthValidation] string guildId)
         {
             if (!await _dbContext.DoesGuildExist(guildId)) {
-                return NotFound(new { Type = "error", Message = "Guild does not exist1." });
+                return NotFound(new { Type = "error", Message = "Guild does not exist." });
             }
 
             if (!await DoesMemberExistInGuild(UserId!, guildId)) {
-                return NotFound(new { Type = "error", Message = "Guild does not exist2." });
+                return NotFound(new { Type = "error", Message = "Guild does not exist." });
             }
 
             var members = await GetGuildMembers(guildId).ConfigureAwait(false);
@@ -43,13 +43,7 @@ namespace LiventCord.Controllers
                 return BadRequest(new { Type = "error", Message = "Unable to retrieve members." });
             }
 
-            var updateMembersMessage = new
-            {
-                Type = "update_members",
-                Data = new { guildId = guildId, members }
-            };
-
-            return Ok(updateMembersMessage);
+            return Ok(new{ guildId, members});
 
         }
 
