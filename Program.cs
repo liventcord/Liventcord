@@ -131,15 +131,15 @@ app.MapGet("/docs2", async context =>
 
 app.UseResponseCompression();
 
-if (!app.Environment.IsDevelopment())
+
+app.UseExceptionHandler("/error");
+
+app.Map("/error", (HttpContext context) =>
 {
-    app.UseExceptionHandler("/error");
-    app.UseHsts();
-}
-else
-{
-    app.UseDeveloperExceptionPage();
-}
+    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+    context.Response.ContentType = "text/plain";
+    return context.Response.WriteAsync("500 Internal Server Error");
+});
 
 app.UseStatusCodePages(async context =>
 {
@@ -155,12 +155,19 @@ app.UseStatusCodePages(async context =>
             httpContext.Response.ContentType = "text/plain";
             await httpContext.Response.WriteAsync("404 Not Found");
         }
-
     }
     else if (statusCode == StatusCodes.Status500InternalServerError)
     {
-        httpContext.Response.ContentType = "text/plain";
-        await httpContext.Response.WriteAsync("500 Internal Server Error");
+        if (isApiRequest)
+        {
+            httpContext.Response.ContentType = "application/json";
+            await httpContext.Response.WriteAsync("{\"error\": \"500 Internal Server Error\"}");
+        }
+        else
+        {
+            httpContext.Response.ContentType = "text/plain";
+            await httpContext.Response.WriteAsync("500 Internal Server Error");
+        }
     }
     else
     {
@@ -179,7 +186,7 @@ app.MapFallback(async context =>
     {
         context.Response.StatusCode = StatusCodes.Status404NotFound;
         context.Response.ContentType = "text/html";
-        var filePath = Path.Combine(app.Environment.WebRootPath, "404.html");
+        var filePath = Path.Combine(app.Environment.WebRootPath,"static","404", "404.html");
         await context.Response.SendFileAsync(filePath);
     }
     else
