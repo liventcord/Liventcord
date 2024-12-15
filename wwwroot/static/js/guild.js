@@ -146,6 +146,11 @@ class InviteIdsCache extends BaseCache {
         return this.get(guildId) || [];
     }
 }
+
+
+
+
+
 class GuildCache {
     constructor() {
         if (GuildCache.instance) {
@@ -161,6 +166,9 @@ class GuildCache {
             this.guilds[guildId] = new Guild(guildId);
         }
         return this.guilds[guildId];
+    }
+    get(guildId) {
+        return this.getGuild(guildId);
     }
 
     isMembersEmpty(guildId) {
@@ -222,7 +230,7 @@ class GuildCache {
     }
 
     addMembers(guildId, members) {
-        console.error("settings members: " ,guildId, members);
+        console.log("settings members: " ,guildId, members);
         this.getGuild(guildId).members.setGuildMembers(guildId, members);
     }
 
@@ -244,14 +252,29 @@ class GuildCache {
     removeMessage(messageId,channelId,guildId) {
         this.getGuild(guildId).messages.removeMessage(messageId,channelId,guildId);
     }
+    forwardMethods() {
+        const cacheTypes = ['channels', 'members', 'messages', 'inviteIds'];
+        
+        cacheTypes.forEach(cacheType => {
+            const cacheClass = this.getGuild('any')[cacheType].constructor;
+
+            Object.getOwnPropertyNames(cacheClass.prototype).forEach(method => {
+                if (method !== 'constructor') {
+                    this[cacheType] = this[cacheType] || {};
+                    this[cacheType][method] = (...args) => {
+                        return this.getGuild(args[0])[cacheType][method](...args);
+                    };
+                }
+            });
+        });
+    }
 }
 
 
 
 
-
-
 const guildCache = new GuildCache();
+guildCache.forwardMethods(); 
 
 let usersInVoice = {};// <channelId> <users_list>
 
@@ -527,7 +550,7 @@ function fetchMembers() {
     }
     const members = guildCache.getMembers(currentGuildId);
 
-    if(members) {
+    if(members.length > 0) {
         console.log("Using cached members...");
         updateMemberList(guildCache.getMembers(currentGuildId));
 

@@ -10,6 +10,7 @@ let currentChannelId;
 
 
 function getChannels() {
+    console.log("Getting channels...");
     if (currentChannelId) {
         const channels = guildCache.getChannels(currentGuildId);
         if (channels.length > 0) {
@@ -17,6 +18,7 @@ function getChannels() {
             console.log("Using cached channels: ",channels);
 
         } else {
+            console.log("Channel cache is empty. fetching channels...");
             socket.emit('get_channels', { 'guildId': currentGuildId }); 
         }
     } else {
@@ -161,116 +163,101 @@ function removeChannelElement(channelId) {
     existingChannelButton.remove();
 }
 function createChannelElement(channel) {
-    const channelId = channel.ChannelId;
-    const channelName = channel.ChannelName;
-    const isTextChannel = channel.IsTextChannel;
-    const last_read_datetime = channel.LastReadDatetime;
+    const { ChannelId: channelId, ChannelName: channelName, IsTextChannel: isTextChannel } = channel;
 
-    console.log(channel);
-    if(!channelId | !channelName || !isTextChannel) {
-        console.error("Channel element called with empty value: ",channel);
-    }
+    if (isChannelExist(channelId)) return;
+
+    const channelButton = createChannelButton(channelId, channelName, isTextChannel);
+    const contentWrapper = createContentWrapper(channel, channelName, isTextChannel);
     
-    const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
-    if (existingChannelButton) { return; }
-
-    const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
-    const channelButton = createEl('li', { className: 'channel-button', id: channelId });
-    channelButton.style.marginLeft = '-80px';
-
-    const contentWrapper = createEl('div', { className: 'content-wrapper'});
-    contentWrapper.style.display = 'none';
-    const hashtagSpan = createEl('span', { innerHTML: htmlToSet, marginLeft: '50px' });
-    hashtagSpan.style.color = 'rgb(128, 132, 142)';
-    const channelSpan = createEl('span', { className: 'channelSpan', textContent: channelName, });
-    channelSpan.style.marginRight = '30px';
-    channelSpan.style.width = '100%';
-    channelButton.style.width = '70%';
-    contentWrapper.style.marginRight = '100px';
-    contentWrapper.style.marginTop = '4px';
-    const settingsSpan = createEl('span', { innerHTML: settingsHtml });
-    settingsSpan.addEventListener('click', () => {
-        console.log("Click to settings on:", channelName);
-    })
-    if(permissionManager.canInvite()) {
-        const inviteSpan = createEl('span', { innerHTML: inviteHtml });
-        inviteSpan.addEventListener('click', () => {
-            console.log("Click to invite on:", channelName);
-        })
-        contentWrapper.appendChild(inviteSpan);
-    }
-    contentWrapper.appendChild(settingsSpan);
-    channelButton.appendChild(hashtagSpan);
-    channelButton.appendChild(channelSpan);
     channelButton.appendChild(contentWrapper);
     appendToChannelContextList(channelId);
     channelsUl.appendChild(channelButton);
 
+    addEventListeners(channelButton, channelId, isTextChannel, channel);
+    handleChannelChangeOnLoad(channel, channelId);
+}
+
+function isChannelExist(channelId) {
+    const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
+    return existingChannelButton !== null;
+}
+
+function createChannelButton(channelId, channelName, isTextChannel) {
+    const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
+    const channelButton = createEl('li', { className: 'channel-button', id: channelId });
+    channelButton.style.marginLeft = '-80px';
+
+    const hashtagSpan = createEl('span', { innerHTML: htmlToSet, marginLeft: '50px' });
+    hashtagSpan.style.color = 'rgb(128, 132, 142)';
+    
+    const channelSpan = createEl('span', { className: 'channelSpan', textContent: channelName });
+    channelSpan.style.marginRight = '30px';
+    channelSpan.style.width = '100%';
+    channelButton.style.width = '70%';
+
+    channelButton.appendChild(hashtagSpan);
+    channelButton.appendChild(channelSpan);
+
+    return channelButton;
+}
+
+function createContentWrapper(channel, channelName, isTextChannel) {
+    const contentWrapper = createEl('div', { className: 'content-wrapper' });
+    contentWrapper.style.display = 'none';
+    contentWrapper.style.marginRight = '100px';
+    contentWrapper.style.marginTop = '4px';
+
+    const settingsSpan = createEl('span', { innerHTML: settingsHtml });
+    settingsSpan.addEventListener('click', () => {
+        console.log("Click to settings on:", channelName);
+    });
+
+    if (permissionManager.canInvite()) {
+        const inviteSpan = createEl('span', { innerHTML: inviteHtml });
+        inviteSpan.addEventListener('click', () => {
+            console.log("Click to invite on:", channelName);
+        });
+        contentWrapper.appendChild(inviteSpan);
+    }
+
+    contentWrapper.appendChild(settingsSpan);
+    return contentWrapper;
+}
+
+function addEventListeners(channelButton, channelId, isTextChannel, channel) {
     channelButton.addEventListener('mouseover', function(event) {
-        if(event.target.id == channelId) {
-            mouseHoverChannelButton(channelButton, isTextChannel,channelId);
+        if (event.target.id == channelId) {
+            mouseHoverChannelButton(channelButton, isTextChannel, channelId);
         }
     });
+
     channelButton.addEventListener('mouseleave', function(event) {
-        if(event.target.id == channelId) {
-            mouseLeaveChannelButton(channelButton, isTextChannel,channelId);
+        if (event.target.id == channelId) {
+            mouseLeaveChannelButton(channelButton, isTextChannel, channelId);
         }
     });
-    mouseLeaveChannelButton(channelButton, isTextChannel,channelId);
+
+    mouseLeaveChannelButton(channelButton, isTextChannel, channelId);
     channelButton.addEventListener('click', function() {
         changeChannel(channel);
     });
+}
 
+function handleChannelChangeOnLoad(channel, channelId) {
     if (channelId == currentChannelId) {
         setTimeout(() => {
             changeChannel(channel);
         }, 50);
     }
-
-
 }
+
 function resetKeydown() {
     isKeyDown = false;
 }
 
 
-function updateChannels(channels) {
-    console.log("updating channels with:",channels)
-    if (channels == null || !Array.isArray(channels)) { 
-        console.log("Invalid channels format");
-        return; 
-    }
-
-    channelsUl.innerHTML = "";
-    if (!isOnMe) {
-        disableElement('dm-container-parent');
-    }
-    document.removeEventListener('keydown', handleKeydown);
-    document.removeEventListener('keyup', resetKeydown);
-
-    channels.forEach(channel => {
-        const channelId = channel.ChannelId;
-        const channelName = channel.ChannelName;
-        const isTextChannel = channel.IsTextChannel;
-        const lastReadDatetime = channel.LastReadDatetime;
-
-        const channelObj = {
-            ChannelId: channelId,
-            ChannelName: channelName,
-            IsTextChannel: isTextChannel,
-            LastReadDatetime: lastReadDatetime
-        };
-
-        createChannelElement(channelObj);
-    });
-
-    currentChannels = channels;
-
-    if (currentChannels.length > 1) {
-        document.addEventListener('keydown', handleKeydown);
-        document.addEventListener('keyup', resetKeydown);
-    }
-}
+  
 let isKeyDown = false;
 let currentChannelIndex = 0;
 function moveChannel(direction) {
@@ -286,20 +273,101 @@ function moveChannel(direction) {
 }
 
 
+
+
+function removeChannelEventListeners() {
+    document.removeEventListener('keydown', handleKeydown);
+    document.removeEventListener('keyup', resetKeydown);
+}
+
+function addChannelEventListeners() {
+    document.addEventListener('keydown', handleKeydown);
+    document.addEventListener('keyup', resetKeydown);
+}
+
+
+function validateChannel(channel) {
+    // Normalize to lowercase keys
+    const channelId = channel.ChannelId?.toLowerCase() || channel.channelId?.toLowerCase();
+    const channelName = channel.ChannelName?.toLowerCase() || channel.channelName?.toLowerCase();
+    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+
+    // Ensure all required properties are available
+    return channelId && channelName && typeof isTextChannel !== 'undefined';
+}
+
+function validateChannels(channels) {
+    // Check if channels is an array and each item is valid
+    return Array.isArray(channels) && channels.every(validateChannel);
+}
+
+function createChannelElement(channel) {
+    // Normalize all properties to lowercase
+    const channelId = (channel.ChannelId || channel.channelId)?.toLowerCase();
+    const channelName = (channel.ChannelName || channel.channelName)?.toLowerCase();
+    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+
+    if (isChannelExist(channelId)) return;
+
+    const channelButton = createChannelButton(channelId, channelName, isTextChannel);
+    const contentWrapper = createContentWrapper(channel, channelName, isTextChannel);
+    
+    channelButton.appendChild(contentWrapper);
+    appendToChannelContextList(channelId);
+    channelsUl.appendChild(channelButton);
+
+    addEventListeners(channelButton, channelId, isTextChannel, channel);
+    handleChannelChangeOnLoad(channel, channelId);
+}
+
 function addChannel(channel) {
+    // Convert all properties to lowercase
+    const channelId = (channel.ChannelId || channel.channelId)?.toLowerCase();
+    const channelName = (channel.ChannelName || channel.channelName)?.toLowerCase();
+    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+
+    if (!validateChannel({ ChannelId: channelId, ChannelName: channelName, IsTextChannel: isTextChannel })) {
+        console.error("Invalid channel data:", channel);
+        return;
+    }
+
     console.log(typeof(channel), channel);
     currentChannels.push(channel);
 
     guildCache.channels.addChannel(channel.guild_id, channel);
 
-    document.removeEventListener('keydown', handleKeydown);
-    document.removeEventListener('keyup', resetKeydown);
+    removeChannelEventListeners();
     createChannelElement(channel);
+
     if (currentChannels.length > 1) {
-        document.addEventListener('keydown', handleKeydown);
-        document.addEventListener('keyup', resetKeydown);
+        addChannelEventListeners();
     }
 }
+
+function updateChannels(channels) {
+    if (!validateChannels(channels)) {
+        console.error("Invalid channels format or missing channel data:", channels);
+        return;
+    }
+
+    console.log("Updating channels with:", channels);
+
+    channelsUl.innerHTML = "";
+    if (!isOnMe) {
+        disableElement('dm-container-parent');
+    }
+
+    removeChannelEventListeners();
+
+    channels.forEach(createChannelElement);
+
+    currentChannels = channels;
+
+    if (currentChannels.length > 1) {
+        addChannelEventListeners();
+    }
+}
+
 
 function removeChannel(data) {
     guildCache.removeChannel(data.guild_id, data.ChannelId);

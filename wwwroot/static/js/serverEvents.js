@@ -133,10 +133,10 @@ socket.on('bulk_reply_response', data => {
 
 
 
-socket.on('update_channels', data => {
+socket.on('get_channels', data => {
     const guildCache = new GuildCache(); 
     if (data && data.channels && data.guildId) {
-        guildCache.setChannels(data.guildId, data.channels);
+        guildCache.channels.setChannels(data.guildId, data.channels);
         updateChannels(data.channels); 
     }
 });
