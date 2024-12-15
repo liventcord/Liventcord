@@ -10,8 +10,6 @@ let userListFriActiveHtml;
 
 
 
-let readenMessagesCache = {};
-
 
 
 
@@ -131,41 +129,57 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_owner_id);
 
     initialiseMe();
+   
+    function isDefined(variable) {
+        return typeof variable !== 'undefined' && variable !== null;
+    }
+
     if (window.location.pathname.startsWith('/channels/@me/')) {
         const parts = window.location.pathname.split('/');
         const friendId = parts[3];
-        OpenDm(friendId);
-        
-    } else  if (typeof passed_guild_id !== 'undefined' && typeof passed_channel_id !== 'undefined' && typeof passed_owner_id !== 'undefined') {
-        loadGuild(passed_guild_id,passed_channel_id,passed_guild_name,passed_owner_id);
+        if (isDefined(friendId)) {
+            OpenDm(friendId);
+        }
+    } else if (isDefined(passed_guild_id) && passed_channel_id && isDefined(passed_owner_id)) {
+        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name, passed_owner_id);
     }
-    if (typeof passed_message_readen !== 'undefined') {
+
+    if (isDefined(passed_message_readen)) {
         readenMessagesCache = passed_message_readen;
     }
-    if (typeof friends_status === 'object' && friends_status !== null) {
+
+    if (isDefined(friends_status) && typeof friends_status === 'object') {
         friends_cache = friends_status;
-    } 
-    if(typeof passed_friend_id !== 'undefined') {
-        addUser(passed_friend_id,passed_friend_name,passed_friend_discriminator,passed_friend_blocked)
     }
-    if(typeof passed_typing_members !== 'undefined') {
+
+    if (isDefined(passed_friend_id)) {
+        addUser(passed_friend_id, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
+    }
+
+    if (isDefined(passed_typing_members)) {
         typing_members = passed_typing_members;
     }
 
-    if(isOnMe) {
-        if(!isPathnameCorrect(window.location.pathname)) window.history.pushState(null, null, "/channels/@me" );
-    }
-    if(isOnGuild) {
-        if(currentGuildData && !passed_guild_id in currentGuildData) {
-            window.history.pushState(null,null, "/channels/@me")
+    if (isOnMe) {
+        if (!isPathnameCorrect(window.location.pathname)) {
+            window.history.pushState(null, null, "/channels/@me");
         }
     }
 
-    if(guild_members && typeof(passed_guild_id != 'undefined')) {
-        guildCache.addMembers(passed_guild_id,guild_members);
-        updateMemberList(guild_members,true);
+    if (isOnGuild) {
+        if (currentGuildData && !(passed_guild_id in currentGuildData)) {
+            window.history.pushState(null, null, "/channels/@me");
+        }
     }
 
+    if (isDefined(guild_members) && isDefined(passed_guild_id)) {
+        console.log(passed_guild_id);
+        cacheInterface.updateMembers(passed_guild_id, guild_members);
+        updateMemberList(guild_members, true);
+    }
+
+
+    
     
     addContextListeners();
     const val = loadBooleanCookie('isParty');
@@ -186,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
         guilds_data.forEach(data => {
             console.warn(data,isOnGuild);
             if(isOnGuild) {
-                guildCache.addChannel(data.GuildId,data.GuildChannels);
+                cacheInterface.addChannel(data.GuildId,data.GuildChannels);
                 updateChannels(data.GuildChannels);
             }
         });
@@ -411,6 +425,21 @@ function loadMainMenu(isChangingUrl=true) {
 
     handleResize();
     
+}
+
+function changecurrentGuild() {
+    isChangingPage = true;
+    isOnMe = false;
+    isOnGuild = true;
+    getChannels();
+    fetchMembers();
+    refreshInviteId();
+    getId('channel-info').textContent = currentChannelName;
+    getId('guild-name').innerText = currentGuildName;
+    isDropdownOpen = false;
+    disableElement("settings-dropdown-button");
+  
+    isChangingPage = false;
 }
 
 function loadApp(friend_id=null) {

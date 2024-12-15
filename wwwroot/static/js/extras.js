@@ -136,3 +136,23 @@ function popKeyboardConfetti() {
         });
     }, 0);
 }
+function createFireWorks() {
+    setTimeout(() => {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          disableForReducedMotion: true
+        });
+      }, 500);
+    return;
+}
+function changeUrlWithFireWorks(guildId,channelId,guildName) { 
+    guildOwnerIds[guildId] = currentUserId
+    loadGuild(guildId,channelId,guildName,currentUserId)
+    addGuild(guildId,guildName,currentUserId);
+
+    createFireWorks();
+    permissionManager.addGuildSelfCreated(guildId);
+
+}

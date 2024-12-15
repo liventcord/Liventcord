@@ -511,7 +511,7 @@ function handleHistoryResponse(data) {
 
     Messages.sort((a, b) => new Date(a.Date) - new Date(b.Date));
 
-    guildCache.setRawMessages(channelId,guildId,Messages);
+    cacheInterface.setMessages(channelId,guildId,Messages);
         
         
 
@@ -583,7 +583,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
 
 
 
-function getMessage(top = true) {
+function getMessageFromChat(top = true) {
     const messages = Array.from(chatContent.children);
     const filteredMessages = messages.filter(message => message.classList.contains('message'));
 
@@ -605,7 +605,7 @@ function getMessageDate(top=true) {
     const messages = chatContent.children;
     if (messages.length === 0) return null;
 
-    let targetElement = getMessage(top);
+    let targetElement = getMessageFromChat(top);
     if (targetElement) {
         const dateGathered = targetElement.getAttribute('data-date');
         const parsedDate = new Date(dateGathered);
@@ -718,9 +718,8 @@ function GetOldMessages(date,messageId=null) {
 
 
 function GetHistoryFromOneChannel(channelId, isDm = false) {
-    console.log('Retrieving history from cache...');
-
-    const rawMessages = guildCache.getRawMessages(channelId,currentGuildId);
+    console.log('Retrieving history...');
+    const rawMessages = cacheInterface.getMessages(channelId);
 
     if (!isDm && rawMessages && Array.isArray(rawMessages)) {
         let repliesList = new Set();
@@ -818,7 +817,7 @@ function deleteLocalMessage(messageId,guild_id,channelId,isDm) {
         if (String(element.id) == String(messageId)) {
             console.log("Removing element:", messageId);
             element.remove();
-            const foundMsg = getMessage(false);
+            const foundMsg = getMessageFromChat(false);
             if(foundMsg) {
                 lastSenderID = foundMsg.dataset.user_id;
             }

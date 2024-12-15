@@ -55,8 +55,8 @@ function renderUsers(users, tbody, isOnline) {
         const isUserOnline = userData.IsOnline === true;
         if (isUserOnline === isOnline) {
             const { profileContainer, userNameDiv, profileImg, bubble } = createUserProfile(userData, isUserOnline);
-            
-            if (isOnGuild && guildCache.isOwner(userData.userId, currentGuildId)) {
+            const guild = guildCache.getGuild(currentGuildId);
+            if (isOnGuild && currentGuildId && guild.isOwner(userData.userId, currentGuildId)) {
                 const crownEmoji = createEl('img', { src: crownEmojibase64, id: 'crown-symbol' });
                 userNameDiv.appendChild(crownEmoji);
             }

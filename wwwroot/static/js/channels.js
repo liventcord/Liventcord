@@ -12,7 +12,7 @@ let currentChannelId;
 function getChannels() {
     console.log("Getting channels...");
     if (currentChannelId) {
-        const channels = guildCache.getChannels(currentGuildId);
+        const channels = cacheInterface.getChannels(currentGuildId);
         if (channels.length > 0) {
             updateChannels(channels);
             console.log("Using cached channels: ",channels);
@@ -29,13 +29,13 @@ function getChannels() {
 async function changeChannel(newChannel) {
     console.log("channel changed: ",newChannel);
     if(isOnMe || isOnDm) { return; }
-    const channelId = newChannel.ChannelId;
-    const isTextChannel = newChannel.IsTextChannel;
+    const channelId = newChannel.channelId;
+    const isTextChannel = newChannel.isTextChannel;
     const url = constructAppPage(currentGuildId,channelId);
     if(url != window.location.pathname && isTextChannel) {
         window.history.pushState(null, null, url);
     }
-    const newChannelName = newChannel.ChannelName;
+    const newChannelName = newChannel.channelName;
     isReachedChannelEnd = false;
     
     if(isTextChannel) {
@@ -321,7 +321,6 @@ function createChannelElement(channel) {
 }
 
 function addChannel(channel) {
-    // Convert all properties to lowercase
     const channelId = (channel.ChannelId || channel.channelId)?.toLowerCase();
     const channelName = (channel.ChannelName || channel.channelName)?.toLowerCase();
     const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
@@ -334,7 +333,7 @@ function addChannel(channel) {
     console.log(typeof(channel), channel);
     currentChannels.push(channel);
 
-    guildCache.channels.addChannel(channel.guild_id, channel);
+    cacheInterface.addChannel(channel.guild_id, channel);
 
     removeChannelEventListeners();
     createChannelElement(channel);
@@ -372,7 +371,7 @@ function updateChannels(channels) {
 function removeChannel(data) {
     guildCache.removeChannel(data.guild_id, data.ChannelId);
 
-    const channelsArray = guildCache.channels.getChannels(data.guild_id);
+    const channelsArray = cacheInterface.getChannels(data.guild_id);
     currentChannels = channelsArray;
     removeChannelElement(data.ChannelId);
     if(currentChannelId == data.ChannelId) {
@@ -384,7 +383,7 @@ function removeChannel(data) {
 function editChannel(data) {
     guildCache.editChannel(data.guild_id, data.ChannelId, { ChannelName: data.ChannelName });
 
-    const channelsArray = guildCache.channels.getChannels(data.guild_id);
+    const channelsArray = cacheInterface.getChannels(data.guild_id);
     currentChannels = channelsArray;
 }
 

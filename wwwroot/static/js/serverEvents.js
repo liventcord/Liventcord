@@ -57,7 +57,7 @@ socket.on('message_readen', data => {
     if(data) {
         console.log(data);
         Object.keys(data).forEach(key => {
-            readenMessagesCache[key] = data[key];
+            
         })
     }
 });
@@ -135,8 +135,9 @@ socket.on('bulk_reply_response', data => {
 
 socket.on('get_channels', data => {
     const guildCache = new GuildCache(); 
-    if (data && data.channels && data.guildId) {
-        guildCache.channels.setChannels(data.guildId, data.channels);
+    const guildId = data.guildId;
+    if (data && data.channels && guildId) {
+        cacheInterface.addChannel(guildId, data.channels);
         updateChannels(data.channels); 
     }
 });
@@ -176,7 +177,7 @@ socket.on('get_members', data => {
         return; 
     }
     
-    guildCache.addMembers(guildId,members);
+    cacheInterface.updateMembers(guildId,members);
     updateMemberList(members);   
     
 });

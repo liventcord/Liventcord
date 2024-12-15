@@ -3,289 +3,9 @@ let currentDmId;
 let currentGuildName = '';
 
 
-class BaseCache {
-    constructor() {
-        this.data = {};
-    }
-
-    set(key, value) {
-        this.data[key] = value;
-    }
-
-    get(key) {
-        return this.data[key] || null;
-    }
-
-    setArray(key, value) {
-        this.data[key] = Array.isArray(value) ? value : [];
-    }
-
-    setObject(key, value) {
-        this.data[key] = typeof value === 'object' && value !== null ? value : {};
-    }
-}
-
-class Guild {
-    constructor(guildId) {
-        this.guildId = guildId;
-        this.channels = new ChannelCache();
-        this.members = new GuildMembersCache();
-        this.typingMembers = new BaseCache();
-        this.inviteIds = new InviteIdsCache();
-        this.messages = new MessagesCache();
-        this.ownerId = null;
-    }
-
-    setOwner(ownerId) {
-        this.ownerId = ownerId;
-    }
-
-    getOwner() {
-        return this.ownerId;
-    }
-
-    isOwner(userId) {
-        return this.ownerId === userId;
-    }
-
-    hasMembers() {
-        return !this.members.isMembersEmpty(this.guildId);
-    }
-}
-
-class ChannelCache extends BaseCache {
-    setChannels(guildId, channels) {
-        this.setArray(guildId, Array.isArray(channels) ? channels.flat() : []);
-    }
-
-    getChannels(guildId) {
-        const channels = this.get(guildId) || [];
-        return Array.isArray(channels) ? channels.flat() : [];
-    }
-
-    addChannel(guildId, channel) {
-        const channels = this.getChannels(guildId); 
-        if (!channels.some(existingChannel => existingChannel.ChannelId === channel.ChannelId)) {
-            channels.push(channel);
-            this.setChannels(guildId, channels); 
-        }
-    }
-
-    editChannel(guildId, channelId, newChannelData) {
-        const channels = this.getChannels(guildId);
-        const index = channels.findIndex(channel => channel.ChannelId === channelId);
-        if (index !== -1) {
-            channels[index] = { ...channels[index], ...newChannelData };
-            this.setChannels(guildId, channels);
-        }
-    }
-
-    removeChannel(guildId, channelId) {
-        const channels = this.getChannels(guildId).filter(channel => channel.ChannelId !== channelId);
-        this.setChannels(guildId, channels);
-    }
-}
 
 
 
-class GuildMembersCache extends BaseCache {
-    assignGuildMembers(guildId, guildMembers) {
-        this.setObject(guildId, guildMembers);
-    }
-
-    isMembersEmpty(guildId) {
-        const members = this.get(guildId);
-        return !members || members.length === 0;
-    }
-
-    setGuildMembers(guildId, members) {
-        this.setArray(guildId, members);
-    }
-
-    getGuildMembers(guildId) {
-        return this.get(guildId) || [];
-    }
-}
-class MessagesCache extends BaseCache {
-    setChannelMessages(channelId, messages) {
-        this.setArray(channelId, messages);
-    }
-
-    getChannelMessages(channelId) {
-        return this.get(channelId) || [];
-    }
-
-    setRawMessages(channelId, rawMessages) {
-        this.setArray(channelId, rawMessages);
-    }
-
-    getRawMessages(channelId) {
-        return this.get(channelId) || [];
-    }
-
-    removeMessage(messageId, channelId) {
-        const currentMessages = this.getChannelMessages(channelId);
-
-        if (!Array.isArray(currentMessages)) {
-            console.warn(`No messages found for channel ${channelId}`);
-            return;
-        }
-        const updatedMessages = currentMessages.filter(msg => msg.messageId !== messageId);
-        this.setChannelMessages(channelId, updatedMessages);
-
-        console.log(`Message with ID ${messageId} removed from channel ${channelId}`);
-    }
-}
-
-class InviteIdsCache extends BaseCache {
-    assignInviteIds(guildId, inviteId) {
-        this.setObject(guildId, inviteId);
-    }
-
-    getInviteIds(guildId) {
-        return this.get(guildId) || [];
-    }
-}
-
-
-
-
-
-class GuildCache {
-    constructor() {
-        if (GuildCache.instance) {
-            return GuildCache.instance;
-        }
-
-        this.guilds = {};
-        GuildCache.instance = this;
-    }
-
-    getGuild(guildId) {
-        if (!this.guilds[guildId]) {
-            this.guilds[guildId] = new Guild(guildId);
-        }
-        return this.guilds[guildId];
-    }
-    get(guildId) {
-        return this.getGuild(guildId);
-    }
-
-    isMembersEmpty(guildId) {
-        return this.getGuild(guildId).hasMembers();
-    }
-
-    getGuildOwner(guildId) {
-        return this.getGuild(guildId).getOwner();
-    }
-
-    setGuildOwner(guildId, ownerId) {
-        this.getGuild(guildId).setOwner(ownerId);
-    }
-
-
-    initialiseGuildOwnerIds(passedGuildOwnerIds) {
-        if (typeof passedGuildOwnerIds !== "object" || passedGuildOwnerIds === null) {
-            console.error("Invalid input: passedGuildOwnerIds must be an object.");
-            return;
-        }
-    
-        console.log(typeof passedGuildOwnerIds, passedGuildOwnerIds);
-    
-        Object.entries(passedGuildOwnerIds).forEach(([guildId, ownerId]) => {
-            this.setGuildOwner(guildId, ownerId);
-        });
-    }
-    
-
-    isOwner(userId, guildId) {
-        return this.getGuild(guildId).isOwner(userId);
-    }
-
-    getGuild(guildId) {
-        if (!this.guilds[guildId]) {
-            this.guilds[guildId] = new Guild(guildId);
-        }
-        return this.guilds[guildId];
-    }
-
-    getChannels(guildId) {
-        return this.getGuild(guildId).channels.getChannels(guildId);
-    }
-
-    addChannel(guildId, channel) {
-        this.getGuild(guildId).channels.addChannel(guildId, channel);
-    }
-
-    editChannel(guildId, channelId, newChannelData) {
-        this.getGuild(guildId).channels.editChannel(guildId, channelId, newChannelData);
-    }
-
-    removeChannel(guildId, channelId) {
-        this.getGuild(guildId).channels.removeChannel(guildId, channelId);
-    }
-
-    getMembers(guildId) {
-        return this.getGuild(guildId).members.getGuildMembers(guildId);
-    }
-
-    addMembers(guildId, members) {
-        console.log("settings members: " ,guildId, members);
-        this.getGuild(guildId).members.setGuildMembers(guildId, members);
-    }
-
-    isInvitesEmpty(guildId) {
-        return this.getGuild(guildId).isInvitesEmpty(guildId);
-    }
-    addInvites(guildId,invites) {
-        this.getGuild(guildId).inviteIds.assignInviteIds(guildId,invites);
-    }
-    getInviteId(guildId) {
-        return this.getGuild(guildId).inviteIds.getInviteIds(guildId);
-    }
-    getRawMessages(channelId,guildId) {
-        return this.getGuild(guildId).messages.getRawMessages(channelId);
-    }
-    setRawMessages(channelId,guildId,rawMessages) {
-        this.getGuild(guildId).messages.setRawMessages(channelId,rawMessages);
-    }
-    removeMessage(messageId,channelId,guildId) {
-        this.getGuild(guildId).messages.removeMessage(messageId,channelId,guildId);
-    }
-    forwardMethods() {
-        const cacheTypes = ['channels', 'members', 'messages', 'inviteIds'];
-        
-        cacheTypes.forEach(cacheType => {
-            const cacheClass = this.getGuild('any')[cacheType].constructor;
-
-            Object.getOwnPropertyNames(cacheClass.prototype).forEach(method => {
-                if (method !== 'constructor') {
-                    this[cacheType] = this[cacheType] || {};
-                    this[cacheType][method] = (...args) => {
-                        return this.getGuild(args[0])[cacheType][method](...args);
-                    };
-                }
-            });
-        });
-    }
-}
-
-
-
-
-const guildCache = new GuildCache();
-guildCache.forwardMethods(); 
-
-let usersInVoice = {};// <channelId> <users_list>
-
-let replyCache = {};//<messageId> <replies>
-let currentMessagesCache = {};//<messageId> <messageElements>
-let guildChatMessages = {};//<channelId> <messageObjects>
-let messages_raw_cache = {};//<channelId> <messageRawJsons>
-
-function hasSharedGuild(friend_id) {
-    return shared_guilds_map.hasOwnProperty(friend_id);
-}
 
 
 function updateGuildList(guildData) {
@@ -319,7 +39,8 @@ function updateGuildList(guildData) {
         if (getId(guild.GuildId)) return;
         
         const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guild.GuildId}` : createBlackImage();
-        guildCache.setGuildOwnerId(guild.GuildId,guild.OwnerId);
+        
+        cacheInterface.setGuildOwner(guild.GuildId, guild.OwnerId)
         const li = createEl('li');
         const img = createEl('img', { className: 'guilds-list', id: guild.GuildId, src: imgSrc });
         img.addEventListener('click', () => {
@@ -424,7 +145,6 @@ function createGuild() {
 }
 
 function selectGuildList(guildId) {
-    console.log(typeof(guildId),guildId)
     const guildList = getId('guilds-list'); 
     if (!guildList) return; 
     
@@ -483,24 +203,8 @@ function loadGuild(guildId,channelId,guildName,guildOwnerId,isChangingUrl=true) 
     } 
     
 }
-function disableDropdown() {
-    disableElement("settings-dropdown-button");
 
-}
-function changecurrentGuild() {
-    isChangingPage = true;
-    isOnMe = false;
-    isOnGuild = true;
-    getChannels();
-    fetchMembers();
-    refreshInviteId();
-    getId('channel-info').textContent = currentChannelName;
-    getId('guild-name').innerText = currentGuildName;
-    isDropdownOpen = false;
-    disableDropdown();
-  
-    isChangingPage = false;
-}
+
 function joinVoiceChannel(channelId) {
     if(currentVoiceChannelId == channelId) { return; }
     const data = { 'guildId' : currentGuildId, 'channelId' : channelId }
@@ -523,36 +227,17 @@ function addGuild(guildId, guildName, ownerId) {
     };
     currentGuildData[guildId] = data;
 }
-function createFireWorks() {
-    setTimeout(() => {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 },
-          disableForReducedMotion: true
-        });
-      }, 500);
-    return;
-}
-function changeUrlWithFireWorks(guildId,channelId,guildName) { 
-    guildOwnerIds[guildId] = currentUserId
-    loadGuild(guildId,channelId,guildName,currentUserId)
-    addGuild(guildId,guildName,currentUserId);
 
-    createFireWorks();
-    permissionManager.addGuildSelfCreated(guildId);
-
-}
 function fetchMembers() {
     if(!currentGuildId) {
         console.warn("Current guild id is null! cant fetch members");
         return
     }
-    const members = guildCache.getMembers(currentGuildId);
+    const members = cacheInterface.getMembers(currentGuildId);
 
     if(members.length > 0) {
         console.log("Using cached members...");
-        updateMemberList(guildCache.getMembers(currentGuildId));
+        updateMemberList(cacheInterface.getMembers(currentGuildId));
 
     } else {
         console.log("Fetching members...");
@@ -566,7 +251,7 @@ function fetchMembers() {
 function getGuildUsers() {
     if (!guildCache.isMembersEmpty(currentGuildId) || !currentGuildId) { return; }
     
-    const guildMembers = guildCache.getMembers(currentGuildId);
+    const guildMembers = cacheInterface.getMembers(currentGuildId);
     if (!guildMembers) { return; }
 
     let usersToReturn = [];

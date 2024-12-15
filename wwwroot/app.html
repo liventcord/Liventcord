@@ -331,6 +331,7 @@
     <script src="/static/js/api.js"></script>
     <script src="/static/js/audio.js"></script>
     <script src="/static/js/avatar.js"></script>
+    <script src="/static/js/cache.js"></script> 
     <script src="/static/js/channels.js"></script>
     <script src="/static/js/chat.js"></script>
     <script src="/static/js/chatbar.js"></script>
@@ -461,10 +462,12 @@
         var user_name = jsonData.userName;
         var user_discriminator = jsonData.userDiscriminator;
         var passed_guild_id = jsonData.guildId;
+        var passed_friend_id = jsonData.friendId;
         var passed_channel_id = jsonData.channelId;
         var passed_guild_name = jsonData.guildName;
         var passed_owner_id = jsonData.authorId;
         var passed_typing_members = jsonData.typingUsers;
+        var passed_message_readen = jsonData.messagesReaden;
         var shared_guilds_map = jsonData.sharedGuildsMap;
         var permissionsMap = jsonData.permissionsMap;
         var friends_status = jsonData.friendsStatus;
