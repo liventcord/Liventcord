@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace LiventCord.Controllers
