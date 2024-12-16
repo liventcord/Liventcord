@@ -7,7 +7,6 @@ cache/
 ytcache/
 Migrations/
 Logs/
-wwwroot
 
 appsettings.Development.json
 appsettings.json
@@ -17,6 +16,7 @@ appsettings.json
 *.userprefs
 *.sln.docstates
 .vs/
+.vscode/
 
 *.tmp
 *.log
