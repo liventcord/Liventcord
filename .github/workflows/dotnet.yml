@@ -31,9 +31,6 @@ jobs:
     - name: Publish the Application
       run: dotnet publish -c Release -o ./publish
 
-    - name: Remove any previous .zip files
-      run: rm -f toupload.zip
-
     - name: Create ZIP of Published Files
       run: |
         cd ./publish
