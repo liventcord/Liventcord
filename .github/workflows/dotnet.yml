@@ -18,9 +18,9 @@ jobs:
 
     - name: Clone Frontend Repo into wwwroot
       run: git clone https://github.com/liventcord/LiventCordFrontend.git ./wwwroot
-    - name: Remove Git Files from the Published Output
+    - name: Remove Git Files
       run: |
-        find ./publish -name ".git*" -exec rm -rf {} \;
+        find . -name ".git*" -exec rm -rf {} \;
     - name: Build the Backend
       run: dotnet build
 
