@@ -24,9 +24,6 @@ jobs:
         cd ./wwwroot
         git clean -fdx
 
-    - name: Build the Backend
-      run: dotnet build
-
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
