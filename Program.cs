@@ -1,6 +1,5 @@
 using System.IO.Compression;
 using LiventCord.Controllers;
-using LiventCord.Data;
 using LiventCord.Helpers;
 using LiventCord.Routes;
 using Microsoft.AspNetCore.Authentication.Cookies;

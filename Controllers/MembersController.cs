@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using LiventCord.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using LiventCord.Models;

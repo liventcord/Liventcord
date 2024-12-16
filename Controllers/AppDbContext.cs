@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using LiventCord.Models;
 
-namespace LiventCord.Data
+namespace LiventCord.Controllers
 {
     public class AppDbContext : DbContext
     {

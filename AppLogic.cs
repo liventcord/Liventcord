@@ -1,4 +1,3 @@
-using LiventCord.Data;
 using Microsoft.EntityFrameworkCore;
 using LiventCord.Helpers;
 using System.Security.Claims;

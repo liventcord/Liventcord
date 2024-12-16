@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using LiventCord.Data;
 using LiventCord.Helpers;
 using LiventCord.Models;
 using Microsoft.AspNetCore.Mvc;

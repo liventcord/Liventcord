@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using LiventCord.Data;
 using LiventCord.Models;
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
