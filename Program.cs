@@ -40,6 +40,7 @@ builder.Services.AddScoped<PermissionsController>();
 builder.Services.AddScoped<UploadController>();
 builder.Services.AddScoped<InviteController>();
 
+builder.Configuration.AddJsonFile("Properties/appsettings.json", optional: false, reloadOnChange: true);
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
 
