@@ -15,12 +15,9 @@ jobs:
       with:
         repository: liventcord/LiventCord
         token: ${{ secrets.GITHUB_TOKEN }}
-      
+
     - name: Clone Frontend Repo into wwwroot
       run: git clone https://github.com/liventcord/LiventCordFrontend.git ./wwwroot
-
-    - name: Clean the Backend
-      run: dotnet clean
 
     - name: Build the Backend
       run: dotnet build
@@ -28,16 +25,19 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
+    - name: Clean the Build
+      run: dotnet clean
+
     - name: Publish the Application
       run: dotnet publish -c Release -o ./publish
 
     - name: Create ZIP of Published Files
       run: |
         cd ./publish
-        zip -r ../toupload.zip .
-      
-    - name: Upload the ZIP Artifact
-      uses: actions/upload-artifact@v3
+        zip -r ../toupload.zip . -x "*.git*"
+
+    - name: Upload Release
+      uses: actions/upload-artifact@v2
       with:
         name: liventcord-release
         path: ./toupload.zip
