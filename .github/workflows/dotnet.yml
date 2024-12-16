@@ -19,6 +19,9 @@ jobs:
     - name: Clone Frontend Repo into wwwroot
       run: git clone https://github.com/liventcord/LiventCordFrontend.git ./wwwroot
 
+    - name: Clean the Backend
+      run: dotnet clean
+
     - name: Build the Backend
       run: dotnet build
 
@@ -26,10 +29,18 @@ jobs:
       run: dotnet test --no-build --verbosity normal
 
     - name: Publish the Application
-      run: dotnet publish -c Release -o ./release
+      run: dotnet publish -c Release -o ./publish
 
-    - name: Upload Release
+    - name: Remove any previous .zip files
+      run: rm -f toupload.zip
+
+    - name: Create ZIP of Published Files
+      run: |
+        cd ./publish
+        zip -r ../toupload.zip .
+      
+    - name: Upload the ZIP Artifact
       uses: actions/upload-artifact@v3
       with:
         name: liventcord-release
-        path: ./release
+        path: ./toupload.zip
