@@ -52,7 +52,7 @@ namespace LiventCord.Controllers
 
             var messageToEmit = new {UserId, guildId, channelId };
 
-            await _sseManager.EmitToGuild(_membersController.GetGuildUsersIds(guildId),messageToEmit);
+            await _sseManager.EmitToGuild(_membersController.GetGuildMembersIds(guildId),messageToEmit);
             return Accepted();
         }
     }

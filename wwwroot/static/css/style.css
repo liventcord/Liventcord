@@ -1671,6 +1671,7 @@ textarea::-webkit-scrollbar-track {
 
 #audio-parent {
     position: fixed;
+    display: none;
     z-index: 1;
     left: 82px;
     bottom:90px;

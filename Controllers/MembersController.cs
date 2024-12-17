@@ -129,7 +129,7 @@ namespace LiventCord.Controllers
 
 
         [NonAction]
-        public async Task<List<string>> GetGuildUsersIds(string guildId)
+        public async Task<List<string>> GetGuildMembersIds(string guildId)
         {
             if (string.IsNullOrEmpty(guildId))
                 return new List<string>();

@@ -394,7 +394,7 @@ function createDmBubble(isOnline) {
 
 function populateFriendsContainer(friends, isPending) {
     friends.forEach(user => {
-        addUser(user.userId, user.name, user.discriminator);
+        addUser(user.userId, user.nickName, user.discriminator);
     });
     if (isPopulating || !currentSelectedStatus) {  return;  }
     isPopulating = true;
