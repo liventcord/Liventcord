@@ -166,4 +166,4 @@ class CustomHttpConnection {
     }
 }
 
-const socket = new CustomHttpConnection();
+const apiClient = new CustomHttpConnection();

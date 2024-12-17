@@ -69,7 +69,7 @@ function createChannelsPop() {
             'isTextChannel': isTextChannel
         };
         
-        socket.emit('create_channel', data);
+        apiClient.send('create_channel', data);
         isTextChannel = true;
         closePopUp(newPopOuterParent, newPopParent);
     });

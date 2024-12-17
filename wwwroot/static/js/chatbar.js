@@ -99,7 +99,7 @@ async function handleUserKeydown(event) {
             clearTimeout(typingTimeout);
         }
         typingTimeout = setTimeout(() => {
-            socket.emit('start_writing', {
+            apiClient.send('start_writing', {
                 'channelId': isOnDm ? currentDmId : currentChannelId,
                 'guildId': currentGuildId,
                 'isDm': isOnDm

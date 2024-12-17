@@ -229,14 +229,14 @@ function loadGuild(guildId,channelId,guildName,guildOwnerId,isChangingUrl=true) 
 function joinVoiceChannel(channelId) {
     if(currentVoiceChannelId == channelId) { return; }
     const data = { 'guildId' : currentGuildId, 'channelId' : channelId }
-    socket.emit('join_voice_channel',data);
+    apiClient.send('join_voice_channel',data);
     return;
 }
 
 
 function refreshInviteId() {
     if(!guildCache.isInvitesEmpty(currentGuildId)) { return; }
-    socket.emit('get_invites',{'guildId' : currentGuildId});
+    apiClient.send('get_invites',{'guildId' : currentGuildId});
 }
 
 
@@ -262,7 +262,7 @@ function fetchMembers() {
 
     } else {
         console.log("Fetching members...");
-        socket.emit('get_members',{'guildId' : currentGuildId});
+        apiClient.send('get_members',{'guildId' : currentGuildId});
 
     }
 
@@ -292,11 +292,11 @@ function getGuildMembers() {
 
 
 function joinToGuild(inviteId) {
-    socket.emit('join_to_guild',{'invite_id':inviteId});
+    apiClient.send('join_to_guild',{'invite_id':inviteId});
 }
 
 function leaveCurrentGuild() {
-    socket.emit('leave_from_guild',currentGuildId);
+    apiClient.send('leave_from_guild',currentGuildId);
 }
 
 function startGuildJoinCreate() {

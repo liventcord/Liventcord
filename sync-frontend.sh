@@ -1,7 +1,7 @@
 #!/bin/bash
 
-LIVENTCORD_REPO="~/LiventCord"
-FRONTEND_REPO="~/LiventCordFrontend"
+LIVENTCORD_REPO="/home/arch/LiventCord"
+FRONTEND_REPO="/home/arch/LiventCordFrontend"
 
 cd $LIVENTCORD_REPO
 git checkout dev

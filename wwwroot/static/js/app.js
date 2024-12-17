@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function readCurrentMessages() {
     if (!currentChannelId ) { return; }
-    socket.emit('read_message',{'channelId' : currentChannelId,'guildId' : currentGuildId});
+    apiClient.send('read_message',{'channelId' : currentChannelId,'guildId' : currentGuildId});
     getId('newMessagesBar').style.display = 'none';
 }
 
@@ -325,7 +325,7 @@ function openDm(friend_id) {
         window.history.pushState(null, null, url);
     }
     if(!userExistsDm(friend_id)) {
-        socket.emit('add_dm',{'friend_id' : friend_id});
+        apiClient.send('add_dm',{'friend_id' : friend_id});
     }
     loadApp(friend_id);
     if(wasOnDm) {

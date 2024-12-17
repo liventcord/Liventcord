@@ -19,7 +19,7 @@ function getChannels() {
 
         } else {
             console.warn("Channel cache is empty. fetching channels...");
-            socket.emit(EventType.GET_CHANNELS, { 'guildId': currentGuildId }); 
+            apiClient.send(EventType.GET_CHANNELS, { 'guildId': currentGuildId }); 
         }
     } else {
         console.warn("Current channel id is null!");

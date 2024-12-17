@@ -285,11 +285,11 @@ function addPendingButtons(friendButton, friend) {
 
 function handleButtonClick(event, action, friend) {
   event.stopPropagation();
-  socket.emit(action, { friendId: friend.userId });
+  apiClient.send(action, { friendId: friend.userId });
 }
 
 function addFriend(userId) {
-  socket.emit(EventType.ADD_FRIEND_ID, { friendId: userId });
+  apiClient.send(EventType.ADD_FRIEND_ID, { friendId: userId });
 }
 
 function submitAddFriend() {
@@ -308,7 +308,7 @@ function submitAddFriend() {
       return;
     }
 
-    socket.emit(EventType.ADD_FRIEND, {
+    apiClient.send(EventType.ADD_FRIEND, {
       friendName: nickName,
       friendDiscriminator: discriminator,
     });
@@ -318,7 +318,7 @@ function submitAddFriend() {
 async function getFriends(request_type) {
   if (!isAddFriendsOpen) {
     try {
-      socket.emit(EventType.GET_FRIENDS, { requestType: request_type });
+      apiClient.send(EventType.GET_FRIENDS, { requestType: request_type });
     } catch (error) {
       console.error("Error fetching friends:", error);
     }

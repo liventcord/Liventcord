@@ -175,7 +175,7 @@ const guildSettings = [
 function createDeleteGuildPrompt(guildId,guild_name) {
     if(!guildId) { return }
     var onClickHandler = function() {
-        socket.emit(EventType.DELETE_GUILD, guildId);
+        apiClient.send(EventType.DELETE_GUILD, guildId);
     }
     const successText = "Sunucuyu sil";
     askUser(`${guild_name} Sunucusunu Sil`,'Bu işlem geri alınamaz.',successText,onClickHandler,isRed=true);
