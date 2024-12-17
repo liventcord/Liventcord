@@ -44,7 +44,7 @@ apiClient.on('join_guild_response',data=> {
     
     
     permissionManager.permissionsMap[data.guildId] = data.permissionsMap;
-    loadGuild(data.joined_guildId,data.joined_channelId,data.joined_guild_name,data.joined_owner_id);
+    loadGuild(data.joinedGuildId,data.joinedChannelId,data.joinedGuildName,data.joinedOwnerId);
 
     if(closeCurrentJoinPop) {
         closeCurrentJoinPop();
@@ -116,14 +116,14 @@ apiClient.on('create_channel_response', data => {
 apiClient.on('bulk_reply_response', data => {
     const replies = data.bulk_replies;
     replies.forEach(reply => {
-        const { messageId, userId, content, attachment_urls } = reply;
+        const { messageId, userId, content, attachmentUrls } = reply;
         if (!replyCache[messageId]) {
             replyCache[messageId] = {
                 messageId: messageId,
                 replies: []
             };
         }
-        replyCache[messageId].replies.push({ userId, content, attachment_urls });
+        replyCache[messageId].replies.push({ userId, content, attachmentUrls });
     });
     setTimeout(() => {
         handleReplies();
@@ -191,7 +191,7 @@ apiClient.on('user_status', (data) => {
 
 apiClient.on('message', (data) => {
     try {
-        const { isDm, messageId, userId, content, channelId, date, attachment_urls, reply_to_id,is_bot, guildId, last_edited, reaction_emojis_ids} = data;
+        const { isDm, messageId, userId, content, channelId, date, attachmentUrls, replyToId,is_bot, guildId, lastEdited, reactionEmojisIds} = data;
         const idToCompare = isDm ? currentDmId : currentChannelId;
         
         if (data.guildId != currentGuildId || idToCompare != channelId) {

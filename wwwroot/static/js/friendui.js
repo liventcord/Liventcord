@@ -22,16 +22,19 @@ function disableDmContainers() {
 
 let existingUsersDmContainers = new Set(); 
 let existingUsersIds = new Set();
-function createDmContainer(user) {
-    const dmContainer = createEl('div', { className: 'dm-container', id: user.userId });
+function createDmContainer(friend) {
+    const isOnline = friend.isOnline;
+    const friendId = friend.userId;
+    const dmContainer = createEl('div', { className: 'dm-container', id: friendId });
+    const friendNick = friend.nickName;
 
-    if(user.userId == currentDmId) {
+    if(friendId == currentDmId) {
         dmContainer.classList.add('dm-selected');
     }
     const profileImg = createEl('img', { className: 'dm-profile-img' });
 
-    setProfilePic(profileImg, user.userId);
-    const bubble = createDmBubble(user.is_online);
+    setProfilePic(profileImg, friendId);
+    const bubble = createDmBubble(isOnline);
     profileImg.style.transition = 'border-radius 0.5s ease-out';
     bubble.style.transition = 'opacity 0.5s ease-in-out';
     let hoverTimeout;
@@ -59,15 +62,15 @@ function createDmContainer(user) {
     
 
     dmContainer.addEventListener('click', () => {
-        OpenDm(user.userId);
+        OpenDm(friendId);
     });
 
-    appendToProfileContextList(user, user.userId);
+    appendToProfileContextList(friend, friendId);
 
     dmContainer.appendChild(bubble);
     dmContainer.appendChild(profileImg);
 
-    const titleContent = createEl('p',{className:'content',textContent:user.nickname});
+    const titleContent = createEl('p',{className:'content',textContent:friendNick});
     dmContainer.appendChild(titleContent);
 
     const closeBtn = createEl('div');
@@ -75,7 +78,7 @@ function createDmContainer(user) {
     closeBtn.textContent = 'X';
     closeBtn.addEventListener('click', (event) => {
         event.stopPropagation();
-        removeDm(user.userId); 
+        removeDm(friendId); 
     });
     dmContainer.appendChild(closeBtn);
 

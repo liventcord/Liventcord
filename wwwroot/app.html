@@ -431,9 +431,9 @@
     function getMaskedEmail(email) {
         const parts = email.split('@');
         if (parts.length !== 2) return email;
-        const nickname = parts[0];
+        const nickName = parts[0];
         const domain = parts[1];
-        const hiddenNickname = '*'.repeat(nickname.length);
+        const hiddenNickname = '*'.repeat(nickName.length);
         return `${hiddenNickname}@${domain}`;
     }
 
