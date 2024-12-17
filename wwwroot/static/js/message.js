@@ -66,7 +66,7 @@ async function sendMessage(content, user_ids) {
             reactionEmojisIds: null,
             lastEdited: null
         };
-        socket.emit('new_message', message);
+        apiClient.send('new_message', message);
         chatInput.value = '';
         closeReplyMenu();
         return;
@@ -91,7 +91,7 @@ async function sendMessage(content, user_ids) {
             data.attachmentId = uploadData.attachmentId;
             console.log('File uploaded successfully:', data.fileName);
             if(isOnGuild) {
-                socket.emit('new_message', data);
+                apiClient.send('new_message', data);
             } else {
                 alertUser('Implement Direct messages ');
             }

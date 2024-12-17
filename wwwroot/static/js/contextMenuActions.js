@@ -25,7 +25,7 @@ function deleteMessage(messageId) {
   if (isOnGuild) {
     data["guildId"] = currentGuildId;
   }
-  socket.emit("message_delete", data);
+  apiClient.send("message_delete", data);
 }
 function inviteToGuild(userId) {
   console.log(userId);
@@ -51,7 +51,7 @@ function inviteUser(userId, guildId) {
 }
 
 function removeFriend(userId) {
-  socket.emit("friend_request_event", "remove_friend", { friend_id: userId });
+  apiClient.send("friend_request_event", "remove_friend", { friend_id: userId });
 }
 
 const MessagesActionType = {
@@ -85,7 +85,7 @@ function deleteChannel(channelId, guildId) {
     guildId: guildId,
     channelId: channelId,
   };
-  socket.emit("remove_channel", data);
+  apiClient.send("remove_channel", data);
 }
 
 function togglePin() {

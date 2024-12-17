@@ -1,5 +1,5 @@
 
-socket.on('update_guilds',data => {
+apiClient.on('update_guilds',data => {
     updateGuildList(data);
 });
 
@@ -19,7 +19,7 @@ function getLastSecondMessageDate() {
     return '';
 }
 
-socket.on('deletion_message', data=> {
+apiClient.on('deletion_message', data=> {
     deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
     guildCache.removeMessage(data.messageId,data.channelId,data.guildId);
     const msgdate = messages_raw_cache[data.messageId].date;
@@ -33,7 +33,7 @@ socket.on('deletion_message', data=> {
     delete messages_raw_cache[data.messageId];
 });
 
-socket.on('join_guild_response',data=> {
+apiClient.on('join_guild_response',data=> {
     if(!data.success) {
         const errormsg = "DAVET BAĞLANTISI - Davet geçersiz ya da geçerliliğini yitirmiş.";
         getId('create-guild-title').textContent = errormsg;
@@ -53,7 +53,7 @@ socket.on('join_guild_response',data=> {
 
 
 
-socket.on('message_readen', data => {
+apiClient.on('message_readen', data => {
     if(data) {
         console.log(data);
         Object.keys(data).forEach(key => {
@@ -61,7 +61,7 @@ socket.on('message_readen', data => {
         })
     }
 });
-socket.on('deleted_guild', data => {
+apiClient.on('deleted_guild', data => {
     if(typeof(data) == 'object') {
         if(data.success) {
             closeSettings();
@@ -75,7 +75,7 @@ socket.on('deleted_guild', data => {
         alertUser('Sunucu silme hatası',data);
     }
 });
-socket.on('get_invites', data => {
+apiClient.on('get_invites', data => {
     if (data && data.invite_ids) {
         guildCache.addInvites(guildId,data.invite_ids);
     } else {
@@ -83,37 +83,37 @@ socket.on('get_invites', data => {
     }
 });
 
-socket.on('update_guild_name',data => {
+apiClient.on('update_guild_name',data => {
     if(data.guildId == currentGuildId) {
         getId('guild-name').innerText = currentGuildName;
     }
 })
-socket.on('update_guild_image',data => {
+apiClient.on('update_guild_image',data => {
     updateGuild(data)
     
 })
-socket.on('old_messages_response', function(data) {
+apiClient.on('old_messages_response', function(data) {
     handleOldMessagesResponse(data);
 });
 
 
 
 
-socket.on('update_user_profile', data => {
+apiClient.on('update_user_profile', data => {
     refreshUserProfileImage(data.userId);
 });
 
 
 
 
-socket.on('create_channel_response', data => {
+apiClient.on('create_channel_response', data => {
     if(data.success == undefined || data.success == true) return;
     alertUser(`${currentGuildName} sunucusunda kanal yönetme iznin yok!`);
 });
 
 
 
-socket.on('bulk_reply_response', data => {
+apiClient.on('bulk_reply_response', data => {
     const replies = data.bulk_replies;
     replies.forEach(reply => {
         const { messageId, userId, content, attachment_urls } = reply;
@@ -133,7 +133,7 @@ socket.on('bulk_reply_response', data => {
 
 
 
-socket.on('get_channels', data => {
+apiClient.on('get_channels', data => {
     const guildCache = new GuildCache(); 
     const guildId = data.guildId;
     if (data && data.channels && guildId) {
@@ -143,7 +143,7 @@ socket.on('get_channels', data => {
 });
 
 
-socket.on('channel_update', data => {
+apiClient.on('channel_update', data => {
     if (!data) return;
     // TODO edit this to use post put delete
     const updateType = data.type;
@@ -169,7 +169,7 @@ socket.on('channel_update', data => {
     }
 });
 
-socket.on('get_members', data => {
+apiClient.on('get_members', data => {
     const members = data.members;
     const guildId = data.guildId;
     if (!data || !members || !guildId) { 
@@ -183,13 +183,13 @@ socket.on('get_members', data => {
 });
 
 
-socket.on('user_status', (data) => {
+apiClient.on('user_status', (data) => {
     const userId = data.userId;
     const is_online = data.is_online;
     updateUserOnlineStatus(userId, is_online)
 });
 
-socket.on('message', (data) => {
+apiClient.on('message', (data) => {
     try {
         const { isDm, messageId, userId, content, channelId, date, attachment_urls, reply_to_id,is_bot, guildId, last_edited, reaction_emojis_ids} = data;
         const idToCompare = isDm ? currentDmId : currentChannelId;
@@ -212,7 +212,7 @@ socket.on('message', (data) => {
     }
 });
 
-socket.on('message_date_response', (data)=> {
+apiClient.on('message_date_response', (data)=> {
     const message_date = data.message_date;
     messageDates[data.messageId] = message_date;
     console.log(currentLastDate,message_date)
@@ -225,12 +225,12 @@ socket.on('message_date_response', (data)=> {
 
 
 
-socket.on('get_history', (data) => {
+apiClient.on('get_history', (data) => {
     handleHistoryResponse(data);  
 });
 
 
-socket.on('update_nick',data => {
+apiClient.on('update_nick',data => {
     const userid = data.userId;
     const newNickname = data.userName;
     if(userid == currentUserId) {
@@ -255,31 +255,31 @@ socket.on('update_nick',data => {
 
 
 
-socket.on('users_data_response', data => {
+apiClient.on('users_data_response', data => {
     updateFriendsList(data.users,data.isPending);  
 });
 
 //friend
-socket.on('add_friend', function (message) {
+apiClient.on('add_friend', function (message) {
     handleFriendEventResponse(message);
 });
 
-socket.on('accept_friend_request', function (message) {
+apiClient.on('accept_friend_request', function (message) {
     handleFriendEventResponse(message);
 });
 
-socket.on('remove_friend', function (message) {
+apiClient.on('remove_friend', function (message) {
     handleFriendEventResponse(message);
 });
 
-socket.on('deny_friend_request', function (message) {
+apiClient.on('deny_friend_request', function (message) {
     handleFriendEventResponse(message);
 });
 
 
 //audio
 
-socket.on('voice_users_response',function(data) {
+apiClient.on('voice_users_response',function(data) {
     const channelId = data.channelId;
     playAudio('/static/sounds/joinvoice.mp3');
     clearVoiceChannel(currentVoiceChannelId);
@@ -302,7 +302,7 @@ socket.on('voice_users_response',function(data) {
     }
     usersInVoice[channelId] = data.usersList;
 });
-socket.on('incoming_audio', async data => {
+apiClient.on('incoming_audio', async data => {
 
     if (data && data.byteLength > 0) {
         try {

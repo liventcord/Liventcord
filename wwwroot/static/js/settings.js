@@ -140,7 +140,7 @@ function onEditNick() {
 }
 
 function removeguildImage() {
-    socket.emit(EventType.DELETE_GUILD_IMAGE,{'guildId': currentGuildId})
+    apiClient.send(EventType.DELETE_GUILD_IMAGE,{'guildId': currentGuildId})
     getId('guildImage').value = '';
     getId('guild-image').src = createBlackImage();
 }
@@ -162,7 +162,7 @@ function changeNickname() {
 
         console.log("Changed your nickname to: " + newNickname);
         userNick = newNickname;
-        socket.emit('set_nick', {'nick' : newNickname});
+        apiClient.send('set_nick', {'nick' : newNickname});
 
         newNicknameInput.value = newNickname;
         changeNicknameTimeout = setTimeout(() => {
@@ -179,7 +179,7 @@ function changeGuildName() {
     if (newGuildName !== '' && !changeGuildNameTimeout && newGuildName != currentGuildName) {
         console.log("Changed guild name to: " + newGuildName);
         const objecttosend = {'' : newGuildName,'guildId' : currentGuildId};
-        socket.emit('set_guild_name', objecttosend);
+        apiClient.send('set_guild_name', objecttosend);
         const setInfoNick = getId('set-info-nick');
         if(setInfoNick) {
             setInfoNick.innerText = newGuildName;

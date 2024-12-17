@@ -590,7 +590,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             'guildId' : currentGuildId, 
             'channelId' : currentChannelId
         }
-        socket.emit('get_message_date',data);
+        apiClient.send('get_message_date',data);
         return;
     }
     const messagesArray = Array.isArray(messages) ? messages : [messages];
@@ -606,7 +606,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             guildId: currentGuildId,
             channelId: currentChannelId
         };
-        socket.emit('get_bulk_reply', data);
+        apiClient.send('get_bulk_reply', data);
     }
 }
 
@@ -683,7 +683,7 @@ function getOldMessages(date,messageId=null) {
     if(isOnGuild) {
         data['guildId'] = currentGuildId;
     }
-    socket.emit('get_old_messages',data);
+    apiClient.send('get_old_messages',data);
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
     }, 1000);
@@ -731,7 +731,7 @@ function fetchMessagesFromServer(channelId, isDm = false) {
         hasJustFetchedMessages = null;
     }, 1000);
 
-    socket.emit('get_history', requestData);
+    apiClient.send('get_history', requestData);
 }
 
 
