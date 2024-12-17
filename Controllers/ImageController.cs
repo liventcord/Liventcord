@@ -66,79 +66,79 @@ namespace LiventCord.Controllers
             if (typeof(T) == typeof(ProfileFile) && !string.IsNullOrEmpty(additionalField))
             {
                 existingFile = await _context.Set<T>()
-                    .FirstOrDefaultAsync(f => ((ProfileFile)(object)f).UserId == additionalField);  // additionalField is userId
+                    .FirstOrDefaultAsync(f => ((ProfileFile)(object)f).UserId == additionalField);  
             }
             else if (typeof(T) == typeof(GuildFile) && !string.IsNullOrEmpty(additionalField))
             {
                 existingFile = await _context.Set<T>()
-                    .FirstOrDefaultAsync(f => ((GuildFile)(object)f).GuildId == additionalField);  // additionalField is guildId
+                    .FirstOrDefaultAsync(f => ((GuildFile)(object)f).GuildId == additionalField);  
             }
             else if (typeof(T) == typeof(EmojiFile) && !string.IsNullOrEmpty(additionalField))
             {
                 existingFile = await _context.Set<T>()
-                    .FirstOrDefaultAsync(f => ((EmojiFile)(object)f).GuildId == additionalField);  // additionalField is guildId
+                    .FirstOrDefaultAsync(f => ((EmojiFile)(object)f).GuildId == additionalField);  
             }
             else if (typeof(T) == typeof(AttachmentFile) && !string.IsNullOrEmpty(additionalField))
             {
                 existingFile = await _context.Set<T>()
-                    .FirstOrDefaultAsync(f => ((AttachmentFile)(object)f).GuildId == additionalField);  // additionalField is guildId
+                    .FirstOrDefaultAsync(f => ((AttachmentFile)(object)f).GuildId == additionalField);  
             }
 
             if (existingFile != null)
             {
-                // Update fields common to all file types
+                
                 existingFile.FileName = fileName;
                 existingFile.Content = content;
                 existingFile.Extension = extension;
 
-                // Update specific fields for each file type
+                
                 if (existingFile is ProfileFile profileFile)
                 {
-                    profileFile.UserId = additionalField;  // ProfileFile needs userId
+                    profileFile.UserId = additionalField;  
                 }
                 else if (existingFile is GuildFile guildFile)
                 {
-                    guildFile.GuildId = additionalField;  // GuildFile needs guildId
-                    guildFile.UserId = additionalField;  // GuildFile needs userId
+                    guildFile.GuildId = additionalField;  
+                    guildFile.UserId = additionalField;  
                 }
                 else if (existingFile is EmojiFile emojiFile)
                 {
-                    emojiFile.GuildId = additionalField;  // EmojiFile needs guildId
+                    emojiFile.GuildId = additionalField;  
                 }
                 else if (existingFile is AttachmentFile attachmentFile)
                 {
-                    attachmentFile.GuildId = additionalField;  // AttachmentFile needs guildId
-                    attachmentFile.UserId = additionalField;  // AttachmentFile needs userId
+                    attachmentFile.GuildId = additionalField;  
+                    attachmentFile.UserId = additionalField;  
                 }
 
                 _logger.LogInformation("Updated file: {FileId}, {FileName}, {AdditionalField}, {Extension}", existingFile.FileId, fileName, additionalField, extension);
             }
             else
             {
-                // Create a new file instance using the constructor of the specific file type
+                
                 T? newFile = Activator.CreateInstance(typeof(T), fileId, fileName, content, extension, additionalField) as T;
 
                 if (newFile == null)
                     throw new InvalidOperationException($"Unable to create instance of {typeof(T).Name}.");
 
-                // Set specific fields for each file type
+                
                 if (newFile is ProfileFile profileFile)
                 {
-                    profileFile.UserId = additionalField;  // ProfileFile needs userId
+                    profileFile.UserId = additionalField;  
                 }
                 else if (newFile is GuildFile guildFile)
                 {
-                    guildFile.GuildId = additionalField;  // GuildFile needs guildId
-                    guildFile.UserId = additionalField;  // GuildFile needs userId
+                    guildFile.GuildId = additionalField;  
+                    guildFile.UserId = additionalField;  
                 }
                 else if (newFile is EmojiFile emojiFile)
                 {
-                    emojiFile.GuildId = additionalField;  // EmojiFile needs guildId
+                    emojiFile.GuildId = additionalField;  
                 }
                 else if (newFile is AttachmentFile attachmentFile)
                 {
-                    attachmentFile.GuildId = additionalField;  // AttachmentFile needs guildId
-                    attachmentFile.UserId = additionalField;  // AttachmentFile needs userId
+                    attachmentFile.GuildId = additionalField;  
+                    attachmentFile.UserId = additionalField;  
                 }
 
                 _logger.LogInformation("Saved new file: {FileId}, {FileName}, {AdditionalField}, {Extension}", fileId, fileName, additionalField, extension);
@@ -226,22 +226,22 @@ public class FileController : ControllerBase
                 MessageId = (f is AttachmentFile attachmentFile) ? attachmentFile.MessageId : null
             }).ToList();
 
-        // Start constructing the HTML response
+        
         var html = "<html><body>";
 
         foreach (var file in allFiles)
         {
-            // Create the file URL (you may need to adjust the route for your server)
+            
             var fileUrl = Url.Action("GetProfileFile", "File", new { userId = file.UserId }) ?? "";
 
-            // Add an image tag for each profile file
+            
             if (file.Extension == ".jpg" || file.Extension == ".png" || file.Extension == ".jpeg" || file.Extension == ".gif")
             {
                 html += $"<div><h3>{file.FileName}</h3><img src='{fileUrl}' alt='{file.FileName}' width='200' /></div>";
             }
             else
             {
-                // Add a link to non-image files
+                
                 html += $"<div><h3>{file.FileName}</h3><p>File size: {file.FileSize} bytes</p></div>";
             }
         }

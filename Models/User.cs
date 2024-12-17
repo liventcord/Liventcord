@@ -4,24 +4,24 @@ using System.Text.Json;
 
 namespace LiventCord.Models
 {
-    //user_id TEXT PRIMARY KEY,
-    //email TEXT UNIQUE NOT NULL,
-    //password TEXT NOT NULL,
-    //nickname TEXT NOT NULL,
-    //discriminator TEXT NOT NULL,
-    //bot INTEGER NOT NULL,
-    //status TEXT NOT NULL CHECK (status IN ('offline', 'online', 'idle', 'invisible', 'do not disturb')),
-    //description TEXT,
-    //created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    //last_login TIMESTAMP,
-    //verified INTEGER DEFAULT 0,
-    //location TEXT,
-    //language TEXT,
-    //phone_number TEXT UNIQUE,
-    //social_media_links TEXT,
-    //date_of_birth DATE,
-    //hide_profile INTEGER DEFAULT 0,
-    //UNIQUE (nickname, discriminator)
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 
     public class User

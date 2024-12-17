@@ -29,7 +29,7 @@ namespace LiventCord.Controllers
 
 
 
-        // GET /api/guilds/{guildId}/channels
+        
         [HttpGet("")]
         public async Task<IActionResult> HandleGetChannels([FromRoute][IdLengthValidation] string guildId)
         {
@@ -41,7 +41,7 @@ namespace LiventCord.Controllers
             return Ok(new { guildId, channels });
         }
 
-        // DELETE /api/guilds/{guildId}/channels/{channelId}
+        
         [HttpDelete("/{guildId}/channels/{channelId}")]
         public async Task<IActionResult> DeleteChannel([FromRoute][IdLengthValidation] string guildId,[IdLengthValidation] string channelId)
         {
@@ -60,7 +60,7 @@ namespace LiventCord.Controllers
         }
 
 
-        // POST /api/guilds/{guildId}/channels
+        
         [HttpPost("/{guildId}/channels")]
         public async Task<IActionResult> CreateChannel([FromRoute][IdLengthValidation] string guildId, [FromBody] CreateChannelRequest request)
         {

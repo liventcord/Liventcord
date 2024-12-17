@@ -33,7 +33,7 @@ namespace LiventCord.Controllers
         }
     
 
-        // POST /api/guilds/{guildId}/channels/{channelId}/writing
+        
         [HttpPost("/api/guilds/{guildId}/channels/{channelId}/writing")]
         public async Task<IActionResult> HandleStartWriting(
             [FromRoute][IdLengthValidation] string guildId,

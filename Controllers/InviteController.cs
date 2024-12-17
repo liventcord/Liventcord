@@ -16,7 +16,7 @@ namespace LiventCord.Controllers
             _dbContext = dbContext;
         }
 
-        // GET /api/guilds/{guildId}/invites
+        
         [HttpGet("guilds/{guildId}/invites")]
         public async Task<IActionResult> HandleGetInvites([FromRoute][IdLengthValidation] string guildId)
         {

@@ -90,7 +90,7 @@ namespace LiventCord.Helpers
                 {
                     email = user.Email ?? "",
                     userId,
-                    userName = user.Nickname ?? "",
+                    nickName = user.Nickname ?? "",
                     userDiscriminator = user.Discriminator ?? "",
                     guildId,
                     channelId,

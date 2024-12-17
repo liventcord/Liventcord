@@ -23,8 +23,7 @@ appsettings.json
 *.dSYM/
 *.db
 *.pdb
-
+.bash_history
 
 
 global.json
-wwwroot
