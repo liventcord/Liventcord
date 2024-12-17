@@ -37,11 +37,11 @@ namespace LiventCord.Routes
                     {
                         if (fileName.EndsWith("404_files/noodle.gif"))
                         {
-                            context.Response.Redirect("https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+                            context.Response.Redirect("https:
                         }
                         else
                         {
-                            string redirectUrl = "https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404filesnew/output/" + Path.GetFileName(fileName);
+                            string redirectUrl = "https:
                             context.Response.Redirect(redirectUrl);
                         }
                     }

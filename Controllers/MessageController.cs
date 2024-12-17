@@ -45,7 +45,7 @@ namespace LiventCord.Controllers {
             return Ok(new { Type = "success", Message = "Message sent." });
         }
 
-        // GET /api/guilds/{guildId}/channels/{channelId}/messages
+        
         [HttpGet("/api/guilds/{guildId}/channels/{channelId}/messages")]
         public async Task<IActionResult> HandleGetMessages(
             [FromRoute][IdLengthValidation] string guildId, 
@@ -64,7 +64,7 @@ namespace LiventCord.Controllers {
             return Ok(messageToEmit);
         }
 
-        // PUT /api/guilds/{guildId}/channels/{channelId}/messages
+        
         [HttpPut("/api/guilds/{guildId}/channels/{channelId}/messages/edit")]
         public async Task<IActionResult> HandleEditMessage([FromBody] EditMessageRequest request)
         {

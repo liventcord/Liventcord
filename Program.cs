@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text.Json;
 using LiventCord.Controllers;
 using LiventCord.Helpers;
 using LiventCord.Routes;
@@ -68,7 +69,8 @@ builder.Services.AddControllers()
 
             return new BadRequestObjectResult(errors);
         };
-    });
+    }).AddJsonOptions(options =>
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 
 builder.Services.AddMemoryCache();
@@ -177,7 +179,7 @@ app.UseStatusCodePages(async context =>
     }
 });
 
-// Fallback for non-API routes
+
 app.MapFallback(async context =>
 {
     var acceptHeader = context.Request.Headers["Accept"].ToString();

@@ -25,7 +25,7 @@ namespace LiventCord.Controllers
 
         }
 
-        // GET /api/guilds/{guildId}/members
+        
         [HttpGet("/api/guilds/{guildId}/members")]
         public async Task<IActionResult> HandleGetMembers([FromRoute][IdLengthValidation] string guildId)
         {
@@ -46,7 +46,7 @@ namespace LiventCord.Controllers
 
         }
 
-        // POST /api/guilds/{guildId}/members
+        
         [HttpPost("/api/guilds/{guildId}/members")]
         public async Task<IActionResult> HandleGuildJoin([FromBody] string joinId)
         {
