@@ -30,7 +30,7 @@ function initialisechatInput() {
             if (currentSearchUiIndex >= 0 && currentSearchUiIndex < options.length) {
                 const selectedUserId = options[currentSearchUiIndex].dataset.userid;
                 const selectedUserNick = options[currentSearchUiIndex].textContent;
-                selectUser(selectedUserId, selectedUserNick);
+                selectMember(selectedUserId, selectedUserNick);
             }
         } else if (event.key === 'Escape') {
             userMentionDropdown.style.display = 'none'; 

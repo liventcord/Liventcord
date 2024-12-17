@@ -405,7 +405,6 @@
     <script>
 
     let currentGuildData = {};
-    let guildNames = {};
     let keybindHandlers = {}; 
     let isGuildKeyDown = false;
     function createBlackImage() {
@@ -492,27 +491,32 @@
             }).join('');
         }
 
+        if (guilds_data && Array.isArray(guilds_data)) {
+            guilds_data.forEach((guild) => {
+                console.log(guild)
+                console.log('Guild Members:', guild.GuildMembers);
+                console.log('Guild Channels:', guild.GuildChannels);
+                cacheInterface.setMemberIds(guild.GuildId,guild.GuildMembers);
 
-        if (guilds_data && guilds_data.length > 0) {
+                guild.GuildMembers.forEach((memberId) => {
+                    console.log(memberId);
+                });
 
-            guilds_data.forEach(({ GuildId, GuildName, OwnerId }) => {
-                if (GuildId) {
-                    currentGuildData[GuildId] = { GuildId, GuildName, OwnerId };
-                    guildNames[GuildId] = GuildName;
-                } else {
-                    console.warn('Guild data is missing or malformed');
-                }
+                guild.GuildChannels.forEach((channel) => {
+                    console.log(channel);
+                });
+                guildsList.innerHTML += renderGuilds(guilds_data);
             });
-
-            guildsList.innerHTML += renderGuilds(guilds_data);
-
-            const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
-            if (selectedGuild) {
-                selectedGuild.parentNode.classList.add('selected-guild');
-            }
         } else {
-            console.warn('No guild data available or guilds_data is empty');
+            console.error("Non array guild data");
         }
+
+
+        const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
+        if (selectedGuild) {
+            selectedGuild.parentNode.classList.add('selected-guild');
+        }
+
 
 
         const preventDrag = (elementId) => {

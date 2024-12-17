@@ -21,11 +21,10 @@ class BaseCache {
 
     remove(key, id) {
         if (this.data[key]) {
-            this.data[key] = this.data[key].filter(item => item.id !== id);
+            this.data[key] = this.data[key].filter(item => item !== id);
         }
     }
 }
-
 class ChannelCache extends BaseCache {
     setChannels(guildId, channels) {
         this.setArray(guildId, channels);
@@ -86,18 +85,22 @@ class GuildMembersCache extends BaseCache {
         return this.get(guildId) || [];
     }
 
-    updateMember(guildId, member, add = true) {
-        const members = this.getMembers(guildId);
-        const index = members.findIndex(existingMember => existingMember.id === member.id);
-
-        if (add && index === -1) members.push(member);
-        else if (!add && index !== -1) members.splice(index, 1);
-
-        this.set(guildId, members);
+    setMemberIds(guildId, memberIds) {
+        this.set(guildId, Array.isArray(memberIds) ? memberIds : []);
     }
 
-    updateMembers(guildId, newMembers, add = true) {
-        newMembers.forEach(member => this.updateMember(guildId, member, add));
+    updateMember(guildId, memberId, add = true) {
+        const memberIds = this.getMembers(guildId);
+        const index = memberIds.indexOf(memberId);
+
+        if (add && index === -1) memberIds.push(memberId);
+        else if (!add && index !== -1) memberIds.splice(index, 1);
+
+        this.set(guildId, memberIds);
+    }
+
+    updateMembers(guildId, newMemberIds, add = true) {
+        newMemberIds.forEach(memberId => this.updateMember(guildId, memberId, add));
     }
 }
 
@@ -198,6 +201,9 @@ class GuildCacheInterface {
     //member
     getMembers(guildId) {
         return this.getGuild(guildId)?.members.getMembers(guildId) || [];
+    }
+    setMemberIds(guildId,membersArray) {
+        this.getGuild(guildId).members.setMemberIds(membersArray) 
     }
 
     updateMembers(guildId, newMembers, add = true) {

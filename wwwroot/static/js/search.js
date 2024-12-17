@@ -12,12 +12,12 @@ function updateUserMentionDropdown(value) {
 
             const usersArray = Object.values(currentUsers);
             
-            const filteredUsers = usersArray.filter(user => user.name.toLowerCase().startsWith(lastMention.slice(1).toLowerCase()));
+            const filteredUsers = usersArray.filter(user => user.nickName.toLowerCase().startsWith(lastMention.slice(1).toLowerCase()));
 
             if (filteredUsers.length) {
                 userMentionDropdown.innerHTML = filteredUsers.map(user => `
-                    <div class="mention-option" data-userid="${user.userId}" onclick="selectUser('${user.userId}', '${user.name}')">
-                        ${user.name}
+                    <div class="mention-option" data-userid="${user.userId}" onclick="selectMember('${user.userId}', '${user.nickName}')">
+                        ${user.nickName}
                     </div>
                 `).join('');
                 userMentionDropdown.style.display = 'block';
@@ -39,7 +39,7 @@ function highlightOption(index) {
     }
 }
 
-function selectUser(userId, userNick) {
+function selectMember(userId, userNick) {
     const message = chatInput.value;
     const position = chatInput.selectionStart;
     const newMessage = message.slice(0, position - message.length) + `@${userNick} ` + message.slice(position);
@@ -78,7 +78,7 @@ function getMonthValue(query) {
 function handleUserClick(userName) {
     alert(`User ${userName} clicked!`);
 }
-function filterUsers(query) {
+function filterMembers(query) {
     const userSection = getId('userSection').querySelector('.search-content');
     const mentioningSection = getId('mentioningSection').querySelector('.search-content');
     const channelSection = getId('channelSection').querySelector('.search-content');
@@ -93,17 +93,17 @@ function filterUsers(query) {
     dateSection2.innerHTML = '';
     dateSection3.innerHTML = '';
 
-    const users = getGuildUsers(); 
+    const users = getGuildMembers(); 
     if (!users) return;
 
-    const filteredUsers = users.filter(user => user.name.toLowerCase().startsWith(query.toLowerCase())).slice(0, 3);
+    const filteredUsers = users.filter(user => user.nickName.toLowerCase().startsWith(query.toLowerCase())).slice(0, 3);
 
     filteredUsers.forEach(user => {
-        userSection.innerHTML += `<div class=".search-button" onclick="handleUserClick('${user.name}')">
-            <img src="${user.image}" alt="${user.name}" style="width: 20px; height: 20px; border-radius: 50%;"> ${user.name}
+        userSection.innerHTML += `<div class=".search-button" onclick="handleUserClick('${user.nickName}')">
+            <img src="${user.image}" alt="${user.nickName}" style="width: 20px; height: 20px; border-radius: 50%;"> ${user.nickName}
         </div>`;
-        mentioningSection.innerHTML += `<div class=".search-button" onclick="handleUserClick('${user.name}')">
-            Mentioning: <img src="${user.image}" alt="${user.name}" style="width: 20px; height: 20px; border-radius: 50%;"> ${user.name}
+        mentioningSection.innerHTML += `<div class=".search-button" onclick="handleUserClick('${user.nickName}')">
+            Mentioning: <img src="${user.image}" alt="${user.nickName}" style="width: 20px; height: 20px; border-radius: 50%;"> ${user.nickName}
         </div>`;
     });
 
@@ -166,7 +166,7 @@ function onInputSearchInput() {
     
     const query = channelSearchInputElement.value.toLowerCase();
     if (query) {
-        filterUsers(query);
+        filterMembers(query);
     } else {
         displayDefaultContent();
     }

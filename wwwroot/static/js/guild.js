@@ -54,6 +54,8 @@ function updateGuildList(guildData) {
 
     guildData.guilds.forEach((guild) => {
         if (getId(guild.GuildId)) return;
+        cacheInterface.setGuildOwner(guildId, ownerId)
+
         const guildName = guild.guildName;
         const ownerId = guild.ownerId;
         const guildId = guild.guildId;
@@ -61,7 +63,6 @@ function updateGuildList(guildData) {
         
         const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guildId}` : createBlackImage();
         
-        cacheInterface.setGuildOwner(guildId, ownerId)
         const li = createEl('li');
         const img = createEl('img', { className: 'guilds-list', id: guildId, src: imgSrc });
         img.addEventListener('click', () => {
@@ -71,7 +72,6 @@ function updateGuildList(guildData) {
         li.appendChild(img);
         li.appendChild(createEl('div', { className: 'white-rod' }));
         guildsList.appendChild(li);
-        guildNames[guildId] = guildName;
     });
     
     addKeybinds();
@@ -90,7 +90,6 @@ function appendToGuildList(guild) {
     li.appendChild(img);
     li.appendChild(createEl('div', { className: 'white-rod' }));
     guildsList.appendChild(li);
-    guildNames[guild.id] = guild.name;
     addKeybinds();
 }
 
@@ -205,9 +204,10 @@ function loadGuild(guildId,channelId,guildName,guildOwnerId,isChangingUrl=true) 
     if(guildName) {
         currentGuildName = guildName;
     } else {
-        if(guildNames[guildId]) {
-            currentGuildName = guildNames[guildId];
-        }
+        const cachedGuildName = cacheInterface.getGuildName(guildId);
+        if(cachedGuildName) {
+            currentGuildName = cachedGuildName
+        } else { console.warn("Name does not exist for guild: ",guildId)}
     }
 
     currentChannelId = channelId;
@@ -269,7 +269,7 @@ function fetchMembers() {
 }
 
 
-function getGuildUsers() {
+function getGuildMembers() {
     if (!cacheInterface.isMembersEmpty(currentGuildId) || !currentGuildId) { return; }
     
     const guildMembers = cacheInterface.getMembers(currentGuildId);
