@@ -265,7 +265,7 @@ function createReplyBar(newMessage,messageId,userId,content,attachmentUrls) {
         if(originalMsg) {
             scrollToMessage(originalMsg);
         } else {
-            fetchReplies(newMessage.dataset.reply_to_id, null, goToOld=true);
+            fetchReplies(newMessage.dataset.replyToId, null, goToOld=true);
         }
     }
     replyBar.appendChild(replyAvatar);
@@ -314,24 +314,24 @@ let isChangingPage = false;
 function userExistsDm(userId) {
     return userId in dm_friends;
 }
-function openDm(friend_id) {
+function openDm(friendId) {
     const wasOnDm = isOnDm;
     isOnDm = true;
-    currentDmId = friend_id;
+    currentDmId = friendId;
     lastSenderID = '';
-    activateDmContainer(friend_id);
-    const url = constructDmPage(friend_id);
+    activateDmContainer(friendId);
+    const url = constructDmPage(friendId);
     if(url != window.location.pathname) {
         window.history.pushState(null, null, url);
     }
-    if(!userExistsDm(friend_id)) {
-        apiClient.send('add_dm',{'friend_id' : friend_id});
+    if(!userExistsDm(friendId)) {
+        apiClient.send('add_dm',{'friend_id' : friendId});
     }
-    loadApp(friend_id);
+    loadApp(friendId);
     if(wasOnDm) {
-        changeCurrentDm(friend_id);
+        changeCurrentDm(friendId);
     }
-    GetHistoryFromOneChannel(friend_id,true);
+    GetHistoryFromOneChannel(friendId,true);
 }
 
 

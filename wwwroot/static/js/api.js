@@ -131,7 +131,7 @@ class CustomHttpConnection {
         }
     }
 
-    async emit(event, data = {}) {
+    async send(event, data = {}) {
         if (!event) {
             console.error("Event is required");
             return;

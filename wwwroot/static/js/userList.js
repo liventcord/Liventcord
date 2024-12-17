@@ -7,20 +7,20 @@ function renderTitle(titleText, container, headingLevel = 1) {
     titleElement.style.color = 'rgb(148, 155, 153)';
     container.appendChild(titleElement);
 }
-function createUserProfile(userData, isUserOnline) {
-    const profileContainer = createEl('div', { className: 'profile-container', id: userData.userId });
+function createUserProfile(userId, nickName, isUserOnline) {
+    const profileContainer = createEl('div', { className: 'profile-container', id: userId });
     if (isUserOnline) {
         profileContainer.classList.add('activeprofile');
     }
 
-    const userNameDiv = createEl('span', { textContent: userData.nickName, className: "profileName" });
+    const userNameDiv = createEl('span', { textContent: nickName, className: "profileName" });
     userNameDiv.style.color = 'white';
 
     const profileImg = createEl('img', { className: 'profile-pic' });
     profileImg.width = '30px';
     profileImg.height = '30px';
     profileImg.style.pointerEvents = 'none';
-    profileImg.dataset.userId = userData.userId;
+    profileImg.dataset.userId = userId;
 
     const bubble = createBubble(isUserOnline);
 
@@ -54,8 +54,10 @@ function renderUsers(users, tbody, isOnline) {
     for (const userData of users) {
         const isUserOnline = userData.isOnline === true;
         const userId = userData.userId;
+        const nickName = userData.nickName;
+        console.warn(userData);
         if (isUserOnline === isOnline) {
-            const { profileContainer, userNameDiv, profileImg, bubble } = createUserProfile(userData, isUserOnline);
+            const { profileContainer, userNameDiv, profileImg, bubble } = createUserProfile(userId,nickName, isUserOnline);
             const guild = guildCache.getGuild(currentGuildId);
             if (isOnGuild && currentGuildId && guild.isOwner(userId, currentGuildId)) {
                 const crownEmoji = createEl('img', { src: crownEmojibase64, id: 'crown-symbol' });

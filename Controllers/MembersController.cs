@@ -150,7 +150,7 @@ namespace LiventCord.Controllers
                 .Select(gu => new PublicUser
                 {
                     UserId = gu.User.UserId,
-                    Nickname = gu.User.Nickname,
+                    NickName = gu.User.Nickname,
                     Discriminator = gu.User.Discriminator,
                     Description = gu.User.Description,
                     Status = gu.User.Status,

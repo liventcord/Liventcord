@@ -4,25 +4,6 @@ using System.Text.Json;
 
 namespace LiventCord.Models
 {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
 
     public class User
     {
@@ -73,7 +54,7 @@ namespace LiventCord.Models
             return new PublicUser
             {
                 UserId = UserId,
-                Nickname = Nickname,
+                NickName = Nickname,
                 Discriminator = Discriminator,
                 Status = Status,
                 CreatedAt = CreatedAt,
@@ -99,7 +80,7 @@ namespace LiventCord.Models
         public required string Discriminator { get; set; }
 
         public required string UserId { get; set; }
-        public required string Nickname { get; set; }
+        public required string NickName { get; set; }
         public string? Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public string? Location { get; set; }

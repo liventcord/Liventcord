@@ -189,10 +189,10 @@ function displayChatMessage(data) {
     const content = data.content;
     const channelId = data.channelId;
     let date = data.date;
-    const last_edited = data.lastEdited;
-    const attachment_urls = data.attachmentUrls;
-    const reply_to_id = data.replyToId;
-    const reaction_emojis_ids = data.reactionEmojisIds;
+    const lastEdited = data.lastEdited;
+    const attachmentUrls = data.attachmentUrls;
+    const replyToId = data.replyToId;
+    const reactionEmojisIds = data.reactionEmojisIds;
     const addToTop = data.addToTop;
     const isBot = data.isBot;
     const replyOf = data.replyOf;
@@ -202,7 +202,7 @@ function displayChatMessage(data) {
         return;
     }
     if (!channelId || !date ) {return; }
-    if (!attachment_urls && content == ''){ return; }
+    if (!attachmentUrls && content == ''){ return; }
 
 
 
@@ -234,7 +234,7 @@ function displayChatMessage(data) {
             isTimeGap = true;
         }
         
-        if(!lastSenderID || isTimeGap || reply_to_id) {
+        if(!lastSenderID || isTimeGap || replyToId) {
             isCreatedProfile = true;
             createProfileImageChat(newMessage, messageContentElement, nick, userId, date, isBot);
         }
@@ -256,13 +256,13 @@ function displayChatMessage(data) {
     newMessage.dataset.userId =  userId;
     newMessage.dataset.date =  date;
     newMessage.dataset.content =  content;
-    newMessage.dataset.attachment_urls = attachment_urls;
-    newMessage.dataset.reply_to_id = reply_to_id;
+    newMessage.dataset.attachmentUrls = attachmentUrls;
+    newMessage.dataset.replyToId = replyToId;
     newMessage.dataset.messageId = messageId;
     messageContentElement.dataset.content_observe = formattedMessage;
     observer.observe(messageContentElement);
     newMessage.appendChild(messageContentElement);
-    createMediaElement(content, messageContentElement,newMessage, attachment_urls);
+    createMediaElement(content, messageContentElement,newMessage, attachmentUrls);
     if(currentLastDate) {
         if(date < currentLastDate) {
             date = currentLastDate;
@@ -318,10 +318,10 @@ function displayChatMessage(data) {
             scrollToMessage(newMessage);
         }, 0);
     }
-    if(reply_to_id) {
-        const foundReply = getId(reply_to_id);
+    if(replyToId) {
+        const foundReply = getId(replyToId);
         if(foundReply) {
-            createReplyBar(newMessage, foundReply.dataset.messageId,foundReply.dataset.userId,foundReply.dataset.content,foundReply.dataset.attachment_urls);
+            createReplyBar(newMessage, foundReply.dataset.messageId,foundReply.dataset.userId,foundReply.dataset.content,foundReply.dataset.attachmentUrls);
         } 
         else {
             unknownReplies.push(data);    
@@ -403,11 +403,11 @@ function displayCannotSendMessage(failedMessageContent) {
         content: textToSend,
         channelId: currentDmId,
         date: createNowDate(),
-        last_edited: '',
-        attachment_urls: '',
+        lastEdited: '',
+        attachmentUrls: '',
         addToTop: false,
-        reply_to_id: '',
-        reaction_emojis_ids: '',
+        replyToId: '',
+        reactionEmojisIds: '',
         replyOf: '',
         isBot : true,
         willDisplayProfile: true
@@ -539,7 +539,7 @@ function handleHistoryResponse(data) {
     if (channelId !== currentChannelId)
         console.warn('History channel ID is different from current channel')
 
-    cacheInterface.setMessages(channelId, guildId, messages)
+    cacheInterface.setMessages(guildId,guildId, messages)
 
     const firstMessageDateOnChannel = new Date(oldestMessageDate)
     const repliesList = new Set()
@@ -597,8 +597,8 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
 
     const replyIds = messagesArray
         .filter(msg => !repliesList.has(msg.messageId) && !replyCache[msg.messageId])
-        .filter(msg => msg.reply_to_id !== undefined && msg.reply_to_id !== null && msg.reply_to_id !== '')
-        .map(msg => msg.reply_to_id);
+        .filter(msg => msg.replyToId !== undefined && msg.replyToId !== null && msg.replyToId !== '')
+        .map(msg => msg.replyToId);
 
     if (replyIds.length > 0) {
         const data = {
@@ -694,7 +694,7 @@ function getOldMessages(date,messageId=null) {
 
 function getHistoryFromOneChannel(channelId, isDm = false) {
     console.log('Retrieving history...');
-    const messages = cacheInterface.getMessages(channelId);
+    const messages = cacheInterface.getMessages(currentGuildId,channelId);
 
     if (!isDm && messages && Array.isArray(messages)) {
         let repliesList = new Set();
@@ -763,11 +763,11 @@ function scrollToBottom() {
 }
 function handleReplies() {
     Object.values(replyCache).forEach(message => {
-        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.reply_to_id == message.messageId);
+        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.replyToId == message.messageId);
         console.log(replierElements, message.replies);
         replierElements.forEach(replier => {
             message.replies.forEach(msg => {
-                createReplyBar(replier, message.messageId, msg.userId, msg.content, msg.attachment_urls);
+                createReplyBar(replier, message.messageId, msg.userId, msg.content, msg.attachmentUrls);
                 console.log("Creating replly bar.", replier, message.messageId, msg.userId, msg.content);
             });
         });

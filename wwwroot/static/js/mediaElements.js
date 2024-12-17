@@ -124,17 +124,17 @@ function createVideoElement(url) {
     videoElement.controls = true; 
     return videoElement;
 }
-async function createMediaElement(content, messageContentElement, newMessage, attachment_urls, callback) {
+async function createMediaElement(content, messageContentElement, newMessage, attachmentUrls, callback) {
     let links = extractLinks(content) || [];
     let mediaCount = 0;
     let linksProcessed = 0;
 
-    if (attachment_urls && typeof attachment_urls === 'string' && attachment_urls.trim() !== '') {
-        attachment_urls = JSON.parse(attachment_urls.replace(/\\/g, ""));
-        if (attachment_urls.length > 0 && !attachment_urls[0].startsWith(`${location.origin}`)) {
-            attachment_urls[0] = `${location.origin}${attachment_urls[0]}`;
+    if (attachmentUrls && typeof attachmentUrls === 'string' && attachmentUrls.trim() !== '') {
+        attachmentUrls = JSON.parse(attachmentUrls.replace(/\\/g, ""));
+        if (attachmentUrls.length > 0 && !attachmentUrls[0].startsWith(`${location.origin}`)) {
+            attachmentUrls[0] = `${location.origin}${attachmentUrls[0]}`;
         }
-        links.push(...attachment_urls);
+        links.push(...attachmentUrls);
     }
 
     const maxLinks = 4;

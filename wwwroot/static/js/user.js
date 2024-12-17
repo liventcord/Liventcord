@@ -119,10 +119,10 @@ function updateSettingsProfileColor() {
     }
 }
 
-function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploading=false) {
+function updateSelfProfile(userId, userName,isTimestamp=false,isAfterUploading=false) {
     if(!userId) { return; }
     const timestamp = new Date().getTime(); 
-    let selfimagepath = is_timestamp ? `/profiles/${userId}.png?ts=${timestamp}` : `/profiles/${userId}.png`;
+    let selfimagepath = isTimestamp ? `/profiles/${userId}.png?ts=${timestamp}` : `/profiles/${userId}.png`;
     const selfProfileImage = getId('self-profile-image');
 
     selfProfileImage.onerror = () => {
@@ -150,7 +150,7 @@ function updateSelfProfile(userId, userName,is_timestamp=false,is_after_uploadin
         };
         settingsSelfProfile.onload = function(event) {
             updateSettingsProfileColor();
-            if(is_after_uploading) {
+            if(isAfterUploading) {
                 const base64output = getBase64Image(settingsSelfProfile);
                 if(base64output) {
                     console.log("Setting self profile as ", userId, userName)
