@@ -11,7 +11,8 @@ const EventType = Object.freeze({
     GET_HISTORY: 'get_history',
     GET_GUILDS: 'get_guilds',
     GET_INVITES: 'get_invites',
-    START_WRITING: 'start_writing',
+    START_TYPING: 'start_typing',
+    STOP_TYPING: 'stop_typing',
     ADD_FRIEND: 'add_friend',
     ADD_FRIEND_ID: 'add_friend_id'
 });
@@ -36,7 +37,8 @@ const EventHttpMethodMap = {
     [EventType.GET_HISTORY]: HttpMethod.GET,
     [EventType.GET_GUILDS]: HttpMethod.GET,
     [EventType.GET_INVITES]: HttpMethod.GET,
-    [EventType.START_WRITING]: HttpMethod.POST,
+    [EventType.START_TYPING]: HttpMethod.POST,
+    [EventType.STOP_TYPING]: HttpMethod.POST,
     [EventType.ADD_FRIEND]: HttpMethod.POST,
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
 };
@@ -95,8 +97,11 @@ class CustomHttpConnection {
             case EventType.GET_INVITES:
                 url = `${basePath}/guilds/${data.guildId}/invites`;
                 break;
-            case EventType.START_WRITING:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing`;
+            case EventType.START_TYPING:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing/start`;
+                break;
+            case EventType.STOP_TYPING:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing/stop`;
                 break;
             case EventType.ADD_FRIEND:
                 url = `${basePath}/friends?name=${data.friendName}&discriminator=${friendDiscriminator}`;
@@ -119,17 +124,24 @@ class CustomHttpConnection {
                 body: method === HttpMethod.GET ? undefined : JSON.stringify(data),
                 credentials: 'same-origin',
             });
-
+    
             if (!response.ok) {
                 throw new Error(`Request failed with status: ${response.status}`);
             }
-
-            return response.json();
+    
+            const responseBody = await response.text();
+            if (!responseBody) {
+                console.error("Received empty response body");
+                return null; 
+            }
+    
+            return JSON.parse(responseBody);  
         } catch (error) {
             console.error("Failed to send request:", error);
             throw error;
         }
     }
+    
 
     async send(event, data = {}) {
         if (!event) {
@@ -143,7 +155,7 @@ class CustomHttpConnection {
             const response = await this.sendRequest(data, url, method);
             this.handleMessage(event, response);
         } catch (error) {
-            console.error(`Error during request for event "${event}":`, error);
+            console.error(`Error during request for event "${event}":`, error,event,data);
         }
     }
 

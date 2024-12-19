@@ -215,8 +215,6 @@ document.addEventListener('DOMContentLoaded', function () {
     setUsersList(isCookieUsersOpen, true);
     disableElement('loading-screen');
 
-    setSettingAnimation();
-    
 });
 
 

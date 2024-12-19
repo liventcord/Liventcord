@@ -162,17 +162,3 @@ function changeUrlWithFireWorks(guildId,channelId,guildName) {
     permissionManager.addGuildSelfCreated(guildId);
 
 }
-let selectedSlideUI = true;
-function setSettingAnimation() {
-    const menu = getId('settings-menu');
-
-    menu.classList.remove('slide-appear', 'scale-appear');
-    
-    if (selectedSlideUI) {
-        menu.classList.add('settings-menu-slide-in');
-        menu.classList.remove('settings-menu-no-slide');
-    } else {
-        menu.classList.add('settings-menu-no-slide');
-        menu.classList.remove('settings-menu-slide-in');
-    }
-}
