@@ -158,8 +158,20 @@ namespace LiventCord.Controllers
                     CreatedAt = gu.User.CreatedAt,
                     SocialMediaLinks = gu.User.SocialMediaLinks
                 })
+                .Select(user => new PublicUser
+                {
+                    UserId = user.UserId, 
+                    NickName = user.NickName, 
+                    Discriminator = user.Discriminator, 
+                    Description = user.Description,
+                    Status = user.Status,
+                    IsOnline = user.IsOnline,
+                    CreatedAt = user.CreatedAt,
+                    SocialMediaLinks = user.SocialMediaLinks
+                })
                 .ToListAsync();
         }
+
         [NonAction]
         public async Task<List<string>> GetSharedGuilds(string guildId, string userId)
         {
