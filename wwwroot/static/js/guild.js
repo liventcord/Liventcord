@@ -235,8 +235,9 @@ function joinVoiceChannel(channelId) {
 
 
 function refreshInviteId() {
-    if(!guildCache.isInvitesEmpty(currentGuildId)) { return; }
-    apiClient.send('get_invites',{'guildId' : currentGuildId});
+    if(!cacheInterface.isInvitesEmpty(currentGuildId)) { return; }
+    console.log("Implement invites")
+    //apiClient.send('get_invites',{'guildId' : currentGuildId});
 }
 
 

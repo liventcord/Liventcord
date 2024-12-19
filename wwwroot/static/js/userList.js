@@ -92,7 +92,7 @@ function updateMemberList(members, ignoreIsOnMe = false) {
         console.warn("Already updating members!");
         return;
     }
-    console.log("Updating members with:", members);
+    console.error("Updating members with:", members);
 
     isUpdatingUsers = true;
     const { onlineUsers, offlineUsers } = categorizeMembers(members);
