@@ -8,6 +8,9 @@ let userListFriActiveHtml;
 
 
 
+//TODO
+//If guild id does not exist, navigate to channels@me
+//if channel id does not exist, navigate to guilds first channel
 
 
 
@@ -157,9 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
         addUser(passed_friend_id, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
     }
 
-    if (isDefined(passed_typing_members)) {
-        typing_members = passed_typing_members;
-    }
 
     if (isOnMe) {
         if (!isPathnameCorrect(window.location.pathname)) {
@@ -215,6 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setUsersList(isCookieUsersOpen, true);
     disableElement('loading-screen');
 
+    setSettingAnimation();
     
 });
 

@@ -55,7 +55,6 @@ function renderUsers(users, tbody, isOnline) {
         const isUserOnline = userData.isOnline === true;
         const userId = userData.userId;
         const nickName = userData.nickName;
-        console.warn(userData);
         if (isUserOnline === isOnline) {
             const { profileContainer, userNameDiv, profileImg, bubble } = createUserProfile(userId,nickName, isUserOnline);
             const guild = guildCache.getGuild(currentGuildId);

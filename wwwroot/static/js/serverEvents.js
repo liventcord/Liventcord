@@ -99,9 +99,7 @@ apiClient.on('old_messages_response', function(data) {
 
 
 
-apiClient.on('update_user_profile', data => {
-    refreshUserProfileImage(data.userId);
-});
+
 
 
 
@@ -231,9 +229,9 @@ apiClient.on('get_history', (data) => {
 
 
 apiClient.on('update_nick',data => {
-    const userid = data.userId;
+    const userId = data.userId;
     const newNickname = data.userName;
-    if(userid == currentUserId) {
+    if(userId == currentUserId) {
         
         const settingsNameText = getId('settings-self-name');
         const setInfoNick = getId('set-info-nick');
@@ -250,10 +248,12 @@ apiClient.on('update_nick',data => {
         return;
     }
     
-    refreshUserProfileImage(null,newNickname);
+    refreshUserProfile(userId,newNickname);
 });
 
-
+apiClient.on('update_user_profile', data => {
+    refreshUserProfile(data.userId);
+});
 
 apiClient.on('users_data_response', data => {
     updateFriendsList(data.users,data.isPending);  
