@@ -3,7 +3,6 @@ let currentReplyingTo = '';
 let chatInput ;
 
 let fileImagePreview;
-let typingTimeout;
 let chatContainer;
 let chatContent;
 
@@ -92,40 +91,56 @@ function extractUserIds(message) {
 }
 
 
+let typingTimeout;
+let typingStarted = false;
+
 async function handleUserKeydown(event) {
-    
     if (chatInput.value !== '') {
         if (typingTimeout) {
             clearTimeout(typingTimeout);
         }
-        typingTimeout = setTimeout(() => {
-            apiClient.send('start_writing', {
+
+        if (!typingStarted) {
+            typingStarted = true;
+            apiClient.send(EventType.START_TYPING, {
                 'channelId': isOnDm ? currentDmId : currentChannelId,
                 'guildId': currentGuildId,
                 'isDm': isOnDm
             });
-        }, 1000);
+        }
+
+        typingTimeout = setTimeout(() => {
+            typingStarted = false;
+            apiClient.send(EventType.STOP_TYPING, {
+                'channelId': isOnDm ? currentDmId : currentChannelId,
+                'guildId': currentGuildId,
+                'isDm': isOnDm
+            });
+        }, 2000);  
     }
+
     if (event.key === 'Enter' && event.shiftKey) {
         event.preventDefault();
         let startPos = chatInput.selectionStart;
         let endPos = chatInput.selectionEnd;
         chatInput.value = chatInput.value.substring(0, startPos) + '\n' + chatInput.value.substring(endPos);
         chatInput.selectionStart = chatInput.selectionEnd = startPos + 1;
-        const difference = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight)
+        const difference = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
         console.log(difference);
-        if(difference < 10) {
+        if (difference < 10) {
             scrollToBottom();
         }
         chatInput.dispatchEvent(new Event('input'));
-    } else if (event.key === 'Enter' && !event.shiftKey) {
+    } 
+    else if (event.key === 'Enter' && !event.shiftKey) {
         event.preventDefault(); 
         const message = chatInput.value;
         const userIdsInMessage = extractUserIds(message);
-        await sendMessage(message,userIdsInMessage );
+        await sendMessage(message, userIdsInMessage);
         adjustHeight();
     }
-    if(isParty && isDomLoaded) {
+
+    if (isParty && isDomLoaded) {
         popKeyboardConfetti();
     }
 }

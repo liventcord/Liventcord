@@ -320,20 +320,52 @@ function selectSettingCategory(settingtype) {
     }
  
 }
+let isUsingSlide =  false;
+function openSettings(isNotLoadingDefault = false) {
+    if (!isNotLoadingDefault) {
+        reconstructSettings(false);
+    }
+    disableSnowOnSettingsOpen();
+    selectSettingCategory(MyAccount);
+
+    getId('settings-overlay').style.display = 'flex';
+
+    if (isUsingSlide) {
+        getId('settings-menu').style.animation = 'settings-menu-slide-in 0.3s forwards';
+    } else {
+        getId('settings-menu').style.animation = 'settings-menu-scale-appear 0.3s forwards';
+    }
+
+
+    if (isUsingSlide) {
+        getId('settings-menu').style.animation = 'settings-menu-slide-in 0.3s forwards';
+    } else {
+        getId('settings-menu').style.animation = 'settings-menu-scale-appear 0.3s forwards';
+    }
+
+    isSettingsOpen = true;
+}
+
 function closeSettings() {
-    if(isUnsaved) {
+    if (isUnsaved) {
         shakeScreen();
         return;
     }
-    enableSnowOnSettings()
-    getId('settings-menu').style.animation = 'settings-menu-disappear-animation 0.3s forwards';
+    enableSnowOnSettings();
+
+    if (isUsingSlide) {
+        getId('settings-menu').style.animation = 'settings-menu-slide-out 0.3s forwards';
+    } else {
+        getId('settings-menu').style.animation = 'settings-menu-scale-disappear 0.3s forwards';
+    }
 
     setTimeout(() => {
         getId('settings-overlay').style.display = 'none';
     }, 300);
     isSettingsOpen = false;
-
 }
+
+
 function getCloseButtonElement() {
     const button = createEl('button');
     button.id = 'close-settings-button';
@@ -366,22 +398,7 @@ function reconstructSettings(_isGuildSettings) { //
     }
 
 }
-function openSettings(isNotLoadingDefault=false) {
-    if(!isNotLoadingDefault) {
-        reconstructSettings(false);
-    }
-    disableSnowOnSettingsOpen();
-    selectSettingCategory(MyAccount); 
 
-    
-
-    getId('settings-overlay').style.display = 'flex';
-
-    getId('settings-menu').style.animation = 'settings-menu-appear-animation 0.3s forwards';
-    isSettingsOpen = true;
-    
-
-};
 function applyWiggleEffect(profileElement, selfProfileElement) {
     if(profileElement) {
         profileElement.classList.add('dancing-border');
