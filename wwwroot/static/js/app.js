@@ -60,93 +60,106 @@ function assignElements() {
 
 
 
-function setSelfProperties(nick,discriminator) {
-    getId('self-name').textContent = nick;
-    getId('self-discriminator').textContent = '#'+discriminator;
 
-}
 
 document.addEventListener('DOMContentLoaded', function () {
-    window.scrollTo(0,0)
+    initializeApp();
+
+    setTimeout(() => window.scrollTo(0, 0), 20);
+});
+function loadCookies() {
+
+}
+function initializeApp() {
+    window.scrollTo(0, 0);
     assignElements();
     initializeChatComponents();
-
+    initializeImages();
+    initializeElements();
+    initializeSettings();
+    initializeListeners();
+    initializeGuild();
+    initializeProfile();
+    initialiseAudio();
+    loadCookies();
+    getId("data-script").remove();
+    isDomLoaded = true;
+}
+function initialiseAudio() {
+    if(toggleStates.isParty && isAudioPlaying) {
+        enableBorderMovement();
+    }
+}
+function initializeImages() {
     urlToBase64(defaultProfileImageUrl)
         .then(base64 => defaultProfileImageUrl = base64)
         .catch(error => console.error(error));
-            
-        urlToBase64(defaultMediaImageUrl)
-            .then(base64 => defaultMediaImageUrl = base64)
-            .catch(error => console.error(error));
 
+    urlToBase64(defaultMediaImageUrl)
+        .then(base64 => defaultMediaImageUrl = base64)
+        .catch(error => console.error(error));
+}
 
-
-    getId('guild-container').addEventListener('click', function(event) {
-        if (event.target.id === 'guild-container' || event.target.id === 'guild-name') {
-            toggleDropdown(); 
-        }
-    });
-
+function initializeElements() {
     createChatScrollButton();
-    
     chatContainer.addEventListener('scroll', handleScroll);
-
     initialisechatInput();
+    closeReplyMenu();
+    adjustHeight();
+    setDropHandler();
+
+
+    const guildContainer = getId('guild-container');
+    guildContainer.addEventListener('mouseover', () => guildContainer.style.backgroundColor = '#333538');
+    guildContainer.addEventListener('mouseout', () => guildContainer.style.backgroundColor = '#2b2d31');
+
+    const friendContainer = getId('friend-container-item');
+    friendContainer.addEventListener('click', loadMainMenu);
+
+    getId('tb-showprofile').addEventListener('click', toggleUsersList);
+    selfProfileImage = getId("self-profile-image");
+    selfProfileImage.addEventListener("mouseover", function () { this.style.borderRadius = '0px'; });
+    selfProfileImage.addEventListener("mouseout", function () { this.style.borderRadius = '50%'; });
+}
+
+function initializeSettings() {
+    selectSettingCategory(MyAccount);
+    updateSelfProfile(currentUserId);
+    const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
+    setUsersList(isCookieUsersOpen, true);
+    disableElement('loading-screen');
+}
+
+function initializeListeners() {
     document.addEventListener('click', (event) => {
         if (!userMentionDropdown.contains(event.target) && event.target !== chatInput) {
             userMentionDropdown.style.display = 'none';
         }
     });
 
-    closeReplyMenu();
-    adjustHeight();
-
-    setDropHandler();
-    
     const guildContainer = getId('guild-container');
-    guildContainer.addEventListener('mouseover',function() {
-        guildContainer.style.backgroundColor= '#333538';
-    });
-    guildContainer.addEventListener('mouseout',function() {   
-        guildContainer.style.backgroundColor= '#2b2d31';
-    });
-    
+    guildContainer.addEventListener('click', handleGuildClick);
 
-    const friendContainer = getId('friend-container-item');
-    friendContainer.addEventListener('click',loadMainMenu);
-
-
-    isDomLoaded = true;
-    currentUserId = passed_user_id;
-    currentUserNick = nick_name;
-    currentDiscriminator = user_discriminator;
-
-    setSelfProperties(nick_name,user_discriminator)
-    
-    
-    getId('tb-showprofile').addEventListener('click', toggleUsersList);
-    selectSettingCategory(MyAccount);
-    selfProfileImage = getId("self-profile-image");
-
-    selfProfileImage.addEventListener("mouseover", function() { this.style.borderRadius = '0px'; });
-    selfProfileImage.addEventListener("mouseout", function() { this.style.borderRadius = '50%'; });
-
-
-    console.log("Loading initial guild: ",passed_guild_id,passed_channel_id,passed_guild_name,passed_owner_id);
-
-    initialiseMe();
-   
-    function isDefined(variable) {
-        return typeof variable !== 'undefined' && variable !== null;
+    if (isOnMe && !isPathnameCorrect(window.location.pathname)) {
+        window.history.pushState(null, null, "/channels/@me");
     }
+    if (isOnGuild && currentGuildData && !(passed_guild_id in currentGuildData)) {
+        window.history.pushState(null, null, "/channels/@me");
+    }
+    addContextListeners();
+}
 
-    if (window.location.pathname.startsWith('/channels/@me/')) {
-        const parts = window.location.pathname.split('/');
-        const friendId = parts[3];
-        if (isDefined(friendId)) {
-            openDm(friendId);
-        }
-    } else if (isDefined(passed_guild_id) && passed_channel_id && isDefined(passed_owner_id)) {
+function handleGuildClick(event) {
+    if (event.target.id === 'guild-container' || event.target.id === 'guild-name') {
+        toggleDropdown();
+    }
+}
+function isDefined(variable) {
+    return typeof variable !== 'undefined' && variable !== null;
+}
+function initializeGuild() {
+    initialiseMe();
+    if (isDefined(passed_guild_id) && passed_channel_id && isDefined(passed_owner_id)) {
         loadGuild(passed_guild_id, passed_channel_id, passed_guild_name, passed_owner_id);
     }
 
@@ -154,68 +167,34 @@ document.addEventListener('DOMContentLoaded', function () {
         readenMessagesCache = passed_message_readen;
     }
 
-
-
     if (isDefined(passed_friend_id)) {
         addUser(passed_friend_id, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
     }
 
-
-    if (isOnMe) {
-        if (!isPathnameCorrect(window.location.pathname)) {
-            window.history.pushState(null, null, "/channels/@me");
-        }
-    }
-
-    if (isOnGuild) {
-        if (currentGuildData && !(passed_guild_id in currentGuildData)) {
-            window.history.pushState(null, null, "/channels/@me");
-        }
-    }
-
     if (isDefined(guild_members) && isDefined(passed_guild_id)) {
-        console.log(passed_guild_id);
         cacheInterface.updateMembers(passed_guild_id, guild_members);
         updateMemberList(guild_members, true);
     }
 
-
-    
-    
-    addContextListeners();
-    const val = loadBooleanCookie('isParty');
-    isParty = val;
-
-    
-    if (isParty && isAudioPlaying) {
-        enableBorderMovement();
-    }
-    
-    getId("data-script").remove();
-
-    setTimeout(() => {
-        window.scrollTo(0, 0);
-    }, 20);
-
     if (guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
-            console.warn(data,isOnGuild);
-            if(isOnGuild) {
-                cacheInterface.addChannel(data.GuildId,data.GuildChannels);
+            if (isOnGuild) {
+                cacheInterface.addChannel(data.GuildId, data.GuildChannels);
                 updateChannels(data.GuildChannels);
             }
         });
     }
 
     guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
-
-
-    updateSelfProfile(currentUserId)
-    const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
-    setUsersList(isCookieUsersOpen, true);
-    disableElement('loading-screen');
-
-});
+}
+function initializeProfile() {
+    currentUserId = passed_user_id;
+    currentUserNick = nick_name;
+    currentDiscriminator = user_discriminator;
+    getId('self-name').textContent = currentUserNick;
+    getId('self-discriminator').textContent = '#'+user_discriminator;
+    updateSelfProfile(currentUserId);
+}
 
 
 
@@ -301,6 +280,7 @@ function removeDm(userId) {
 
 
 function initialiseMe() {
+    if(!isOnMe) return;
     enableElement('dms-title');
     userList.innerHTML = userListTitleHTML;
     loadMainToolbar();
