@@ -1,13 +1,3 @@
-
-
-
-
-
-let currentTimeout;
-let isActivityShared = false;
-
-
-let isUnread = false;
 let wasNotChangingUrl = false;
 let isImagePreviewOpen = false;
 let closeCurrentJoinPop;
@@ -24,9 +14,7 @@ const Appearance = "Appearance";
 let isSettingsOpen = false;
 let isUnsaved = false;
 let isChangedProfile = false;
-let isChangedNick = false;
 let isInitialized = false;
-let shakeForce = 1;
 let resetTimeout; 
 let currentPopUp = null;
 
