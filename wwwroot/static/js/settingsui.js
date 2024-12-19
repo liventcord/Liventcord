@@ -14,9 +14,8 @@ function getActivityPresenceHtml() {
         <h3 id="activity-title">Etkinlik Gizliliği</h3>
         <h3 id="settings-description">ETKİNLİK DURUMU</h3>
         <div class="toggle-card">
-            <label for="activity-toggle">Tespit edilen etkinliği diğerleriyle paylaş</label>
-            <label for="activity-toggle">Herkese açık bir Sahne'ye katıldığında LiventCord bu durumunu otomatik olarak günceller.</label>
-            <div id="activity-toggle" class="toggle-box">
+                <label for="activity-toggle">Aktif olduğunuzda etkinliği paylaş</label>
+                <label for="activity-toggle">Bir etkinliğe katıldığınızda LiventCord, bu durumu otomatik olarak paylaşır.</label>            <div id="activity-toggle" class="toggle-box">
                 <div id="toggle-switch" class="toggle-switch">
                     <div class="enabled-toggle">
                         <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
@@ -38,11 +37,7 @@ function getActivityPresenceHtml() {
         </div>
     `;
 }
-function getNotificationsHtml() {
-    return `
-        Bildirimler
-    `
-}
+
 function getOverviewHtml() {
     return `
     <div id="settings-title">Sunucuya Genel Bakış</div>
@@ -92,56 +87,56 @@ function getAccountSettingsHtml() {
     </div>
     `
 }
-function getAppearanceHtml() {
+function createToggle(id, label, description) {
     return `
-        <h3>Görünüm</h3>
         <div class="toggle-card">
-            <label for="snow-toggle">Kış Modu</label>
-            <label for="snow-toggle">Kar yağışını aktifleştir.</label>
-            <div id="snow-toggle" class="toggle-box">
-                <div id="toggle-switch" class="toggle-switch">
+            <label for="${id}">${label}</label>
+            <label for="${id}">${description}</label>
+            <div id="${id}" class="toggle-box">
+                <div class="toggle-switch" id="${id}-switch">
                     <div class="enabled-toggle">
                         <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
-                        <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
-                        <svg viewBox="0 0 20 20" fill="none">
-                        <path fill="rgba(35, 165, 90, 1)" d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z"></path>
-                        <path fill="rgba(35, 165, 90, 1)" d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z"></path></svg> </svg>
-                        
+                            <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
+                            <svg viewBox="0 0 20 20" fill="none">
+                                <path fill="rgba(35, 165, 90, 1)" d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z"></path>
+                                <path fill="rgba(35, 165, 90, 1)" d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z"></path>
+                            </svg>
+                        </svg>
                     </div>
                     <div class="disabled-toggle">
                         <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
-                        <rect fill="white" x="4" y="0" height="20" width="20" rx="10">
-                        </rect><svg viewBox="0 0 20 20" fill="none">
-                        <path fill="rgba(128, 132, 142, 1)"  d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z"></path>
-                            <path fill="rgba(128, 132, 142, 1)" d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z"></path></svg></svg>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="toggle-card">
-            <label for="party-toggle">Parti Modu</label>
-            <label for="party-toggle">Parti modunu aktifleştir.</label>
-            <div id="party-toggle" class="toggle-box">
-                <div id="toggle-switch" class="toggle-switch">
-                    <div class="enabled-toggle">
-                        <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
-                        <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
-                        <svg viewBox="0 0 20 20" fill="none">
-                        <path fill="rgba(35, 165, 90, 1)" d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z"></path>
-                        <path fill="rgba(35, 165, 90, 1)" d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z"></path></svg> </svg>
-                        
-                    </div>
-                    <div class="disabled-toggle">
-                        <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
-                        <rect fill="white" x="4" y="0" height="20" width="20" rx="10">
-                        </rect><svg viewBox="0 0 20 20" fill="none">
-                        <path fill="rgba(128, 132, 142, 1)"  d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z"></path>
-                            <path fill="rgba(128, 132, 142, 1)" d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z"></path></svg></svg>
+                            <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
+                            <svg viewBox="0 0 20 20" fill="none">
+                                <path fill="rgba(128, 132, 142, 1)" d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z"></path>
+                                <path fill="rgba(128, 132, 142, 1)" d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z"></path>
+                            </svg>
+                        </svg>
                     </div>
                 </div>
             </div>
         </div>
     `;
+}
+
+function getAppearanceHtml() {
+    const toggles = [
+        { id: 'snow-toggle', label: 'Kış Modu', description: 'Kar yağışını aktifleştir.' },
+        { id: 'party-toggle', label: 'Parti Modu', description: 'Parti modunu aktifleştir.' },
+    ];
+
+    return `
+        <h3>Görünüm</h3>
+        ${toggles.map(toggle => createToggle(toggle.id, toggle.label, toggle.description)).join('')}
+    `;
+}
+function getNotificationsHtml() {
+    const toggles = [
+        { id: 'notify-toggle', label: 'Bildirimler', description: 'Bildirimleri etkinleştir.' }
+    ];
+    return `
+        <h3>Bildirimler</h3>
+        ${toggles.map(toggle => createToggle(toggle.id, toggle.label, toggle.description)).join('')}
+    `
 }
 
 function generateSettingsHtml(settings,isGuild=false) {
@@ -184,7 +179,7 @@ function createDeleteGuildPrompt(guildId,guild_name) {
 
 function toggleCheckBox(toggleElement, value) {
     if (value) {
-        toggleElement.querySelector('#toggle-switch').classList.add('active');
+        toggleElement.querySelector('.toggle-switch').classList.add('active');
         toggleElement.classList.add('active');
     }
 }
@@ -200,132 +195,140 @@ function getGuildSettings() {
     return setToReturn; 
 }
 
-function selectSettingCategory(settingtype) { 
-    if (isUnsaved && settingtype != DeleteGuild) {
-        shakeScreen();
-        return;
-    }
-    let settingsContainer = getId('settings-rightcontainer');
-    
-    currentSettingsType = settingtype;
-    let newHTML = null;
-    let callback;
-    let isDefault = false;
 
-    switch (settingtype) {
-        case SoundAndVideo:
-            newHTML = `
-                <div id="settings-title">Ses Ayarları</div>
+
+const toggleStates = {
+    isSnow: loadBooleanCookie('isSnow'),
+    isParty: loadBooleanCookie('isParty'),
+    isActivityShared: loadBooleanCookie('isActivityShared'),
+    isNotificationsEnabled: loadBooleanCookie('isNotificationsEnabled')
+};
+
+function toggleState(toggleId) {
+    toggleStates[toggleId] = !toggleStates[toggleId];
+    saveBooleanCookie(toggleId, toggleStates[toggleId]);
+}
+
+function handleToggleChange(toggleId, newValue) {
+    toggleStates[toggleId] = newValue;
+    saveBooleanCookie(toggleId, newValue);
+
+    if (toggleId === 'snow-toggle') {
+        toggleSnow();
+    } else if (toggleId === 'party-toggle') {
+        toggleParty();
+    }
+}
+
+function setupToggle(id) {
+    const toggleElement = getId(id);
+    if (toggleElement) {
+        toggleCheckBox(toggleElement, toggleStates[id]);
+        handleToggleClick(toggleElement, () => {
+            const newValue = !toggleStates[id];
+            handleToggleChange(id, newValue); 
+        });
+    }
+}
+
+function getSettingsConfig() {
+    return {
+        SoundAndVideo: {
+            title: 'Ses Ayarları',
+            html: `
                 <select class="dropdown" id="sound-mic-dropdown"></select>
                 <select class="dropdown" id="sound-output-dropdown"></select>
-                <select class="dropdown" id="camera-dropdown"</select>
-            `;
-            callback = activateMicAndSoundOutput;
-            break;
-        case MyAccount:
-            newHTML = getAccountSettingsHtml();
-            callback = () => {
-                getId('profileImage').addEventListener('change', onEditProfile);
-                updateSelfProfile(currentUserId, currentUserNick); 
-            }
-            let rightbar = getId('settings-rightbar');
-            if(!rightbar) {
-                rightbar = createEl('div',{id:'settings-rightbar'});
-                settingsContainer.appendChild(rightbar);
-            }
-            
-            break;
-        case Notifications :
-            newHTML = getNotificationsHtml();
-            break;
-        case ActivityPresence :
-            newHTML = getActivityPresenceHtml();
-            callback = () => { 
-                const activitySharedToggle = getId('activity-toggle');
-                toggleCheckBox(activitySharedToggle, loadBooleanCookie('isActivityShared'));
-                handleToggleClick(activitySharedToggle, () => {
-                    const isActivityShared = !loadBooleanCookie('isActivityShared');
-                    saveBooleanCookie('isActivityShared', isActivityShared);
-                });
-            }
-            break;
-        case Appearance:
-            newHTML = getAppearanceHtml();
-            callback = () => { 
-                const snowToggle = getId('snow-toggle');
-                const value = loadBooleanCookie('isSnow');
-                toggleCheckBox(snowToggle, value);
-                isSnow = value;
-                handleToggleClick(snowToggle, () => {
-                    toggleSnow();
-                    saveBooleanCookie('isSnow', isSnow);
-                });
-    
-                const partyToggle = getId('party-toggle');
-                const val = loadBooleanCookie('isParty');
-                isParty = val;
-                if(isParty) {
-                    enableBorderMovement();
-                } else {
-                    stopCurrentMusic();
-                }
-                toggleCheckBox(partyToggle, val);
-                handleToggleClick(partyToggle, () => {
-                    toggleParty();
-                    saveBooleanCookie('isParty', isParty);
-                });
-            }
-            break;
-
-        // server settings 
-        case Overview:
-            newHTML = getOverviewHtml();
-            callback = () => {
-                getId('guild-image').onerror = () => {
-                    getId('guild-image').src = createBlackImage();
-                }
-                if(permissionManager.canManageChannels()) {
-                    getId('guild-image').style.cursor = 'pointer';
-                    getId('guild-overview-name-input').style.cursor = 'pointer';
-                    getId('guildImage').addEventListener('change', onEditGuildProfile);
-                    getId('guild-overview-name-input').disabled = false;
-                    if(getId('guild-image').src != createBlackImage()) {
-                        enableElement('guild-image-remove');
-                        getId('guild-image-remove').addEventListener('click',removeguildImage);
-                    }
-                } else {
-                    getId('guild-image').style.cursor = 'now-allowed';
-                    getId('guild-overview-name-input').style.cursor = 'now-allowed';
-                    getId('guild-overview-name-input').disabled = true;
-                }
-                
-                getId('guild-image').src = `/guilds/${currentGuildId}`;
-                
-            }
-            break;
-        case DeleteGuild:
-            createDeleteGuildPrompt(currentGuildId,currentGuildName);
-            break;
-        default:
-            isDefault = true;
-            newHTML = getMissingHtml(settingtype);
-            break;
+                <select class="dropdown" id="camera-dropdown"></select>
+            `
+        },
+        MyAccount: {
+            title: 'Hesabım',
+            html: getAccountSettingsHtml()
+        },
+        Notifications: {
+            title: 'Bildirimler',
+            html: getNotificationsHtml()
+        },
+        ActivityPresence: {
+            title: 'Etkinlik Durumu',
+            html: getActivityPresenceHtml()
+        },
+        Appearance: {
+            title: 'Görünüm',
+            html: getAppearanceHtml()
+        },
+        Overview: {
+            title: 'Sunucu Genel Bakış',
+            html: getOverviewHtml()
+        },
+        DeleteGuild: {
+            title: 'Sunucu Silme',
+            html: `<button id="delete-guild-button">Sunucuyu Sil</button>`
         }
-    if(newHTML) {
-        settingsContainer.innerHTML = newHTML;
-        settingsContainer.insertBefore(getCloseButtonElement(),settingsContainer.firstChild)
-    }
-    if(callback) {
-        callback();
-    }
- 
+    };
 }
+
+function selectSettingCategory(settingType) {
+    const settingsContainer = getId('settings-rightcontainer');
+    currentSettingsType = settingType;
+
+    const settingConfig = getSettingsConfig()[settingType] || { title: 'Unknown Setting', html: '<h3>Unknown Setting</h3>' };
+    settingsContainer.innerHTML = settingConfig.html;
+
+    const closeButton = getCloseButtonElement();
+    closeButton.addEventListener('click',closeSettings);
+    settingsContainer.insertBefore(closeButton, settingsContainer.firstChild);
+
+    const togglesToSetup = ['activity-toggle', 'snow-toggle', 'party-toggle','notify-toggle'];
+    togglesToSetup.forEach(setupToggle);
+
+    if (settingType === 'DeleteGuild') {
+        const deleteButton = getId('delete-guild-button');
+        if (deleteButton) {
+            deleteButton.addEventListener('click', () => createDeleteGuildPrompt(currentGuildId, currentGuildName));
+        }
+    }
+}
+
+
+
+function createToggle(id, label, description) {
+    return `
+        <div class="toggle-card">
+            <label for="${id}">${label}</label>
+            <label for="${id}">${description}</label>
+            <div id="${id}" class="toggle-box">
+                <div class="toggle-switch">
+                    <div class="enabled-toggle">
+                        <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
+                            <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
+                            <svg viewBox="0 0 20 20" fill="none">
+                                <path fill="rgba(35, 165, 90, 1)" d="M7.89561 14.8538L6.30462 13.2629L14.3099 5.25755L15.9009 6.84854L7.89561 14.8538Z"></path>
+                                <path fill="rgba(35, 165, 90, 1)" d="M4.08643 11.0903L5.67742 9.49929L9.4485 13.2704L7.85751 14.8614L4.08643 11.0903Z"></path>
+                            </svg>
+                        </svg>
+                    </div>
+                    <div class="disabled-toggle">
+                        <svg viewBox="0 0 28 20" preserveAspectRatio="xMinYMid meet" aria-hidden="true" class="icon">
+                            <rect fill="white" x="4" y="0" height="20" width="20" rx="10"></rect>
+                            <svg viewBox="0 0 20 20" fill="none">
+                                <path fill="rgba(128, 132, 142, 1)" d="M5.13231 6.72963L6.7233 5.13864L14.855 13.2704L13.264 14.8614L5.13231 6.72963Z"></path>
+                                <path fill="rgba(128, 132, 142, 1)" d="M13.2704 5.13864L14.8614 6.72963L6.72963 14.8614L5.13864 13.2704L13.2704 5.13864Z"></path>
+                            </svg>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
 let isUsingSlide =  false;
 function openSettings(isNotLoadingDefault = false) {
     if (!isNotLoadingDefault) {
         reconstructSettings(false);
     }
-    disableSnowOnSettingsOpen();
     selectSettingCategory(MyAccount);
 
     getId('settings-overlay').style.display = 'flex';
@@ -351,7 +354,6 @@ function closeSettings() {
         shakeScreen();
         return;
     }
-    enableSnowOnSettings();
 
     if (isUsingSlide) {
         getId('settings-menu').style.animation = 'settings-menu-slide-out 0.3s forwards';
@@ -367,11 +369,12 @@ function closeSettings() {
 
 
 function getCloseButtonElement() {
-    const button = createEl('button');
-    button.id = 'close-settings-button';
-    button.setAttribute('aria-label', 'Close settings');
-    button.setAttribute('role', 'button');
-    button.tabIndex = 0;
+    const button = createEl('button', {
+        id: 'close-settings-button',
+        ariaLabel: 'Close settings',
+        role: 'button',
+        tabindex: '0',
+    });
 
     button.innerHTML = `
         <svg aria-hidden="true" role="img" width="18" height="18" fill="none" viewBox="0 0 24 24">
@@ -379,7 +382,7 @@ function getCloseButtonElement() {
         </svg>
         <span id="close-keybind">ESC</span>
     `;
-    button.onclick = closeSettings;
+
     return button;
 }
 
@@ -491,24 +494,25 @@ function generateConfirmationPanel() {
     return popupDiv;
 }
 function shakeScreen() {
+    const SHAKE_FORCE = 1;
+
     currentSettingsType = null;
     if (!currentPopUp) { currentPopUp = generateConfirmationPanel(); }
     showConfirmationPanel(currentPopUp);
     currentPopUp.style.backgroundColor = '#ff1717';
 
-    shakeForce += 0.5;
-    if (shakeForce > 5) {
-        shakeForce = 5;
+    SHAKE_FORCE += 0.5;
+    if (SHAKE_FORCE > 5) {
+        SHAKE_FORCE = 5;
     }
 
     clearTimeout(resetTimeout);
 
     document.body.classList.remove('shake-screen'); 
-    void document.body.offsetWidth; 
     document.body.classList.add('shake-screen');
 
     resetTimeout = setTimeout(() => {
-        shakeForce = 1; 
+        SHAKE_FORCE = 1; 
         document.body.classList.remove('shake-screen'); 
         currentPopUp.style.backgroundColor = '#0f0f0f'; 
     }, 5000); 

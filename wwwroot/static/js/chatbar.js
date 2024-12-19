@@ -140,7 +140,7 @@ async function handleUserKeydown(event) {
         adjustHeight();
     }
 
-    if (isParty && isDomLoaded) {
+    if (isDomLoaded) {
         popKeyboardConfetti();
     }
 }

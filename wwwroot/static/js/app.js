@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function () {
     guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
 
 
-    
+    updateSelfProfile(currentUserId)
     const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
     setUsersList(isCookieUsersOpen, true);
     disableElement('loading-screen');

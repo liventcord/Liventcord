@@ -51,7 +51,7 @@ function toggleEmail() {
 function handleToggleClick(toggleElement, toggleClickCallback) {
     toggleElement.addEventListener('click', function() {
         this.classList.toggle('active');
-        this.querySelector('#toggle-switch').classList.toggle('active');
+        this.querySelector('.toggle-switch').classList.toggle('active');
         toggleClickCallback();
     });
 }

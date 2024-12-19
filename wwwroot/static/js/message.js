@@ -1,3 +1,5 @@
+let isUnread = false;
+
 class Message {
     constructor({
         messageId,
