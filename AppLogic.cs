@@ -70,11 +70,6 @@ namespace LiventCord.Helpers
                     _logger.LogInformation("Fetching guild members for guildId: {GuildId}", guildId);
                     guildMembers = await _membersController.GetGuildMembers(guildId);
 
-                    if (!string.IsNullOrEmpty(channelId)) {
-                        _logger.LogInformation("Fetching typing members...");
-                        typingMembers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
-                    }
-
                     _logger.LogInformation("Fetching shared guilds...");
                     sharedGuildsMap = await _membersController.GetSharedGuilds(guildId, userId) ?? new List<string>();
                 }
@@ -97,7 +92,6 @@ namespace LiventCord.Helpers
                     guildName = guild?.GuildName ?? "",
                     authorId = guild?.OwnerId ?? "",
                     guildMembers,
-                    typingMembers,
                     sharedGuildsMap,
                     permissionsMap,
                     friendsStatus,

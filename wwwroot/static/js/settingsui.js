@@ -522,3 +522,10 @@ function openGuildSettingsDd(event) {
     
 }
 
+function updateSettingsProfileColor() {
+    const settingsProfileImg = getId('settings-self-profile');
+    const rightBarTop = getId('settings-rightbartop');
+    if(rightBarTop) {
+        rightBarTop.style.backgroundColor = getAverageRGB(settingsProfileImg);
+    }
+}

@@ -130,8 +130,9 @@ class InviteIdsCache extends BaseCache {
 }
 
 class Guild {
-    constructor(guildId) {
+    constructor(guildId,guildName) {
         this.guildId = guildId;
+        this.guildName = guildName;
         this.channels = new ChannelCache();
         this.members = new GuildMembersCache();
         this.messages = new MessagesCache();
@@ -197,13 +198,19 @@ class GuildCacheInterface {
     getGuild(guildId) {
         return this.guildCache.getGuild(guildId);
     }
+    getGuildName(guildId) {
+        return this.guildCache.getGuild(guildId).guildName;
+    }
+    isInvitesEmpty(guildId) {
+        return this.guildCache.getGuild(guildId).invites.getInviteIds(guildId) != null;
+    }
 
     //member
     getMembers(guildId) {
         return this.getGuild(guildId)?.members.getMembers(guildId) || [];
     }
     setMemberIds(guildId,membersArray) {
-        this.getGuild(guildId).members.setMemberIds(membersArray) 
+        this.getGuild(guildId).members.setMemberIds(membersArray)
     }
 
     updateMembers(guildId, newMembers, add = true) {
