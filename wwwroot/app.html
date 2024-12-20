@@ -31,7 +31,7 @@
                 </svg>
             </div>
             <button class="pendingAlert" id="pendingAlertLeft"> </button> 
-            <div class="friend-label">Arkadaşlar</div>
+            <div id="friend-label">Arkadaşlar</div>
         </div>
         <span id="dms-title">DİREKT MESAJLAR</span>
         <div id="dm-container-parent"></div>
@@ -43,7 +43,7 @@
         <div id="chat-top-bar">
             <div id="newMessagesBar" onclick="readCurrentMessages()">
                 <span id="newMessagesText">30 Haziran 2024'da 00:57'den beri 3+ yeni mesaj</span>
-                <span>Okunmuş olarak işaretle </span>
+                <span id="">Okunmuş olarak işaretle </span>
                 <svg class="barButtonIcon_cf58b5" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12.66 21.98c.4-.03.56-.51.28-.8l-.06-.06a3 3 0 1 1 4.24-4.24l.53.52c.2.2.5.2.7 0l2.53-2.52a3 3 0 0 1 .64-.5c.14-.07.24-.2.27-.34a10 10 0 1 0-18.24 3.32c.13.19.11.44-.04.61l-2.06 2.37A1 1 0 0 0 2.2 22H12c.22 0 .44 0 .66-.02Z" class=""></path><path fill="currentColor" d="M23.7 17.7a1 1 0 0 0-1.4-1.4L18 20.58l-2.3-2.3a1 1 0 0 0-1.4 1.42l3 3a1 1 0 0 0 1.4 0l5-5Z" class=""></path></svg>
             </div>
         </div>
@@ -82,7 +82,7 @@
         <button class="gifs-menu-button" id="gifs-menu-gif">GIF'ler</button>
         <button class="gifs-menu-button" id="gifs-menu-emoji">Emoji</button>
         <hr class="vertical-line-long-black" id="gifs-menu-line"> </hr>
-        <input id="gifs-menu-searchbar" autocomplete='off' placeholder="Tenor'da ara">  </input>
+        <input id="gifsMenuSearchbar" autocomplete='off' placeholder="Tenor'da ara">  </input>
         <div id="gifs-menu-container"> 
         </div>
     </div>
@@ -93,7 +93,7 @@
 
     <div id="guild-container">
         <div id="guild-name"></div>
-        <button class="searchInput"id="globalSearchInput">Sohbet bul ya da başlat</button>
+        <button class="searchInput"id="global-search-input">Sohbet bul ya da başlat</button>
         <div id="guild-settings-button">^</div>
         <div id="guild-settings-dropdown"> 
 
@@ -141,11 +141,11 @@
             <div id="channel-info-for-friend">Arkadaşlar</div>
             <div id="friend-menu-buttons">
                 <hr class="vertical-line">
-                <button id="OnlineButton" class="friend-menu-button" style="background-color:#43444b;">Çevrim İçi</button>
-                <button id="AllButton" class="friend-menu-button">Tümü</button>
-                <button id="PendingButton" class="friend-menu-button">Bekleyen</button>
+                <button id="online-button" class="friend-menu-button" style="background-color:#43444b;">Çevrim İçi</button>
+                <button id="all-button" class="friend-menu-button">Tümü</button>
+                <button id="pending-button" class="friend-menu-button">Bekleyen</button>
                 <button class="pendingAlert" id="pendingAlertRight"> </button> 
-                <button id="BlockedButton" class="friend-menu-button">Engellenen</button>
+                <button id="blocked-button" class="friend-menu-button">Engellenen</button>
                 <button id="open-friends-button"  class="friend-menu-button" onclick="openAddFriend()" >Arkadaş Ekle</button>
             </div>
         </div>
@@ -253,7 +253,7 @@
         <div class="outer-parent" style="display: flex; -webkit-user-drag: none;">
             <div class="pop-up" style="background-color: rgb(88, 101, 242);">
                 <div id="channelNameContainer">
-                    <p id="invite-users-channel-name-hash" style="color: white;"># ${currentChannelName} kanalına yükle</p>
+                    <p id="invite-users-channel-name-hash" style="color: white;"># kanalına yükle</p>
                 </div>
             </div>
         </div>
@@ -339,6 +339,7 @@
     <script src="/static/js/serverEvents.js"></script> 
     <script src="/static/js/settings.js"></script>
     <script src="/static/js/settingsui.js"></script>
+    <script src="/static/js/translations.js"></script>
     <script src="/static/js/ui.js"></script>
     <script src="/static/js/user.js"></script>
     <script src="/static/js/userList.js"></script>
@@ -352,41 +353,52 @@
     <script>
         let isCropieInitialized = false;
         const croppieUrl = "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js";
-        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e"
+        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e";
 
         async function fetchAndModifyScript(url) {
             try {
                 const response = await fetch(url);
                 const scriptContent = await response.text();
 
-                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
-                const hashArray = Array.from(new Uint8Array(hashBuffer)); // Convert buffer to byte array
-                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); // Convert bytes to hex string
-                
-                if (hashHex !== expectedHash) {
-                    console.error('Hash verification failed. Script content has changed or is corrupt.');
-                    return; 
+                if (!crypto || !crypto.subtle) {
+                    console.warn('Crypto context unavailable. Appending script without modification.');
+                    appendScript(scriptContent);
+                    return;
                 }
 
-                let scriptLines = scriptContent.split('\n');
-                let lineNumberToModify = 1088; 
-                if (lineNumberToModify - 1 < scriptLines.length) {
-                    scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
+                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
+                const hashArray = Array.from(new Uint8Array(hashBuffer)); 
+                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); 
+
+                if (hashHex === expectedHash) {
+                    let scriptLines = scriptContent.split('\n');
+                    let lineNumberToModify = 1088; 
+                    if (lineNumberToModify - 1 < scriptLines.length) {
+                        scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
+                    }
+                    let modifiedScriptContent = scriptLines.join('\n');
+                    appendScript(modifiedScriptContent);
+                } else {
+                    console.warn('Hash does not match. Appending original script.');
+                    appendScript(scriptContent);
                 }
-                let modifiedScriptContent = scriptLines.join('\n');
-                let newScript = document.createElement('script');
-                newScript.type = 'text/javascript';
-                newScript.text = modifiedScriptContent;
-                document.body.appendChild(newScript);
-                isCropieInitialized = true;
 
             } catch (error) {
                 console.error('Error fetching or modifying the script:', error);
             }
         }
 
+        function appendScript(scriptContent) {
+            let newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            newScript.text = scriptContent;
+            document.body.appendChild(newScript);
+            isCropieInitialized = true;
+        }
+
         fetchAndModifyScript(croppieUrl);
     </script>
+
 
 
 </head>
@@ -474,17 +486,19 @@
         var passedGuildOwnerIds = {};
 
         function renderGuilds(guilds) {
-            return guilds.map(({ GuildId, RootChannel, GuildName, OwnerId }) => {
-                passedGuildOwnerIds[GuildId] = OwnerId;
-                const guildId = String(GuildId);
-                const imgSrc = `/guilds/${guildId}`;
-                const guildName = GuildName ? String(GuildName) : '';
+            const blackImage = createBlackImage(); 
+
+            return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
+                passedGuildOwnerIds[guildId] = ownerId;
+                const guildIdStr = String(guildId);
+                const imgSrc = `/guilds/${guildIdStr}`;
+                const guildNameStr = guildName ? String(guildName) : '';
 
                 return `
                     <li>
-                        <img id="${guildId}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-                        onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/images/server_avatars/default.png';" 
-                        onclick="loadGuild('${encodeURIComponent(guildId)}', '${encodeURIComponent(RootChannel)}', '${guildName}')" />
+                        <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+                        onerror="this.onerror=null;this.src='${blackImage}';" 
+                        onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
                         <div class="white-rod"></div>
                     </li>
                 `;
@@ -494,15 +508,15 @@
         if (guilds_data && Array.isArray(guilds_data)) {
             guilds_data.forEach((guild) => {
                 console.log(guild)
-                console.log('Guild Members:', guild.GuildMembers);
-                console.log('Guild Channels:', guild.GuildChannels);
-                cacheInterface.setMemberIds(guild.GuildId,guild.GuildMembers);
+                console.log('Guild Members:', guild.guildMembers);
+                console.log('Guild Channels:', guild.guildChannels);
+                cacheInterface.setMemberIds(guild.guildId,guild.guildMembers);
 
-                guild.GuildMembers.forEach((memberId) => {
+                guild.guildMembers.forEach((memberId) => {
                     console.log(memberId);
                 });
 
-                guild.GuildChannels.forEach((channel) => {
+                guild.guildChannels.forEach((channel) => {
                     console.log(channel);
                 });
                 guildsList.innerHTML += renderGuilds(guilds_data);
@@ -660,7 +674,7 @@
     <div id="player01"  class="player">
         <div class="wrapper">
         <a></a>
-        <img src="https://cdn.pixabay.com/photo/2022/12/24/09/26/bridge-7675585_1280.jpg" alt="LogoMusicImage">
+        <img alt="LogoMusicImage">
         </a>
         <div class="info">
             <h1>Music Name</h1>
@@ -710,9 +724,7 @@
                 <button class="settings-buttons"  style="bottom:10%; left:0px; position:fixed;" onclick="logOut()">Çıkış yap</button>
             </div>
             <div id="settings-rightcontainer"></div>
-            
         </div>
-
     </div>
 <body>
     

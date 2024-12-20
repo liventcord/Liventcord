@@ -182,7 +182,6 @@ function createProfileImageChat(newMessage, messageContentElement, nick, userId,
 
 function displayChatMessage(data) {
     if (!data) return;
-    console.log(data.content);
 
     const messageId = data.messageId;
     const userId = data.userId;
@@ -362,7 +361,7 @@ function scrollToMessage(messageToScroll) {
     }, 100); 
 }
 function createDateBar(currentDate) {
-    const formattedDate = new Date(currentDate).toLocaleDateString('tr-TR', {
+    const formattedDate = new Date(currentDate).toLocaleDateString(translations.getLocale(), {
         day: 'numeric',
         month: 'long',
         year: 'numeric'

@@ -66,7 +66,7 @@ apiClient.on('deleted_guild', data => {
         if(data.success) {
             closeSettings();
             removeFromGuildList(data.guildId);
-            loadMainMenu();
+            loadDmHome();
         } else {
             alertUser('Sunucu silme başarısız.');
         }

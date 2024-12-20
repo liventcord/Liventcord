@@ -264,7 +264,7 @@ function clickMainLogo() {
             console.log(error);
         }
     } 
-    loadMainMenu();
+    loadDmHome();
 }
 
 

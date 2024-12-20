@@ -21,12 +21,6 @@ const all = "all";
 const pending = "pending";
 const blocked = "blocked";
 
-const OnlineText = "Çevrim İçi";
-const OfflineText = "Çevrim Dışı";
-const PendingText = "Bekleyen";
-const BlockedText = "Engellenen";
-const allText = "Tümü";
-
 
 
 function getId(string) {
@@ -34,10 +28,10 @@ function getId(string) {
 }
 
 const buttonElements = {
-  online: getId("OnlineButton"),
-  all: getId("AllButton"),
-  pending: getId("PendingButton"),
-  blocked: getId("BlockedButton"),
+  online: getId("online-button"),
+  all: getId("all-button"),
+  pending: getId("pending-button"),
+  blocked: getId("blocked-button"),
 };
 let ButtonsList = Object.values(buttonElements);
 
@@ -125,23 +119,7 @@ class FriendsCache {
   }
 }
 
-function getFriendsTranslation() {
-  switch (currentSelectedStatus) {
-    case online:
-      return OnlineText;
-    case offline:
-      return OfflineText;
-    case pending:
-      return PendingText;
-    case blocked:
-      return BlockedText;
-    case all:
-      return allText;
-    default:
-      return "";
-  }
 
-}
 
 function displayFriendsMessage(msg) {
   print_message(msg);
@@ -270,12 +248,12 @@ function addPendingButtons(friendButton, friend) {
   const closeButton = createButtonWithBubblesImg(
     friendButton,
     ButtonTypes.CloseBtn,
-    "İptal Et",
+    translations.translations["cancel-pending-text"]
   );
   closeButton.addEventListener("click", (event) =>
     handleButtonClick(
       event,
-      friend.is_friends_requests_to_user
+      friend.isFriendsRequestsToUser
         ? EventType.ADD_FRIEND
         : EventType.ADD_FRIEND_ID,
       friend,

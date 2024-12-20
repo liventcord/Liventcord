@@ -98,10 +98,16 @@ namespace LiventCord.Helpers
                     dmFriends,
                     guildsJson = guilds
                 };
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+
 
                 string jsonDataScript = $@"
                     <script id='data-script' type='application/json'>
-                        {JsonSerializer.Serialize(jsonData)}
+                        {JsonSerializer.Serialize(jsonData, options)}
                     </script>";
 
                 var filePath = Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath, "app.html");

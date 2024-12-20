@@ -78,7 +78,7 @@
     width: 80%;
     
 }
-
+#special-channel-toggle,
 #special-channel-text {
     color: white;
     position: absolute;
@@ -342,7 +342,7 @@
 
 
 
-#gifs-menu-searchbar {
+#gifsMenuSearchbar {
     width: 100%;
     color: white;
     font-size: 18px;
@@ -585,7 +585,7 @@
 .searchInput::placeholder {
     color: rgb(144 155 164 );
 }
-#globalSearchInput {
+#global-search-input {
     display: block;
     color: rgb(144 155 164 );
     font-size: 14px;

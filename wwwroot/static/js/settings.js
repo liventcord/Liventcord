@@ -6,11 +6,14 @@ let isOnGuild = false;
 
 
 
-const MyAccount = "MyAccount";
-const SoundAndVideo = "SoundAndVideo";
-const Notifications = "Notifications";
-const ActivityPresence = "ActivityPresence";
-const Appearance = "Appearance";
+let settingTypes = {
+    MyAccount : "MyAccount",
+    SoundAndVideo : "SoundAndVideo",
+    Notifications : "Notifications",
+    ActivityPresence :"ActivityPresence",
+    Appearance : "Appearance"
+}
+
 let isSettingsOpen = false;
 let isUnsaved = false;
 let isChangedProfile = false;
@@ -24,13 +27,12 @@ let isEmailToggled = false;
 
 let logoClicked = 0;
 let isGuildSettings = false;
-let currentSettingsType = MyAccount;
+let currentSettingsType = settingTypes.MyAccount;
 
 
 
-const userListTitleHTML = `
-<h1 id='nowonline' style="font-weight: bolder;">Şimdi Aktif</h1> <ul> </ul>
-`;
+
+
 
 
 function getId(string) { return document.getElementById(string);}

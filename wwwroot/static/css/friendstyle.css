@@ -490,7 +490,7 @@
 }
 
 
-.friend-icon, .friend-label {
+.friend-icon, #friend-label {
     pointer-events: none;
 }
 
@@ -514,7 +514,7 @@
     background-color: rgb(53, 55, 60);
 }
 
-.friend-container .friend-label {
+.friend-container #friend-label {
     color: #949ba4;
     user-select: none;
     cursor: pointer;
@@ -523,7 +523,7 @@
     transition: color 0.3s;
 }
 
-.friend-container:hover .friend-label {
+.friend-container:hover #friend-label {
     color: white;
 }
 .friend-container #friendiconsvg {
@@ -545,7 +545,7 @@
     color: #fff;
 }
 
-.friend-container.dm-selected .friend-label {
+.friend-container.dm-selected #friend-label {
     color: white;
 }
 

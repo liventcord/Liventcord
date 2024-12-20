@@ -92,7 +92,7 @@ function updateMemberList(members, ignoreIsOnMe = false) {
         console.warn("Already updating members!");
         return;
     }
-    console.error("Updating members with:", members);
+    console.log("Updating members with:", members);
 
     isUpdatingUsers = true;
     const { onlineUsers, offlineUsers } = categorizeMembers(members);
@@ -104,12 +104,14 @@ function updateMemberList(members, ignoreIsOnMe = false) {
     const tbody = createEl('tbody');
 
     if (onlineUsers.length > 0) {
-        renderTitle(`ÇEVRİM İÇİ — ${onlineUsers.length}`, tbody);
+        renderTitle(`${translations.getTranslation('online')} — ${onlineUsers.length}`, tbody);
+
         renderUsers(onlineUsers, tbody, true);
     }
 
     if (offlineUsers.length > 0) {
-        renderTitle(`ÇEVRİM DIŞI — ${offlineUsers.length}`, tbody);
+        renderTitle(`${translations.getTranslation('offline')} — ${offlineUsers.length}`, tbody);
+
         renderUsers(offlineUsers, tbody, false);
     }
 
@@ -121,10 +123,10 @@ function updateMemberList(members, ignoreIsOnMe = false) {
 }
 function categorizeMembers(members) {
     const onlineUsers = members.filter(member => 
-        member.status && member.status.toLowerCase() === "online"
+        member.status && member.status === "online"
     );
     const offlineUsers = members.filter(member => 
-        !member.status || member.status.toLowerCase() !== "online"
+        !member.status || member.status !== "online"
     );
     return { onlineUsers, offlineUsers };
 }

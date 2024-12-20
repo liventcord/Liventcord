@@ -79,7 +79,7 @@ async function toggleGifs() {
 
 
 document.addEventListener('DOMContentLoaded',()=> {
-    let gifsMenuSearchBar = getId('gifs-menu-searchbar');
+    let gifsMenuSearchBar = getId('gifsMenuSearchbar');
     gifsMenuContainer = getId('gifs-menu-container');
 
 

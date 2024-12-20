@@ -329,7 +329,7 @@ function openSettings(isNotLoadingDefault = false) {
     if (!isNotLoadingDefault) {
         reconstructSettings(false);
     }
-    selectSettingCategory(MyAccount);
+    selectSettingCategory(settingTypes.MyAccount);
 
     getId('settings-overlay').style.display = 'flex';
 

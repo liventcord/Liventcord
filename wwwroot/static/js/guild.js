@@ -24,6 +24,54 @@ function getManageableGuilds() {
 
 
 
+function createMainLogo() {
+    const mainLogoImg = createEl('img', {
+        id: 'main-logo',
+        src: '/static/images/icons/icon.png',
+        'data-src': '/static/images/icons/icon.png',
+        style: 'width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;'
+    });
+
+    mainLogoImg.addEventListener('mousedown', () => {
+        mainLogoImg.style.transform = 'translateY(50px)';
+    });
+
+    mainLogoImg.addEventListener('mouseup', () => {
+        mainLogoImg.style.transform = 'translateY(0)';
+    });
+
+    mainLogoImg.addEventListener('mouseleave', () => {
+        mainLogoImg.style.transform = 'translateY(0)';
+    });
+
+    mainLogoImg.addEventListener('click', clickMainLogo);
+
+    const mainLogo = createEl('li');
+    mainLogo.appendChild(mainLogoImg);
+
+    return mainLogo;
+}
+
+function setGuildImage(guildId, imageElement, isUploaded) {
+    imageElement.src = isUploaded ? `/guilds/${guildId}` : createBlackImage();
+}
+
+function createGuildListItem(guild) {
+    const li = createEl('li');
+    const img = createEl('img', {
+        className: 'guilds-list',
+        id: guild.guildId,
+        src: guild.isGuildUploadedImg ? `/guilds/${guild.guildId}` : createBlackImage(),
+    });
+
+    img.addEventListener('click', () => {
+        loadGuild(guild.guildId, guild.rootChannel, guild.guildName);
+    });
+
+    li.appendChild(img);
+    li.appendChild(createEl('div', { className: 'white-rod' }));
+    return li;
+}
 
 function updateGuildList(guildData) {
     if (!guildData) {
@@ -34,62 +82,26 @@ function updateGuildList(guildData) {
     currentGuildData = guildData;
     guildsList.innerHTML = "";
 
-    const mainLogoImg = createEl('img', {
-        id: 'main-logo',
-        src: '/static/images/icons/icon.png',
-        'data-src': '/static/images/icons/icon.png',
-        style: 'width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;'
-    });
-    mainLogoImg.addEventListener('mousedown', () => {
-        mainLogoImg.style.transform = 'translateY(50px)';
-    });
-    mainLogoImg.addEventListener('mouseup', mainLogoImg.addEventListener.bind(mainLogoImg, 'mouseleave', () => {
-        mainLogoImg.style.transform = 'translateY(0)';
-    }));
-    mainLogoImg.addEventListener('click', clickMainLogo);
-
-    const mainLogo = createEl('li');
-    mainLogo.appendChild(mainLogoImg);
+    const mainLogo = createMainLogo();
     guildsList.appendChild(mainLogo);
 
     guildData.guilds.forEach((guild) => {
-        if (getId(guild.GuildId)) return;
-        cacheInterface.setGuildOwner(guildId, ownerId)
+        if (getId(guild.guildId)) return;
 
-        const guildName = guild.guildName;
-        const ownerId = guild.ownerId;
-        const guildId = guild.guildId;
-        const rootChannel = guild.rootChannel;
-        
-        const imgSrc = guild.IsGuildUploadedImg ? `/guilds/${guildId}` : createBlackImage();
-        
-        const li = createEl('li');
-        const img = createEl('img', { className: 'guilds-list', id: guildId, src: imgSrc });
-        img.addEventListener('click', () => {
-            loadGuild(guildId, rootChannel, guildName);
-        });
-        
-        li.appendChild(img);
-        li.appendChild(createEl('div', { className: 'white-rod' }));
-        guildsList.appendChild(li);
+        cacheInterface.setGuildOwner(guild.guildId, guild.ownerId);
+        const guildListItem = createGuildListItem(guild);
+        guildsList.appendChild(guildListItem);
     });
-    
+
     addKeybinds();
 }
 
 function appendToGuildList(guild) {
     const guildsList = getId('guilds-list');
-    if (guildsList.querySelector(`#${guild.id}`)) return;
+    if (guildsList.querySelector(`#${guild.guildId}`)) return;
 
-    const li = createEl('li');
-    const img = createEl('img', { className: 'guilds-list', id: guild.id, src: guild.src });
-    img.addEventListener('click', () => {
-        loadGuild(guild.id, guild.rootChannel, guild.name);
-    });
-    
-    li.appendChild(img);
-    li.appendChild(createEl('div', { className: 'white-rod' }));
-    guildsList.appendChild(li);
+    const guildListItem = createGuildListItem(guild);
+    guildsList.appendChild(guildListItem);
     addKeybinds();
 }
 
@@ -105,10 +117,9 @@ function updateGuild(uploadedGuildId) {
     const guildList = getId('guilds-list').querySelectorAll('img');
     guildList.forEach((img) => {
         if (img.id === uploadedGuildId) {
-            img.src = !uploadedGuildId ? createBlackImage() : `/guilds/${uploadedGuildId}`;
+            setGuildImage(uploadedGuildId, img, !!uploadedGuildId);
         }
     });
-
 }
 
 
@@ -243,9 +254,9 @@ function refreshInviteId() {
 
 function addGuild(guildId, guildName, ownerId) {
     const data = {
-        "GuildId": guildId,
-        "GuildName": guildName,
-        "OwnerId": ownerId
+        "guildId": guildId,
+        "guildName": guildName,
+        "ownerId": ownerId
     };
     currentGuildData[guildId] = data;
 }

@@ -471,14 +471,14 @@ function createFriendCard(friend, isPending, friendsContainer) {
     friendInfo.appendChild(createEl('div', { className: 'friend-name', textContent: friend.name }));
     friendInfo.appendChild(createEl('div', { className: 'friend-discriminator', textContent: `#${friend.discriminator}` }));
     const onlineStatus = isPending ? 
-        (friend.is_friends_requests_to_user ? 'Gelen Arkadaş İsteği' : 'Giden Arkadaş İsteği') : 
-        (friend.is_online ? OnlineText : OfflineText);
+        (friend.is_friends_requests_to_user ? translations[currentLanguage].incoming-friend-request : translations[currentLanguage].outgoing-friend-request) : 
+        (friend.is_online ? translations[currentLanguage].online : translations[currentLanguage].offline);
     friendInfo.appendChild(createEl('div', { className: 'friend-status', textContent: onlineStatus }));
 
     const friendButton = createEl('div', { className: 'friend-button' });
 
     if (isPending) {
-        addPendingButtons(friendButton, friend);
+        addpending-buttons(friendButton, friend);
     } else {
         addFriendButtons(friendButton, friend);
     }
@@ -515,3 +515,20 @@ function handleOptionsClick(event, optionsButton) {
         showContextMenu(event.pageX, event.pageY, options);
     }
 }
+function getFriendsTranslation() {
+    switch (currentSelectedStatus) {
+      case 'online':
+        return translations[currentLanguage].online;
+      case 'offline':
+        return translations[currentLanguage].offline;
+      case 'pending':
+        return translations[currentLanguage].pending;
+      case 'blocked':
+        return translations[currentLanguage].blocked;
+      case 'all':
+        return translations[currentLanguage].all;
+      default:
+        return "";
+    }
+  }
+  
