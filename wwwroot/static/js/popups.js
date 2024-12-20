@@ -4,30 +4,30 @@ function createChannelsPop() {
     let isTextChannel = true;
     const newPopOuterParent = createEl('div',{className: 'outer-parent'});
     const newPopParent = createEl('div',{className:'pop-up',id:'createChannelPopContainer'});
-    const title = `Kanal Oluştur`
-    const sendText = "Sadece seçilen üyeler ve roller bu kanalı görüntüleyebilir.";
+    const title = translations.getTranslation('createChannelTitle');
+    const sendText = translations.getTranslation('sendText');
 
     const inviteTitle = createEl('p',{id:'create-channel-title', textContent:title});
     const popBottomContainer = createEl('div',{className:'popup-bottom-container',id:'create-channel-popup-bottom-container'});
     const sendInvText = createEl('p',{id:'create-channel-send-text', textContent:sendText});
     const closeBtn = createEl('button',{className:'popup-close', id:"invite-close-button",textContent:'X'});
-    const newChannelPlaceHolder = 'yeni-kanal';
-    const inviteUsersSendInput = createEl('input',{id:"create-channel-send-input",placeholder:newChannelPlaceHolder});
+    const newChannelPlaceholder = 'yeni-kanal';
+    const inviteUsersSendInput = createEl('input',{id:"create-channel-send-input",placeholder:newChannelPlaceholder});
     inviteUsersSendInput.addEventListener('input', () => {
         const inputValue = inviteUsersSendInput.value.trim();
         toggleButtonState(inputValue !== ''); 
     });
 
-    const channeltypetitle = createEl('p',{id:'create-channel-type', textContent:'KANAL TÜRÜ'});
+    const channeltypetitle = createEl('p', { id: 'create-channel-type', textContent: translations.getTranslation('channelTypeTitle') });
 
     const hashText = `<svg class="icon_b545d5" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10.99 3.16A1 1 0 1 0 9 2.84L8.15 8H4a1 1 0 0 0 0 2h3.82l-.67 4H3a1 1 0 1 0 0 2h3.82l-.8 4.84a1 1 0 0 0 1.97.32L8.85 16h4.97l-.8 4.84a1 1 0 0 0 1.97.32l.86-5.16H20a1 1 0 1 0 0-2h-3.82l.67-4H21a1 1 0 1 0 0-2h-3.82l.8-4.84a1 1 0 1 0-1.97-.32L15.15 8h-4.97l.8-4.84ZM14.15 14l.67-4H9.85l-.67 4h4.97Z" clip-rule="evenodd" class="foreground_b545d5"></path></svg>`
     const voiceText = `<svg class="icon_b545d5" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2.92l4.28 4.68a1 1 0 0 0 .74.32H11a1 1 0 0 0 1-1V3ZM15.1 20.75c-.58.14-1.1-.33-1.1-.92v-.03c0-.5.37-.92.85-1.05a7 7 0 0 0 0-13.5A1.11 1.11 0 0 1 14 4.2v-.03c0-.6.52-1.06 1.1-.92a9 9 0 0 1 0 17.5Z" class="foreground_b545d5"></path><path fill="currentColor" d="M15.16 16.51c-.57.28-1.16-.2-1.16-.83v-.14c0-.43.28-.8.63-1.02a3 3 0 0 0 0-5.04c-.35-.23-.63-.6-.63-1.02v-.14c0-.63.59-1.1 1.16-.83a5 5 0 0 1 0 9.02Z" class="foreground_b545d5"></path></svg>`;
     const channeltypetexticon = createEl('p',{id:'channel-type-icon',innerHTML:hashText});
     const channeltypevoiceicon = createEl('p',{id:'channel-type-icon',innerHTML:voiceText });
-    const channeltypetexttitle = createEl('p',{id:'channel-type-title',textContent:'Metin'});
-    const channeltypevoicetitle = createEl('p',{id:'channel-type-title',textContent:'Ses'});
-    const channeltypetextdescription = createEl('p',{id:'channel-type-description',textContent:"Mesajlar, resimler, GIF'ler, emojiler, fikirler ve şakalar gönder"});
-    const channeltypevoicedescription = createEl('p',{id:'channel-type-description',textContent:"Birlikte sesli veya görüntülü konuşun veya ekran paylaşın"});
+    const channeltypetexttitle = createEl('p', { id: 'channel-type-title', textContent: translations.getTranslation('textChannelTitle') });
+    const channeltypevoicetitle = createEl('p', { id: 'channel-type-title', textContent: translations.getTranslation('voiceChannelTitle') });
+    const channeltypedescription = createEl('p',{id:'channel-type-description',textContent:"Mesajlar, resimler, GIF'ler, emojiler, fikirler ve şakalar gönder"});
+    const channelTypeVoiceDescription = createEl('p',{id:'channel-type-description',textContent:"Birlikte sesli veya görüntülü konuşun veya ekran paylaşın"});
     const channelnametitle = createEl('p',{id:'create-channel-name', textContent:'KANAL ADI'});
     const channelIcon = createEl('p',{id:'channel-icon',textContent:'#'});
     
@@ -38,8 +38,8 @@ function createChannelsPop() {
     
     const specialchanHtml = `<svg class="switchIcon_b545d5" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="lightgray" fill-rule="evenodd" d="M6 9h1V6a5 5 0 0 1 10 0v3h1a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3Zm9-3v3H9V6a3 3 0 1 1 6 0Zm-1 8a2 2 0 0 1-1 1.73V18a1 1 0 1 1-2 0v-2.27A2 2 0 1 1 14 14Z" clip-rule="evenodd" class=""></path></svg>`;
     const specialChanIcon = createEl('div',{innerHTML:specialchanHtml,id:'special-channel-icon'});
-    const specialChanText = createEl('div',{id:'special-channel-text', textContent:'Özel Kanal'  });
-    const specialChanToggle = createEl('toggle',{id:'special-channel-text'});
+    const specialChanText = createEl('div', { id: 'special-channel-text', textContent: translations.getTranslation("special-channel-text") });
+    const specialChanToggle = createEl('toggle',{id:'special-channel-toggle'});
     textChannelContainer.style.filter = 'brightness(1.5)';
     voiceChannelContainer.style.filter = 'brightness(1)';
 
@@ -55,13 +55,14 @@ function createChannelsPop() {
         voiceChannelContainer.style.filter = 'brightness(1.5)';
     });
 
-    const popAcceptButton = createEl('button', {className: 'pop-up-accept',textContent:'Kanal Oluştur',style:"height:40px; width: 25%; top:93%;  left: 84%; font-size:14px; disabled=1; white-space:nowrap;"});
+    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: translations.getTranslation('popAcceptButton'), style: "height:40px; width: 25%; top:93%; left: 84%; font-size:14px; disabled=1; white-space:nowrap;" });
+
     popAcceptButton.addEventListener('click', function() {
         const inviteUsersSendInput = getId('create-channel-send-input');
         let newchanname = inviteUsersSendInput.value.replace(/^\s+/, '');;
         
         if (!newchanname) {
-            newchanname = newChannelPlaceHolder;
+            newchanname = newChannelPlaceholder;
         }
         const data = {
             'channelName': newchanname,
@@ -98,9 +99,9 @@ function createChannelsPop() {
     voiceChannelContainer.appendChild(channeltypevoiceicon);
 
     textChannelContainer.appendChild(channeltypetexttitle);
-    textChannelContainer.appendChild(channeltypetextdescription);
+    textChannelContainer.appendChild(channeltypedescription);
     voiceChannelContainer.appendChild(channeltypevoicetitle);
-    voiceChannelContainer.appendChild(channeltypevoicedescription);
+    voiceChannelContainer.appendChild(channelTypeVoiceDescription);
 
     newPopParent.appendChild(closeBtn);
     newPopParent.appendChild(inviteTitle);
@@ -187,7 +188,7 @@ function drawProfilePop(userData) {
         sendMsgBtn.appendChild(sendMsgIco);
     
         sendMsgBtn.addEventListener('click', () => {
-            loadMainMenu();
+            loadDmHome();
             openDm(userId);
             const profilePopContainer = getId('profilePopContainer');
             if(profilePopContainer) {
@@ -588,6 +589,6 @@ function createCropPop(inputSrc, callbackAfterAccept) {
     imageContainer.querySelector('.cr-slider-wrap').querySelector('.cr-slider').style.transform = 'scale(1.5);';
 }
 
-getId('globalSearchInput').addEventListener('click', function(){
+getId('global-search-input').addEventListener('click', function(){
     openSearchPop();
 });

@@ -19,7 +19,7 @@ window.addEventListener('popstate', function(event) {
     try {
         const pathStr = window.location.pathname;
         if (pathStr === '/channels/@me') {
-            loadMainMenu(false);
+            loadDmHome(false);
         } else if (pathStr.startsWith('/channels/@me/')) {
             const parts = pathStr.split('/');
             const friendId = parts[3];

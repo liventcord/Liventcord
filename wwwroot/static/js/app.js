@@ -114,7 +114,7 @@ function initializeElements() {
     guildContainer.addEventListener('mouseout', () => guildContainer.style.backgroundColor = '#2b2d31');
 
     const friendContainer = getId('friend-container-item');
-    friendContainer.addEventListener('click', loadMainMenu);
+    friendContainer.addEventListener('click', loadDmHome);
 
     getId('tb-showprofile').addEventListener('click', toggleUsersList);
     selfProfileImage = getId("self-profile-image");
@@ -123,7 +123,7 @@ function initializeElements() {
 }
 
 function initializeSettings() {
-    selectSettingCategory(MyAccount);
+    
     updateSelfProfile(currentUserId);
     const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
     setUsersList(isCookieUsersOpen, true);
@@ -179,8 +179,8 @@ function initializeGuild() {
     if (guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
             if (isOnGuild) {
-                cacheInterface.addChannel(data.GuildId, data.GuildChannels);
-                updateChannels(data.GuildChannels);
+                cacheInterface.addChannel(data.guildId, data.guildChannels);
+                updateChannels(data.guildChannels);
             }
         });
     }
@@ -280,9 +280,12 @@ function removeDm(userId) {
 
 
 function initialiseMe() {
-    if(!isOnMe) return;
+    if(!isOnMe) {
+        console.log("Cant initialise me while isOnMe is false");
+        return;
+    }
     enableElement('dms-title');
-    userList.innerHTML = userListTitleHTML;
+    translations.updateUserListText();
     loadMainToolbar();
     isInitialized = true;
 }
@@ -315,7 +318,8 @@ function openDm(friendId) {
 
 
 let lastDmId;
-function loadMainMenu(isChangingUrl=true) {
+
+function loadDmHome(isChangingUrl=true) {
     console.log("Loading main menu...");
 
     function handleMenu() {
@@ -335,13 +339,13 @@ function loadMainMenu(isChangingUrl=true) {
         disableElement('message-input-container');
         getId('friend-container-item').style.color = 'white';
 
-        userList.innerHTML = userListTitleHTML;
+        translations.updateUserListText();
         userList.classList.add('friendactive');
         if(userListFriActiveHtml) {
             userList.innerHTML = userListFriActiveHtml;
         }
-        const onlineText = getId('nowonline');
-        if(onlineText) onlineText.style.fontWeight = 'bolder';
+        const nowOnlineTitle = getId('nowonline');
+        if(nowOnlineTitle) nowOnlineTitle.style.fontWeight = 'bolder';
         if(isOnMe) { return; }
         isOnMe = true;
         isOnGuild = false;
@@ -370,7 +374,7 @@ function loadMainMenu(isChangingUrl=true) {
     enableElement('friend-container-item');
     getId('guild-name').innerText = '';
     disableElement('guild-settings-button');
-    enableElement('globalSearchInput',false,true);
+    enableElement('global-search-input',false,true);
     enableElement('friends-container-item');
     
     enableElement('dms-title');
@@ -436,7 +440,7 @@ function loadApp(friendId=null) {
         enableElement('guild-settings-button');
         enableElement('hash-sign');
         getId('guild-name').innerText = currentGuildName;
-        disableElement('globalSearchInput');
+        disableElement('global-search-input');
         disableElement('dm-profile-sign-bubble');
         disableElement('dm-profile-sign');
         loadGuildToolbar();

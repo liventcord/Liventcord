@@ -27,7 +27,7 @@ function getChannels() {
 }
 
 async function changeChannel(newChannel) {
-    console.log("channel changed: ",newChannel);
+    console.log("Changed channel: ",newChannel);
     if(isOnMe || isOnDm) { return; }
     const channelId = newChannel.channelId;
     const isTextChannel = newChannel.isTextChannel;
@@ -287,25 +287,21 @@ function addChannelEventListeners() {
 
 
 function validateChannel(channel) {
-    // Normalize to lowercase keys
-    const channelId = channel.ChannelId?.toLowerCase() || channel.channelId?.toLowerCase();
-    const channelName = channel.ChannelName?.toLowerCase() || channel.channelName?.toLowerCase();
-    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+    const channelId = channel.channelId;
+    const channelName = channel.channelName;
+    const isTextChannel = channel.isTextChannel;
 
-    // Ensure all required properties are available
     return channelId && channelName && typeof isTextChannel !== 'undefined';
 }
 
 function validateChannels(channels) {
-    // Check if channels is an array and each item is valid
     return Array.isArray(channels) && channels.every(validateChannel);
 }
 
 function createChannelElement(channel) {
-    // Normalize all properties to lowercase
-    const channelId = (channel.ChannelId || channel.channelId)?.toLowerCase();
-    const channelName = (channel.ChannelName || channel.channelName)?.toLowerCase();
-    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+    const channelId = channel.channelId;
+    const channelName = channel.channelName;
+    const isTextChannel = channel.isTextChannel;
 
     if (isChannelExist(channelId)) return;
 
@@ -321,12 +317,12 @@ function createChannelElement(channel) {
 }
 
 function addChannel(channel) {
-    const channelId = (channel.ChannelId || channel.channelId)?.toLowerCase();
-    const guildId = (channel.GuildId || channel.guildId)?.toLowerCase();
-    const channelName = (channel.ChannelName || channel.channelName)?.toLowerCase();
-    const isTextChannel = channel.IsTextChannel ?? channel.isTextChannel;
+    const channelId = channel.channelId;
+    const guildId = channel.guildId;
+    const channelName = channel.channelName;
+    const isTextChannel = channel.isTextChannel;
 
-    if (!validateChannel({ ChannelId: channelId, ChannelName: channelName, IsTextChannel: isTextChannel })) {
+    if (!validateChannel({ channelId: channelId, channelName: channelName, isTextChannel: isTextChannel })) {
         console.error("Invalid channel data:", channel);
         return;
     }

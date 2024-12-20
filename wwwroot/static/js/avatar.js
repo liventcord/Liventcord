@@ -148,7 +148,7 @@ function updateSelfProfile(userId, userName,isTimestamp=false,isAfterUploading=f
     }
     selfProfileImage.src = selfimagepath;
     
-    if(currentSettingsType == MyAccount) {
+    if(isSettingsOpen && currentSettingsType == settingTypes.MyAccount) {
         const settingsSelfNameElement = getId('settings-self-name');
         const selfNameElement = getId('self-name');
         const settingsSelfProfile = getId('settings-self-profile');
@@ -173,6 +173,7 @@ function updateSelfProfile(userId, userName,isTimestamp=false,isAfterUploading=f
             }
         };
         settingsSelfProfile.src = selfimagepath;
+        updateSettingsProfileColor();
         
     }
 }

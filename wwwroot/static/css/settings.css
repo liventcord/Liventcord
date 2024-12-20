@@ -710,6 +710,7 @@ th {
     color: #ffff;
     position: absolute;
     white-space: nowrap;
+    text-transform: uppercase;
     top: 50px;
 }
 
