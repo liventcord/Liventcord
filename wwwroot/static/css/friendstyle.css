@@ -65,6 +65,7 @@
     font-size: 12px;
     user-select: none;
     font-weight: bold;
+    text-transform: uppercase;
     color: #949ba4;
 }
 .dm-container:hover .content {

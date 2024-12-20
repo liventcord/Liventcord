@@ -120,7 +120,7 @@ function updateDmsList(users) {
 
     Object.entries(users).forEach(([userId, user]) => {
         const dmContainer = createDmContainer({ userId, ...user });
-        const dmContainerParent = document.getElementById('dm-container-parent');
+        const dmContainerParent = getId('dm-container-parent');
 
         dmContainerParent.appendChild(dmContainer);
         existingUsersDmContainers.add(dmContainer);

@@ -238,7 +238,6 @@ function uploadImage(isGuild) {
     }
 }
 function onEditImage(isGuild) {
-    if(!isCropieInitialized) { return }
     const filedata = getId(isGuild ? 'guildImage':'profileImage').files[0];
     if (!filedata) {
         console.log("No file. ", isGuild)

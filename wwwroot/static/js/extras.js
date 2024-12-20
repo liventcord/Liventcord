@@ -75,7 +75,7 @@ function enableSnow() {
     }
 
     (function frame() {
-        if (!toggleStates.isSnow) return;
+        if (!toggleStates.isSnow | !isDomLoaded) return;
 
         skew = Math.max(0.8, skew - 0.001);
 

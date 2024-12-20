@@ -588,7 +588,3 @@ function createCropPop(inputSrc, callbackAfterAccept) {
 
     imageContainer.querySelector('.cr-slider-wrap').querySelector('.cr-slider').style.transform = 'scale(1.5);';
 }
-
-getId('global-search-input').addEventListener('click', function(){
-    openSearchPop();
-});

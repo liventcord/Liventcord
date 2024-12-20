@@ -388,7 +388,7 @@ function enableElement(str, isFlex1 = false, isBlock = false, isInline = false) 
 
 
 function removeElement(elementname) {
-    const element = document.getElementById(elementname);
+    const element = getId(elementname);
     if(element) {
         element.remove();
     }
