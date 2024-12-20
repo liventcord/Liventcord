@@ -41,7 +41,7 @@ async function changeChannel(newChannel) {
     if(isTextChannel) {
         currentChannelId = channelId;
         currentChannelName = newChannelName;
-        chatInput.placeholder = '#' + truncateString(newChannelName,30) + ' kanalına mesaj gönder';
+        chatInput.placeholder = translations.getMessagePlaceholder(newChannelName);
         channelTitle.textContent = newChannelName;
         lastSenderID = '';
         chatContent.innerHTML = '';

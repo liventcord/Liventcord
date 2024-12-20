@@ -48,6 +48,9 @@ class Translations {
         "tb-pin": "Pinned Messages",
         "tb-createdm": "Add Friend to DM",
         "tb-showprofile": "Show User Profile",
+        "today": "Today at",
+        "yesterday": "Yesterday at",
+        "message_placeholder": "Send a message to channel #{{channelName}}",
       },
 
       tr: {
@@ -92,9 +95,22 @@ class Translations {
         "tb-pin": "Sabitlenmiş Mesajlar",
         "tb-createdm": "DM'ye Arkadaş Ekle",
         "tb-showprofile": "Kullanıcı Profilini Göster",
+        "today": "Bugün saat",
+        "yesterday": "Dün saat",
+        "message_placeholder": "#{{channelName}} kanalına mesaj gönder",
       }
     };
   }
+
+  getMessagePlaceholder(channelName) {
+    const placeholderTemplate = this.translations[this.currentLanguage]?.message_placeholder;
+    if (!placeholderTemplate) {
+      console.error("Can't find placeholder translation");
+      return '';
+    }
+    return placeholderTemplate.replace("{{channelName}}", truncateString(channelName, 30));
+  }
+  
 
   initializeTranslations() {
     const currentTranslations = this.translations[this.currentLanguage];

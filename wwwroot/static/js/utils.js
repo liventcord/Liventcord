@@ -90,23 +90,19 @@ function getFormattedDate(messageDate) {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-
+  
     if (messageDate.toDateString() === today.toDateString()) {
-        return "ㅤBugün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      return `ㅤ${translations.getTranslation('today')} ${messageDate.toLocaleTimeString(translations.getLocale(), { hour: '2-digit', minute: '2-digit' })}`;
     } else if (messageDate.toDateString() === yesterday.toDateString()) {
-        return "ㅤDün saat " + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      return `ㅤ${translations.getTranslation('yesterday')} ${messageDate.toLocaleTimeString(translations.getLocale(), { hour: '2-digit', minute: '2-digit' })}`;
     } else {
-        return 'ㅤ' + messageDate.toLocaleDateString('tr-TR') + ' ' + messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+      return `ㅤ${messageDate.toLocaleDateString(translations.getLocale())} ${messageDate.toLocaleTimeString(translations.getLocale(), { hour: '2-digit', minute: '2-digit' })}`;
     }
-}
-function getFormattedDateForSmall(messageDate) {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    return messageDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
-}
-
+  }
+  
+  function getFormattedDateForSmall(messageDate) {
+    return messageDate.toLocaleTimeString(translations.getLocale(), { hour: '2-digit', minute: '2-digit' });
+  }
 function isImageURL(url) {
     const imageUrlRegex = /\.(gif|jpe?g|png|bmp|webp|tiff|svg|ico)(\?.*)?$/i;
     return imageUrlRegex.test(url);
