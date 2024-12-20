@@ -46,6 +46,7 @@ const EventHttpMethodMap = {
 class CustomHttpConnection {
     constructor() {
         this.listeners = {};
+        this.nonResponseEvents = [EventType.START_TYPING, EventType.STOP_TYPING];
     }
 
     getHttpMethod(event) {
@@ -116,7 +117,7 @@ class CustomHttpConnection {
         return { method: this.getHttpMethod(event), url };
     }
 
-    async sendRequest(data, url, method) {
+    async sendRequest(data, url, method, expectsResponse = true) {
         try {
             const response = await fetch(url, {
                 method,
@@ -126,40 +127,46 @@ class CustomHttpConnection {
             });
     
             if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
-            }
-    
-            const responseBody = await response.text();
-            if (!responseBody) {
-                console.error("Received empty response body");
+                console.error(`Request failed with status: ${response.status}`, { url, method });
                 return null; 
             }
     
-            return JSON.parse(responseBody);  
+            if (!expectsResponse) {
+                return null; 
+            }
+    
+            const responseBody = await response.text();
+            return responseBody ? JSON.parse(responseBody) : null; 
         } catch (error) {
-            console.error("Failed to send request:", error);
+            console.error("Failed to send request:", error, { url, method, data });
             throw error;
         }
     }
     
-
     async send(event, data = {}) {
         if (!event) {
             console.error("Event is required");
             return;
         }
-
+    
+        const expectsResponse = !this.nonResponseEvents.includes(event);
+    
         try {
             const { url, method } = this.getUrlForEvent(event, data);
-
-            const response = await this.sendRequest(data, url, method);
+    
+            const response = await this.sendRequest(data, url, method, expectsResponse);
             this.handleMessage(event, response);
         } catch (error) {
-            console.error(`Error during request for event "${event}":`, error,event,data);
+            console.error(`Error during request for event "${event}":`, error, event, data);
         }
     }
 
     handleMessage(event,  data) {
+        if (this.nonResponseEvents.includes(event)) {
+            //console.log(`Event "${event}" processed. No response expected.`);
+            return; 
+        }
+
         console.log(`Received response for event "${event}" `, data);
         
         if (this.listeners[event] && data != null) {

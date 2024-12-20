@@ -9,16 +9,149 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/popup.css">
     <link rel="stylesheet" href="/static/css/settings.css"> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="/static/js/utils.js"></script>
 
     <script src="/static/js/app.js" defer></script> 
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/audio.js"></script>
+    <script src="/static/js/avatar.js"></script>
+    <script src="/static/js/cache.js"></script> 
+    <script src="/static/js/channels.js"></script>
+    <script src="/static/js/chat.js"></script>
+    <script src="/static/js/chatbar.js"></script>
+    <script src="/static/js/contextMenuActions.js"></script>
+    <script src="/static/js/extras.js"></script> 
+    <script src="/static/js/friends.js"></script> 
+    <script src="/static/js/friendui.js"></script> 
+    <script src="/static/js/guild.js"></script> 
+    <script src="/static/js/guildPermissions.js"></script> 
+    <script src="/static/js/mediaElements.js"></script> 
+    <script src="/static/js/mediaPanel.js"></script> 
+    <script src="/static/js/message.js"></script> 
+    <script src="/static/js/popups.js"></script> 
+    <script src="/static/js/routing.js"></script> 
+    <script src="/static/js/search.js"></script> 
+    <script src="/static/js/serverEvents.js"></script> 
+    <script src="/static/js/settings.js"></script>
+    <script src="/static/js/settingsui.js"></script>
+    <script src="/static/js/translations.js"></script>
+    <script src="/static/js/ui.js"></script>
+    <script src="/static/js/user.js"></script>
+    <script src="/static/js/userList.js"></script>
+
 
     
-    
+    <style>
+        .croppie-container{width:100%;height:100%}.croppie-container .cr-image{z-index:-1;position:absolute;top:0;left:0;transform-origin:0 0;max-height:none;max-width:none}.croppie-container .cr-boundary{position:relative;overflow:hidden;margin:0 auto;z-index:1;width:100%;height:100%}.croppie-container .cr-resizer,.croppie-container .cr-viewport{position:absolute;border:2px solid #fff;margin:auto;top:0;bottom:0;right:0;left:0;box-shadow:0 0 2000px 2000px rgba(0,0,0,.5);z-index:0}.croppie-container .cr-resizer{z-index:2;box-shadow:none;pointer-events:none}.croppie-container .cr-resizer-horisontal,.croppie-container .cr-resizer-vertical{position:absolute;pointer-events:all}.croppie-container .cr-resizer-horisontal::after,.croppie-container .cr-resizer-vertical::after{display:block;position:absolute;box-sizing:border-box;border:1px solid #000;background:#fff;width:10px;height:10px;content:''}.croppie-container .cr-resizer-vertical{bottom:-5px;cursor:row-resize;width:100%;height:10px}.croppie-container .cr-resizer-vertical::after{left:50%;margin-left:-5px}.croppie-container .cr-resizer-horisontal{right:-5px;cursor:col-resize;width:10px;height:100%}.croppie-container .cr-resizer-horisontal::after{top:50%;margin-top:-5px}.croppie-container .cr-original-image{display:none}.croppie-container .cr-vp-circle{border-radius:50%}.croppie-container .cr-overlay{z-index:1;position:absolute;cursor:move;touch-action:none}.croppie-container .cr-slider-wrap{width:75%;margin:15px auto;text-align:center}.croppie-result{position:relative;overflow:hidden}.croppie-result img{position:absolute}.croppie-container .cr-image,.croppie-container .cr-overlay,.croppie-container .cr-viewport{-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0)}.cr-slider{-webkit-appearance:none;width:300px;max-width:100%;padding-top:8px;padding-bottom:8px;background-color:transparent}.cr-slider::-webkit-slider-runnable-track{width:100%;height:3px;background:rgba(0,0,0,.5);border:0;border-radius:3px}.cr-slider::-webkit-slider-thumb{-webkit-appearance:none;border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:-6px}.cr-slider:focus{outline:0}.cr-slider::-moz-range-track{width:100%;height:3px;background:rgba(0,0,0,.5);border:0;border-radius:3px}.cr-slider::-moz-range-thumb{border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:-6px}.cr-slider:-moz-focusring{outline:1px solid #fff;outline-offset:-1px}.cr-slider::-ms-track{width:100%;height:5px;background:0 0;border-color:transparent;border-width:6px 0;color:transparent}.cr-slider::-ms-fill-lower{background:rgba(0,0,0,.5);border-radius:10px}.cr-slider::-ms-fill-upper{background:rgba(0,0,0,.5);border-radius:10px}.cr-slider::-ms-thumb{border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:1px}.cr-slider:focus::-ms-fill-lower{background:rgba(0,0,0,.5)}.cr-slider:focus::-ms-fill-upper{background:rgba(0,0,0,.5)}.cr-rotate-controls{position:absolute;bottom:5px;left:5px;z-index:1}.cr-rotate-controls button{border:0;background:0 0}.cr-rotate-controls i:before{display:inline-block;font-style:normal;font-weight:900;font-size:22px}.cr-rotate-l i:before{content:'↺'}.cr-rotate-r i:before{content:'↻'}
+    </style>
 </head>
 
 
 <body>
+    <script>
+        const useCDN = false;
+
+        function loadFontStyles() {
+            const styles = `
+                @font-face {
+                    font-family: 'gg sans normal';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: local('gg sans Normal'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Regular.woff' 
+                            : '/static/vendor/gg-sans-regular.woff'}') format('woff');
+                }
+                
+                @font-face {
+                    font-family: 'gg sans medium';
+                    font-style: normal;
+                    font-weight: 500;
+                    src: local('gg sans Medium'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Medium.woff' 
+                            : '/static/vendor/gg-sans-medium.woff'}') format('woff');
+                }
+                
+                @font-face {
+                    font-family: 'gg sans semibold';
+                    font-style: normal;
+                    font-weight: 600;
+                    src: local('gg sans SemiBold'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Semibold.woff' 
+                            : '/static/vendor/gg-sans-semibold.woff'}') format('woff');
+                }
+            `;
+            const styleSheet = document.createElement('style');
+            styleSheet.type = 'text/css';
+            styleSheet.innerText = styles;
+            document.head.appendChild(styleSheet);
+        }
+
+        loadFontStyles();
+
+        const cdnConfettiUrl = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
+        const localConfettiUrl = "/static/vendor/confetti.browser.min.js";
+        const confettiUrl = useCDN ? cdnConfettiUrl : localConfettiUrl;
+
+        function loadScript(url) {
+            const script = document.createElement('script');
+            script.src = url;
+            document.body.appendChild(script);
+        }
+
+        loadScript(confettiUrl);
+
+        let isCropieInitialized = false;
+        const croppieUrl = useCDN 
+            ? "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"
+            : "/static/vendor/croppie.js";
+        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e";
+
+        async function fetchAndModifyScript(url) {
+            try {
+                const response = await fetch(url);
+                const scriptContent = await response.text();
+
+                if (!crypto || !crypto.subtle) {
+                    console.warn('Crypto context unavailable. Appending script without modification.');
+                    appendScript(scriptContent);
+                    return;
+                }
+
+                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
+                const hashArray = Array.from(new Uint8Array(hashBuffer)); 
+                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); 
+
+                if (hashHex === expectedHash) {
+                    let scriptLines = scriptContent.split('\n');
+                    let lineNumberToModify = 1088; 
+                    if (lineNumberToModify - 1 < scriptLines.length) {
+                        scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
+                    }
+                    let modifiedScriptContent = scriptLines.join('\n');
+                    appendScript(modifiedScriptContent);
+                } else {
+                    console.warn('Hash does not match. Appending original script.');
+                    appendScript(scriptContent);
+                }
+
+            } catch (error) {
+                console.error('Error fetching or modifying the script:', error);
+            }
+        }
+        function appendScript(scriptContent) {
+            let newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            newScript.text = scriptContent;
+            document.body.appendChild(newScript);
+            isCropieInitialized = true;
+        }
+
+        fetchAndModifyScript(croppieUrl);
+
+    </script>
     <div id="loading-screen"><img id="loading-element" src="/static/images/icons/icon.png"></div>
 
     <div id="channel-list">
@@ -285,123 +418,7 @@
 
 
 
-<head>
-    <meta charset="UTF-8">
-     
-    <style>
-        @font-face {
-            font-family: 'gg sans normal';
-            font-style: normal;
-            font-weight: 400;
-            src: local('gg sans Normal'),
-                 url('https://fonts.cdnfonts.com/s/93931/gg sans Regular.woff') format('woff');
-        }
-        
-        @font-face {
-            font-family: 'gg sans medium';
-            font-style: normal;
-            font-weight: 500;
-            src: local('gg sans Medium'),
-                 url('https://fonts.cdnfonts.com/s/93931/gg sans Medium.woff') format('woff');
-        }
-        
-        @font-face {
-            font-family: 'gg sans semibold';
-            font-style: normal;
-            font-weight: 600;
-            src: local('gg sans SemiBold'),
-                 url('https://fonts.cdnfonts.com/s/93931/gg sans Semibold.woff') format('woff');
-        }
-    </style>
-    
 
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
-    <script src="/static/js/api.js"></script>
-    <script src="/static/js/audio.js"></script>
-    <script src="/static/js/avatar.js"></script>
-    <script src="/static/js/cache.js"></script> 
-    <script src="/static/js/channels.js"></script>
-    <script src="/static/js/chat.js"></script>
-    <script src="/static/js/chatbar.js"></script>
-    <script src="/static/js/contextMenuActions.js"></script>
-    <script src="/static/js/extras.js"></script> 
-    <script src="/static/js/friends.js"></script> 
-    <script src="/static/js/friendui.js"></script> 
-    <script src="/static/js/guild.js"></script> 
-    <script src="/static/js/guildPermissions.js"></script> 
-    <script src="/static/js/mediaElements.js"></script> 
-    <script src="/static/js/mediaPanel.js"></script> 
-    <script src="/static/js/message.js"></script> 
-    <script src="/static/js/popups.js"></script> 
-    <script src="/static/js/routing.js"></script> 
-    <script src="/static/js/search.js"></script> 
-    <script src="/static/js/serverEvents.js"></script> 
-    <script src="/static/js/settings.js"></script>
-    <script src="/static/js/settingsui.js"></script>
-    <script src="/static/js/translations.js"></script>
-    <script src="/static/js/ui.js"></script>
-    <script src="/static/js/user.js"></script>
-    <script src="/static/js/userList.js"></script>
-    <script src="/static/js/utils.js"></script>
-
-
-    
-    <style>
-        .croppie-container{width:100%;height:100%}.croppie-container .cr-image{z-index:-1;position:absolute;top:0;left:0;transform-origin:0 0;max-height:none;max-width:none}.croppie-container .cr-boundary{position:relative;overflow:hidden;margin:0 auto;z-index:1;width:100%;height:100%}.croppie-container .cr-resizer,.croppie-container .cr-viewport{position:absolute;border:2px solid #fff;margin:auto;top:0;bottom:0;right:0;left:0;box-shadow:0 0 2000px 2000px rgba(0,0,0,.5);z-index:0}.croppie-container .cr-resizer{z-index:2;box-shadow:none;pointer-events:none}.croppie-container .cr-resizer-horisontal,.croppie-container .cr-resizer-vertical{position:absolute;pointer-events:all}.croppie-container .cr-resizer-horisontal::after,.croppie-container .cr-resizer-vertical::after{display:block;position:absolute;box-sizing:border-box;border:1px solid #000;background:#fff;width:10px;height:10px;content:''}.croppie-container .cr-resizer-vertical{bottom:-5px;cursor:row-resize;width:100%;height:10px}.croppie-container .cr-resizer-vertical::after{left:50%;margin-left:-5px}.croppie-container .cr-resizer-horisontal{right:-5px;cursor:col-resize;width:10px;height:100%}.croppie-container .cr-resizer-horisontal::after{top:50%;margin-top:-5px}.croppie-container .cr-original-image{display:none}.croppie-container .cr-vp-circle{border-radius:50%}.croppie-container .cr-overlay{z-index:1;position:absolute;cursor:move;touch-action:none}.croppie-container .cr-slider-wrap{width:75%;margin:15px auto;text-align:center}.croppie-result{position:relative;overflow:hidden}.croppie-result img{position:absolute}.croppie-container .cr-image,.croppie-container .cr-overlay,.croppie-container .cr-viewport{-webkit-transform:translateZ(0);-moz-transform:translateZ(0);-ms-transform:translateZ(0);transform:translateZ(0)}.cr-slider{-webkit-appearance:none;width:300px;max-width:100%;padding-top:8px;padding-bottom:8px;background-color:transparent}.cr-slider::-webkit-slider-runnable-track{width:100%;height:3px;background:rgba(0,0,0,.5);border:0;border-radius:3px}.cr-slider::-webkit-slider-thumb{-webkit-appearance:none;border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:-6px}.cr-slider:focus{outline:0}.cr-slider::-moz-range-track{width:100%;height:3px;background:rgba(0,0,0,.5);border:0;border-radius:3px}.cr-slider::-moz-range-thumb{border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:-6px}.cr-slider:-moz-focusring{outline:1px solid #fff;outline-offset:-1px}.cr-slider::-ms-track{width:100%;height:5px;background:0 0;border-color:transparent;border-width:6px 0;color:transparent}.cr-slider::-ms-fill-lower{background:rgba(0,0,0,.5);border-radius:10px}.cr-slider::-ms-fill-upper{background:rgba(0,0,0,.5);border-radius:10px}.cr-slider::-ms-thumb{border:none;height:16px;width:16px;border-radius:50%;background:#ddd;margin-top:1px}.cr-slider:focus::-ms-fill-lower{background:rgba(0,0,0,.5)}.cr-slider:focus::-ms-fill-upper{background:rgba(0,0,0,.5)}.cr-rotate-controls{position:absolute;bottom:5px;left:5px;z-index:1}.cr-rotate-controls button{border:0;background:0 0}.cr-rotate-controls i:before{display:inline-block;font-style:normal;font-weight:900;font-size:22px}.cr-rotate-l i:before{content:'↺'}.cr-rotate-r i:before{content:'↻'}
-    </style>
-    <script>
-        let isCropieInitialized = false;
-        const croppieUrl = "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js";
-        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e";
-
-        async function fetchAndModifyScript(url) {
-            try {
-                const response = await fetch(url);
-                const scriptContent = await response.text();
-
-                if (!crypto || !crypto.subtle) {
-                    console.warn('Crypto context unavailable. Appending script without modification.');
-                    appendScript(scriptContent);
-                    return;
-                }
-
-                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
-                const hashArray = Array.from(new Uint8Array(hashBuffer)); 
-                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); 
-
-                if (hashHex === expectedHash) {
-                    let scriptLines = scriptContent.split('\n');
-                    let lineNumberToModify = 1088; 
-                    if (lineNumberToModify - 1 < scriptLines.length) {
-                        scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
-                    }
-                    let modifiedScriptContent = scriptLines.join('\n');
-                    appendScript(modifiedScriptContent);
-                } else {
-                    console.warn('Hash does not match. Appending original script.');
-                    appendScript(scriptContent);
-                }
-
-            } catch (error) {
-                console.error('Error fetching or modifying the script:', error);
-            }
-        }
-
-        function appendScript(scriptContent) {
-            let newScript = document.createElement('script');
-            newScript.type = 'text/javascript';
-            newScript.text = scriptContent;
-            document.body.appendChild(newScript);
-            isCropieInitialized = true;
-        }
-
-        fetchAndModifyScript(croppieUrl);
-    </script>
-
-
-
-</head>
 <body>
     
     <audio id="audio-player" style="display: none;"></audio>
@@ -428,12 +445,9 @@
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         return canvas.toDataURL('image/png');
-    }
-
-
-        
-
+    }    
     
+
 
     function clearKeybinds() {
         if (keybindHandlers['shift']) {

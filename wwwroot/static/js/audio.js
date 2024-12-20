@@ -189,7 +189,7 @@ function stopAudioAnalysis() {
     
 
 
-    const profileDisplayElement = document.getElementById('profile-display');
+    const profileDisplayElement = getId('profile-display');
 
     
     resetWiggleEffect(profileDisplayElement, selfProfileImage,selfProfileDisplayElementList);
@@ -248,7 +248,7 @@ function analyzeAudio(bufferSize, dataArray, recentVolumes) {
     const scaleFactor = 1 + (averageVolume / 128); 
     const borderColor = `rgb(${Math.min(255, averageVolume * 2)}, 0, ${Math.max(0, 255 - averageVolume * 2)})`;
 
-    const profileDisplayElement = document.getElementById('profile-display');
+    const profileDisplayElement = getId('profile-display');
 
 
     if (averageVolume > dynamicThreshold) {
@@ -317,7 +317,7 @@ function stopCurrentMusic() {
 }
 
 function resetProfileBorders() {
-    const profileDisplayElement = document.getElementById('profile-display');
+    const profileDisplayElement = getId('profile-display');
 
 
     const selfProfileDisplayElementList = getSelfFromUserList();

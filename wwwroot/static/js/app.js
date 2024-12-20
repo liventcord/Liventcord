@@ -136,6 +136,9 @@ function initializeListeners() {
             userMentionDropdown.style.display = 'none';
         }
     });
+    getId('global-search-input').addEventListener('click', function(){
+        openSearchPop();
+    });
 
     const guildContainer = getId('guild-container');
     guildContainer.addEventListener('click', handleGuildClick);

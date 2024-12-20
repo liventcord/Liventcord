@@ -335,6 +335,6 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("resize", handleResize);
   friendsContainer = getId("friends-container");
 
-  initializeButtonsList(ButtonsList);
-  selectFriendMenu(buttonElements.online);
+  //initializeButtonsList(ButtonsList);
+  //selectFriendMenu(buttonElements.online);
 });

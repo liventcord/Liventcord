@@ -7,6 +7,11 @@ class Translations {
     
     this.translations = {
       en: {
+        "online": "Online",
+        "offline": "Offline",
+        "pending": "Pending",
+        "blocked": "Blocked",
+        "all": "All",
         "incoming-friend-request": "Incoming Friend Request",
         "outgoing-friend-request": "Outgoing Friend Request",
         "dms-title": "Direct Messages",
@@ -46,9 +51,14 @@ class Translations {
       },
 
       tr: {
+        "online": "Çevrim İçi",
+        "offline": "Çevrim Dışı",
+        "pending": "Bekleyen",
+        "blocked": "Engellenen",
+        "all": "Tümü",
         "incoming-friend-request": "Gelen Arkadaş İsteği",
         "outgoing-friend-request": "Giden Arkadaş İsteği",
-        "dms-title": "DİREKT MESAJLAR",
+        "dms-title": "Direkt Mesajlar",
         "friend-label": "Arkadaşlar",
         "user-list-title": "Şimdi Aktif",
         "online-button": "Çevrim İçi",
@@ -95,7 +105,7 @@ class Translations {
     }
     
     Object.keys(currentTranslations).forEach(key => {
-      const element = document.getElementById(key);
+      const element = getId(key);
       if (element) {
         const textToUse = currentTranslations[key];
         if (element.tagName === 'INPUT' || element.tagName === 'TEXTAREA') {
@@ -113,7 +123,7 @@ class Translations {
   }
 
   updateUserListText() {
-    const userList = document.getElementById('userList');
+    const userList = getId('userList');
     if (userList) {
       userList.innerHTML = this.userListTitleHTML;
     }
