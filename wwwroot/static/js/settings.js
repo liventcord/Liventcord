@@ -50,10 +50,11 @@ function clearCookies() {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
     }
 }
+
 function saveBooleanCookie(name, value) {
     value = value ? 1 : 0;
     const expires = new Date();
-    expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000));
+    expires.setTime(expires.getTime() + (365 * 24 * 60 * 60 * 1000)); 
     const expiresStr = `expires=${expires.toUTCString()}`;
     const cookieValue = encodeURIComponent(value);
     document.cookie = `${encodeURIComponent(name)}=${cookieValue}; ${expiresStr}; path=/`;
@@ -68,7 +69,7 @@ function loadBooleanCookie(name) {
             return result == 1;
         }
     }
-    return null;
+    return false; 
 }
 
 
