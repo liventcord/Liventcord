@@ -177,12 +177,7 @@ function createDeleteGuildPrompt(guildId,guild_name) {
 
 } 
 
-function toggleCheckBox(toggleElement, value) {
-    if (value) {
-        toggleElement.querySelector('.toggle-switch').classList.add('active');
-        toggleElement.classList.add('active');
-    }
-}
+
 
 
 function getGuildSettings() {
@@ -195,13 +190,21 @@ function getGuildSettings() {
     return setToReturn; 
 }
 
-
-
+// This function ensures that the toggle checkbox is updated based on the boolean value
+function toggleCheckBox(toggleElement, value) {
+    if (value) {
+        toggleElement.querySelector('.toggle-switch').classList.add('active');
+        toggleElement.classList.add('active');
+    } else {
+        toggleElement.querySelector('.toggle-switch').classList.remove('active');
+        toggleElement.classList.remove('active');
+    }
+}
 const toggleStates = {
-    isSnow: loadBooleanCookie('isSnow'),
-    isParty: loadBooleanCookie('isParty'),
-    isActivityShared: loadBooleanCookie('isActivityShared'),
-    isNotificationsEnabled: loadBooleanCookie('isNotificationsEnabled')
+    'notify-toggle': loadBooleanCookie('notify-toggle') ?? false,
+    'snow-toggle': loadBooleanCookie('snow-toggle') ?? false,
+    'party-toggle': loadBooleanCookie('party-toggle') ?? false,
+    'activity-toggle': loadBooleanCookie('activity-toggle') ?? false
 };
 
 function toggleState(toggleId) {
@@ -212,6 +215,10 @@ function toggleState(toggleId) {
 function handleToggleChange(toggleId, newValue) {
     toggleStates[toggleId] = newValue;
     saveBooleanCookie(toggleId, newValue);
+    const toggleElement = getId(toggleId);
+    if (toggleElement) {
+        toggleCheckBox(toggleElement, newValue);
+    }
 
     if (toggleId === 'snow-toggle') {
         toggleSnow();
@@ -226,10 +233,11 @@ function setupToggle(id) {
         toggleCheckBox(toggleElement, toggleStates[id]);
         handleToggleClick(toggleElement, () => {
             const newValue = !toggleStates[id];
-            handleToggleChange(id, newValue); 
+            handleToggleChange(id, newValue);
         });
     }
 }
+
 
 function getSettingsConfig() {
     return {
