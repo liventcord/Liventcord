@@ -72,7 +72,103 @@ function loadBooleanCookie(name) {
     return false; 
 }
 
+const toggleManager = {
+    states: {
+        'notify-toggle': loadBooleanCookie('notify-toggle') ?? false,
+        'snow-toggle': loadBooleanCookie('snow-toggle') ?? false,
+        'party-toggle': loadBooleanCookie('party-toggle') ?? false,
+        'activity-toggle': loadBooleanCookie('activity-toggle') ?? false,
+    },
+    updateState(toggleId, newValue) {
+        this.states[toggleId] = newValue;
+        saveBooleanCookie(toggleId, newValue);
+        this.updateToggleDisplay(toggleId, newValue);
+        this.triggerActions(toggleId, newValue);
+    },
+    updateToggleDisplay(toggleId, newValue) {
+        const toggleElement = getId(toggleId);
+        if (toggleElement) {
+            toggleElement.querySelector('.toggle-switch').classList.toggle('active', newValue);
+            toggleElement.classList.toggle('active', newValue);
+        }
+    },
+    triggerActions(toggleId, newValue) {
+        const toggleActions = {
+            'snow-toggle': this.toggleEffect.bind(this, 'snow', newValue),
+            'party-toggle': this.toggleEffect.bind(this, 'party', newValue),
+        };
+        if (toggleActions[toggleId]) {
+            toggleActions[toggleId]();
+        }
+    },
+    toggleEffect(effect, enable) {
+        if (effect === 'snow') {
+            enable ? this.startSnowEffect() : this.stopSnowEffect();
+        } else if (effect === 'party') {
+            enable ? this.startPartyEffect() : this.stopPartyEffect();
+        }
+    },
+    startSnowEffect() {
+        const particeContainer = getId('confetti-container');
+        let skew = 1;
 
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        (function frame() {
+            if (!toggleManager.states['snow-toggle'] || !isConfettiLoaded || !isDomLoaded) return;
+
+            skew = Math.max(0.8, skew - 0.001);
+
+            confetti({
+                particleCount: 1,
+                startVelocity: 0,
+                ticks: 300,
+                origin: {
+                    x: Math.random(),
+                    y: (Math.random() * skew) - 0.2
+                },
+                colors: ['#ffff'],
+                shapes: ['circle'],
+                gravity: randomInRange(0.4, 0.6),
+                scalar: randomInRange(0.4, 1),
+                drift: randomInRange(-0.4, 0.4),
+                particleContainer: particeContainer
+            });
+
+            requestAnimationFrame(frame);
+        })();
+    },
+    stopSnowEffect() {
+        
+    },
+    startPartyEffect() {
+        enableBorderMovement();
+    },
+    stopPartyEffect() {
+        stopAudioAnalysis();
+    }
+};
+
+function setupToggle(id) {
+    const toggleElement = getId(id);
+    if (toggleElement) {
+        toggleManager.updateToggleDisplay(id, toggleManager.states[id]);
+        handleToggleClick(toggleElement, () => {
+            const newValue = !toggleManager.states[id];
+            toggleManager.updateState(id, newValue);
+        });
+    }
+}
+
+function initializeCookies() {
+    ['activity-toggle', 'snow-toggle', 'party-toggle', 'notify-toggle'].forEach(setupToggle);
+    
+    console.log("init cookies", toggleManager.states);
+    if (toggleManager.states['snow-toggle']) toggleManager.toggleEffect('snow', true);
+    if (toggleManager.states['party-toggle']) toggleManager.toggleEffect('party', true);
+}
 
 
 

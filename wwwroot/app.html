@@ -95,13 +95,31 @@
         const localConfettiUrl = "/static/vendor/confetti.browser.min.js";
         const confettiUrl = useCDN ? cdnConfettiUrl : localConfettiUrl;
 
-        function loadScript(url) {
+        let isConfettiLoaded = false;
+
+        function loadScript(url, callback) {
             const script = document.createElement('script');
             script.src = url;
+            script.onload = () => {
+                isConfettiLoaded = true;
+                callback();
+            };
+            script.onerror = () => {
+                console.error("Failed to load confetti script.");
+            };
             document.body.appendChild(script);
         }
 
-        loadScript(confettiUrl);
+        function initialize() {
+            if (isConfettiLoaded) {
+                initializeCookies();
+            } else {
+                setTimeout(initialize, 100); 
+            }
+        }
+
+        loadScript(confettiUrl, initialize);
+
 
         let isCropieInitialized = false;
         const croppieUrl = useCDN 

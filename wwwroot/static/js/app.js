@@ -35,11 +35,7 @@ function getId(string) { return document.getElementById(string);}
 
 
 function assignElements() {
-    const cookieSnow = loadBooleanCookie('isSnow');
-    if(cookieSnow) {
-        enableSnow();
-    }
-    isSnow = cookieSnow;
+
     chatInput = getId('user-input');
     userList = getId('user-list');
     channelTitle = getId("channel-info");
@@ -67,9 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     setTimeout(() => window.scrollTo(0, 0), 20);
 });
-function loadCookies() {
 
-}
 function initializeApp() {
     window.scrollTo(0, 0);
     assignElements();
@@ -81,12 +75,12 @@ function initializeApp() {
     initializeGuild();
     initializeProfile();
     initialiseAudio();
-    loadCookies();
+    initializeCookies(); 
     getId("data-script").remove();
     isDomLoaded = true;
 }
 function initialiseAudio() {
-    if(toggleStates.isParty && isAudioPlaying) {
+    if(toggleManager.states['party-toggle'] && isAudioPlaying) {
         enableBorderMovement();
     }
 }

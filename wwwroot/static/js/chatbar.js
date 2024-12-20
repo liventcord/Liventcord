@@ -140,7 +140,7 @@ async function handleUserKeydown(event) {
         adjustHeight();
     }
 
-    if (isDomLoaded) {
+    if (isDomLoaded && toggleManager.states['party-toggle']) {
         popKeyboardConfetti();
     }
 }
