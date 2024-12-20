@@ -50,57 +50,8 @@ const getCursorXY = (input, selectionPoint) => {
 
 
 
-function toggleParty() {
-    toggleState('isParty');
-    if (toggleStates.isParty) {
-        enableBorderMovement();
-    } else {
-        stopAudioAnalysis();
-    }
-}
-
-function toggleSnow() {
-    toggleState('isSnow');
-    if (toggleStates.isSnow) {
-        enableSnow();
-    } 
-}
-
-function enableSnow() {
-    particeContainer = getId('confetti-container');
-    let skew = 1;
-
-    function randomInRange(min, max) {
-        return Math.random() * (max - min) + min;
-    }
-
-    (function frame() {
-        if (!toggleStates.isSnow | !isDomLoaded) return;
-
-        skew = Math.max(0.8, skew - 0.001);
-
-        confetti({
-            particleCount: 1,
-            startVelocity: 0,
-            ticks: 300,
-            origin: {
-                x: Math.random(),
-                y: (Math.random() * skew) - 0.2
-            },
-            colors: ['#ffff'],
-            shapes: ['circle'],
-            gravity: randomInRange(0.4, 0.6),
-            scalar: randomInRange(0.4, 1),
-            drift: randomInRange(-0.4, 0.4),
-            particleContainer: particeContainer
-        });
-
-        requestAnimationFrame(frame); 
-    }());
-}
 
 function popKeyboardConfetti() {
-    if (!toggleStates.isParty) return;
     const { x, y } = getCursorXY(chatInput, chatInput.selectionStart);
     const inputRect = chatInput.getBoundingClientRect();
     
@@ -142,4 +93,46 @@ function changeUrlWithFireWorks(guildId,channelId,guildName) {
     createFireWorks();
     permissionManager.addGuildSelfCreated(guildId);
 
+}
+
+
+function enableParty() {
+    enableBorderMovement();
+}
+
+function disableParty() {
+    stopAudioAnalysis();
+}
+
+function enableSnow() {
+    let particeContainer = getId('confetti-container');
+    let skew = 1;
+
+    function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+    }
+
+    (function frame() {
+        if (!toggleManager.states['snow-toggle'] || !isConfettiLoaded || !isDomLoaded) return;
+
+        skew = Math.max(0.8, skew - 0.001);
+
+        confetti({
+            particleCount: 1,
+            startVelocity: 0,
+            ticks: 300,
+            origin: {
+                x: Math.random(),
+                y: (Math.random() * skew) - 0.2
+            },
+            colors: ['#ffff'],
+            shapes: ['circle'],
+            gravity: randomInRange(0.4, 0.6),
+            scalar: randomInRange(0.4, 1),
+            drift: randomInRange(-0.4, 0.4),
+            particleContainer: particeContainer
+        });
+
+        requestAnimationFrame(frame);
+    }());
 }
