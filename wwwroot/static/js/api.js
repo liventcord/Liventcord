@@ -9,6 +9,7 @@ const EventType = Object.freeze({
     GET_CHANNELS: 'get_channels',
     GET_FRIENDS: 'get_friends',
     GET_HISTORY: 'get_history',
+    GET_SCROLL_HISTORY: 'get_old_history',
     GET_GUILDS: 'get_guilds',
     GET_INVITES: 'get_invites',
     START_TYPING: 'start_typing',
@@ -35,6 +36,7 @@ const EventHttpMethodMap = {
     [EventType.GET_CHANNELS] : HttpMethod.GET,
     [EventType.GET_FRIENDS]: HttpMethod.GET,
     [EventType.GET_HISTORY]: HttpMethod.GET,
+    [EventType.GET_SCROLL_HISTORY]: HttpMethod.GET,
     [EventType.GET_GUILDS]: HttpMethod.GET,
     [EventType.GET_INVITES]: HttpMethod.GET,
     [EventType.START_TYPING]: HttpMethod.POST,
@@ -90,6 +92,9 @@ class CustomHttpConnection {
                 url = `${basePath}/friends`;
                 break;
             case EventType.GET_HISTORY:
+                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
+                break;
+            case EventType.GET_SCROLL_HISTORY:
                 url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
                 break;
             case EventType.GET_GUILDS:

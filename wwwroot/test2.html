@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Sprite Sheet with Hover</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    #emoji-container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 960px;
+      background-color: white;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .emoji {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      background-image: url('/static/images/preview-emojis.png');
+      background-size: 960px 192px;
+      margin: 2px;
+      border-radius: 50%;
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+    }
+
+    .emoji::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgb(255, 173, 0); 
+      opacity: 0;
+      z-index: 1;
+      border-radius: 50%;
+      mix-blend-mode: screen; 
+      transition: opacity 0.3s ease;
+    }
+
+    .emoji:hover::after {
+      opacity: 1;
+    }
+
+    .emoji:hover {
+      filter: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="emoji-container"></div>
+
+  <script>
+    const renderEmojis = () => {
+      const container = document.getElementById('emoji-container');
+      const emojiCount = 73;
+      const columns = 20;
+      const cellSize = 48;
+
+      for (let i = 0; i < emojiCount; i++) {
+        const row = Math.floor(i / columns);
+        const col = i % columns;
+        const x = -(col * cellSize);
+        const y = -(row * cellSize);
+
+        const emoji = document.createElement('div');
+        emoji.classList.add('emoji');
+        emoji.style.backgroundPosition = `${x}px ${y}px`;
+
+        container.appendChild(emoji);
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', renderEmojis);
+  </script>
+</body>
+</html>

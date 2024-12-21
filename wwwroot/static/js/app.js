@@ -282,7 +282,7 @@ function initialiseMe() {
         return;
     }
     enableElement('dms-title');
-    translations.updateUserListText();
+    updateUserListText();
     loadMainToolbar();
     isInitialized = true;
 }
@@ -336,7 +336,7 @@ function loadDmHome(isChangingUrl=true) {
         disableElement('message-input-container');
         getId('friend-container-item').style.color = 'white';
 
-        translations.updateUserListText();
+        updateUserListText();
         userList.classList.add('friendactive');
         if(userListFriActiveHtml) {
             userList.innerHTML = userListFriActiveHtml;

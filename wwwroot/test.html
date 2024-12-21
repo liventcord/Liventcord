@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji Grid</title>
+    <style>
+        #media-menu {
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            z-index: 1000;
+            padding: 10px;
+        }
+        #media-menu-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .emoji {
+            display: inline-block;
+            background-image: url('/static/images/emojis.png');
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body>
+    <div id="media-menu">
+        <div id="media-menu-container"></div>
+    </div>
+
+    <script>
+        let baseMenuContainer;
+
+        function createEl(tag, attributes = {}) {
+            const element = document.createElement(tag);
+            for (const key in attributes) {
+                if (key === 'className') element.className = attributes[key];
+                else if (key === 'style') {
+                    for (const styleKey in attributes[key]) {
+                        element.style[styleKey] = attributes[key][styleKey];
+                    }
+                } else {
+                    element.setAttribute(key, attributes[key]);
+                }
+            }
+            return element;
+        }
+
+        function renderEmojis(container, spriteWidth, spriteHeight) {
+            const spriteSheetWidth = 3360;
+            const spriteSheetHeight = 3120;
+            const columns = Math.floor(spriteSheetWidth / spriteWidth);
+            const rows = Math.floor(spriteSheetHeight / spriteHeight);
+
+            const totalEmojis = rows * columns;
+            container.innerHTML = '';
+
+            for (let i = 0; i < totalEmojis; i++) {
+                const row = Math.floor(i / columns);
+                const col = i % columns;
+                const x = -(col * spriteWidth);
+                const y = -(row * spriteHeight);
+
+                const emoji = createEl('div', {
+                    className: 'emoji',
+                    style: {
+                        backgroundPosition: `${x}px ${y}px`,
+                        width: `${spriteWidth}px`,
+                        height: `${spriteHeight}px`,
+                    }
+                });
+
+                container.appendChild(emoji);
+            }
+        }
+
+        function initialiseMedia() {
+            baseMenuContainer = document.getElementById('media-menu-container');
+            renderEmojis(baseMenuContainer, 80, 80);
+        }
+
+        document.addEventListener('DOMContentLoaded', initialiseMedia);
+    </script>
+</body>
+</html>
