@@ -5,6 +5,8 @@ let chatInput ;
 let fileImagePreview;
 let chatContainer;
 let chatContent;
+let replyInfo;
+
 
 function initialisechatInput() {
 
@@ -238,6 +240,10 @@ function setDropHandler() {
     });
     fileInput.addEventListener('change', handleFileInput);
 }
+
+
+
+
 function updateFileImageBorder() {
     
     if (fileImagePreview.children.length === 0) {
@@ -246,7 +252,10 @@ function updateFileImageBorder() {
         fileImagePreview.style.border = '20px solid #2b2d31';
     }
 }
-let replyInfo;
+
+
+
+
 
 function initializeChatComponents() {
     replyInfo = getId("reply-info");
@@ -259,4 +268,129 @@ function initializeChatComponents() {
     fileInput = getId('fileInput');
 
 
+}
+
+
+
+function getMessageDate(top=true) {
+    const messages = chatContent.children;
+    if (messages.length === 0) return null;
+
+    let targetElement = getMessageFromChat(top);
+    if (targetElement) {
+        const dateGathered = targetElement.getAttribute('data-date');
+        const parsedDate = new Date(dateGathered);
+        const formattedDate = formatDate(parsedDate);
+        return formattedDate;
+    } else {
+        return null;
+    }
+}
+
+
+
+
+
+function displayCannotSendMessage(failedMessageContent) {
+    if(!isOnDm) { return }
+    const failedId = createRandomId();
+    const failedMessage = {
+        messageId: failedId,
+        userId : currentUserId,
+        content : failedMessageContent,
+        channelId : currentDmId,
+        date : createNowDate(),
+        addToTop: false
+
+    }
+    chatInput.value = '';
+    displayChatMessage(failedMessage);
+    const failedMsg = getId(failedId);
+    if(failedMsg) {
+        const foundMsgContent = failedMsg.querySelector('#message-content-element')
+        if (foundMsgContent) {
+            foundMsgContent.classList.add('failed');
+        }
+    }
+
+
+    const textToSend = 'Mesajın iletilemedi. Bunun nedeni alıcıyla herhangi bir sunucu paylaşmıyor olman veya alıcının sadece arkadaşlarından direkt mesaj kabul ediyor olması olabilir.';
+    const cannotSendMsg = {
+        messageId: createRandomId(),
+        userId: CLYDE_ID,
+        content: textToSend,
+        channelId: currentDmId,
+        date: createNowDate(),
+        lastEdited: '',
+        attachmentUrls: '',
+        addToTop: false,
+        replyToId: '',
+        reactionEmojisIds: '',
+        replyOf: '',
+        isBot : true,
+        willDisplayProfile: true
+    };
+    
+    displayChatMessage(cannotSendMsg);
+    scrollToBottom();
+}
+
+function displayStartMessage() {
+
+    if(!isOnDm) {
+        let isGuildBorn = false;
+        if (currentGuildData && currentGuildData[currentGuildId]) {
+            const rootChan = currentGuildData[currentGuildId].RootChannel;
+            if (rootChan && currentChannelId == rootChan) {
+                isGuildBorn = true;
+            }
+        }
+        if(chatContent.querySelector('.startmessage') || chatContent.querySelector('#guildBornTitle')) { return; }
+        const message = createEl('div',{className:'startmessage'});
+        const titleToWrite = isGuildBorn ? `${currentGuildName}` : `#${currentChannelName} kanalına hoş geldin!`;
+        const msgtitle = createEl('h1',{id:isGuildBorn ? 'guildBornTitle' : 'msgTitle',textContent:titleToWrite});
+        const startChannelText = `#${currentChannelName} kanalının doğuşu!`;
+        const startGuildText =  `Bu, sunucunun başlangıcıdır.`;
+        const textToWrite = isGuildBorn  ? startGuildText : startChannelText; 
+        const channelicon = createEl('div',{className:'channelIcon'});
+        const channelHTML = `<svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="rgb(255, 255, 255)" viewBox="0 0 24 24"><path fill="var(--white)" fill-rule="evenodd" d="M10.99 3.16A1 1 0 1 0 9 2.84L8.15 8H4a1 1 0 0 0 0 2h3.82l-.67 4H3a1 1 0 1 0 0 2h3.82l-.8 4.84a1 1 0 0 0 1.97.32L8.85 16h4.97l-.8 4.84a1 1 0 0 0 1.97.32l.86-5.16H20a1 1 0 1 0 0-2h-3.82l.67-4H21a1 1 0 1 0 0-2h-3.82l.8-4.84a1 1 0 1 0-1.97-.32L15.15 8h-4.97l.8-4.84ZM14.15 14l.67-4H9.85l-.67 4h4.97Z" clip-rule="evenodd" class=""></path></svg>`
+        channelicon.innerHTML = channelHTML;
+        const msgdescription = createEl('div',{id:isGuildBorn ? 'guildBornDescription' : 'msgDescription',textContent:textToWrite});
+        
+    
+        if(!isGuildBorn)  {
+            message.appendChild(channelicon);
+            message.appendChild(msgtitle);
+            msgtitle.appendChild(msgdescription);
+        } else {
+            const guildBornParent = createEl('div',{id : 'guildBornTitle-wrapper'});
+            guildBornParent.appendChild(msgtitle);
+            const guildBornFinishText = createEl('p',{id : 'guildBornTitle',textContent : 'klanına hoşgeldin!'});
+            guildBornParent.appendChild(guildBornFinishText);
+            guildBornParent.appendChild(msgdescription);
+            message.appendChild(guildBornParent);
+        }
+        chatContent.insertBefore(message, chatContent.firstChild); 
+        isLastMessageStart = true;
+        scrollToBottom();
+        
+    } else {
+        if(chatContent.querySelector('.startmessage')) { return; }
+        const message = createEl('div',{className:'startmessage'});
+        const titleToWrite = getUserNick(currentDmId);
+        const msgtitle = createEl('h1',{id:'msgTitle',textContent:titleToWrite});
+        const startChannelText = `Bu ${getUserNick(currentDmId)} kullanıcısıyla olan direkt mesaj geçmişinin başlangıcıdır.`;
+        const profileImg = createEl('img',{className:'channelIcon'});
+        setProfilePic(profileImg,currentDmId);
+        const msgdescription = createEl('div',{id:'msgDescription',textContent:startChannelText});
+        
+    
+
+        message.appendChild(profileImg);
+        message.appendChild(msgtitle);
+        msgtitle.appendChild(msgdescription);
+        
+        chatContent.insertBefore(message, chatContent.firstChild); 
+        isLastMessageStart = true;
+    }
 }

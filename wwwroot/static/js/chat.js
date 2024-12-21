@@ -18,68 +18,53 @@ let isOldMessageCd = false;
 
 const CLYDE_ID = '1';
 
-function createNonProfileImage(newMessage,  date) {
-    const messageDate = new Date(date);
-    const smallDateElement = createEl('p');
-    smallDateElement.className = 'small-date-element';
-    smallDateElement.textContent = getFormattedDateForSmall(messageDate);
-    newMessage.appendChild(smallDateElement);
-    smallDateElement.style.position = 'absolute'; 
-    smallDateElement.style.marginLeft = '5px'; 
-
-    return smallDateElement;
-}
-
-//reply&options button on message
-function createMsgOptionButton(message,isReply) {
-    const textc = isReply ? '↪' : '⋯'; 
+function createChatScrollButton() {
+    let scrollButton = getId('scroll-to-bottom');
     
-    const newButton = createEl('button',{className:'message-button'});
-
-        const textEl = createEl('div', { textContent: textc, className: 'message-button-text' });
-        newButton.appendChild(textEl);
-    if(isReply) {
-        newButton.onclick = function() {
-            showReplyMenu(message.id,message.dataset.userId);
+    if(!chatContainer) chatContainer = getId('chat-container');
+    chatContainer.addEventListener('scroll', function() {
+        let threshold = window.innerHeight;
+        let hiddenContent = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
+        if (hiddenContent > threshold) {
+            scrollButton.style.display = 'flex'; 
+        } else {
+            scrollButton.style.display = 'none';
         }
-
-    }
-
-    newButton.addEventListener("mousedown", function() {
-        newButton.style.border = "2px solid #000000";
-    });    
-    newButton.addEventListener("mouseup", function() {
-        newButton.style.border = "none";
     });
-    newButton.addEventListener("mouseover", function() {
-        newButton.style.backgroundColor = '#393a3b';
-    });    
-    newButton.addEventListener("mouseout", function() {
-        newButton.style.backgroundColor = '#313338';
+    scrollButton.addEventListener('click', function() {
+        scrollButton.style.display = 'none';
+        scrollToBottom();
     });
-    newButton.addEventListener('focus', () => {
-        newButton.classList.add('is-focused');
-    });
-    newButton.addEventListener('blur', () => {
-        newButton.classList.remove('is-focused');
-    });
-    let buttonContainer = message.querySelector('.message-button-container');
-    if (!buttonContainer) {
-        buttonContainer = createEl('div');
-        buttonContainer.classList.add('message-button-container');
-        message.appendChild(buttonContainer);
-    }
-
-    buttonContainer.appendChild(newButton);
-    return newButton;
 }
-function createOptions3Button(message,messageId,userId) {
-    const button = createMsgOptionButton(message,false);
-    button.dataset.m_id = messageId;
-    appendToMessageContextList(messageId,userId);
+function handleReplies() {
+    Object.values(replyCache).forEach(message => {
+        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.replyToId == message.messageId);
+        console.log(replierElements, message.replies);
+        replierElements.forEach(replier => {
+            message.replies.forEach(msg => {
+                createReplyBar(replier, message.messageId, msg.userId, msg.content, msg.attachmentUrls);
+                console.log("Creating replly bar.", replier, message.messageId, msg.userId, msg.content);
+            });
+        });
+    });
 }
 
 
+function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+let hasJustFetchedMessages;
+function getOldMessagesOnScroll() {
+    console.warn("Ignoring scroll");
+    return;
+    
+    if(isReachedChannelEnd || isOnMe) { return; }
+    if(hasJustFetchedMessages) { return; }
+    const oldestDate = getMessageDate();
+    if (!oldestDate) return;
+    if(oldestDate == '1970-01-01 00:00:00.000000+00:00') { return; }
+    getOldMessages(oldestDate);
+}
 
 async function handleScroll() {
     if (loadingScreen && loadingScreen.style.display === 'flex') {  return; }
@@ -109,6 +94,106 @@ async function handleScroll() {
 }
 
 
+
+
+
+
+function handleOldMessagesResponse(data) {
+    const { history, oldest_message_date } = data
+
+    if (!Array.isArray(history) || history.length === 0) {
+        isReachedChannelEnd = true
+        displayStartMessage()
+        return
+    }
+
+    const repliesList = new Set()
+    const oldestMessageDateOnChannel = new Date(oldest_message_date)
+
+    let firstMessageDate = null
+
+    history.forEach((msgData) => {
+        const msg = new Message(msgData)
+        const displayMessageData = msg.toDisplayData(data.messageId)
+
+        const foundReply = displayChatMessage(displayMessageData)
+
+        if (foundReply) repliesList.add(msg.messageId)
+
+        if (!firstMessageDate || msg.date < firstMessageDate) {
+            firstMessageDate = msg.date
+        }
+    })
+
+    fetchReplies(history, repliesList)
+
+    if (
+        !isNaN(firstMessageDate) &&
+        firstMessageDate.getTime() === oldestMessageDateOnChannel.getTime()
+    ) {
+        displayStartMessage()
+    } else if (isNaN(oldestMessageDateOnChannel)) {
+        console.error('Invalid oldest message date from data.')
+    }
+}
+
+function handleHistoryResponse(data) {
+    if (isChangingPage) {
+        console.log('Changing page. Ignoring history response.')
+        return
+    }
+
+    isLastMessageStart = false
+    currentMessagesCache = {}
+
+    const { messages, channelId, guildId, oldestMessageDate } = data
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+        displayStartMessage()
+        return
+    }
+
+    if (guildId !== currentGuildId) console.warn('History guild ID is different from current guild')
+    if (channelId !== currentChannelId)
+        console.warn('History channel ID is different from current channel')
+
+    cacheInterface.setMessages(guildId,guildId, messages)
+
+    const firstMessageDateOnChannel = new Date(oldestMessageDate)
+    const repliesList = new Set()
+
+    setTimeout(() => {
+        messages.forEach((msgData) => {
+            const msg = new Message(msgData)
+            const foundReply = displayChatMessage(msg)
+
+            if (foundReply) {
+                repliesList.add(msg.messageId)
+                unknownReplies.pop(msg.messageId)
+            }
+        })
+    }, 5)
+
+    fetchReplies(messages, repliesList)
+
+    setTimeout(scrollToBottom, 20)
+
+    if (
+        messages[0]?.Date &&
+        new Date(messages[0].Date).getTime() === firstMessageDateOnChannel.getTime()
+    ) {
+        displayStartMessage()
+    }
+}
+function createDateBar(currentDate) {
+    const formattedDate = new Date(currentDate).toLocaleDateString(translations.getLocale(), {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+    const datebar = createEl('span',{className:'dateBar', textContent:formattedDate});
+    chatContent.appendChild(datebar);
+}
 function createProfileImageChat(newMessage, messageContentElement, nick, userId, date, isBot, isAfterDeleting=false,replyBar) {
     if(!messageContentElement) {
         console.error('No msg content element. ', replyBar); return;
@@ -180,9 +265,11 @@ function createProfileImageChat(newMessage, messageContentElement, nick, userId,
 
     
 }
-
-
-
+function createOptions3Button(message,messageId,userId) {
+    const button = createMsgOptionButton(message,false);
+    button.dataset.m_id = messageId;
+    appendToMessageContextList(messageId,userId);
+}
 function displayChatMessage(data) {
     if (!data) return;
 
@@ -332,245 +419,6 @@ function displayChatMessage(data) {
     }
     
 }
-
-function scrollToElement(scrollContainer, targetChild) {
-    if (!(scrollContainer instanceof HTMLElement) || !(targetChild instanceof HTMLElement)) {
-        console.error('Invalid arguments: Both arguments must be valid HTML elements.');
-        return;
-    }
-    const targetRect = targetChild.getBoundingClientRect();
-    const containerRect = scrollContainer.getBoundingClientRect();
-    const targetCenterY = targetRect.top + targetRect.height / 2;
-    const containerCenterY = containerRect.top + containerRect.height / 2;
-    const scrollTop = scrollContainer.scrollTop + (targetCenterY - containerCenterY);
-    scrollContainer.scrollTo({
-        top: scrollTop,
-        left: scrollContainer.scrollLeft,
-        behavior: 'smooth' 
-    });
-
-}
-function scrollToMessage(messageToScroll) {
-    scrollToElement(chatContainer,messageToScroll);
-    messageToScroll.style.transition = 'background-color 0.5s ease-in-out;';
-    setTimeout(() => {
-        scrollToElement(chatContainer,messageToScroll);
-        messageToScroll.classList.remove('blink');
-        messageToScroll.classList.add('blink');
-        setTimeout(() => {
-            messageToScroll.classList.remove('blink');
-            messageToScroll.style.transition = '';
-        }, 2000); 
-    }, 100); 
-}
-function createDateBar(currentDate) {
-    const formattedDate = new Date(currentDate).toLocaleDateString(translations.getLocale(), {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-    });
-    const datebar = createEl('span',{className:'dateBar', textContent:formattedDate});
-    chatContent.appendChild(datebar);
-}
-
-
-
-function displayCannotSendMessage(failedMessageContent) {
-    if(!isOnDm) { return }
-    const failedId = createRandomId();
-    const failedMessage = {
-        messageId: failedId,
-        userId : currentUserId,
-        content : failedMessageContent,
-        channelId : currentDmId,
-        date : createNowDate(),
-        addToTop: false
-
-    }
-    chatInput.value = '';
-    displayChatMessage(failedMessage);
-    const failedMsg = getId(failedId);
-    if(failedMsg) {
-        const foundMsgContent = failedMsg.querySelector('#message-content-element')
-        if (foundMsgContent) {
-            foundMsgContent.classList.add('failed');
-        }
-    }
-
-
-    const textToSend = 'Mesajın iletilemedi. Bunun nedeni alıcıyla herhangi bir sunucu paylaşmıyor olman veya alıcının sadece arkadaşlarından direkt mesaj kabul ediyor olması olabilir.';
-    const cannotSendMsg = {
-        messageId: createRandomId(),
-        userId: CLYDE_ID,
-        content: textToSend,
-        channelId: currentDmId,
-        date: createNowDate(),
-        lastEdited: '',
-        attachmentUrls: '',
-        addToTop: false,
-        replyToId: '',
-        reactionEmojisIds: '',
-        replyOf: '',
-        isBot : true,
-        willDisplayProfile: true
-    };
-    
-    displayChatMessage(cannotSendMsg);
-    scrollToBottom();
-}
-
-function displayStartMessage() {
-
-    if(!isOnDm) {
-        let isGuildBorn = false;
-        if (currentGuildData && currentGuildData[currentGuildId]) {
-            const rootChan = currentGuildData[currentGuildId].RootChannel;
-            if (rootChan && currentChannelId == rootChan) {
-                isGuildBorn = true;
-            }
-        }
-        if(chatContent.querySelector('.startmessage') || chatContent.querySelector('#guildBornTitle')) { return; }
-        const message = createEl('div',{className:'startmessage'});
-        const titleToWrite = isGuildBorn ? `${currentGuildName}` : `#${currentChannelName} kanalına hoş geldin!`;
-        const msgtitle = createEl('h1',{id:isGuildBorn ? 'guildBornTitle' : 'msgTitle',textContent:titleToWrite});
-        const startChannelText = `#${currentChannelName} kanalının doğuşu!`;
-        const startGuildText =  `Bu, sunucunun başlangıcıdır.`;
-        const textToWrite = isGuildBorn  ? startGuildText : startChannelText; 
-        const channelicon = createEl('div',{className:'channelIcon'});
-        const channelHTML = `<svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="42" height="42" fill="rgb(255, 255, 255)" viewBox="0 0 24 24"><path fill="var(--white)" fill-rule="evenodd" d="M10.99 3.16A1 1 0 1 0 9 2.84L8.15 8H4a1 1 0 0 0 0 2h3.82l-.67 4H3a1 1 0 1 0 0 2h3.82l-.8 4.84a1 1 0 0 0 1.97.32L8.85 16h4.97l-.8 4.84a1 1 0 0 0 1.97.32l.86-5.16H20a1 1 0 1 0 0-2h-3.82l.67-4H21a1 1 0 1 0 0-2h-3.82l.8-4.84a1 1 0 1 0-1.97-.32L15.15 8h-4.97l.8-4.84ZM14.15 14l.67-4H9.85l-.67 4h4.97Z" clip-rule="evenodd" class=""></path></svg>`
-        channelicon.innerHTML = channelHTML;
-        const msgdescription = createEl('div',{id:isGuildBorn ? 'guildBornDescription' : 'msgDescription',textContent:textToWrite});
-        
-    
-        if(!isGuildBorn)  {
-            message.appendChild(channelicon);
-            message.appendChild(msgtitle);
-            msgtitle.appendChild(msgdescription);
-        } else {
-            const guildBornParent = createEl('div',{id : 'guildBornTitle-wrapper'});
-            guildBornParent.appendChild(msgtitle);
-            const guildBornFinishText = createEl('p',{id : 'guildBornTitle',textContent : 'klanına hoşgeldin!'});
-            guildBornParent.appendChild(guildBornFinishText);
-            guildBornParent.appendChild(msgdescription);
-            message.appendChild(guildBornParent);
-        }
-        chatContent.insertBefore(message, chatContent.firstChild); 
-        isLastMessageStart = true;
-        scrollToBottom();
-        
-    } else {
-        if(chatContent.querySelector('.startmessage')) { return; }
-        const message = createEl('div',{className:'startmessage'});
-        const titleToWrite = getUserNick(currentDmId);
-        const msgtitle = createEl('h1',{id:'msgTitle',textContent:titleToWrite});
-        const startChannelText = `Bu ${getUserNick(currentDmId)} kullanıcısıyla olan direkt mesaj geçmişinin başlangıcıdır.`;
-        const profileImg = createEl('img',{className:'channelIcon'});
-        setProfilePic(profileImg,currentDmId);
-        const msgdescription = createEl('div',{id:'msgDescription',textContent:startChannelText});
-        
-    
-
-        message.appendChild(profileImg);
-        message.appendChild(msgtitle);
-        msgtitle.appendChild(msgdescription);
-        
-        chatContent.insertBefore(message, chatContent.firstChild); 
-        isLastMessageStart = true;
-    }
-}
-
-
-
-
-function handleOldMessagesResponse(data) {
-    const { history, oldest_message_date } = data
-
-    if (!Array.isArray(history) || history.length === 0) {
-        isReachedChannelEnd = true
-        displayStartMessage()
-        return
-    }
-
-    const repliesList = new Set()
-    const oldestMessageDateOnChannel = new Date(oldest_message_date)
-
-    let firstMessageDate = null
-
-    history.forEach((msgData) => {
-        const msg = new Message(msgData)
-        const displayMessageData = msg.toDisplayData(data.messageId)
-
-        const foundReply = displayChatMessage(displayMessageData)
-
-        if (foundReply) repliesList.add(msg.messageId)
-
-        if (!firstMessageDate || msg.date < firstMessageDate) {
-            firstMessageDate = msg.date
-        }
-    })
-
-    fetchReplies(history, repliesList)
-
-    if (
-        !isNaN(firstMessageDate) &&
-        firstMessageDate.getTime() === oldestMessageDateOnChannel.getTime()
-    ) {
-        displayStartMessage()
-    } else if (isNaN(oldestMessageDateOnChannel)) {
-        console.error('Invalid oldest message date from data.')
-    }
-}
-
-function handleHistoryResponse(data) {
-    if (isChangingPage) {
-        console.log('Changing page. Ignoring history response.')
-        return
-    }
-
-    isLastMessageStart = false
-    currentMessagesCache = {}
-
-    const { messages, channelId, guildId, oldestMessageDate } = data
-
-    if (!Array.isArray(messages) || messages.length === 0) {
-        displayStartMessage()
-        return
-    }
-
-    if (guildId !== currentGuildId) console.warn('History guild ID is different from current guild')
-    if (channelId !== currentChannelId)
-        console.warn('History channel ID is different from current channel')
-
-    cacheInterface.setMessages(guildId,guildId, messages)
-
-    const firstMessageDateOnChannel = new Date(oldestMessageDate)
-    const repliesList = new Set()
-
-    setTimeout(() => {
-        messages.forEach((msgData) => {
-            const msg = new Message(msgData)
-            const foundReply = displayChatMessage(msg)
-
-            if (foundReply) {
-                repliesList.add(msg.messageId)
-                unknownReplies.pop(msg.messageId)
-            }
-        })
-    }, 5)
-
-    fetchReplies(messages, repliesList)
-
-    setTimeout(scrollToBottom, 20)
-
-    if (
-        messages[0]?.Date &&
-        new Date(messages[0].Date).getTime() === firstMessageDateOnChannel.getTime()
-    ) {
-        displayStartMessage()
-    }
-}
-
-
 let messageDates = {};
 
 let replyIdToGo = "";
@@ -612,7 +460,17 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
     }
 }
 
-
+function updateChatWidth() {
+    if (getId('user-list').style.display == 'none') {
+        getId('user-input').classList.add('user-list-hidden');
+        getId('gifbtn').classList.add('gifbtn-user-list-hidden');
+        getId('emojibtn').classList.add('emojibtn-user-list-hidden');
+    } else {
+        getId('user-input').classList.remove('user-list-hidden');
+        getId('gifbtn').classList.remove('gifbtn-user-list-hidden');
+        getId('emojibtn').classList.remove('emojibtn-user-list-hidden');
+    }
+}
 
 function getMessageFromChat(top = true) {
     const messages = Array.from(chatContent.children);
@@ -629,69 +487,6 @@ function getMessageFromChat(top = true) {
     } else {
         return filteredMessages[filteredMessages.length - 1];
     }
-}
-
-
-function getMessageDate(top=true) {
-    const messages = chatContent.children;
-    if (messages.length === 0) return null;
-
-    let targetElement = getMessageFromChat(top);
-    if (targetElement) {
-        const dateGathered = targetElement.getAttribute('data-date');
-        const parsedDate = new Date(dateGathered);
-        const formattedDate = formatDate(parsedDate);
-        return formattedDate;
-    } else {
-        return null;
-    }
-}
-
-
-
-function updateChatWidth() {
-    if (getId('user-list').style.display == 'none') {
-        getId('user-input').classList.add('user-list-hidden');
-        getId('gifbtn').classList.add('gifbtn-user-list-hidden');
-        getId('emojibtn').classList.add('emojibtn-user-list-hidden');
-    } else {
-        getId('user-input').classList.remove('user-list-hidden');
-        getId('gifbtn').classList.remove('gifbtn-user-list-hidden');
-        getId('emojibtn').classList.remove('emojibtn-user-list-hidden');
-    }
-}
-
-
-let hasJustFetchedMessages;
-function getOldMessagesOnScroll() {
-    console.warn("Ignoring scroll");
-    return;
-    
-    if(isReachedChannelEnd || isOnMe) { return; }
-    if(hasJustFetchedMessages) { return; }
-    const oldestDate = getMessageDate();
-    if (!oldestDate) return;
-    if(oldestDate == '1970-01-01 00:00:00.000000+00:00') { return; }
-    getOldMessages(oldestDate);
-}
-
-function getOldMessages(date,messageId=null) {
-    let data = {
-        date: date.toString(),
-        isDm : isOnDm
-    }
-    if(messageId) {
-        data['messageId'] = messageId;
-    }
-
-    data['channelId'] = isOnDm ? currentDmId : currentChannelId;
-    if(isOnGuild) {
-        data['guildId'] = currentGuildId;
-    }
-    apiClient.send(EventType.GET_SCROLL_HISTORY,data);
-    hasJustFetchedMessages = setTimeout(() => {
-        hasJustFetchedMessages = null;
-    }, 1000);
 }
 
 
@@ -722,7 +517,6 @@ function getHistoryFromOneChannel(channelId, isDm = false) {
 
     fetchMessagesFromServer(channelId, isDm);
 }
-
 function fetchMessagesFromServer(channelId, isDm = false) {
     let requestData = {
         channelId: channelId,
@@ -740,91 +534,57 @@ function fetchMessagesFromServer(channelId, isDm = false) {
 }
 
 
-
-function createChatScrollButton() {
-    let scrollButton = getId('scroll-to-bottom');
+function createMsgOptionButton(message,isReply) {
+    const textc = isReply ? '↪' : '⋯'; 
     
-    if(!chatContainer) chatContainer = getId('chat-container');
-    chatContainer.addEventListener('scroll', function() {
-        let threshold = window.innerHeight;
-        let hiddenContent = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
-        if (hiddenContent > threshold) {
-            scrollButton.style.display = 'flex'; 
-        } else {
-            scrollButton.style.display = 'none';
+    const newButton = createEl('button',{className:'message-button'});
+
+        const textEl = createEl('div', { textContent: textc, className: 'message-button-text' });
+        newButton.appendChild(textEl);
+    if(isReply) {
+        newButton.onclick = function() {
+            showReplyMenu(message.id,message.dataset.userId);
         }
+
+    }
+
+    newButton.addEventListener("mousedown", function() {
+        newButton.style.border = "2px solid #000000";
+    });    
+    newButton.addEventListener("mouseup", function() {
+        newButton.style.border = "none";
     });
-    scrollButton.addEventListener('click', function() {
-        scrollButton.style.display = 'none';
-        scrollToBottom();
+    newButton.addEventListener("mouseover", function() {
+        newButton.style.backgroundColor = '#393a3b';
+    });    
+    newButton.addEventListener("mouseout", function() {
+        newButton.style.backgroundColor = '#313338';
     });
+    newButton.addEventListener('focus', () => {
+        newButton.classList.add('is-focused');
+    });
+    newButton.addEventListener('blur', () => {
+        newButton.classList.remove('is-focused');
+    });
+    let buttonContainer = message.querySelector('.message-button-container');
+    if (!buttonContainer) {
+        buttonContainer = createEl('div');
+        buttonContainer.classList.add('message-button-container');
+        message.appendChild(buttonContainer);
+    }
+
+    buttonContainer.appendChild(newButton);
+    return newButton;
 }
 
+function createNonProfileImage(newMessage,  date) {
+    const messageDate = new Date(date);
+    const smallDateElement = createEl('p');
+    smallDateElement.className = 'small-date-element';
+    smallDateElement.textContent = getFormattedDateForSmall(messageDate);
+    newMessage.appendChild(smallDateElement);
+    smallDateElement.style.position = 'absolute'; 
+    smallDateElement.style.marginLeft = '5px'; 
 
-
-
-function scrollToBottom() {
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-function handleReplies() {
-    Object.values(replyCache).forEach(message => {
-        const replierElements = Array.from(chatContent.children).filter(element => element.dataset.replyToId == message.messageId);
-        console.log(replierElements, message.replies);
-        replierElements.forEach(replier => {
-            message.replies.forEach(msg => {
-                createReplyBar(replier, message.messageId, msg.userId, msg.content, msg.attachmentUrls);
-                console.log("Creating replly bar.", replier, message.messageId, msg.userId, msg.content);
-            });
-        });
-    });
-}
-
-
-function deleteLocalMessage(messageId,guildId,channelId,isDm) {
-    if(isOnGuild && channelId != currentChannelId || isOnDm && isDm && channelId != currentDmId) { 
-        console.error("Can not delete message: ",guildId,channelId, messageId,  currentGuildId,  currentChannelId);
-        return; 
-    }
-    const messages = Array.from(chatContent.children); 
-
-    for (let i = 0; i < messages.length; i++) {
-        let element = messages[i];
-        if (!element.classList || !element.classList.contains('message')) { continue; }
-        const userId = element.dataset.userId;
-    
-        if (String(element.id) == String(messageId)) {
-            console.log("Removing element:", messageId);
-            element.remove();
-            const foundMsg = getMessageFromChat(false);
-            if(foundMsg) {
-                lastSenderID = foundMsg.dataset.userId;
-            }
-        } // Check if the element matches the currentSenderOfMsg and it doesn't have a profile picture already
-        else if (!element.querySelector('.profile-pic') && getBeforeElement(element).dataset.userId != element.dataset.userId) {
-            console.log("Creating profile img...");
-            const messageContentElement = element.querySelector('#message-content-element');
-            const date = element.dataset.date;
-            const smallDate = element.querySelector('.small-date-element');
-            if(smallDate)  {
-                smallDate.remove();
-            }
-            const nick = getUserNick(userId);
-            
-            createProfileImageChat(element, messageContentElement, nick, userId, date, true);
-            break;
-        }
-    }
-    const dateBars = chatContent.querySelectorAll('.dateBar');
-
-    dateBars.forEach(bar => {
-        if (bar === chatContent.lastElementChild) {
-            bar.remove();
-        }
-    });
-
-
-    if(chatContent.children.length < 2) {
-        displayStartMessage();
-    }
-    
+    return smallDateElement;
 }

@@ -145,3 +145,84 @@ function displayWelcomeMessage(userName,date) {
     chatContent.appendChild(newMessage);
     console.log(newMessage.parentNode);
 }
+
+function getOldMessages(date,messageId=null) {
+    let data = {
+        date: date.toString(),
+        isDm : isOnDm
+    }
+    if(messageId) {
+        data['messageId'] = messageId;
+    }
+
+    data['channelId'] = isOnDm ? currentDmId : currentChannelId;
+    if(isOnGuild) {
+        data['guildId'] = currentGuildId;
+    }
+    apiClient.send(EventType.GET_SCROLL_HISTORY,data);
+    hasJustFetchedMessages = setTimeout(() => {
+        hasJustFetchedMessages = null;
+    }, 1000);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function deleteLocalMessage(messageId,guildId,channelId,isDm) {
+    if(isOnGuild && channelId != currentChannelId || isOnDm && isDm && channelId != currentDmId) { 
+        console.error("Can not delete message: ",guildId,channelId, messageId,  currentGuildId,  currentChannelId);
+        return; 
+    }
+    const messages = Array.from(chatContent.children); 
+
+    for (let i = 0; i < messages.length; i++) {
+        let element = messages[i];
+        if (!element.classList || !element.classList.contains('message')) { continue; }
+        const userId = element.dataset.userId;
+    
+        if (String(element.id) == String(messageId)) {
+            console.log("Removing element:", messageId);
+            element.remove();
+            const foundMsg = getMessageFromChat(false);
+            if(foundMsg) {
+                lastSenderID = foundMsg.dataset.userId;
+            }
+        } // Check if the element matches the currentSenderOfMsg and it doesn't have a profile picture already
+        else if (!element.querySelector('.profile-pic') && getBeforeElement(element).dataset.userId != element.dataset.userId) {
+            console.log("Creating profile img...");
+            const messageContentElement = element.querySelector('#message-content-element');
+            const date = element.dataset.date;
+            const smallDate = element.querySelector('.small-date-element');
+            if(smallDate)  {
+                smallDate.remove();
+            }
+            const nick = getUserNick(userId);
+            
+            createProfileImageChat(element, messageContentElement, nick, userId, date, true);
+            break;
+        }
+    }
+    const dateBars = chatContent.querySelectorAll('.dateBar');
+
+    dateBars.forEach(bar => {
+        if (bar === chatContent.lastElementChild) {
+            bar.remove();
+        }
+    });
+
+
+    if(chatContent.children.length < 2) {
+        displayStartMessage();
+    }
+    
+}
+
+
