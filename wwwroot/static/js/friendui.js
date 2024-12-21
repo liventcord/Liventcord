@@ -301,7 +301,6 @@ function openAddFriend() {
     clearFriendContainer();
     createAddFriendForm();
     adjustButtonPosition();
-    addGifImage();
 }
 
 function updateFriendButton() {
@@ -359,11 +358,6 @@ function adjustButtonPosition() {
     addfriendinputbutton.style.right = inputrighttoset;
 }
 
-function addGifImage() {
-    const imgElement = createEl('img', { id: 'gifanny' });
-    imgElement.src = 'https://64.media.tumblr.com/0637f963f01f172f6a525fae0faa3730/tumblr_ncc0wsA0VC1tmbpmjo1_500.gif';
-    friendsContainer.appendChild(imgElement);
-}
 
 
 

@@ -184,6 +184,7 @@ function setUsersList(isUsersOpen, isLoadingFromCookie = false) {
     }
     isUsersOpenGlobal = isUsersOpen;
     updateChatWidth();
+    updateMediaPanelPosition();
 }
 
 function updateDmFriendList(friend_id,friendNick,friendDiscriminator) {
@@ -202,4 +203,11 @@ function updateDmFriendList(friend_id,friendNick,friendDiscriminator) {
         }
     };
     updateMemberList(usersData);
+}
+function updateUserListText() {
+    const userListTitleHTML = `<h1 id='nowonline' style="font-weight: bolder;">${translations.getTranslation("user-list-title")}</h1> <ul> </ul>`;
+    
+    if (userList) {
+        userList.innerHTML = userListTitleHTML;
+    }
 }

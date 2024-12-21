@@ -239,147 +239,9 @@
     object-fit: contain; 
 }
 
-#gif-menu {
-    overflow: hidden;
-    width: 480px; 
-    height: 453px; 
-    display: none;
-    border-radius: 10px;
-    border: 0.1px solid rgb(39, 40, 44);
-    background-color: #2b2d31;
-    position: absolute;
-    z-index: 5;
-    right: 253px;
-    bottom: 90px;
-    padding: 15px;
-    
-   
-    resize: both;
-    max-width: 3020px;
-    max-height: 3000px; 
-}
-
-
-#gifs-menu-container::-webkit-scrollbar {
-    width: 5px;
-}
-
-#gifs-menu-container::-webkit-scrollbar-track {
-    background: transparent;  
-}
-
-#gifs-menu-container::-webkit-scrollbar-thumb {
-    background-color: rgb(26, 27, 30); 
-    border-radius: 10px; 
-    border: transparent;
-}
-
-#gifs-menu-line {
-    top: 45px;
-    
-    left: 0%;
-    
-}
-
-#gifs-menu-container {
-    display: flex; 
-    flex-wrap: wrap; 
-    margin-top: 20px;
-    max-height: 600px;
-    overflow-y: auto; 
-    justify-content: center; 
-}
-
-.gif-content {
-    flex: 0 1 auto; 
-    margin: 9px; 
-    max-width: 220px; 
-    max-height: 220px;
-    border: 1px solid rgb(39, 40, 44);
-    border-radius: 8px;
-    overflow: hidden;
-    background-color: #f0f0f0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.gif-content img {
-    max-width: 100%; 
-    max-height: 100%; 
-    display: block;
-    border-radius: 8px;
-    object-fit: contain; 
-}
-
-
-
-
-.gif-content:hover {
-    transform: scale(1.05); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
-}
-
-
-
-#gifs-menu-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-#gifs-menu-container::-webkit-scrollbar-thumb {
-    background-color: rgb(26, 27, 30);
-    border-radius: 4px;
-}
-
-#gifs-menu-container::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-#user-list ~ #target-div {
-     
-    background-color: yellow;
-}
-
-
-
-#gifsMenuSearchbar {
-    width: 100%;
-    color: white;
-    font-size: 18px;
-    height: 30px;
-    border-radius: 3px;
-    padding-left:10px;
-    margin-top: 10px;
-    border: none;
-    background-color: rgb(30, 31, 34);
-    outline: none;
-}
-
-
-.gifs-menu-button {
-    cursor: pointer;
-    width: 60px;
-    height: 25px;
-    margin-right: 10px;
-    border: none;
-    color: white;
-    border-radius: 5px;
-    font-size: 15px;
-    font-weight:900;
-    background-color: #41434a;
-    
-}
-
-#gifs-menu-emoji:hover,
-#gifs-menu-gif:hover
-{
-    background-color: #41434a
-}
 
 #file-button {
-    position: absolute;
     bottom: 15px;
-
     left: 345px;
     width: 22px;height: 22px;
     border: none; border-radius: 50%;
@@ -387,8 +249,6 @@
     z-index: 10;
     background-color: #b5bac1;
     color: #313338;
-
-
     text-align: center;  
     display: flex;
     justify-content: center;  
@@ -1236,7 +1096,6 @@ input[type="file"] {
 }
 .gifbtn-base:hover {
     background-color: white;
-    
 }
 .gifbtn-user-list-hidden {
     right: 360px;
@@ -1810,3 +1669,12 @@ textarea::-webkit-scrollbar-track {
         padding-block: 60px;
     }
 }
+
+
+
+#user-list ~ #target-div {
+     
+    background-color: yellow;
+}
+
+

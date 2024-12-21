@@ -35,7 +35,6 @@ async function playAudio(audioUrl) {
         audioElement.crossOrigin = 'anonymous';
         currentAudioPlayer = audioElement;
 
-        // Bind play/pause to custom play button
         const playButton = document.querySelector('#player01 .play');
         playButton.addEventListener('click', () => {
             if (isAudioPlaying) {
@@ -48,7 +47,6 @@ async function playAudio(audioUrl) {
             isAudioPlaying = !isAudioPlaying;
         });
 
-        // Bind next button
         const nextButton = document.querySelector('#player01 .next');
         nextButton.addEventListener('click', async () => {
             if (youtubeIndex < youtubeIds.length - 1) {
@@ -63,7 +61,6 @@ async function playAudio(audioUrl) {
             }
         });
 
-        // Bind previous button
         const prevButton = document.querySelector('#player01 .prev');
         prevButton.addEventListener('click', async () => {
             if (youtubeIndex > 0) {
@@ -78,26 +75,23 @@ async function playAudio(audioUrl) {
             }
         });
 
-        // Update the time display
         audioElement.addEventListener('timeupdate', () => {
             const totalTime = document.querySelector('#player01 .total-time');
             const lastTime = document.querySelector('#player01 .last-time');
             totalTime.innerText = formatTime(audioElement.duration);
             lastTime.innerText = formatTime(audioElement.currentTime);
             
-            // Update track progress
             const track = document.querySelector('#player01 .track');
             track.style.width = `${(audioElement.currentTime / audioElement.duration) * 100}%`;
         });
 
-        // Track seeking functionality
         const track = document.querySelector('#player01 .track');
         track.addEventListener('click', (e) => {
             const rect = track.getBoundingClientRect();
-            const x = e.clientX - rect.left; // x position within the element
-            const width = rect.width; // width of the element
-            const clickRatio = x / width; // Click ratio
-            audioElement.currentTime = clickRatio * audioElement.duration; // Set audio currentTime based on click position
+            const x = e.clientX - rect.left;
+            const width = rect.width; 
+            const clickRatio = x / width;
+            audioElement.currentTime = clickRatio * audioElement.duration;
         });
 
         audioElement.addEventListener('ended', function () {

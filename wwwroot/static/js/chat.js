@@ -1,3 +1,6 @@
+// TODO : Fix messages date orders when rendering
+
+
 
 let bottomestChatDateStr;
 let lastMessageDate = null; 
@@ -79,7 +82,7 @@ function createOptions3Button(message,messageId,userId) {
 
 
 async function handleScroll() {
-    if (loadingScreen.style.display === 'flex') {  return; }
+    if (loadingScreen && loadingScreen.style.display === 'flex') {  return; }
 
     const tenPercentHeight = window.innerHeight * 0.1;
     if (chatContainer.scrollTop <= tenPercentHeight && !isOldMessageCd && chatContent.children.length > 0) {
@@ -661,6 +664,9 @@ function updateChatWidth() {
 
 let hasJustFetchedMessages;
 function getOldMessagesOnScroll() {
+    console.warn("Ignoring scroll");
+    return;
+    
     if(isReachedChannelEnd || isOnMe) { return; }
     if(hasJustFetchedMessages) { return; }
     const oldestDate = getMessageDate();
@@ -682,7 +688,7 @@ function getOldMessages(date,messageId=null) {
     if(isOnGuild) {
         data['guildId'] = currentGuildId;
     }
-    apiClient.send('get_old_messages',data);
+    apiClient.send(EventType.GET_SCROLL_HISTORY,data);
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
     }, 1000);

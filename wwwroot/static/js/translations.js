@@ -3,8 +3,7 @@ class Translations {
     this.currentLanguage = 'en';
     this.enLocale = "en-us";
     this.trLocale = "tr-TR";
-    this.userListTitleHTML = '';
-    
+
     this.translations = {
       en: {
         "online": "Online",
@@ -130,7 +129,7 @@ class Translations {
           if(element.className == "iconWrapper") {
             element.ariaLabel = textToUse;      
           } else {
-            console.log("Set text for: ",key, " as: ",textToUse)
+            //console.log("Set text for: ",key, " as: ",textToUse)
             element.textContent = textToUse;
           }
         }
@@ -138,12 +137,7 @@ class Translations {
     });
   }
 
-  updateUserListText() {
-    const userList = getId('userList');
-    if (userList) {
-      userList.innerHTML = this.userListTitleHTML;
-    }
-  }
+
 
   getTranslation(key) {
     const result = this.translations[this.currentLanguage]?.[key] ?? null;
@@ -166,4 +160,7 @@ class Translations {
 
 const translations = new Translations();
 translations.setLanguage('en');
-//translations.initializeTranslations();
+setTimeout(() => {
+  translations.initializeTranslations();
+
+});
