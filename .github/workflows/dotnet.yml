@@ -16,13 +16,14 @@ jobs:
         repository: liventcord/LiventCord
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Clone Frontend Repo into wwwroot
-      run: git clone https://github.com/liventcord/LiventCordFrontend.git ./wwwroot
+    - name: Clone Frontend Repo
+      run: git clone https://github.com/liventcord/LiventCordFrontend.git ./frontend
 
-    - name: Remove Git History Files
+    - name: Copy Frontend Files to wwwroot
       run: |
-        cd ./wwwroot
-        git clean -fdx
+        rm -rf ./wwwroot
+        mkdir ./wwwroot
+        cp -R ./frontend/* ./wwwroot
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
