@@ -4,7 +4,7 @@
 
 ## Why LiventCord?
 
-LiventCord was designed with privacy and security as top priorities. Unlike many communication platforms, we ensure that user data is not exploited for advertising or other business purposes. We provide a customizable, reliable, and secure platform for communities to interact.
+LiventCord is an open-source alternative to popular communication platforms, designed with privacy and security at its core. It provides a platform where users can communicate freely without being tracked or having their data used for advertising. As an open-source project, LiventCord ensures transparency and gives users full control over their data.
 
 Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**, LiventCord provides a reliable backend for managing communication and user interactions. Auto-generated documentation is available via Swagger and Redoc.
 
