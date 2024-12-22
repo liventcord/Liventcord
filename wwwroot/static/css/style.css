@@ -1,6 +1,8 @@
 .info-container {
-    width: 600px;
-    height: 50px;
+    width: auto;
+    min-width: 300px;
+    max-width: 90%;
+    height: auto;
     background-color: #312e2e;
     z-index: 15;
     border-radius: 25px;
@@ -8,18 +10,25 @@
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     animation: moveAndFade 9s forwards;
 }
 
-#info-message {
+.info-message {
     color: #ffffff;
-    font-size: 25px;
-    white-space: nowrap;
+    font-size: calc(16px + 1vw);
+    white-space: normal;
     z-index: 25;
-    position: absolute;
-    top: 50%;
-    left: 30px;
-    transform: translateY(-50%);
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @keyframes moveAndFade {
@@ -44,7 +53,6 @@
         transform: translateX(-50%);
     }
 }
-
 
 
 
@@ -1088,9 +1096,7 @@ input[type="file"] {
     bottom: 12px;
     width: 25px; height: 25px;
 }
-.emojibtn-base {
-    transform: rotate(90deg);
-}
+
 .emojibtn-base:hover {
     background-color: white;
 }

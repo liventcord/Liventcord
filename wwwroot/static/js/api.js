@@ -171,9 +171,7 @@ class CustomHttpConnection {
             //console.log(`Event "${event}" processed. No response expected.`);
             return; 
         }
-
-        console.log(`Received response for event "${event}" `, data);
-        
+        //console.log(`Received response for event "${event}" `, data);
         if (this.listeners[event] && data != null) {
             this.listeners[event].forEach(callback => {
                 callback(data);

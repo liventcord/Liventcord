@@ -2,19 +2,28 @@ let isDeveloperMode = true;
 let contextList = {};
 let messageContextList = {};
 
+
+
 function openReactionMenu(messageId) {
-  console.log("Opening react menu for: ", messageId);
+  alertUser({ message: "Not implemented: React menu for message " + messageId });
 }
+
 function openEditMessage(messageId) {
-  console.log("Editing message ", messageId);
+  alertUser({ message: "Not implemented: Editing message " + messageId });
 }
+
 function pinMessage(messageId) {
-  console.log("Pinning message ", messageId);
+  alertUser({ message: "Not implemented: Pinning message " + messageId });
 }
 
 function markAsUnread(messageId) {
-  console.log("Marking as unread message ", messageId);
+  alertUser({ message: "Not implemented: Marking message as unread " + messageId });
 }
+function editGuildProfile() {
+  alertUser({ message: "Not implemented: editing guild profile " });
+  
+}
+
 function deleteMessage(messageId) {
   console.log("Deleting message ", messageId);
   let data = {
@@ -27,16 +36,30 @@ function deleteMessage(messageId) {
   }
   apiClient.send("message_delete", data);
 }
+
 function inviteToGuild(userId) {
-  console.log(userId);
-}
-function blockUser(userId) {
-  console.log(userId);
-}
-function reportUser(userId) {
-  console.log(userId);
+  alertUser({ message: "Not implemented: Inviting user " + userId + " to the guild." });
 }
 
+function blockUser(userId) {
+  alertUser({ message: "Not implemented: Blocking user " + userId });
+}
+
+function reportUser(userId) {
+  alertUser({ message: "Not implemented: Reporting user " + userId });
+}
+function muteChannel(channelId) {
+  alertUser("Mute channel is not implemented!");
+}
+function showNotifyMenu(channelId) {
+  alertUser("Notify menu is not implemented!");
+}
+function editChannel(channelId) {
+  alertUser("Channel editing is not implemented!");
+}
+function togglePin() {
+  console.log("Toggle pin!");
+}
 function mentionUser(userId) {
   const userNick = getUserNick(userId);
   chatInput.value += `@${userNick}`;
@@ -48,6 +71,7 @@ function inviteUser(userId, guildId) {
   }
   console.log("inviting user : ", userId, " to guild ", guildId);
   openDm(userId);
+  //TODO: add invitation prompt to here
 }
 
 function removeFriend(userId) {
@@ -71,15 +95,7 @@ function copyId(channelId) {
   navigator.clipboard.writeText(channelId);
 }
 
-function muteChannel(channelId) {
-  alertUser("Mute channel is not implemented!");
-}
-function showNotifyMenu(channelId) {
-  alertUser("Notify menu is not implemented!");
-}
-function editChannel(channelId) {
-  alertUser("Channel editing is not implemented!");
-}
+
 function deleteChannel(channelId, guildId) {
   const data = {
     guildId: guildId,
@@ -88,9 +104,7 @@ function deleteChannel(channelId, guildId) {
   apiClient.send("remove_channel", data);
 }
 
-function togglePin() {
-  console.log("Toggle pin!");
-}
+
 function appendToChannelContextList(channelId) {
   contextList[channelId] = createChannelsContext(channelId);
 }

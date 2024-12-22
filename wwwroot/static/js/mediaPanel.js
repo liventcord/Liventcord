@@ -3,7 +3,10 @@ let isResizing = false;
 let initialX, initialY, initialWidth, initialHeight;
 let initialLeft, initialTop;
 let resizingTop, resizingBottom, resizingLeft, resizingRight;
-
+const exampleTenorId = "LIVDSRZULELA";
+let isMediaMenuOpen = false;
+let currentMenuType = '';
+let mediaMenu, mediaMenuContainer;
 let direction = '';
 
 
@@ -17,27 +20,27 @@ function onMouseMove(e) {
     let dx = e.clientX - initialMouseX;
     let dy = e.clientY - initialMouseY;
 
-    let newWidth = initialWidth - dx; 
-    let newHeight = initialHeight - dy; 
+    let newWidth = initialWidth - dx;
+    let newHeight = initialHeight - dy;
 
     let viewportWidth = window.innerWidth / 1.7;
     let viewportHeight = window.innerHeight / 1.2;
 
     newWidth = Math.max(300, newWidth);
-    newHeight = Math.max(300, newHeight); 
+    newHeight = Math.max(300, newHeight);
 
     if (resizingLeft) {
         newWidth = Math.max(100, newWidth);
         mediaMenu.style.width = newWidth + 'px';
     } else if (resizingRight) {
-        mediaMenu.style.width = newWidth + 'px';  
+        mediaMenu.style.width = newWidth + 'px';
     }
 
     if (resizingTop) {
         newHeight = Math.max(100, newHeight);
         mediaMenu.style.height = newHeight + 'px';
     } else if (resizingBottom) {
-        mediaMenu.style.height = newHeight + 'px'; 
+        mediaMenu.style.height = newHeight + 'px';
     }
 
     mediaMenu.style.width = Math.min(viewportWidth, newWidth) + 'px';
@@ -113,24 +116,7 @@ function handleMediaPanelResize() {
 }
 
 
-async function loadGifContent(n) {
-    const query = getId('mediaMenuSearchbar').value;
-    if (!query) {
-        mediaMenuContainer.innerHTML = '';
-        return;
-    }
-    const gifWorkerUrl = `https://liventcord-gif-worker.efekantunc0.workers.dev?q=${encodeURIComponent(query)}`;
-    const response = await fetch(gifWorkerUrl);
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    const data = await response.json();
-    if (data.error) throw new Error(`API error: ${data.error}`);
 
-    const gifElements = data.results.map(result => ({
-        gif: result.media_formats.gif.url,
-        preview: result.media_formats.tinygif.url,
-    }));
-    displayContent(gifElements, 'gif');
-}
 
 async function loadGifContent() {
     const query = getId('mediaMenuSearchbar').value;
@@ -155,9 +141,6 @@ async function loadGifContent() {
 
 
 
-let isMediaMenuOpen = false;
-let currentMenuType = '';
-let mediaMenu, mediaMenuContainer;
 
 function toggleMediaMenu() {
     if (isMediaMenuOpen) {
@@ -170,82 +153,179 @@ function toggleMediaMenu() {
         isMediaMenuOpen = true;
     }
 }
+function httpGetAsync(url, callback) {
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            callback(xmlHttp.responseText);
+        }
+    };
+    xmlHttp.open("GET", url, true);
+    xmlHttp.send(null);
+}
+function handleCategoryGifs(responseText) {
+    const gifs = JSON.parse(responseText).results;
+    mediaMenuContainer.innerHTML = "";
+    gifs.forEach(gif => {
+        console.log(gif);
+        const gifImg = createEl("img", { className: "gifImg" , src: gif.media[0].gif.url });
 
-function displayContent(contentData, type) {
+        mediaMenuContainer.appendChild(gifImg);
+    });
+}
+
+async function fetchCategoryGifs(categoryPath) {
+    const url = `https://g.tenor.com/v1/search?key=${exampleTenorId}&q=${categoryPath}&limit=50`;
+    httpGetAsync(url, handleCategoryGifs);
+
+}
+// search input field should hidden and shown category name when rendered gifs
+// should return back to input field when this function is called
+function showCategoriesList() {
+    console.log("Show categories list");
+    const categoryNameText = getId("categoryName");
+    categoryNameText.style.display = "none";
+    getId("gifsBackBtn").style.display = "none";
+    getId("mediaMenuSearchbar").style.display = "flex";
+    fetchCategoryUrls();
+    categoryName.textContent = "";
+}
+function showCategoryView(categoryName) {
+    const categoryNameText = getId("categoryName");
+    categoryNameText.style.display = "block";
+    categoryNameText.textContent = categoryName;
+    getId("gifsBackBtn").style.display = "block";
+    getId("mediaMenuSearchbar").style.display = "none";
+}
+
+
+
+function createCategoryBox(name, categoryPath, previewImage) {
+    const box = createEl("div", { className: "categoryBox" });
+    const gifImg = createEl("img", { className: "gifImg" , src: previewImage, className: "gifCategoryImage" });
+    const overlay = createEl("div", { className: "gifOverlay" });
+    const caption = createEl("div", { textContent: name, className: "gifCategoryCaption" });
+    box.append(gifImg, overlay, caption);
+    box.onclick = () => {
+        if (categoryPath === "trending") {
+            fetchTrendingGifs();
+        } else {
+            fetchCategoryGifs(categoryPath);
+        }
+        showCategoryView(name);
+    };
+    return box;
+}
+
+function displayContent(contentData, type, isCategory = false) {
+    console.log(type, contentData);
     mediaMenuContainer.innerHTML = '';
 
-    if (type === 'gif') {
-        if (contentData.length === 0) {
-            // Show base GIF if no specific GIFs are loaded
-            const baseGif = createEl('img', { className: 'gif-content', src: 'path/to/base.gif' });
-            mediaMenuContainer.appendChild(baseGif);
-        } else {
-            // Show actual GIFs
-            contentData.forEach(data => {
-                const img = createEl('img', { className: `${type}-content`, src: data.preview });
-                img.addEventListener('click', () => {
-                    toggleMediaMenu();
-                    sendMessage(data[type]);
-                });
-                mediaMenuContainer.appendChild(img);
-            });
-        }
-    } else if (type === 'emoji') {
+    // If it's emoji type, just set the emoji panel
+    if (type === 'emoji') {
         mediaMenuContainer.innerHTML = getEmojiPanel();
+        return;
+    }
+
+    if (type !== 'gif') return;
+
+    if (isCategory) {
+        contentData.forEach(category => {
+            const box = createCategoryBox(category.name, category.path, category.image);
+            mediaMenuContainer.appendChild(box);
+        });
+        return;
+    }
+
+    if (contentData.length === 0) {
+        const baseGif = createEl('img', { className: 'gif-content', textContent: "No gifs found" });
+        mediaMenuContainer.appendChild(baseGif);
+    } else {
+        contentData.forEach(data => {
+            const img = createEl('img', { className: `${type}-content`, src: data.preview });
+            img.addEventListener('click', () => {
+                toggleMediaMenu();
+                sendMessage(data[type]);
+            });
+            mediaMenuContainer.appendChild(img);
+        });
     }
 }
 
+
 function toggleGifs(isTop) {
-    console.log("Toggle gifs - Start");
 
     if (currentMenuType === 'gif') {
-        console.log("Gif content is already open and being closed");
-        toggleMediaMenu(); // Close if already showing gifs
+        toggleMediaMenu(); 
     } else {
         currentMenuType = 'gif';
-        loadGifContent(); // Load GIF content from an API or source
+        loadMenuGifContent();
         if (!isMediaMenuOpen) {
-            console.log("Media menu is closed, opening it for gif content");
-            toggleMediaMenu(); // Ensure menu opens if closed
+            toggleMediaMenu(); 
         }
     }
-
-    console.log("Toggle gifs - End");
 }
 
 function toggleEmojis(isTop) {
-    console.log("Toggle emojis - Start");
 
     if (currentMenuType === 'emoji') {
-        console.log("Emoji content is already open and being closed");
-        toggleMediaMenu(); // Close if already showing emojis
+        toggleMediaMenu(); 
     } else {
-        console.log("Switching to emoji content");
         currentMenuType = 'emoji';
         mediaMenuContainer.innerHTML = getEmojiPanel();
 
         if (!isMediaMenuOpen) {
-            console.log("Media menu is closed, opening it for emoji content");
-            toggleMediaMenu(); // Ensure menu opens if closed
-        } else {
-            console.log("Media menu is already open, no need to open again");
+            toggleMediaMenu(); 
         }
     }
-
-    console.log("Toggle emojis - End");
 }
 
-function loadGifContent() {
+function httpGetSync(url) {
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.open("GET", url, false); 
+    xmlHttp.send(null);
+    if (xmlHttp.status === 200) {
+        return xmlHttp.responseText;
+    } else {
+        throw new Error(`HTTP error! Status: ${xmlHttp.status}`);
+    }
+}
+
+//TODO: add favourite gifs and popular gifs here
+async function fetchCategoryUrls() {
+    const url = `https://g.tenor.com/v1/categories?key=${exampleTenorId}`;
+    try {
+        const response = await fetch(url);
+        const responseData = await response.json();
+        const categories = responseData.tags || [];
+
+        if (categories.length === 0) {
+            console.error("No categories found.");
+            return [];
+        }
+
+
+        return categories;
+
+    } catch (error) {
+        console.error("Error fetching category GIFs:", error.message);
+        return [];
+    }
+}
+
+async function loadMenuGifContent() {
     console.log("Loading GIF content...");
-
-    const gifs = [
-        { preview: 'path/to/gif1.gif' },
-        { preview: 'path/to/gif2.gif' },
-        { preview: 'path/to/gif3.gif' },
-    ];
-
-    displayContent(gifs, 'gif'); 
+    
+    const categoryUrls = await fetchCategoryUrls();
+    
+    if (categoryUrls.length > 0) {
+        displayContent(categoryUrls, "gif", true);
+    } else {
+        console.log("No categories available.");
+        displayContent([], "gif");
+    }
 }
+
 
 function initialiseMedia() {
     mediaMenu = getId('media-menu');
@@ -260,32 +340,29 @@ function initialiseMedia() {
 
 
     getId('emojibtntop').addEventListener('click', (e) => {
-        console.log("Clicked on emoji button");
         toggleEmojis(false);
-        e.stopPropagation();  // Prevent click from propagating to the body
+        e.stopPropagation(); 
     });
     getId('gifbtn').addEventListener('click', (e) => {
-        console.log("Clicked on gif button");
         toggleGifs(false);
-        e.stopPropagation();  // Prevent click from propagating to the body
+        e.stopPropagation();
     });
     getId('emojibtn').addEventListener('click', (e) => {
-        console.log("Clicked on emoji button");
         toggleEmojis(false);
-        e.stopPropagation();  // Prevent click from propagating to the body
+        e.stopPropagation(); 
     });
     getId('gifbtntop').addEventListener('click', (e) => {
-        console.log("Clicked on gif button");
         toggleGifs(true);
-        e.stopPropagation();  // Prevent click from propagating to the body
+        e.stopPropagation(); 
     });
 
     document.body.addEventListener('click', (event) => {
         if (mediaMenu && isMediaMenuOpen && !mediaMenu.contains(event.target) && event.target.id !== 'basebtn') {
             console.log("Clicked outside, closing media menu");
-            toggleMediaMenu(); // Close menu if clicking outside
+            toggleMediaMenu();
         }
     });
+    gifsBackBtn.addEventListener("click",showCategoriesList);
     
 
     mediaMenu.addEventListener('mousedown', (e) => {
@@ -308,6 +385,7 @@ function initialiseMedia() {
             document.addEventListener('mouseup', onMouseUp);
         }
     });
+    
 }
 
 document.addEventListener('DOMContentLoaded', initialiseMedia);

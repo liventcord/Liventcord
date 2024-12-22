@@ -66,28 +66,36 @@ function getOldMessagesOnScroll() {
     getOldMessages(oldestDate);
 }
 
-async function handleScroll() {
-    if (loadingScreen && loadingScreen.style.display === 'flex') {  return; }
+let isFetchingOldMessages = false;
 
-    const tenPercentHeight = window.innerHeight * 0.1;
-    if (chatContainer.scrollTop <= tenPercentHeight && !isOldMessageCd && chatContent.children.length > 0) {
-        isOldMessageCd = true;
+async function handleScroll() {
+    if (loadingScreen && loadingScreen.style.display === 'flex') { return; }
+
+    const buffer = 10; 
+    const scrollPosition = chatContainer.scrollTop;
+    const isAtTop = scrollPosition <= buffer;
+
+    if (isAtTop && !isFetchingOldMessages && chatContent.children.length > 0) {
+        isFetchingOldMessages = true;
         console.log('Fetching old messages...');
         try {
             let continueLoop = true;
             while (continueLoop) {
-                if (chatContainer.scrollTop <= tenPercentHeight) {
+                const updatedScrollPosition = chatContainer.scrollTop;
+
+                if (updatedScrollPosition <= buffer) {
                     await getOldMessagesOnScroll();
                 } else {
-                    continueLoop = false;
+                    continueLoop = false; 
                     console.log('Scroll position exceeded threshold.');
                 }
-                await new Promise(resolve => setTimeout(resolve, 500));
+
+                await new Promise(resolve => setTimeout(resolve, 500)); 
             }
         } catch (error) {
             console.error('Error fetching old messages:', error);
         } finally {
-            isOldMessageCd = false;
+            isFetchingOldMessages = false;
             console.log('Fetching complete. Resetting flag.');
         }
     }
@@ -287,7 +295,7 @@ function displayChatMessage(data) {
     const replyOf = data.replyOf;
 
     if(currentMessagesCache[messageId])  {
-        console.log("Skipping adding message:", content);
+        //console.log("Skipping adding message:", content);
         return;
     }
     if (!channelId || !date ) {return; }

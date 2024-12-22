@@ -1,3 +1,4 @@
+//TODO: make self discriminator be status as default and show discriminator when hovered
 let currentUserId;
 let currentDiscriminator = null;
 let currentUserNick;
