@@ -1,30 +1,40 @@
 # LiventCord
 
-**LiventCord** is a privacy-focused communication platform that enables real-time messaging, channel management, and file sharing with a focus on data security.
+**LiventCord** is a privacy-focused communication platform that enables real-time messaging, channel management, file sharing, and voice/video communication, with a focus on data security.
 
-LiventCord provides a set of RESTful APIs to manage communication and user interactions. Auto-generated documentation is available through Swagger and Redoc to assist developers with seamless integration.
+## Why LiventCord?
+
+LiventCord was designed with privacy and security as top priorities. Unlike many communication platforms, we ensure that user data is not exploited for advertising or other business purposes. We provide a customizable, reliable, and secure platform for communities to interact.
+
+Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**, LiventCord provides a reliable backend for managing communication and user interactions. Auto-generated documentation is available via Swagger and Redoc.
 
 ## Features
 
-- **User Authentication**: Secure login and registration mechanisms for users.
-- **Guild and Channel Management**: APIs to create, join, and manage guilds and channels.
-- **Messaging**: Send, receive, and delete messages.
-- **Friendship and Invitations**: Manage friends and invite others to guilds.
-- **Permissions**: Fine-grained control over permissions for channels and guild members.
-- **Typing Indicators**: Real-time typing status notifications.
-- **Image Support**: Upload and retrieve images within the platform.
+- **Guild & Channel Management**: APIs to create, join, and manage guilds and channels.
+- **Messaging**: Send, receive, and delete messages with rich formatting, mentions, reactions, and emoji support.
+- **Search**: Full-text search to quickly retrieve past conversations.
+- **Friendship & Invitations**: Manage friends and invite users to guilds.
+- **Permissions**: Fine-grained control over guild and channel permissions.
+- **File Sharing**: Upload and retrieve various file types (images, videos, documents, etc.).
+- **Voice & Video**: Real-time group and direct voice/video chat.
+- **Custom Profiles**: Users can personalize profiles with avatars.
+- **Custom Presence**: Set status with custom messages to reflect availability or activity.
+- **Direct Messaging**: 1-on-1 messaging with real-time updates.
+
 
 ## API Overview
 
-LiventCord's API provides endpoints for managing authentication, messaging, guilds, and permissions. Detailed API documentation is available through Swagger and Redoc.
+LiventCord's API provides endpoints for managing messaging, channels, guilds, file sharing, members and user profiles. Detailed API documentation is available through Swagger and Redoc.
+
+## Database
+
+LiventCord uses **PostgreSQL** as the database backend, managed via **Entity Framework Core** (EF Core) for ORM.
 
 ## Getting Started
 
-To get started with **LiventCord**, you can set up the backend locally or deploy it to your own server.
+To get started with **LiventCord**, you can set up the backend locally or interact with the main server hosted at [leventcord.bsite.net](https://leventcord.bsite.net)
 
 ### Prerequisites
 
-- .NET Core SDK (version 6.0 or higher)
-- A database system (e.g., SQL Server, PostgreSQL)
-- A modern web browser to view the documentation
-
+- **.NET Core SDK**
+- **PostgreSQL** database system for storing user and message data
