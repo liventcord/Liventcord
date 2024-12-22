@@ -188,6 +188,11 @@ function hideLoadingScreen() {
 
 
 function alertUser(subject, content) {
+    if(content) {
+        console.error(subject,content);
+    } else {
+        console.error(subject);
+    }
     const popUpSubject = createEl('h1', { className: 'pop-up-subject', textContent: subject });
     const popUpContent = createEl('p', { className: 'pop-up-content', textContent: content });
 

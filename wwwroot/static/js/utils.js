@@ -20,10 +20,9 @@ function setWindowName(pendingCounter) {
 function sendNotify(data) {
     const container = document.createElement('div');
     container.classList.add('info-container');
-    container.classList.add('swipe-in');
     
     const childDiv = document.createElement('div');
-    childDiv.id = 'info-message'; 
+    childDiv.className = 'info-message'; 
     childDiv.textContent = data;
     container.appendChild(childDiv);
     
@@ -33,9 +32,7 @@ function sendNotify(data) {
         container.parentNode.removeChild(container); 
     });
 
-    setTimeout(() => {
-        container.classList.remove('swipe-in');
-    }, 3000); 
+
 }
 
 

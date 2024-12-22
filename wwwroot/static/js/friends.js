@@ -248,7 +248,7 @@ function addPendingButtons(friendButton, friend) {
   const closeButton = createButtonWithBubblesImg(
     friendButton,
     ButtonTypes.CloseBtn,
-    translations.translations["cancel-pending-text"]
+    translations.translations["cancel"]
   );
   closeButton.addEventListener("click", (event) =>
     handleButtonClick(

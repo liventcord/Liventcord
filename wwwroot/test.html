@@ -1,90 +1,207 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emoji Grid</title>
-    <style>
-        #media-menu {
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #f0f0f0;
-            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
-            overflow-y: auto;
-            z-index: 1000;
-            padding: 10px;
+<html>
+<script>
+const exampleTenorId = "LIVDSRZULELA";
+function getId(string) {
+    return document.getElementById(string);
+}
+
+const createEl = (tag, options) => Object.assign(document.createElement(tag), options);
+
+function httpGetAsync(url, callback) {
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = () => {
+        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            callback(xmlHttp.responseText);
         }
-        #media-menu-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+    };
+    xmlHttp.open("GET", url, true);
+    xmlHttp.send(null);
+}
+
+function handleTrending(responseText) {
+    const gifs = JSON.parse(responseText).results;
+    const gifsContainer = getId("gifContainer");
+    gifsContainer.innerHTML = "";
+    gifs.forEach(gif => {
+        console.log(gif);
+
+        const gifImg = createEl("img", { className: "gifImg" , src: gif.media[0].gif.url });
+
+        gifsContainer.appendChild(gifImg);
+    });
+}
+
+function handleCategoryGifs(responseText) {
+    const gifs = JSON.parse(responseText).results;
+    const gifsContainer = getId("gifContainer");
+    gifsContainer.innerHTML = "";
+    gifs.forEach(gif => {
+        console.log(gif);
+        const gifImg = createEl("img", { className: "gifImg" , src: gif.media[0].gif.url });
+
+        gifsContainer.appendChild(gifImg);
+    });
+}
+
+function handleCategories(responseText) {
+    const categories = JSON.parse(responseText).tags;
+    const catContainer = getId("categoryContainer");
+    catContainer.innerHTML = "";
+    const trendingBox = createCategoryBox("Trending", "trending", "https://media.tenor.com/ZJo4unIdZc0AAAAM/omg.gif");
+    catContainer.appendChild(trendingBox);
+    categories.forEach(category => {
+        const box = createCategoryBox(category.name, category.path, category.image);
+        catContainer.appendChild(box);
+    });
+}
+
+function createCategoryBox(name, categoryPath, previewImage) {
+    const box = createEl("div", { className: "categoryBox" });
+    const gifImg = createEl("img", { className: "gifImg" , src: previewImage, className: "gifCategoryImage" });
+    const overlay = createEl("div", { className: "gifOverlay" });
+    const caption = createEl("div", { textContent: name, className: "gifCategoryCaption" });
+    box.append(gifImg, overlay, caption);
+    box.onclick = () => {
+        if (categoryPath === "trending") {
+            fetchTrendingGifs();
+        } else {
+            fetchCategoryGifs(categoryPath);
         }
-        .emoji {
-            display: inline-block;
-            background-image: url('/static/images/emojis.png');
-            background-repeat: no-repeat;
-        }
-    </style>
-</head>
+        showCategoryView();
+    };
+    return box;
+}
+
+function fetchTrendingGifs() {
+    const url = `https://g.tenor.com/v1/trending?key=${exampleTenorId}&limit=50`;
+    httpGetAsync(url, handleTrending);
+}
+
+function fetchCategoryGifs(categoryPath) {
+    const url = `https://g.tenor.com/v1/search?key=${exampleTenorId}&q=${categoryPath}&limit=50`;
+    httpGetAsync(url, handleCategoryGifs);
+}
+
+function showCategoryView() {
+    getId("categoryContainer").style.display = "none";
+    getId("backButton").style.display = "block";
+    getId("gifContainer").style.display = "block";
+}
+
+function showCategoriesList() {
+    getId("categoryContainer").style.display = "block";
+    getId("backButton").style.display = "none";
+    getId("gifContainer").style.display = "none";
+}
+
+function grabData() {
+    const url = `https://g.tenor.com/v1/categories?key=${exampleTenorId}`;
+    httpGetAsync(url, handleCategories);
+}
+
+document.addEventListener("DOMContentLoaded", grabData);
+</script>
+
+<style>
+
+
+.gifsContainer {
+    position: relative;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.categoryBox {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    margin: 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.categoryBox:hover {
+    background-color: #333;
+}
+
+.gifCategoryImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.gifOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    transition: opacity 0.3s ease-in-out;
+}
+
+.gifCategoryCaption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.categoryBox:hover .gifOverlay {
+    opacity: 0;
+}
+
+.categoryBox:hover .gifCategoryImage {
+    opacity: 0.7;
+}
+
+.gifImg {
+    margin: 10px;
+    max-width: 100%;
+    display: block;
+}
+
+
+
+#categoryContainer {
+    display: block;
+}
+
+#gifContainer {
+    display: none;
+    text-align: center;
+    padding: 10px;
+    margin-top: 20px;
+}
+
+#backButton {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px;
+    background-color: #333;
+    cursor: pointer;
+}
+
+#backButton:hover {
+    background-color: #555;
+}
+</style>
+
 <body>
-    <div id="media-menu">
-        <div id="media-menu-container"></div>
-    </div>
+<div>
+    <h2 class="title">Categories</h2>
+    <div id="categoryContainer" class="gifsContainer"></div>
+</div>
 
-    <script>
-        let baseMenuContainer;
+<div id="gifContainer" class="gifsContainer"></div>
 
-        function createEl(tag, attributes = {}) {
-            const element = document.createElement(tag);
-            for (const key in attributes) {
-                if (key === 'className') element.className = attributes[key];
-                else if (key === 'style') {
-                    for (const styleKey in attributes[key]) {
-                        element.style[styleKey] = attributes[key][styleKey];
-                    }
-                } else {
-                    element.setAttribute(key, attributes[key]);
-                }
-            }
-            return element;
-        }
-
-        function renderEmojis(container, spriteWidth, spriteHeight) {
-            const spriteSheetWidth = 3360;
-            const spriteSheetHeight = 3120;
-            const columns = Math.floor(spriteSheetWidth / spriteWidth);
-            const rows = Math.floor(spriteSheetHeight / spriteHeight);
-
-            const totalEmojis = rows * columns;
-            container.innerHTML = '';
-
-            for (let i = 0; i < totalEmojis; i++) {
-                const row = Math.floor(i / columns);
-                const col = i % columns;
-                const x = -(col * spriteWidth);
-                const y = -(row * spriteHeight);
-
-                const emoji = createEl('div', {
-                    className: 'emoji',
-                    style: {
-                        backgroundPosition: `${x}px ${y}px`,
-                        width: `${spriteWidth}px`,
-                        height: `${spriteHeight}px`,
-                    }
-                });
-
-                container.appendChild(emoji);
-            }
-        }
-
-        function initialiseMedia() {
-            baseMenuContainer = document.getElementById('media-menu-container');
-            renderEmojis(baseMenuContainer, 80, 80);
-        }
-
-        document.addEventListener('DOMContentLoaded', initialiseMedia);
-    </script>
+<div id="backButton" onclick="showCategoriesList()">Back to Categories</div>
 </body>
 </html>

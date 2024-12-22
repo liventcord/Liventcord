@@ -50,6 +50,8 @@ class Translations {
         "today": "Today at",
         "yesterday": "Yesterday at",
         "message_placeholder": "Send a message to channel #{{channelName}}",
+        "ok" : "Okay",
+        "cancel" : "Cancel",
       },
 
       tr: {
@@ -97,6 +99,8 @@ class Translations {
         "today": "Bugün saat",
         "yesterday": "Dün saat",
         "message_placeholder": "#{{channelName}} kanalına mesaj gönder",
+        "ok" : "Tamam",
+        "cancel" : "İptal",
       }
     };
   }

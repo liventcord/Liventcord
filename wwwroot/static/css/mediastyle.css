@@ -26,18 +26,7 @@
     outline: none;
 }
 
-#mediaMenuSearchbar {
-    width: 100%;
-    color: white;
-    font-size: 18px;
-    height: 30px;
-    border-radius: 3px;
-    padding-left: 10px;
-    margin-top: 10px;
-    border: none;
-    background-color: rgb(30, 31, 34);
-    outline: none;
-}
+
 
 .gifs-menu-button {
     cursor: pointer;
@@ -63,6 +52,23 @@
     font-size: 15px;
     font-weight: 900;
     background-color: #41434a;
+}
+#categoryName {
+    color: white;
+    font-size: 20px;
+    margin-left: 30px;
+    margin-top: 7px;
+    pointer-events: none;
+
+}
+#gifsBackBtn {
+    display: none;
+    position: fixed;
+    background-color: transparent;
+    border: none;
+    color: white;
+    margin-top: -50px;
+    font-size: 1.35em;
 }
 
 #media-menu-line {
@@ -90,7 +96,7 @@
     border-radius: 10px;
     padding: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    overflow: hidden; /* Remove default overflow from this container */
+    overflow: hidden; 
     height: 500px;
 }
 
@@ -114,7 +120,6 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    padding: 10px;
     width: 100%;
 }
 .emoji {
@@ -166,7 +171,6 @@
     right: 253px;
     bottom: 90px;
     padding: 15px;
-    cursor: pointer;
 }
 
 #media-menu-container {
@@ -175,6 +179,7 @@
     margin-top: 20px;
     justify-content: center;
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: calc(100% - 80px);
 }
 
@@ -233,4 +238,74 @@
     border: none;
     background-color: rgb(30, 31, 34);
     outline: none;
+}
+
+
+.gifsContainer {
+    position: relative;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.categoryBox {
+    display: inline-block;
+    width: 200px;
+    height: 200px;
+    margin: 10px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.categoryBox:hover {
+    background-color: #333;
+}
+
+.gifCategoryImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.gifOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    transition: opacity 0.3s ease-in-out;
+}
+
+.gifCategoryCaption {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: white;
+    font-weight: bold;
+}
+
+.categoryBox:hover .gifOverlay {
+    opacity: 0;
+}
+
+.categoryBox:hover .gifCategoryImage {
+    opacity: 0.7;
+}
+
+#backButton {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 10px;
+    background-color: #333;
+    cursor: pointer;
+}
+
+#backButton:hover {
+    background-color: #555;
 }
