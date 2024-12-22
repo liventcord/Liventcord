@@ -58,6 +58,8 @@ function handleToggleClick(toggleElement, toggleClickCallback) {
 
 
 function handleResize() {
+
+    handleMediaPanelResize();
     
     if(window.innerWidth < 1200) {
         if(isOnMe) {
