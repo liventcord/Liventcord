@@ -21,11 +21,6 @@ Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**
 - **Custom Presence**: Set status with custom messages to reflect availability or activity.
 - **Direct Messaging**: 1-on-1 messaging with real-time updates.
 
-
-## API Overview
-
-LiventCord's API provides endpoints for managing messaging, channels, guilds, file sharing, members and user profiles. Detailed API documentation is available through Swagger and Redoc.
-
 ## Database
 
 LiventCord uses **PostgreSQL** as the database backend, managed via **Entity Framework Core** (EF Core) for ORM.
