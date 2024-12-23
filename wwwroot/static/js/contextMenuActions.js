@@ -1,26 +1,60 @@
 let isDeveloperMode = true;
 let contextList = {};
 let messageContextList = {};
+const ActionType = {
+  COPY_ID: "COPY_ID",
+  COPY_USER_ID: "COPY_USER_ID",
+  INVITE_TO_GUILD: "INVITE_TO_GUILD",
+  BLOCK_USER: "BLOCK_USER",
+  REPORT_USER: "REPORT_USER",
+  REMOVE_USER: "REMOVE_USER",
+  EDIT_GUILD_PROFILE: "EDIT_GUILD_PROFILE",
+  MENTION_USER: "MENTION_USER",
+};
 
+const ChannelsActionType = {
+  MARK_AS_READ: "MARK_AS_READ",
+  COPY_LINK: "COPY_LINK",
+  MUTE_CHANNEL: "MUTE_CHANNEL",
+  NOTIFY_SETTINGS: "NOTIFY_SETTINGS",
+  EDIT_CHANNEL: "EDIT_CHANNEL",
+  DELETE_CHANNEL: "DELETE_CHANNEL",
+};
+
+const VoiceActionType = {
+  OPEN_PROFILE: "OPEN_PROFILE",
+  MENTION_USER: "MENTION_USER",
+  MUTE_USER: "MUTE_USER",
+  DEAFEN_USER: "DEAFEN_USER",
+};
+
+const MessagesActionType = {
+  ADD_REACTION: "ADD_REACTION",
+  EDIT_MESSAGE: "EDIT_MESSAGE",
+  PIN_MESSAGE: "PIN_MESSAGE",
+  REPLY: "REPLY",
+  MARK_AS_UNREAD: "MARK_AS_UNREAD",
+  DELETE_MESSAGE: "DELETE_MESSAGE",
+};
 
 
 function openReactionMenu(messageId) {
-  alertUser({ message: "Not implemented: React menu for message " + messageId });
+  alertUser("Not implemented: React menu for message ");
 }
 
 function openEditMessage(messageId) {
-  alertUser({ message: "Not implemented: Editing message " + messageId });
+  alertUser("Not implemented: Editing message ");
 }
 
 function pinMessage(messageId) {
-  alertUser({ message: "Not implemented: Pinning message " + messageId });
+  alertUser("Not implemented: Pinning message ");
 }
 
 function markAsUnread(messageId) {
-  alertUser({ message: "Not implemented: Marking message as unread " + messageId });
+  alertUser("Not implemented: Marking message as unread ");
 }
 function editGuildProfile() {
-  alertUser({ message: "Not implemented: editing guild profile " });
+  alertUser("Not implemented: editing guild profile ");
   
 }
 
@@ -38,15 +72,15 @@ function deleteMessage(messageId) {
 }
 
 function inviteToGuild(userId) {
-  alertUser({ message: "Not implemented: Inviting user " + userId + " to the guild." });
+  alertUser("Not implemented: Inviting user ");
 }
 
 function blockUser(userId) {
-  alertUser({ message: "Not implemented: Blocking user " + userId });
+  alertUser("Not implemented: Blocking user " );
 }
 
 function reportUser(userId) {
-  alertUser({ message: "Not implemented: Reporting user " + userId });
+  alertUser("Not implemented: Reporting user ");
 }
 function muteChannel(channelId) {
   alertUser("Mute channel is not implemented!");
@@ -78,14 +112,7 @@ function removeFriend(userId) {
   apiClient.send("friend_request_event", "remove_friend", { friend_id: userId });
 }
 
-const MessagesActionType = {
-  ADD_REACTION: "Tepki Ekle",
-  EDIT_MESSAGE: "Mesajı Düzenle",
-  PIN_MESSAGE: "Mesajı Sabitle",
-  REPLY: "Yanıtla",
-  MARK_AS_UNREAD: "Okunmadı olarak işaretle",
-  DELETE_MESSAGE: "Mesajı Sil",
-};
+
 
 function copyChannelLink(guildId, channelId) {
   const content = constructAbsoluteAppPage(guildId, channelId);
@@ -118,39 +145,15 @@ function appendToProfileContextList(userData, userId) {
   }
 }
 
-//Context
-const ActionType = {
-  COPY_ID: "ID'yi Kopyala",
-  COPY_USER_ID: "Kullanıcı ID'sini Kopyala",
-  INVITE_TO_GUILD: "Sunucuya Davet Et",
-  BLOCK_USER: "Engelle",
-  REPORT_USER: "Kullanıcı Profilini Bildir",
-  REMOVE_USER: "Arkadaşı Çıkar",
-  EDIT_GUILD_PROFILE: "Sunucu Profilini Düzenle",
-  MENTION_USER: "Bahset",
-};
-const ChannelsActionType = {
-  MARK_AS_READ: "Okundu olarak işaretle",
-  COPY_LINK: "Bağlantıyı Kopyala",
-  MUTE_CHANNEL: "Kanalı Sessize Al",
-  NOTIFY_SETTINGS: "Bildirim Ayarları",
-  EDIT_CHANNEL: "Kanalı Düzenle",
-  DELETE_CHANNEL: "Kanalı Sil",
-};
-const VoiceActionType = {
-  OPEN_PROFILE: "Profil",
-  MENTION_USER: "Bahset",
-  MUTE_USER: "Sustur",
-  DEAFEN_USER: "Sağırlaştır",
-};
+
+
+
 function createUserContext(userId) {
   let context = {};
 
-  if (!isProfilePopOpen()) {
-    context[VoiceActionType.OPEN_PROFILE] = {
-      action: () => drawProfilePop(userId),
-    };
-  }
+  context[VoiceActionType.OPEN_PROFILE] = {
+    action: () => drawProfilePop(userId),
+  };
 
   (context[VoiceActionType.MENTION_USER] = () => mentionUser(userId)),
     (context[VoiceActionType.MUTE_USER] = () => muteUser(userId)),
@@ -171,11 +174,9 @@ function createProfileContext(userData) {
   const userId = userData.userId;
   let context = {};
 
-  if (!isProfilePopOpen()) {
-    context[VoiceActionType.OPEN_PROFILE] = {
-      action: () => drawProfilePop(userData),
-    };
-  }
+  context[VoiceActionType.OPEN_PROFILE] = {
+    action: () => drawProfilePop(userData),
+  };
 
   if (userId !== currentUserId) {
     const guildSubOptions = getManageableGuilds();
@@ -311,11 +312,13 @@ function createMessageContext(messageId, userId) {
   let context = {};
 
   context[MessagesActionType.ADD_REACTION] = {
+    label: MessagesActionType.ADD_REACTION,  // Use the constant key for translation
     action: () => openReactionMenu(messageId),
   };
 
   if (userId === currentUserId) {
     context[MessagesActionType.EDIT_MESSAGE] = {
+      label: MessagesActionType.EDIT_MESSAGE,  // Use the constant key for translation
       action: () => openEditMessage(messageId),
     };
   }
@@ -325,26 +328,32 @@ function createMessageContext(messageId, userId) {
     (isOnDm && userId === currentUserId)
   ) {
     context[MessagesActionType.PIN_MESSAGE] = {
+      label: MessagesActionType.PIN_MESSAGE,  // Use the constant key for translation
       action: () => pinMessage(messageId),
     };
   }
 
   context[MessagesActionType.REPLY] = {
+    label: MessagesActionType.REPLY,  // Use the constant key for translation
     action: () => showReplyMenu(messageId, userId),
   };
+
   context[MessagesActionType.MARK_AS_UNREAD] = {
+    label: MessagesActionType.MARK_AS_UNREAD,  // Use the constant key for translation
     action: () => markAsUnread(messageId),
   };
 
   if (isOnDm) {
     if (userId === currentUserId) {
       context[MessagesActionType.DELETE_MESSAGE] = {
+        label: MessagesActionType.DELETE_MESSAGE,  // Use the constant key for translation
         action: () => deleteMessage(messageId),
       };
     }
   } else {
     if (permissionManager.canManageMessages())
       context[MessagesActionType.DELETE_MESSAGE] = {
+        label: MessagesActionType.DELETE_MESSAGE,  // Use the constant key for translation
         action: () => deleteMessage(messageId),
       };
   }
@@ -356,8 +365,14 @@ function createMessageContext(messageId, userId) {
   return context;
 }
 
-function createMenuItem(label, itemOptions) {
-  const li = createEl("li", { textContent: label });
+
+
+
+function createMenuItem(labelKey, itemOptions) {
+  console.log(labelKey,typeof(labelKey));
+  const translatedLabel = translations.getContextTranslation(labelKey);
+  const li = createEl("li", { textContent: translatedLabel });
+
   li.addEventListener("click", function (event) {
     event.stopPropagation();
     hideContextMenu();
@@ -369,9 +384,7 @@ function createMenuItem(label, itemOptions) {
   if (itemOptions.subOptions) {
     const subUl = createEl("ul");
     itemOptions.subOptions.forEach((subOption) => {
-      const subLi = createMenuItem(subOption.label, {
-        action: subOption.action,
-      });
+      const subLi = createMenuItem(subOption.label, subOption);
       subUl.appendChild(subLi);
     });
     li.appendChild(subUl);
@@ -379,7 +392,6 @@ function createMenuItem(label, itemOptions) {
     li.addEventListener("mouseenter", function () {
       const subMenu = li.querySelector("ul");
       subMenu.style.display = "block";
-
       subMenu.style.left = "100%";
       subMenu.style.right = "auto";
 
@@ -404,6 +416,10 @@ function createMenuItem(label, itemOptions) {
   return li;
 }
 
+
+
+
+
 function showContextMenu(x, y, options) {
   hideContextMenu();
   const tempContextMenu = createEl("div", {
@@ -411,6 +427,7 @@ function showContextMenu(x, y, options) {
     className: "context-menu",
   });
   const ul = createEl("ul");
+
   for (const key in options) {
     if (options.hasOwnProperty(key)) {
       const itemOptions = options[key];
@@ -418,6 +435,7 @@ function showContextMenu(x, y, options) {
       ul.appendChild(li);
     }
   }
+
   tempContextMenu.appendChild(ul);
   document.body.appendChild(tempContextMenu);
 
@@ -426,8 +444,8 @@ function showContextMenu(x, y, options) {
   const menuWidth = tempContextMenu.offsetWidth;
   const menuHeight = tempContextMenu.offsetHeight;
 
-  let left = Math.min(x, viewportWidth - menuWidth);
-  let top = Math.min(y, viewportHeight - menuHeight);
+  const left = Math.min(x, viewportWidth - menuWidth);
+  const top = Math.min(y, viewportHeight - menuHeight);
 
   tempContextMenu.style.setProperty("--menu-left", `${left}px`);
   tempContextMenu.style.setProperty("--menu-top", `${top}px`);
@@ -436,6 +454,8 @@ function showContextMenu(x, y, options) {
 
   document.addEventListener("click", clickOutsideContextMenu);
 }
+
+
 
 function clickOutsideContextMenu(event) {
   if (
@@ -450,7 +470,7 @@ function clickOutsideContextMenu(event) {
 function hideContextMenu() {
   if (contextMenu) {
     contextMenu.remove();
-    contextMenu = null; // Reset contextMenu variable
+    contextMenu = null; 
     document.removeEventListener("click", clickOutsideContextMenu);
   }
 }

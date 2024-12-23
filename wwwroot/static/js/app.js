@@ -451,7 +451,8 @@ function loadApp(friendId=null) {
         disableElement('guild-settings-button');
         activateDmContainer(friendId);
         const friendNick = passed_friend_name != undefined && passed_friend_id == friendId ? passed_friend_name : getUserNick(friendId);
-        chatInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+        chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
+
         channelTitle.textContent = friendNick;
         disableElement('hash-sign');
         enableElement('dm-profile-sign')
@@ -485,7 +486,7 @@ function changeCurrentDm(friendId) {
     
     const friendNick = getUserNick(friendId);
     channelTitle.textContent = friendNick;
-    chatInput.placeholder = '@' + friendNick + ' kullanıcısına mesaj gönder';
+    chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
     const dmProfSign = getId('dm-profile-sign');
     setProfilePic(dmProfSign,friendId);
     dmProfSign.dataset.cid = friendId;

@@ -196,8 +196,8 @@ function alertUser(subject, content) {
     const popUpSubject = createEl('h1', { className: 'pop-up-subject', textContent: subject });
     const popUpContent = createEl('p', { className: 'pop-up-content', textContent: content });
 
-    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: 'Tamam' });
-    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: 'İptal' });
+    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: translations.getTranslation("ok") });
+    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: translations.getTranslation("cancel") });
 
     const buttonContainer = createEl('div', { className: 'pop-button-container' });
     buttonContainer.appendChild(popAcceptButton);
@@ -218,10 +218,10 @@ function alertUser(subject, content) {
     });
 }
 
-function askUser(subject, content, successText, acceptCallback, isRed = false) {
+function askUser(subject, content, actionText, acceptCallback, isRed = false) {
     const popUpSubject = createEl('h1', { className: 'pop-up-subject', textContent: subject });
     const popUpContent = createEl('p', { className: 'pop-up-content', textContent: content });
-    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: successText });
+    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: actionText });
     if (isRed) {
         popAcceptButton.style.backgroundColor = 'rgb(218, 55, 60)';
     }
@@ -231,7 +231,7 @@ function askUser(subject, content, successText, acceptCallback, isRed = false) {
         closePopUp(outerParent, outerParent.firstChild);
     });
 
-    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: 'İptal' });
+    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: translations.getTranslation("cancel") });
     popRefuseButton.addEventListener('click', function () {
         closePopUp(outerParent, outerParent.firstChild);
     });
@@ -262,9 +262,8 @@ function clickMainLogo() {
     logoClicked ++;
     if(logoClicked >= 14) {
         logoClicked = 0;
-        const audioUrl = "https://github.com/TheLp281/LiventCord/raw/main/liventocordolowpitch.mp3";
         try {
-            let audio = new Audio(audioUrl);
+            let audio = new Audio("/static/liventocordolowpitch.mp3");
             audio.play();
         }
         catch(error) {
@@ -276,7 +275,8 @@ function clickMainLogo() {
 
 
 function logOutPrompt() {
-    askUser('Çıkış Yap','Çıkış yapmak istediğine emin misin?','Çıkış Yap',logOut,color=isRed=true);
+    const logOut = translations.getTranslation("log-out-button");
+    askUser(logOut,translations.getTranslation("log-out-prompt"),logOut,logOut,color=isRed=true);
 }
 
 function loadObservedContent(targetElement) {
