@@ -874,7 +874,6 @@
 #user-list {
     padding-top: 65px;
     max-height: 90vh;
-    background-color: #313338;
     width: 238px;  
     display: flex;  
     flex-direction: column;  

@@ -117,7 +117,16 @@ function createToggle(id, label, description) {
         </div>
     `;
 }
+function getLanguageHtml() {
 
+    return `
+        <h3>Dil</h3>
+        <select class="dropdown" id="sound-mic-dropdown"></select>
+        <select class="dropdown" id="sound-output-dropdown"></select>
+        <select class="dropdown" id="camera-dropdown"></select>       
+    `
+
+}
 function getAppearanceHtml() {
     const toggles = [
         { id: 'snow-toggle', label: 'Kış Modu', description: 'Kar yağışını aktifleştir.' },
@@ -158,7 +167,8 @@ const userSettings = [
     { category: 'SoundAndVideo', label: 'Ses Ve Görüntü' },
     { category: 'Notifications', label: 'Bildirimler' },
     { category: 'ActivityPresence', label: 'Etkinlik Gizliliği' },
-    { category: 'Appearance', label: 'Görünüm' }
+    { category: 'Appearance', label: 'Görünüm' },
+    { category: 'Language', label: 'Dil' }
 ];
 
 const guildSettings = [
@@ -167,13 +177,14 @@ const guildSettings = [
 ];
 
 
-function createDeleteGuildPrompt(guildId,guild_name) {
+function createDeleteGuildPrompt(guildId,guildName) {
     if(!guildId) { return }
     var onClickHandler = function() {
         apiClient.send(EventType.DELETE_GUILD, guildId);
     }
-    const successText = "Sunucuyu sil";
-    askUser(`${guild_name} Sunucusunu Sil`,'Bu işlem geri alınamaz.',successText,onClickHandler,isRed=true);
+    const actionText = translations.getDeleteGuildText(guildName)  
+    
+    askUser(translations.getDeleteGuildText(guildName),translations.getTranslation("delete_guild_text_2"),actionText,onClickHandler,isRed=true);
 
 } 
 
@@ -216,6 +227,10 @@ function getSettingsConfig() {
         Appearance: {
             title: 'Görünüm',
             html: getAppearanceHtml()
+        },
+        Language: {
+            title: 'Dil',
+            html: getLanguageHtml()
         },
         Overview: {
             title: 'Sunucu Genel Bakış',
@@ -498,7 +513,7 @@ function openGuildSettingsDd(event) {
         
     }
     else if ( clicked_id ===  "exit-dropdown-button") {
-        askUser('Sunucudan ayrıl', 'Sunucudan ayrılmak istediğine emin misin?','Sunucudan ayrıl',leaveCurrentGuild)
+        askUser(translations.getTranslation("exit-dropdown-button"), translations.getTranslation("leave-guild-detail"),'Sunucudan ayrıl',leaveCurrentGuild)
     }
     
 }

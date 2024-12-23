@@ -11,7 +11,7 @@ function createChannelsPop() {
     const popBottomContainer = createEl('div',{className:'popup-bottom-container',id:'create-channel-popup-bottom-container'});
     const sendInvText = createEl('p',{id:'create-channel-send-text', textContent:sendText});
     const closeBtn = createEl('button',{className:'popup-close', id:"invite-close-button",textContent:'X'});
-    const newChannelPlaceholder = 'yeni-kanal';
+    const newChannelPlaceholder = translations.getTranslation("new-channel-placeholder");
     const inviteUsersSendInput = createEl('input',{id:"create-channel-send-input",placeholder:newChannelPlaceholder});
     inviteUsersSendInput.addEventListener('input', () => {
         const inputValue = inviteUsersSendInput.value.trim();
@@ -26,9 +26,9 @@ function createChannelsPop() {
     const channeltypevoiceicon = createEl('p',{id:'channel-type-icon',innerHTML:voiceText });
     const channeltypetexttitle = createEl('p', { id: 'channel-type-title', textContent: translations.getTranslation('textChannelTitle') });
     const channeltypevoicetitle = createEl('p', { id: 'channel-type-title', textContent: translations.getTranslation('voiceChannelTitle') });
-    const channeltypedescription = createEl('p',{id:'channel-type-description',textContent:"Mesajlar, resimler, GIF'ler, emojiler, fikirler ve şakalar gönder"});
-    const channelTypeVoiceDescription = createEl('p',{id:'channel-type-description',textContent:"Birlikte sesli veya görüntülü konuşun veya ekran paylaşın"});
-    const channelnametitle = createEl('p',{id:'create-channel-name', textContent:'KANAL ADI'});
+    const channeltypedescription = createEl('p',{id:'channel-type-description',textContent:translations.getTranslation('channel-type-description')});
+    const channelTypeVoiceDescription = createEl('p',{id:'channel-type-description',textContent:translations.getTranslation('channel-type-voice-description')});
+    const channelnametitle = createEl('p',{id:'create-channel-name', textContent:translations.getTranslation("create-channel-name")});
     const channelIcon = createEl('p',{id:'channel-icon',textContent:'#'});
     
     const textChannelContainer = createEl('div',{id:'create-channel-text-type'});
@@ -83,7 +83,7 @@ function createChannelsPop() {
             popAcceptButton.classList.add('inactive');
         }
     }
-    const popRefuseButton =  createEl('button', {className: 'pop-up-refuse',textContent:'İptal', style:"top: 93%; left:61%; font-size:14px;" });
+    const popRefuseButton =  createEl('button', {className: 'pop-up-refuse',textContent:translations.getTranslation("cancel"), style:"top: 93%; left:61%; font-size:14px;" });
     popRefuseButton.addEventListener('click',function(){
         isTextChannel = true;
         closePopUp(newPopOuterParent, newPopParent);
@@ -148,7 +148,7 @@ function drawProfilePop(userData) {
     const profileDiscriminator = createEl('p', { id: 'profile-discriminator', textContent:'#' + discriminator });
     profileContainer.appendChild(profileTitle);
     profileContainer.appendChild(profileDiscriminator);
-    const aboutTitle = createEl('p', { id: 'profile-about-title', textContent: userId == currentUserId ? 'Hakkımda' : 'Hakkında'});
+    const aboutTitle = createEl('p', { id: 'profile-about-title', textContent: translations.getTranslation("about")});
     const aboutDescription = createEl('p', { id: 'profile-about-description', textContent: description });
     const popBottomContainer = createEl('div', { className: 'popup-bottom-container', id: 'profile-popup-bottom-container' });
     popBottomContainer.appendChild(aboutTitle);
@@ -167,7 +167,7 @@ function drawProfilePop(userData) {
     if(userId != currentUserId) {
         if(!friendCache.isFriend(userId)) {
             const addFriendBtn = createEl('button', { className: 'profile-add-friend-button' });
-            addFriendBtn.innerHTML = ` <div class="icon-container">${createAddFriSVG()}</div> Arkadaş Ekle`;
+            addFriendBtn.innerHTML = ` <div class="icon-container">${createAddFriSVG()}</div> ${translations.getTranslation("open-friends-button")}`;
             function createAddFriSVG() {
                 return `
                     <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="white" viewBox="0 0 24 24">
@@ -208,7 +208,7 @@ function drawProfilePop(userData) {
     const bubble = createBubble(isOnline,true);
     profileImg.appendChild(bubble);
 
-    appendToProfileContextList(userData,userId);
+    
     profileOptions.addEventListener('click',function(event) { 
         showContextMenu(event.pageX, event.pageY,contextList[userId]);
     });
@@ -221,6 +221,7 @@ function drawProfilePop(userData) {
         contentElements: contentElements,
         id: 'profilePopContainer'
     });
+    appendToProfileContextList(userData,userId);
 }
 
 
@@ -236,9 +237,7 @@ function createPopUp({contentElements, id, closeBtnId=null}) {
         const closeBtn = createEl('button', { className: 'popup-close', id: closeBtnId, textContent: 'X' });
         parentContainer.appendChild(closeBtn);
 
-
         closeBtn.addEventListener('click', function() {
-            console.log("Closing pop up.");
             closePopUp(popOuterParent, parentContainer);
         });
 
@@ -254,7 +253,6 @@ function createPopUp({contentElements, id, closeBtnId=null}) {
     
     popOuterParent.addEventListener('mouseup', function(event) {
         if (isMouseDownOnPopOuter && event.target === popOuterParent) {
-            console.log("Pop outer clicked!");
             closePopUp(popOuterParent, parentContainer);
         }
         isMouseDownOnPopOuter = false;
@@ -266,8 +264,8 @@ function createPopUp({contentElements, id, closeBtnId=null}) {
     return popOuterParent;
 }
 function createInviteUsersPop() {
-    const title = `Arkadaşlarını ${currentGuildName} sunucusuna davet et`;
-    const sendText = "VEYA BİR ARKADAŞINA SUNUCU DAVETİ BAĞLANTISI YOLLA";
+    const title = translations.getInviteGuildText(currentGuildName);
+    const sendText = translations.getTranslation("invites-guild-detail");
     const invitelink = `${window.location.protocol}//${window.location.hostname}/join-guild/${guildCache.getInviteId(guildId)}`;
 
     const inviteTitle = createEl('p', { id: 'invite-users-title', textContent: title });
@@ -313,7 +311,9 @@ function openSearchPop() {
 
 }
 
-function showGuildPop(subject, content) {
+function showGuildPop() {
+    const subject = translations.getTranslation("create-your-guild");
+    const content = translations.getTranslation("create-your-guild-detail");
 
     const newPopParent = createEl('div', { className: 'pop-up', id: 'guild-pop-up' });
     const newPopOuterParent = createEl('div', { className: 'outer-parent' });
@@ -322,7 +322,7 @@ function showGuildPop(subject, content) {
     const guildPopButtonContainer = createEl('div', { className: 'guild-pop-button-container' });
 
     const popBottomContainer = createEl('div',{className:'popup-bottom-container'});
-    const popOptionButton = createEl('button', { id:'popOptionButton',className: 'guild-pop-up-accept', textContent: 'Kendim Oluşturayım' });
+    const popOptionButton = createEl('button', { id:'popOptionButton',className: 'guild-pop-up-accept', textContent: translations.getTranslation("create-myself") });
     const closeCallback = function (event) {
         closePopUp(newPopOuterParent, newPopParent);
     }
@@ -330,8 +330,8 @@ function showGuildPop(subject, content) {
     
     popOptionButton.addEventListener('click', function () { changePopUpToGuildCreation(newPopParent,guildPopButtonContainer,guildPopContent,guildPopSubject,closeCallback); });
 
-    const option2Title = createEl('p', {className:'guild-pop-up-content', id:'guild-popup-option2-title',textContent:'Zaten davetin var mı?' });
-    const popOptionButton2 = createEl('button', { id:'popOptionButton2',className: 'guild-pop-up-accept', textContent: 'Bir Sunucuya Katıl' });
+    const option2Title = createEl('p', {className:'guild-pop-up-content', id:'guild-popup-option2-title',textContent:translations.getTranslation("already-have-invite") });
+    const popOptionButton2 = createEl('button', { id:'popOptionButton2',className: 'guild-pop-up-accept', textContent: translations.getTranslation("join-a-guild") });
     popOptionButton2.addEventListener('click', function () { ChangePopUpToGuildJoining(newPopParent,guildPopButtonContainer,guildPopContent,guildPopSubject,closeCallback); });
 
     popBottomContainer.appendChild(option2Title);
@@ -364,7 +364,7 @@ function clickToCreateGuildBackButton() {
 }
 function clickToJoinGuildBackButton(event,closeCallback) {
     closeCallback(event);
-    startGuildJoinCreate();
+    showGuildPop();
 }
 
 function changePopUpToGuildCreation(newPopParent, popButtonContainer, newPopContent, newPopSubject,closeCallback) {
@@ -372,24 +372,24 @@ function changePopUpToGuildCreation(newPopParent, popButtonContainer, newPopCont
     if (popButtonContainer && popButtonContainer.parentNode) {
         popButtonContainer.parentNode.removeChild(popButtonContainer);
     }
-    newPopSubject.textContent = 'Sunucunu Özelleştir';
-    newPopContent.textContent = 'Yeni sunucuna bir isim ve simge ekleyerek ona kişilik kat. Bunları istediğin zaman değiştirebilirsin.';
+    newPopSubject.textContent = translations.getTranslation("customize-guild");
+    newPopContent.textContent = translations.getTranslation("customize-guild-detail");
 
-    const text = currentUserNick + ' Kullanıcısının sunucusu';
+    const text = translations.generateGuildName(currentUserNick);
     const newInput = createEl('input', { value: text, id: 'guild-name-input' });
-    const createButton = createEl('button', { textContent: 'Oluştur', className: 'create-guild-verify common-button' });
-    const backButton = createEl('button', { textContent: 'Geri', className: 'create-guild-back common-button' });
+    const createButton = createEl('button', { textContent: translations.getTranslation("create"), className: 'create-guild-verify common-button' });
+    const backButton = createEl('button', { textContent: translations.getTranslation("back"), className: 'create-guild-back common-button' });
 
     backButton.addEventListener('click', function(event) {
         clickToJoinGuildBackButton(event, closeCallback);
     });
-    const guildNameTitle = createEl('h1', { textContent: 'SUNUCU ADI', className: 'create-guild-title' });
+    const guildNameTitle = createEl('h1', { textContent: translations.getTranslation("guildname"), className: 'create-guild-title' });
 
     const guildImageForm = createEl('div', { id: 'guildImageForm', accept: 'image/*' });
     const guildImageInput = createEl('input', { type: 'file', id: 'guildImageInput', accept: 'image/*', style: 'display: none;' });
 
     const guildImage = createEl('div', { id: 'guildImg', className: 'fas fa-camera' });
-    const uploadText = createEl('p', { id: 'uploadText', textContent: 'UPLOAD' });
+    const uploadText = createEl('p', { id: 'uploadText', textContent: translations.getTranslation("upload") });
     const clearButton = createEl('button', { id: 'clearButton', textContent: 'X', style: 'display: none;' });
     guildImage.appendChild(uploadText);
     guildImage.appendChild(clearButton);
@@ -444,24 +444,20 @@ function ChangePopUpToGuildJoining(newPopParent, popButtonContainer, newPopConte
         popButtonContainer.remove();
     }
 
-    newPopSubject.textContent = 'Bir Sunucuya Katıl';
-    newPopContent.textContent = 'Var olan bir sunucuya katılmak için aşağıya bir davet gir.';
+    newPopSubject.textContent = translations.getTranslation("join-a-guild");
+    newPopContent.textContent = translations.getTranslation("join-a-guild-detail")
     const text = `${window.location.protocol}//${window.location.hostname}/hTKzmak`;
     const newInput = createEl('input', { placeholder: text, id: 'guild-name-input' });
 
-    const joinButton = createEl('button', { textContent: 'Sunucuya Katıl', className: 'create-guild-verify common-button' });
+    const joinButton = createEl('button', { textContent: translations.getTranslation("join-guild"), className: 'create-guild-verify common-button' });
     joinButton.style.fontSize = '14px';
     joinButton.style.whiteSpace = 'nowrap';
     joinButton.style.padding = '0px';
     joinButton.style.width = '120px';
 
-
-
-
-
     joinButton.addEventListener('click',function() {
         if(newInput.value == '') {
-            guildNameTitle.textContent = 'DAVET BAĞLANTISI - Lütfen geçerli bir davet bağlantısı veya davet kodu gir.';
+            guildNameTitle.textContent = 'guild-join-invite-title';
             guildNameTitle.textAlign = 'left';
             guildNameTitle.style.color = 'red';
             return;
@@ -470,13 +466,13 @@ function ChangePopUpToGuildJoining(newPopParent, popButtonContainer, newPopConte
         closeCurrentJoinPop = closeCallback;
     });
 
-    const backButton = createEl('button', { textContent: 'Geri', className: 'create-guild-back common-button' });
+    const backButton = createEl('button', { textContent: translations.getTranslation("back"), className: 'create-guild-back common-button' });
     backButton.addEventListener('click', function(event) {
         clickToJoinGuildBackButton(event, closeCallback);
     });
-    const guildNameTitle = createEl('h1', { textContent: 'DAVET BAĞLANTISI', className: 'create-guild-title',id:'create-guild-title' });
+    const guildNameTitle = createEl('h1', { textContent: translations.getTranslation("invite-link"), className: 'create-guild-title',id:'create-guild-title' });
     guildNameTitle.style.top = '25%';
-    const guildNameDescription = createEl('h1', { textContent: 'DAVETLER ŞÖYLE GÖRÜNÜR', className: 'create-guild-title' });
+    const guildNameDescription = createEl('h1', { textContent: translations.getTranslation("invites-look-like"), className: 'create-guild-title' });
     const descriptionText = `
     hTKzmak<br>
     ${window.location.protocol}//${window.location.hostname}/hTKzmak<br>
@@ -487,8 +483,6 @@ function ChangePopUpToGuildJoining(newPopParent, popButtonContainer, newPopConte
     guildNameDescriptionContent.style.textAlign = 'left'; 
     
     
-
-
     guildNameDescriptionContent.style.color = 'white';
     guildNameDescriptionContent.style.top = '60%';
     guildNameDescription.style.top = '55%';
@@ -529,11 +523,11 @@ function closePopUp(outerParent, popParent) {
 }
 
 function createCropPop(inputSrc, callbackAfterAccept) {
-    const cropTitle = 'Görseli Düzenle';
+    const cropTitle = translations.getTranslation('crop-title');
     const inviteTitle = createEl('p', { id: 'invite-users-title', textContent: cropTitle });
 
     const imageContainer = createEl('div', { id: 'image-container' });
-    const appendButton = createEl('button', { className: 'pop-up-append', textContent: 'Uygula' });
+    const appendButton = createEl('button', { className: 'pop-up-append', textContent: translations.getTranslation("append") });
     let parentContainer;
     
     appendButton.addEventListener('click', () => {
@@ -550,7 +544,7 @@ function createCropPop(inputSrc, callbackAfterAccept) {
         });
     });
     
-    const backButton = createEl('button', { textContent: 'İptal', className: 'create-guild-back common-button' });
+    const backButton = createEl('button', { textContent: translations.getTranslation("cancel"), className: 'create-guild-back common-button' });
 
     backButton.addEventListener('click', () => { parentContainer.remove(); });
 

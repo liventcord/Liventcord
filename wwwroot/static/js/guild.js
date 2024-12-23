@@ -311,7 +311,4 @@ function leaveCurrentGuild() {
     apiClient.send('leave_from_guild',currentGuildId);
 }
 
-function startGuildJoinCreate() {
-    showGuildPop('Sunucunu Oluştur','Sunucun, arkadaşlarınla takıldığınız yerdir. Kendi sunucunu oluştur ve konuşmaya başla.');
-}
 

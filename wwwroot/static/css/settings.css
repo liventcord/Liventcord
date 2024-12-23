@@ -395,6 +395,7 @@ th {
 
 .create-guild-title {
     top: 50%;
+    text-transform: uppercase;
     color:rgb(209, 204, 204);
     left:10px;
     position:fixed;
@@ -500,7 +501,7 @@ th {
     font-weight: bold;
 }
 #create-channel-name {
-
+    text-transform: uppercase;
     color: white;
     font-size: 12px;
     padding-left: 20px;
