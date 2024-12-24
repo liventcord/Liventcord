@@ -246,16 +246,14 @@ class Translations {
           if(element.className == "iconWrapper") {
             element.ariaLabel = textToUse;      
           } else {
-            //console.log("Set text for: ",key, " as: ",textToUse)
+            console.log("Set text for: ",key, " as: ",textToUse)
             element.textContent = textToUse;
           }
         }
       }
     });
   }
-  initializeTranslationsSettings() {
-    // only process settings ui translations
-  }
+
 
 
 
@@ -411,13 +409,13 @@ class Translations {
     console.log(`Selected Language: ${language}`);
     this.currentLanguage = language;
     this.initializeTranslations();
-    this.initializeTranslationsSettings();
   }
 }
 
 const translations = new Translations();
-translations.setLanguage("tr");
+
+translations.setLanguage("en");
+
 setTimeout(() => {
   translations.initializeTranslations();
-
 });

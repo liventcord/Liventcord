@@ -53,20 +53,18 @@ function handleReplies() {
 function scrollToBottom() {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
-let hasJustFetchedMessages;
+let hasJustFetchedMessages = false;
+let isFetchingOldMessages = false;
+let stopFetching = false; 
+
 function getOldMessagesOnScroll() {
-    console.warn("Ignoring scroll");
-    return;
-    
-    if(isReachedChannelEnd || isOnMe) { return; }
-    if(hasJustFetchedMessages) { return; }
+    if (isReachedChannelEnd || isOnMe || stopFetching) { return; }
+    if (hasJustFetchedMessages) { return; }
     const oldestDate = getMessageDate();
     if (!oldestDate) return;
-    if(oldestDate == '1970-01-01 00:00:00.000000+00:00') { return; }
+    if (oldestDate == '1970-01-01 00:00:00.000000+00:00') { return; }
     getOldMessages(oldestDate);
 }
-
-let isFetchingOldMessages = false;
 
 async function handleScroll() {
     if (loadingScreen && loadingScreen.style.display === 'flex') { return; }
@@ -80,10 +78,17 @@ async function handleScroll() {
         console.log('Fetching old messages...');
         try {
             let continueLoop = true;
+
+            // Prevent further fetching if already fetching
+            if (hasJustFetchedMessages || stopFetching) {
+                return;
+            }
+
             while (continueLoop) {
                 const updatedScrollPosition = chatContainer.scrollTop;
 
                 if (updatedScrollPosition <= buffer) {
+                    stopFetching = false;  // Reset stop fetching flag
                     await getOldMessagesOnScroll();
                 } else {
                     continueLoop = false; 
@@ -96,6 +101,7 @@ async function handleScroll() {
             console.error('Error fetching old messages:', error);
         } finally {
             isFetchingOldMessages = false;
+            stopFetching = true; // Stop further requests if still at top
             console.log('Fetching complete. Resetting flag.');
         }
     }
