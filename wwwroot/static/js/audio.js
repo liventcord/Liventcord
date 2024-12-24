@@ -7,7 +7,7 @@ let isAudioPlaying = false;
 let analyser = null; 
 let source = null; 
 let isAnalyzing = false; 
-let youtubeIds = ['hOYzB3Qa9DE','UgSHUZvs8jg'] 
+let youtubeIds = ["hOYzB3Qa9DE","UgSHUZvs8jg"] 
 let youtubeIndex = 0;
 
 
@@ -16,7 +16,7 @@ let isInitializedAudio;
 
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     microphoneButton = getId("microphone-button");
     earphoneButton = getId("earphone-button");
 
@@ -32,11 +32,11 @@ async function playAudio(audioUrl) {
         }
 
         const audioElement = new Audio(audioUrl);
-        audioElement.crossOrigin = 'anonymous';
+        audioElement.crossOrigin = "anonymous";
         currentAudioPlayer = audioElement;
 
-        const playButton = document.querySelector('#player01 .play');
-        playButton.addEventListener('click', () => {
+        const playButton = document.querySelector("#player01 .play");
+        playButton.addEventListener("click", () => {
             if (isAudioPlaying) {
                 audioElement.pause();
                 playButton.innerHTML = `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 5v20l15-10L10 5z" fill="black"/></svg>`; // Play icon
@@ -47,8 +47,8 @@ async function playAudio(audioUrl) {
             isAudioPlaying = !isAudioPlaying;
         });
 
-        const nextButton = document.querySelector('#player01 .next');
-        nextButton.addEventListener('click', async () => {
+        const nextButton = document.querySelector("#player01 .next");
+        nextButton.addEventListener("click", async () => {
             if (youtubeIndex < youtubeIds.length - 1) {
                 youtubeIndex++;
                 const nextYtId = youtubeIds[youtubeIndex];
@@ -56,13 +56,13 @@ async function playAudio(audioUrl) {
                 if (audioStreamUrl) {
                     playAudio(audioStreamUrl);
                 } else {
-                    console.error('Failed to retrieve audio stream URL for next track.');
+                    console.error("Failed to retrieve audio stream URL for next track.");
                 }
             }
         });
 
-        const prevButton = document.querySelector('#player01 .prev');
-        prevButton.addEventListener('click', async () => {
+        const prevButton = document.querySelector("#player01 .prev");
+        prevButton.addEventListener("click", async () => {
             if (youtubeIndex > 0) {
                 youtubeIndex--;
                 const prevYtId = youtubeIds[youtubeIndex];
@@ -70,23 +70,23 @@ async function playAudio(audioUrl) {
                 if (audioStreamUrl) {
                     playAudio(audioStreamUrl);
                 } else {
-                    console.error('Failed to retrieve audio stream URL for previous track.');
+                    console.error("Failed to retrieve audio stream URL for previous track.");
                 }
             }
         });
 
-        audioElement.addEventListener('timeupdate', () => {
-            const totalTime = document.querySelector('#player01 .total-time');
-            const lastTime = document.querySelector('#player01 .last-time');
+        audioElement.addEventListener("timeupdate", () => {
+            const totalTime = document.querySelector("#player01 .total-time");
+            const lastTime = document.querySelector("#player01 .last-time");
             totalTime.innerText = formatTime(audioElement.duration);
             lastTime.innerText = formatTime(audioElement.currentTime);
             
-            const track = document.querySelector('#player01 .track');
+            const track = document.querySelector("#player01 .track");
             track.style.width = `${(audioElement.currentTime / audioElement.duration) * 100}%`;
         });
 
-        const track = document.querySelector('#player01 .track');
-        track.addEventListener('click', (e) => {
+        const track = document.querySelector("#player01 .track");
+        track.addEventListener("click", (e) => {
             const rect = track.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const width = rect.width; 
@@ -94,9 +94,9 @@ async function playAudio(audioUrl) {
             audioElement.currentTime = clickRatio * audioElement.duration;
         });
 
-        audioElement.addEventListener('ended', function () {
+        audioElement.addEventListener("ended", function () {
             isAudioPlaying = false;
-            const playButton = document.querySelector('#player01 .play');
+            const playButton = document.querySelector("#player01 .play");
             playButton.innerHTML = `<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 5v20l15-10L10 5z" fill="black"/></svg>`; // Play icon
         });
 
@@ -109,12 +109,12 @@ async function playAudio(audioUrl) {
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${minutes}:${secs < 10 ? '0' + secs : secs}`;
+    return `${minutes}:${secs < 10 ? "0" + secs : secs}`;
 }
 
 
 function initializeMp3Yt() {
-    const modal = createEl('div', { className: 'modal' });
+    const modal = createEl("div", { className: "modal" });
     document.body.appendChild(modal);
 
     const handleClick = async function () {
@@ -123,7 +123,7 @@ function initializeMp3Yt() {
         }
 
         const ytId = youtubeIds[youtubeIndex];
-        document.removeEventListener('click', handleClick);
+        document.removeEventListener("click", handleClick);
         modal.remove(); 
 
         isAudioPlaying = true;
@@ -133,23 +133,23 @@ function initializeMp3Yt() {
         if (audioStreamUrl) {
             playAudio(audioStreamUrl);
         } else {
-            console.error('Failed to retrieve audio stream URL.');
+            console.error("Failed to retrieve audio stream URL.");
         }
     };
 
-    document.addEventListener('click', handleClick);
+    document.addEventListener("click", handleClick);
 }
 async function fetchAudioStreamUrl(videoId) {
     try {
         const response = await fetch(`https://localhost:5009/ytstream/?videoId=${encodeURIComponent(videoId)}`);
         
         if (!response.ok) {
-            throw new Error('Network response was not ok');
+            throw new Error("Network response was not ok");
         }
 
         return response.url;
     } catch (error) {
-        console.error('Error fetching audio stream URL:', error);
+        console.error("Error fetching audio stream URL:", error);
         return null;
     }
 }
@@ -177,13 +177,13 @@ function stopAudioAnalysis() {
 
     let selfProfileDisplayElementList = getSelfFromUserList();
     if(selfProfileDisplayElementList) {
-        selfProfileDisplayElementList.style.borderRadius = '50%';
+        selfProfileDisplayElementList.style.borderRadius = "50%";
         
     }
     
 
 
-    const profileDisplayElement = getId('profile-display');
+    const profileDisplayElement = getId("profile-display");
 
     
     resetWiggleEffect(profileDisplayElement, selfProfileImage,selfProfileDisplayElementList);
@@ -193,7 +193,7 @@ function startAudioAnalysis() {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
     if (!(currentAudioPlayer instanceof HTMLMediaElement)) {
-        console.error('currentAudioPlayer is not a valid HTMLMediaElement.');
+        console.error("currentAudioPlayer is not a valid HTMLMediaElement.");
         return;
     }
 
@@ -211,11 +211,11 @@ function startAudioAnalysis() {
     analyzeAudio(bufferSize, dataArray, recentVolumes); 
 }
 function getSelfFromUserList() {
-    const userProfiles = userList.querySelectorAll('.profile-container');
+    const userProfiles = userList.querySelectorAll(".profile-container");
     if (!userList || !userProfiles.length) return null; 
     for (const profile of userProfiles) {
         if (profile.id === currentUserId) {
-            return profile.querySelector('.profile-pic');
+            return profile.querySelector(".profile-pic");
         }
     }
     return null; // Return null if no profile found
@@ -242,24 +242,24 @@ function analyzeAudio(bufferSize, dataArray, recentVolumes) {
     const scaleFactor = 1 + (averageVolume / 128); 
     const borderColor = `rgb(${Math.min(255, averageVolume * 2)}, 0, ${Math.max(0, 255 - averageVolume * 2)})`;
 
-    const profileDisplayElement = getId('profile-display');
+    const profileDisplayElement = getId("profile-display");
 
 
     if (averageVolume > dynamicThreshold) {
         if (profileDisplayElement) {
-            profileDisplayElement.classList.add('dancing-border');
+            profileDisplayElement.classList.add("dancing-border");
             profileDisplayElement.style.transform = `scale(${scaleFactor})`;
             profileDisplayElement.style.borderColor = borderColor;
         }
         if (selfProfileImage) {
-            selfProfileImage.classList.add('dancing-border');
+            selfProfileImage.classList.add("dancing-border");
             selfProfileImage.style.transform = `scale(${scaleFactor})`;
             selfProfileImage.style.borderColor = borderColor;
         }
 
         const selfUserListProfileList = getSelfFromUserList()
         if(selfUserListProfileList) {
-            selfUserListProfileList.classList.add('dancing-border');
+            selfUserListProfileList.classList.add("dancing-border");
             selfUserListProfileList.style.transform = `scale(${scaleFactor})`;
             selfUserListProfileList.style.borderColor = borderColor;
         }
@@ -272,20 +272,20 @@ function analyzeAudio(bufferSize, dataArray, recentVolumes) {
 
 function resetStyles(profileDisplayElement, selfProfileImage) {
     if (profileDisplayElement) {
-        profileDisplayElement.classList.remove('dancing-border');
+        profileDisplayElement.classList.remove("dancing-border");
         profileDisplayElement.style.transform = `scale(1)`;
-        profileDisplayElement.style.borderColor = 'rgb(17, 18, 20)';
+        profileDisplayElement.style.borderColor = "rgb(17, 18, 20)";
     }
     if (selfProfileImage) {
-        selfProfileImage.classList.remove('dancing-border');
+        selfProfileImage.classList.remove("dancing-border");
         selfProfileImage.style.transform = `scale(1)`;
-        selfProfileImage.style.borderColor = 'rgb(17, 18, 20)';
+        selfProfileImage.style.borderColor = "rgb(17, 18, 20)";
     }
     const selfUserListProfileList = getSelfFromUserList();
     if(selfUserListProfileList) {
-        selfUserListProfileList.classList.remove('dancing-border');
+        selfUserListProfileList.classList.remove("dancing-border");
         selfUserListProfileList.style.transform = `scale(1)`;
-        selfUserListProfileList.style.borderColor = 'rgb(17, 18, 20)';
+        selfUserListProfileList.style.borderColor = "rgb(17, 18, 20)";
     }
 }
 
@@ -311,25 +311,25 @@ function stopCurrentMusic() {
 }
 
 function resetProfileBorders() {
-    const profileDisplayElement = getId('profile-display');
+    const profileDisplayElement = getId("profile-display");
 
 
     const selfProfileDisplayElementList = getSelfFromUserList();
     if(selfProfileDisplayElementList) {
-        selfProfileDisplayElementList.style.borderRadius = '50%';
-        selfProfileDisplayElementList.style.borderColor = '';
-        selfProfileDisplayElementList.style.transform = '';
+        selfProfileDisplayElementList.style.borderRadius = "50%";
+        selfProfileDisplayElementList.style.borderColor = "";
+        selfProfileDisplayElementList.style.transform = "";
     }
 
     if (profileDisplayElement) {
-        profileDisplayElement.style.borderRadius = '50%';
-        profileDisplayElement.style.borderColor = '';
-        profileDisplayElement.style.transform = '';
+        profileDisplayElement.style.borderRadius = "50%";
+        profileDisplayElement.style.borderColor = "";
+        profileDisplayElement.style.transform = "";
     }
     if (selfProfileImage) {
-        selfProfileImage.style.borderRadius = '50%';
-        selfProfileImage.style.borderColor = '';
-        selfProfileImage.style.transform = '';
+        selfProfileImage.style.borderRadius = "50%";
+        selfProfileImage.style.borderColor = "";
+        selfProfileImage.style.transform = "";
     }
 }
 
@@ -348,12 +348,12 @@ function activateSoundOutput() {
 
     function getSoundOutputList() {
         return navigator.mediaDevices.enumerateDevices()
-            .then(devices => devices.filter(device => device.kind === 'audiooutput'));
+            .then(devices => devices.filter(device => device.kind === "audiooutput"));
     }
 
     async function updateSoundOutputOptions() {
-        const dropdown = getId('sound-output-dropdown');
-        dropdown.innerHTML = ''; 
+        const dropdown = getId("sound-output-dropdown");
+        dropdown.innerHTML = ""; 
 
         try {
             const hasPermission = await requestSoundOutputPermissions();
@@ -361,34 +361,34 @@ function activateSoundOutput() {
             if (hasPermission) {
                 const soundOutputs = await getSoundOutputList();
                 soundOutputs.forEach((output, index) => {
-                    const option = createEl('option');
-                    option.style.fontSize = '12px';
-                    option.style.border = 'none';
+                    const option = createEl("option");
+                    option.style.fontSize = "12px";
+                    option.style.border = "none";
                     option.value = output.deviceId;
                     option.textContent = output.label || `Sound Output ${index + 1}`;
                     dropdown.appendChild(option);
                 });
             }
 
-            const defaultOption = createEl('option');
-            defaultOption.style.fontSize = '12px';
-            defaultOption.value = 'default';
-            defaultOption.textContent = 'Default Sound Output';
+            const defaultOption = createEl("option");
+            defaultOption.style.fontSize = "12px";
+            defaultOption.value = "default";
+            defaultOption.textContent = "Default Sound Output";
             dropdown.appendChild(defaultOption);
 
         } catch (error) {
-            console.error('Error updating sound output options:', error);
+            console.error("Error updating sound output options:", error);
 
-            const defaultOption = createEl('option');
-            defaultOption.style.fontSize = '12px';
-            defaultOption.value = 'default';
-            defaultOption.textContent = 'Default Sound Output';
+            const defaultOption = createEl("option");
+            defaultOption.style.fontSize = "12px";
+            defaultOption.value = "default";
+            defaultOption.textContent = "Default Sound Output";
             dropdown.appendChild(defaultOption);
         }
     }
 
     updateSoundOutputOptions();
-    navigator.mediaDevices.addEventListener('devicechange', updateSoundOutputOptions);
+    navigator.mediaDevices.addEventListener("devicechange", updateSoundOutputOptions);
 }
 
 
@@ -427,7 +427,7 @@ async function sendAudioData() {
         mediaRecorder.start();
 
     } catch (err) {
-        console.error('Error accessing microphone:', err);
+        console.error("Error accessing microphone:", err);
     }
 }
 
@@ -443,96 +443,96 @@ function activateMicAndCamera() {
 
     function getMediaDevicesList() {
         return navigator.mediaDevices.enumerateDevices()
-            .then(devices => devices.filter(device => device.kind === 'audioinput' || device.kind === 'videoinput'));
+            .then(devices => devices.filter(device => device.kind === "audioinput" || device.kind === "videoinput"));
     }
     async function updateMediaOptions() {
-        const micDropdown = getId('sound-mic-dropdown');
-        micDropdown.innerHTML = '';
-        const cameraDropdown = getId('camera-dropdown');
-        cameraDropdown.innerHTML = ''; 
+        const micDropdown = getId("sound-mic-dropdown");
+        micDropdown.innerHTML = "";
+        const cameraDropdown = getId("camera-dropdown");
+        cameraDropdown.innerHTML = ""; 
         try {
             const hasPermission = await requestMediaPermissions();
 
             if (hasPermission) {
                 const mediaDevices = await getMediaDevicesList();
                 mediaDevices.forEach((device, index) => {
-                    const option = createEl('option',{fontSize:'12px',border:'none'});
+                    const option = createEl("option",{fontSize:"12px",border:"none"});
 
                     option.value = device.deviceId;
-                    if (device.kind === 'audioinput') {
+                    if (device.kind === "audioinput") {
                         option.textContent = device.label || `Microphone ${index + 1}`;
                         micDropdown.appendChild(option);
-                    } else if (device.kind === 'videoinput') {
+                    } else if (device.kind === "videoinput") {
                         option.textContent = device.label || `Camera ${index + 1}`;
                         cameraDropdown.appendChild(option);
                     }
                 });
             }
 
-            const defaultMicOption = createEl('option',{fontSize:'12px',value:'default'});
-            defaultMicOption.textContent = 'Default Microphone';
+            const defaultMicOption = createEl("option",{fontSize:"12px",value:"default"});
+            defaultMicOption.textContent = "Default Microphone";
             micDropdown.appendChild(defaultMicOption);
 
-            const defaultCameraOption = createEl('option',{fontSize:'12px',value:'default'});
-            defaultCameraOption.textContent = 'Default Camera';
+            const defaultCameraOption = createEl("option",{fontSize:"12px",value:"default"});
+            defaultCameraOption.textContent = "Default Camera";
             cameraDropdown.appendChild(defaultCameraOption);
 
         } catch (error) {
-            console.error('Error updating media options:', error);
+            console.error("Error updating media options:", error);
 
-            const defaultMicOption = createEl('option',{fontSize:'12px',value:'default'});
-            defaultMicOption.textContent = 'Default Microphone';
+            const defaultMicOption = createEl("option",{fontSize:"12px",value:"default"});
+            defaultMicOption.textContent = "Default Microphone";
             micDropdown.appendChild(defaultMicOption);
 
-            const defaultCameraOption = createEl('option',{fontSize:'12px',value:'default'});
-            defaultCameraOption.textContent = 'Default Camera';
+            const defaultCameraOption = createEl("option",{fontSize:"12px",value:"default"});
+            defaultCameraOption.textContent = "Default Camera";
             cameraDropdown.appendChild(defaultCameraOption);
         }
     }
 
     updateMediaOptions();
     if(navigator && navigator.mediaDevices) {
-        navigator.mediaDevices.addEventListener('devicechange', updateMediaOptions);
+        navigator.mediaDevices.addEventListener("devicechange", updateMediaOptions);
     }
 }
 
 
 
 function closeCurrentCall() {
-    currentAudioPlayer = getId('audio-player');
-    playAudio('/static/sounds/leavevoice.mp3');
+    currentAudioPlayer = getId("audio-player");
+    playAudio("/static/sounds/leavevoice.mp3");
 
-    const sp = getId('sound-panel');
+    const sp = getId("sound-panel");
     const oldVoiceId = currentVoiceChannelId;
-    sp.style.display = 'none';
+    sp.style.display = "none";
     clearVoiceChannel(oldVoiceId);
-    currentVoiceChannelId = '';
-    currentVoiceChannelGuild = '';
+    currentVoiceChannelId = "";
+    currentVoiceChannelGuild = "";
     const buttonContainer = channelsUl.querySelector(`li[id="${oldVoiceId}"]`);
 
     mouseLeaveChannelButton(buttonContainer, false,oldVoiceId);
     usersInVoice[oldVoiceId] = [];
 
     const data = {
-        'guildId' : currentVoiceChannelGuild,
-        'channelId' : currentVoiceChannelId
+        "guildId" : currentVoiceChannelGuild,
+        "channelId" : currentVoiceChannelId
     }
-    apiClient.send('leave_voice_channel',data)
+    apiClient.send("leave_voice_channel",data)
 }
 function clearVoiceChannel(channelId) {
     const channelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if(!channelButton) {return; }
-    const buttons = channelButton.querySelectorAll('.channel-button');
+    const buttons = channelButton.querySelectorAll(".channel-button");
     buttons.forEach((btn,index) => {
         btn.remove();
     });
-    let channelUsersContainer = channelButton.querySelector('.channel-users-container');
+    let channelUsersContainer = channelButton.querySelector(".channel-users-container");
     if(channelUsersContainer) {
         channelUsersContainer.remove();
     }
-    let existingContentWrapper = channelButton.querySelector('.content-wrapper');
+    let existingContentWrapper = channelButton.querySelector(".content-wrapper");
     console.log(existingContentWrapper.style.marginRight);
-    existingContentWrapper.style.marginRight = '100px';
+    existingContentWrapper.style.marginRight = "100px";
 }
 
 
@@ -551,14 +551,14 @@ function playNotification() {
 
 
 function initializeMusic() {
-    const modal = createEl('div', { className: 'modal'});
+    const modal = createEl("div", { className: "modal"});
     document.body.appendChild(modal);
 
     const songs = [
-        '/static/sounds/musics/2.mp3',
-        '/static/sounds/musics/1.mp3',
-        '/static/sounds/musics/3.mp3',
-        '/static/sounds/musics/4.mp3'
+        "/static/sounds/musics/2.mp3",
+        "/static/sounds/musics/1.mp3",
+        "/static/sounds/musics/3.mp3",
+        "/static/sounds/musics/4.mp3"
     ];
 
     let currentSongIndex = 0;
@@ -579,9 +579,9 @@ function initializeMusic() {
         };
     }
 
-    modal.addEventListener('click', function () {
+    modal.addEventListener("click", function () {
         playCurrentSong();
-        modal.style.display = 'none'; 
+        modal.style.display = "none"; 
     });
 }
 
@@ -593,7 +593,7 @@ function convertToArrayBuffer(data) {
     } else if (data.buffer instanceof ArrayBuffer) {
         return data.buffer;
     } else {
-        throw new Error('Unsupported data format');
+        throw new Error("Unsupported data format");
     }
 }
 
@@ -621,17 +621,17 @@ function playAudioBuffer(audioBuffer) {
 
 function applyWiggleEffect(profileElement, selfProfileElement) {
     if(profileElement) {
-        profileElement.classList.add('dancing-border');
+        profileElement.classList.add("dancing-border");
     }
     if(selfProfileElement) {
-        selfProfileElement.classList.add('dancing-border');
+        selfProfileElement.classList.add("dancing-border");
     }
     setTimeout(() => {
         if(profileElement) {
-            profileElement.classList.remove('dancing-border');
+            profileElement.classList.remove("dancing-border");
         }
         if(selfProfileElement) {
-            selfProfileElement.classList.remove('dancing-border');
+            selfProfileElement.classList.remove("dancing-border");
         }
     }, 500); 
 }
@@ -639,10 +639,10 @@ function applyWiggleEffect(profileElement, selfProfileElement) {
 function resetWiggleEffect(...elements) {
     elements.forEach(element => {
         if (element) {
-            element.style.transition = 'none';
-            element.style.borderRadius = '0%'; 
+            element.style.transition = "none";
+            element.style.borderRadius = "0%"; 
             setTimeout(() => {
-                element.style.transition = 'border-radius 0.1s'; 
+                element.style.transition = "border-radius 0.1s"; 
             }, 0);
         }
     });

@@ -140,14 +140,14 @@
     white-space: nowrap;
     color: oklab(0.786807 -0.0025776 -0.0110238);
     font-size: 16px;
-    font-family: 'gg sans Normal', sans-serif;
+    font-family: "gg sans Normal", sans-serif;
 }
 #guildBornTitle {
     white-space: nowrap;
     font-weight: bold;
     margin: 0;
     font-size: 32px;
-    font-family: 'gg sans Bold', sans-serif;
+    font-family: "gg sans Bold", sans-serif;
 }
 #guildBornTitle-wrapper {
     display: flex;
@@ -164,7 +164,7 @@
     color: rgb(177, 184, 193);
     font-weight: bold;
     font-size: 16px;
-    font-family: 'gg sans Normal', sans-serif;
+    font-family: "gg sans Normal", sans-serif;
     z-index: 1;
 }
 #channel-list {
@@ -1021,7 +1021,7 @@ textarea::-webkit-scrollbar-track {
     height: 110px;
 }
 .dateBar::before, .dateBar::after {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     width: calc(50% - 50px);
@@ -1273,8 +1273,8 @@ textarea::-webkit-scrollbar-track {
     display: grid;
     grid-template-columns: max-content max-content;
     grid-template-areas: 
-    'A B'
-    'A C';
+    "A B"
+    "A C";
     gap: 32px;
     place-content: center;
     height: 100vh;
@@ -1334,7 +1334,7 @@ textarea::-webkit-scrollbar-track {
     background: transparent; 
 }
 .track::before {
-    content: '';
+    content: "";
     height: 6px;
     width: 100%;
     display: block;
@@ -1345,7 +1345,7 @@ textarea::-webkit-scrollbar-track {
     top: 0; 
 }
 .track::after { 
-    content: '';
+    content: "";
     height: 6px;
     width: 85%;  
     display: block;

@@ -4,7 +4,7 @@ publish/
 cache/
 Migrations/
 Logs/
-
+wwwroot/static/css/loginfullstyles.css
 appsettings.Development.json
 appsettings.json
 

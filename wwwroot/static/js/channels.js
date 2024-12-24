@@ -19,7 +19,7 @@ function getChannels() {
 
         } else {
             console.warn("Channel cache is empty. fetching channels...");
-            apiClient.send(EventType.GET_CHANNELS, { 'guildId': currentGuildId }); 
+            apiClient.send(EventType.GET_CHANNELS, { "guildId": currentGuildId }); 
         }
     } else {
         console.warn("Current channel id is null!");
@@ -43,9 +43,9 @@ async function changeChannel(newChannel) {
         currentChannelName = newChannelName;
         chatInput.placeholder = translations.getMessagePlaceholder(newChannelName);
         channelTitle.textContent = newChannelName;
-        lastSenderID = '';
-        chatContent.innerHTML = '';
-        currentLastDate = '';
+        lastSenderID = "";
+        chatContent.innerHTML = "";
+        currentLastDate = "";
         getHistoryFromOneChannel(currentChannelId);
         closeReplyMenu();
     } else {
@@ -64,11 +64,11 @@ async function changeChannel(newChannel) {
                 const usersInChannel = usersInVoice[channelId];
                 if(usersInChannel) {
 
-                    let allUsersContainer = channelButton.querySelector('.channel-users-container');
+                    let allUsersContainer = channelButton.querySelector(".channel-users-container");
                     if(!allUsersContainer) {
-                        allUsersContainer = createEl('div',{className:'channel-users-container'});
+                        allUsersContainer = createEl("div",{className:"channel-users-container"});
                     }
-                    channelButton.style.width = '100%';
+                    channelButton.style.width = "100%";
                     usersInChannel.forEach((userId,index) => {
                         drawVoiceChannelUser(index,userId,channelId,channelButton,allUsersContainer,isTextChannel);
                     });
@@ -90,55 +90,55 @@ function isChannelMatching(channelId,isTextChannel) {
 
 function mouseHoverChannelButton(channelButton,isTextChannel,channelId) {
     if(!channelButton) { return; }
-    const contentWrapper = channelButton.querySelector('.content-wrapper');
+    const contentWrapper = channelButton.querySelector(".content-wrapper");
 
 
-    contentWrapper.style.display = 'flex';
+    contentWrapper.style.display = "flex";
     if(isTextChannel) {
         channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : hoveredChanColor;
     } else {
         channelButton.style.backgroundColor = hoveredChanColor;
     }
-    channelButton.style.color = 'white';
+    channelButton.style.color = "white";
 }
 function hashChildElements(channelButton) {
-    return channelButton.querySelector('.channel-users-container') != null;
+    return channelButton.querySelector(".channel-users-container") != null;
 }
 function mouseLeaveChannelButton(channelButton,isTextChannel,channelId) {
     if(!channelButton) { return; }
-    const contentWrapper = channelButton.querySelector('.content-wrapper');
-    const channelSpan = channelButton.querySelector('.channelSpan');
+    const contentWrapper = channelButton.querySelector(".content-wrapper");
+    const channelSpan = channelButton.querySelector(".channelSpan");
 
 
 
     if(channelSpan && !isTextChannel) {
-        channelSpan.style.marginRight = hashChildElements(channelButton) ? '30px' : '0px';
+        channelSpan.style.marginRight = hashChildElements(channelButton) ? "30px" : "0px";
     }
     if(contentWrapper) {
         if(!isTextChannel) {
             if(currentVoiceChannelId == channelId) {
-                contentWrapper.style.display = 'flex';
+                contentWrapper.style.display = "flex";
             } else {
-                contentWrapper.style.display = 'none';
+                contentWrapper.style.display = "none";
             }
             
         }  else  if (currentChannelId != channelId){
-            contentWrapper.style.display = 'none';
+            contentWrapper.style.display = "none";
             
         }
     }
     if(isTextChannel) {
-        channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : 'transparent';
+        channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : "transparent";
     } else {
-        channelButton.style.backgroundColor = 'transparent';
+        channelButton.style.backgroundColor = "transparent";
         
     }
-    channelButton.style.color = isChannelMatching(channelId,isTextChannel) ? 'white' : 'rgb(148, 155, 164)';
+    channelButton.style.color = isChannelMatching(channelId,isTextChannel) ? "white" : "rgb(148, 155, 164)";
 }
 function handleKeydown(event) {
     if (isKeyDown || isOnMe) return;
     currentChannels.forEach((channel, index) => {
-        let hotkey = index < 9 ? (index + 1).toString() : (index === 9 ? '0' : null);
+        let hotkey = index < 9 ? (index + 1).toString() : (index === 9 ? "0" : null);
         if (hotkey && event.key === hotkey && event.altKey) {
             changeChannel(channel);
         }
@@ -155,7 +155,7 @@ function handleKeydown(event) {
 function editChannelElement(channelId, new_channel_name) {
     const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (!existingChannelButton) { return; }
-    existingChannelButton.querySelector('channelSpan').textContent = new_channel_name;
+    existingChannelButton.querySelector("channelSpan").textContent = new_channel_name;
 }
 function removeChannelElement(channelId) {
     const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
@@ -185,16 +185,16 @@ function isChannelExist(channelId) {
 
 function createChannelButton(channelId, channelName, isTextChannel) {
     const htmlToSet = isTextChannel ? textChanHtml : voiceChanHtml;
-    const channelButton = createEl('li', { className: 'channel-button', id: channelId });
-    channelButton.style.marginLeft = '-80px';
+    const channelButton = createEl("li", { className: "channel-button", id: channelId });
+    channelButton.style.marginLeft = "-80px";
 
-    const hashtagSpan = createEl('span', { innerHTML: htmlToSet, marginLeft: '50px' });
-    hashtagSpan.style.color = 'rgb(128, 132, 142)';
+    const hashtagSpan = createEl("span", { innerHTML: htmlToSet, marginLeft: "50px" });
+    hashtagSpan.style.color = "rgb(128, 132, 142)";
     
-    const channelSpan = createEl('span', { className: 'channelSpan', textContent: channelName });
-    channelSpan.style.marginRight = '30px';
-    channelSpan.style.width = '100%';
-    channelButton.style.width = '70%';
+    const channelSpan = createEl("span", { className: "channelSpan", textContent: channelName });
+    channelSpan.style.marginRight = "30px";
+    channelSpan.style.width = "100%";
+    channelButton.style.width = "70%";
 
     channelButton.appendChild(hashtagSpan);
     channelButton.appendChild(channelSpan);
@@ -203,19 +203,19 @@ function createChannelButton(channelId, channelName, isTextChannel) {
 }
 
 function createContentWrapper(channel, channelName, isTextChannel) {
-    const contentWrapper = createEl('div', { className: 'content-wrapper' });
-    contentWrapper.style.display = 'none';
-    contentWrapper.style.marginRight = '100px';
-    contentWrapper.style.marginTop = '4px';
+    const contentWrapper = createEl("div", { className: "content-wrapper" });
+    contentWrapper.style.display = "none";
+    contentWrapper.style.marginRight = "100px";
+    contentWrapper.style.marginTop = "4px";
 
-    const settingsSpan = createEl('span', { innerHTML: settingsHtml });
-    settingsSpan.addEventListener('click', () => {
+    const settingsSpan = createEl("span", { innerHTML: settingsHtml });
+    settingsSpan.addEventListener("click", () => {
         console.log("Click to settings on:", channelName);
     });
 
     if (permissionManager.canInvite()) {
-        const inviteSpan = createEl('span', { innerHTML: inviteHtml });
-        inviteSpan.addEventListener('click', () => {
+        const inviteSpan = createEl("span", { innerHTML: inviteHtml });
+        inviteSpan.addEventListener("click", () => {
             console.log("Click to invite on:", channelName);
         });
         contentWrapper.appendChild(inviteSpan);
@@ -226,20 +226,20 @@ function createContentWrapper(channel, channelName, isTextChannel) {
 }
 
 function addEventListeners(channelButton, channelId, isTextChannel, channel) {
-    channelButton.addEventListener('mouseover', function(event) {
+    channelButton.addEventListener("mouseover", function(event) {
         if (event.target.id == channelId) {
             mouseHoverChannelButton(channelButton, isTextChannel, channelId);
         }
     });
 
-    channelButton.addEventListener('mouseleave', function(event) {
+    channelButton.addEventListener("mouseleave", function(event) {
         if (event.target.id == channelId) {
             mouseLeaveChannelButton(channelButton, isTextChannel, channelId);
         }
     });
 
     mouseLeaveChannelButton(channelButton, isTextChannel, channelId);
-    channelButton.addEventListener('click', function() {
+    channelButton.addEventListener("click", function() {
         changeChannel(channel);
     });
 }
@@ -276,13 +276,13 @@ function moveChannel(direction) {
 
 
 function removeChannelEventListeners() {
-    document.removeEventListener('keydown', handleKeydown);
-    document.removeEventListener('keyup', resetKeydown);
+    document.removeEventListener("keydown", handleKeydown);
+    document.removeEventListener("keyup", resetKeydown);
 }
 
 function addChannelEventListeners() {
-    document.addEventListener('keydown', handleKeydown);
-    document.addEventListener('keyup', resetKeydown);
+    document.addEventListener("keydown", handleKeydown);
+    document.addEventListener("keyup", resetKeydown);
 }
 
 
@@ -291,7 +291,7 @@ function validateChannel(channel) {
     const channelName = channel.channelName;
     const isTextChannel = channel.isTextChannel;
 
-    return channelId && channelName && typeof isTextChannel !== 'undefined';
+    return channelId && channelName && typeof isTextChannel !== "undefined";
 }
 
 function validateChannels(channels) {
@@ -350,7 +350,7 @@ function updateChannels(channels) {
 
     channelsUl.innerHTML = "";
     if (!isOnMe) {
-        disableElement('dm-container-parent');
+        disableElement("dm-container-parent");
     }
 
     removeChannelEventListeners();
@@ -395,11 +395,11 @@ function editChannel(data) {
 function drawVoiceChannelUser(index,userId,channelId,channelButton,allUsersContainer,isTextChannel) {
     
     const userName = getUserNick(userId);
-    const userContainer = createEl('li', { className: 'channel-button',id : userId });
-    userContainer.addEventListener('mouseover', function(event) {
+    const userContainer = createEl("li", { className: "channel-button",id : userId });
+    userContainer.addEventListener("mouseover", function(event) {
         //mouseHoverChannelButton(userContainer, isTextChannel,channelId);
     });
-    userContainer.addEventListener('mouseleave', function(event) {
+    userContainer.addEventListener("mouseleave", function(event) {
         //mouseLeaveChannelButton(userContainer, isTextChannel,channelId);
     });
 
@@ -407,26 +407,26 @@ function drawVoiceChannelUser(index,userId,channelId,channelButton,allUsersConta
     createUserContext(userId);
     
     userContainer.id = `user-${userId}`;
-    const userElement = createEl('img', { style: 'width: 25px; height: 25px; border-radius: 50px; position:fixed; margin-right: 170px;' });
+    const userElement = createEl("img", { style: "width: 25px; height: 25px; border-radius: 50px; position:fixed; margin-right: 170px;" });
     setProfilePic(userElement,userId);
     userContainer.appendChild(userElement);
-    userContainer.style.marginTop = index == 0 ? '30px' : '10px';
-    userContainer.style.marginLeft = '-220px'; 
-    userContainer.style.width = '90%';
-    userContainer.style.justifyContent = 'center';
-    userContainer.style.alignItems = 'center';
+    userContainer.style.marginTop = index == 0 ? "30px" : "10px";
+    userContainer.style.marginLeft = "-220px"; 
+    userContainer.style.width = "90%";
+    userContainer.style.justifyContent = "center";
+    userContainer.style.alignItems = "center";
 
-    const contentWrapper = createEl('div', { className: 'content-wrapper' });
-    const userSpan = createEl('span', { className: 'channelSpan', textContent: userName ,style:'position: fixed;'});
-    userSpan.style.color = 'rgb(128, 132, 142)';
-    userSpan.style.border = 'none';
-    userSpan.style.width = 'auto';
+    const contentWrapper = createEl("div", { className: "content-wrapper" });
+    const userSpan = createEl("span", { className: "channelSpan", textContent: userName ,style:"position: fixed;"});
+    userSpan.style.color = "rgb(128, 132, 142)";
+    userSpan.style.border = "none";
+    userSpan.style.width = "auto";
 
-    const muteSpan = createEl('span', { innerHTML: muteHtml });
-    const inviteVoiceSpan = createEl('span', { innerHTML: inviteVoiceHtml });
+    const muteSpan = createEl("span", { innerHTML: muteHtml });
+    const inviteVoiceSpan = createEl("span", { innerHTML: inviteVoiceHtml });
     contentWrapper.appendChild(muteSpan);
     contentWrapper.appendChild(inviteVoiceSpan);
-    contentWrapper.style.marginRight = '-115px';
+    contentWrapper.style.marginRight = "-115px";
     userContainer.appendChild(userSpan);
     userContainer.appendChild(contentWrapper);
     allUsersContainer.appendChild(userContainer)

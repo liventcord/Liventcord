@@ -26,14 +26,14 @@ function getId(string) { return document.getElementById(string);}
 
 function assignElements() {
 
-    chatInput = getId('user-input');
-    userList = getId('user-list');
+    chatInput = getId("user-input");
+    userList = getId("user-list");
     channelTitle = getId("channel-info");
     
     
-    guildsList = getId('guilds-list');
-    channelList = getId('channel-list');
-    channelsUl = channelList.querySelector('ul');
+    guildsList = getId("guilds-list");
+    channelList = getId("channel-list");
+    channelsUl = channelList.querySelector("ul");
     
 
 
@@ -48,13 +48,13 @@ function assignElements() {
 
 
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
     initializeApp();
 
     setTimeout(() => window.scrollTo(0, 0), 20);
     setTimeout(() => {
         openSettings();
-        selectSettingCategory('Language')
+        selectSettingCategory("Language")
     }, 0);
 });
 
@@ -74,7 +74,7 @@ function initializeApp() {
     isDomLoaded = true;
 }
 function initialiseAudio() {
-    if(toggleManager.states['party-toggle'] && isAudioPlaying) {
+    if(toggleManager.states["party-toggle"] && isAudioPlaying) {
         enableBorderMovement();
     }
 }
@@ -90,57 +90,57 @@ function initializeImages() {
 
 function initializeElements() {
     createChatScrollButton();
-    chatContainer.addEventListener('scroll', handleScroll);
+    chatContainer.addEventListener("scroll", handleScroll);
     initialisechatInput();
     closeReplyMenu();
     adjustHeight();
     setDropHandler();
 
 
-    const guildContainer = getId('guild-container');
-    guildContainer.addEventListener('mouseover', () => guildContainer.style.backgroundColor = '#333538');
-    guildContainer.addEventListener('mouseout', () => guildContainer.style.backgroundColor = '#2b2d31');
+    const guildContainer = getId("guild-container");
+    guildContainer.addEventListener("mouseover", () => guildContainer.style.backgroundColor = "#333538");
+    guildContainer.addEventListener("mouseout", () => guildContainer.style.backgroundColor = "#2b2d31");
 
-    const friendContainer = getId('friend-container-item');
-    friendContainer.addEventListener('click', loadDmHome);
+    const friendContainer = getId("friend-container-item");
+    friendContainer.addEventListener("click", loadDmHome);
 
-    getId('tb-showprofile').addEventListener('click', toggleUsersList);
+    getId("tb-showprofile").addEventListener("click", toggleUsersList);
     selfProfileImage = getId("self-profile-image");
-    selfProfileImage.addEventListener("mouseover", function () { this.style.borderRadius = '0px'; });
-    selfProfileImage.addEventListener("mouseout", function () { this.style.borderRadius = '50%'; });
+    selfProfileImage.addEventListener("mouseover", function () { this.style.borderRadius = "0px"; });
+    selfProfileImage.addEventListener("mouseout", function () { this.style.borderRadius = "50%"; });
 }
 
 function initializeSettings() {
     
     updateSelfProfile(currentUserId);
-    const isCookieUsersOpen = loadBooleanCookie('isUsersOpen');
+    const isCookieUsersOpen = loadBooleanCookie("isUsersOpen");
     setUsersList(isCookieUsersOpen, true);
-    disableElement('loading-screen');
+    disableElement("loading-screen");
 }
 
 function initializeListeners() {
-    document.addEventListener('click', (event) => {
+    document.addEventListener("click", (event) => {
         if (!userMentionDropdown.contains(event.target) && event.target !== chatInput) {
-            userMentionDropdown.style.display = 'none';
+            userMentionDropdown.style.display = "none";
         }
     });
-    getId('global-search-input').addEventListener('click', function(){
+    getId("global-search-input").addEventListener("click", function(){
         openSearchPop();
     });
 
-    const guildContainer = getId('guild-container');
-    guildContainer.addEventListener('click', handleGuildClick);
+    const guildContainer = getId("guild-container");
+    guildContainer.addEventListener("click", handleGuildClick);
 
     addContextListeners();
 }
 
 function handleGuildClick(event) {
-    if (event.target.id === 'guild-container' || event.target.id === 'guild-name') {
+    if (event.target.id === "guild-container" || event.target.id === "guild-name") {
         toggleDropdown();
     }
 }
 function isDefined(variable) {
-    return typeof variable !== 'undefined' && variable !== null;
+    return typeof variable !== "undefined" && variable !== null;
 }
 
 function initializeGuild() {
@@ -178,8 +178,8 @@ function initializeProfile() {
     currentUserId = passed_user_id;
     currentUserNick = nick_name;
     currentDiscriminator = user_discriminator;
-    getId('self-name').textContent = currentUserNick;
-    getId('self-discriminator').textContent = '#'+user_discriminator;
+    getId("self-name").textContent = currentUserNick;
+    getId("self-discriminator").textContent = "#"+user_discriminator;
     updateSelfProfile(currentUserId);
 }
 
@@ -191,8 +191,8 @@ function initializeProfile() {
 
 function readCurrentMessages() {
     if (!currentChannelId ) { return; }
-    apiClient.send('read_message',{'channelId' : currentChannelId,'guildId' : currentGuildId});
-    getId('newMessagesBar').style.display = 'none';
+    apiClient.send("read_message",{"channelId" : currentChannelId,"guildId" : currentGuildId});
+    getId("newMessagesBar").style.display = "none";
 }
 
 
@@ -200,29 +200,29 @@ function readCurrentMessages() {
 
 
 function createReplyBar(newMessage,messageId,userId,content,attachmentUrls) {
-    if(newMessage.querySelector('.replyBar')) { return; }
-    const smallDate = newMessage.querySelector('.small-date-element');
+    if(newMessage.querySelector(".replyBar")) { return; }
+    const smallDate = newMessage.querySelector(".small-date-element");
     if(smallDate)  {
         smallDate.remove();
     }
 
-    const replyBar = createEl('div',{className:'replyBar'});
+    const replyBar = createEl("div",{className:"replyBar"});
     newMessage.appendChild(replyBar);
-    newMessage.classList.add('replyMessage');
-    const messageContentElement = newMessage.querySelector('#message-content-element')
+    newMessage.classList.add("replyMessage");
+    const messageContentElement = newMessage.querySelector("#message-content-element")
 
 
     const nick = getUserNick(userId);
-    replyBar.style.height = '100px';
-    const replyAvatar = createEl('img', {className : 'profile-pic', id : userId});
-    replyAvatar.classList.add('reply-avatar');
-    replyAvatar.style.width = '15px';
-    replyAvatar.style.height = '15px';
+    replyBar.style.height = "100px";
+    const replyAvatar = createEl("img", {className : "profile-pic", id : userId});
+    replyAvatar.classList.add("reply-avatar");
+    replyAvatar.style.width = "15px";
+    replyAvatar.style.height = "15px";
 
     setProfilePic(replyAvatar,userId);
-    const replyNick = createEl('span',{textContent:nick,className:'reply-nick'});
-    const textToWrite = content ? content : attachmentUrls ? attachmentUrls : 'Eki görüntülemek için tıkla';
-    const replyContent = createEl('span',{className:'replyContent', textContent:textToWrite})
+    const replyNick = createEl("span",{textContent:nick,className:"reply-nick"});
+    const textToWrite = content ? content : attachmentUrls ? attachmentUrls : "Eki görüntülemek için tıkla";
+    const replyContent = createEl("span",{className:"replyContent", textContent:textToWrite})
 
     
     replyContent.onclick = () => {
@@ -271,7 +271,7 @@ function initialiseMe() {
         console.log("Cant initialise me while isOnMe is false");
         return;
     }
-    enableElement('dms-title');
+    enableElement("dms-title");
     updateUserListText();
     loadMainToolbar();
     isInitialized = true;
@@ -287,14 +287,14 @@ function openDm(friendId) {
     const wasOnDm = isOnDm;
     isOnDm = true;
     currentDmId = friendId;
-    lastSenderID = '';
+    lastSenderID = "";
     activateDmContainer(friendId);
     const url = constructDmPage(friendId);
     if(url != window.location.pathname) {
         window.history.pushState(null, null, url);
     }
     if(!userExistsDm(friendId)) {
-        apiClient.send('add_dm',{'friend_id' : friendId});
+        apiClient.send("add_dm",{"friend_id" : friendId});
     }
     loadApp(friendId);
     if(wasOnDm) {
@@ -310,29 +310,29 @@ function loadDmHome(isChangingUrl=true) {
     console.log("Loading main menu...");
 
     function handleMenu() {
-        selectGuildList('main-logo');
+        selectGuildList("main-logo");
         if(isChangingUrl) {
             window.history.pushState(null, null, "/channels/@me");
         }
-        enableElement('friends-container',false,true);
-        getId('friend-container-item').classList.add('dm-selected');
+        enableElement("friends-container",false,true);
+        getId("friend-container-item").classList.add("dm-selected");
         disableDmContainers();
-        lastDmId = '';
-        currentDmId = '';
-        enableElement('channel-info-container-for-friend');
-        disableElement('channel-info-container-for-index');
+        lastDmId = "";
+        currentDmId = "";
+        enableElement("channel-info-container-for-friend");
+        disableElement("channel-info-container-for-index");
         loadMainToolbar();
-        disableElement('chat-container');
-        disableElement('message-input-container');
-        getId('friend-container-item').style.color = 'white';
+        disableElement("chat-container");
+        disableElement("message-input-container");
+        getId("friend-container-item").style.color = "white";
 
         updateUserListText();
-        userList.classList.add('friendactive');
+        userList.classList.add("friendactive");
         if(userListFriActiveHtml) {
             userList.innerHTML = userListFriActiveHtml;
         }
-        const nowOnlineTitle = getId('nowonline');
-        if(nowOnlineTitle) nowOnlineTitle.style.fontWeight = 'bolder';
+        const nowOnlineTitle = getId("nowonline");
+        if(nowOnlineTitle) nowOnlineTitle.style.fontWeight = "bolder";
         if(isOnMe) { return; }
         isOnMe = true;
         isOnGuild = false;
@@ -340,7 +340,7 @@ function loadDmHome(isChangingUrl=true) {
     
     function handleDm() {
         openDm(lastDmId)
-        disableElement('friends-container');
+        disableElement("friends-container");
     }
     if(isOnGuild) {
         if(isOnDm) {
@@ -358,20 +358,20 @@ function loadDmHome(isChangingUrl=true) {
     }
 
 
-    enableElement('friend-container-item');
-    getId('guild-name').innerText = '';
-    disableElement('guild-settings-button');
-    enableElement('global-search-input',false,true);
-    enableElement('friends-container-item');
+    enableElement("friend-container-item");
+    getId("guild-name").innerText = "";
+    disableElement("guild-settings-button");
+    enableElement("global-search-input",false,true);
+    enableElement("friends-container-item");
     
-    enableElement('dms-title');
-    enableElement('dm-container-parent',false, true);
-    channelsUl.innerHTML = '';
+    enableElement("dms-title");
+    enableElement("dm-container-parent",false, true);
+    channelsUl.innerHTML = "";
 
-    enableElement('guild-container',false,true);
+    enableElement("guild-container",false,true);
     
     
-    const chanList = getId('channel-list');
+    const chanList = getId("channel-list");
     if(cachedFriMenuContent) {
         chanList.innerHTML = cachedFriMenuContent;
     }
@@ -388,8 +388,8 @@ function changecurrentGuild() {
     getChannels();
     fetchMembers();
     refreshInviteId();
-    getId('channel-info').textContent = currentChannelName;
-    getId('guild-name').innerText = currentGuildName;
+    getId("channel-info").textContent = currentChannelName;
+    getId("guild-name").innerText = currentGuildName;
     isDropdownOpen = false;
     disableElement("settings-dropdown-button");
   
@@ -399,7 +399,7 @@ function changecurrentGuild() {
 function loadApp(friendId=null) {
     if(isChangingPage) {return;  }
     isChangingPage = true;
-    const userList = getId('user-list');
+    const userList = getId("user-list");
 
     if(isOnMe) {
         userListFriActiveHtml = userList.innerHTML;
@@ -408,8 +408,8 @@ function loadApp(friendId=null) {
     isOnMe = false;
 
     userList.innerHTML = ""; 
-    userList.classList.remove('friendactive'); 
-    enableElement('guild-name');
+    userList.classList.remove("friendactive"); 
+    enableElement("guild-name");
     console.log("Loading app with friend id:", friendId);
 
     if(!friendId) {
@@ -421,32 +421,32 @@ function loadApp(friendId=null) {
         
         fetchMembers();
         getChannels();
-        disableElement('dms-title');
-        disableElement('dm-container-parent');
-        disableElement('friend-container-item');
-        enableElement('guild-settings-button');
-        enableElement('hash-sign');
-        getId('guild-name').innerText = currentGuildName;
-        disableElement('global-search-input');
-        disableElement('dm-profile-sign-bubble');
-        disableElement('dm-profile-sign');
+        disableElement("dms-title");
+        disableElement("dm-container-parent");
+        disableElement("friend-container-item");
+        enableElement("guild-settings-button");
+        enableElement("hash-sign");
+        getId("guild-name").innerText = currentGuildName;
+        disableElement("global-search-input");
+        disableElement("dm-profile-sign-bubble");
+        disableElement("dm-profile-sign");
         loadGuildToolbar();
     } else {
         loadDmToolbar();
         isOnGuild = false;
         isOnDm = true;
-        enableElement('dm-profile-sign-bubble');
-        enableElement('dm-profile-sign');
-        enableElement('guild-container',false,true);
-        disableElement('guild-settings-button');
+        enableElement("dm-profile-sign-bubble");
+        enableElement("dm-profile-sign");
+        enableElement("guild-container",false,true);
+        disableElement("guild-settings-button");
         activateDmContainer(friendId);
         const friendNick = passed_friend_name != undefined && passed_friend_id == friendId ? passed_friend_name : getUserNick(friendId);
         chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
 
         channelTitle.textContent = friendNick;
-        disableElement('hash-sign');
-        enableElement('dm-profile-sign')
-        const dmProfSign = getId('dm-profile-sign');
+        disableElement("hash-sign");
+        enableElement("dm-profile-sign")
+        const dmProfSign = getId("dm-profile-sign");
         setProfilePic(dmProfSign,friendId);
         dmProfSign.dataset.cid = friendId;
         
@@ -454,13 +454,13 @@ function loadApp(friendId=null) {
     }
     
     
-    disableElement('channel-info-container-for-friend');
-    disableElement('friends-container');
-    document.querySelector('.horizontal-line').style.display = 'none';
+    disableElement("channel-info-container-for-friend");
+    disableElement("friends-container");
+    document.querySelector(".horizontal-line").style.display = "none";
     
-    enableElement('channel-info-container-for-index');
-    enableElement('chat-container',true);
-    enableElement('message-input-container',false,true);
+    enableElement("channel-info-container-for-index");
+    enableElement("chat-container",true);
+    enableElement("message-input-container",false,true);
     adjustHeight();
     
     handleResize();
@@ -477,7 +477,7 @@ function changeCurrentDm(friendId) {
     const friendNick = getUserNick(friendId);
     channelTitle.textContent = friendNick;
     chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
-    const dmProfSign = getId('dm-profile-sign');
+    const dmProfSign = getId("dm-profile-sign");
     setProfilePic(dmProfSign,friendId);
     dmProfSign.dataset.cid = friendId;
     updateDmFriendList(friendId,friendNick)

@@ -7,28 +7,28 @@ const clydeSrc  = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfIAAAHyCAIAAAC
 
 const getCursorXY = (input, selectionPoint) => {
     const { offsetLeft: inputX, offsetTop: inputY, scrollLeft, scrollTop, clientWidth, clientHeight } = input;
-    const div = createEl('div');
+    const div = createEl("div");
 
 
-    div.style.position = 'absolute';
-    div.style.whiteSpace = 'pre-wrap'; 
-    div.style.wordWrap = 'break-word'; 
-    div.style.visibility = 'hidden'; 
-    div.style.overflow = 'hidden';
+    div.style.position = "absolute";
+    div.style.whiteSpace = "pre-wrap"; 
+    div.style.wordWrap = "break-word"; 
+    div.style.visibility = "hidden"; 
+    div.style.overflow = "hidden";
     div.style.top = `${inputY}px`;
     div.style.left = `${inputX}px`;
-    div.style.padding = '10px 100px 10px 55px'; 
-    div.style.fontFamily = 'Arial, Helvetica, sans-serif';
-    div.style.backgroundColor = '#36393f'; 
-    div.style.border = 'none'; 
-    div.style.lineHeight = '20px'; 
-    div.style.fontSize = '17px'; 
-    div.style.borderRadius = '7px'; 
-    div.style.boxSizing = 'border-box'; 
-    div.style.maxHeight = '500px';
-    div.style.width = 'calc(100vw - 585px)';
-    const swap = '\u00A0'; 
-    const inputValue = input.tagName === 'INPUT' ? input.value.replace(/ /g, swap) : input.value;
+    div.style.padding = "10px 100px 10px 55px"; 
+    div.style.fontFamily = "Arial, Helvetica, sans-serif";
+    div.style.backgroundColor = "#36393f"; 
+    div.style.border = "none"; 
+    div.style.lineHeight = "20px"; 
+    div.style.fontSize = "17px"; 
+    div.style.borderRadius = "7px"; 
+    div.style.boxSizing = "border-box"; 
+    div.style.maxHeight = "500px";
+    div.style.width = "calc(100vw - 585px)";
+    const swap = "\u00A0"; 
+    const inputValue = input.tagName === "INPUT" ? input.value.replace(/ /g, swap) : input.value;
     const textNode = document.createTextNode(inputValue.substring(0, selectionPoint));
     div.appendChild(textNode);
     document.body.appendChild(div);
@@ -105,7 +105,7 @@ function disableParty() {
 }
 
 function enableSnow() {
-    let particeContainer = getId('confetti-container');
+    let particeContainer = getId("confetti-container");
     let skew = 1;
 
     function randomInRange(min, max) {
@@ -113,7 +113,7 @@ function enableSnow() {
     }
 
     (function frame() {
-        if (!toggleManager.states['snow-toggle'] || !isConfettiLoaded || !isDomLoaded) return;
+        if (!toggleManager.states["snow-toggle"] || !isConfettiLoaded || !isDomLoaded) return;
 
         skew = Math.max(0.8, skew - 0.001);
 
@@ -125,8 +125,8 @@ function enableSnow() {
                 x: Math.random(),
                 y: (Math.random() * skew) - 0.2
             },
-            colors: ['#ffff'],
-            shapes: ['circle'],
+            colors: ["#ffff"],
+            shapes: ["circle"],
             gravity: randomInRange(0.4, 0.6),
             scalar: randomInRange(0.4, 1),
             drift: randomInRange(-0.4, 0.4),

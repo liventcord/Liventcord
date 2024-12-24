@@ -11,8 +11,8 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
 
     const timestamp = new Date().getTime();
     const imageUrl = !isProfile 
-        ? `/guilds/${srcId}.png${isTimestamp ? `?ts=${timestamp}` : ''}` 
-        : `${getProfileUrl(srcId)}${isTimestamp ? `?ts=${timestamp}` : ''}`;
+        ? `/guilds/${srcId}.png${isTimestamp ? `?ts=${timestamp}` : ""}` 
+        : `${getProfileUrl(srcId)}${isTimestamp ? `?ts=${timestamp}` : ""}`;
 
     srcId = String(srcId);
 
@@ -63,7 +63,7 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
                         resolve(data);
                     } else {
                         (isProfile ? profileCache : guildImageCache)[srcId] = base64Of404;
-                        reject(new Error('Image is 404'));
+                        reject(new Error("Image is 404"));
                     }
                 };
                 reader.onerror = reject;
@@ -87,7 +87,7 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
         imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
     }
 
-    imgToUpdate.addEventListener('error', function () {
+    imgToUpdate.addEventListener("error", function () {
         imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
         isProfile ? failedProfiles.add(srcId) : failedGuilds.add(srcId);
     });
@@ -98,11 +98,11 @@ function refreshUserProfile(userId,userNick=null) {
         updateSelfProfile(userId,null,true,true);
     }
     // from user list
-    const profilesList = userList.querySelectorAll('.profile-pic');
+    const profilesList = userList.querySelectorAll(".profile-pic");
     profilesList.forEach(user => {
         if(userNick) {
             if (user.id === userId) {
-                user.parentNode.querySelector('.profileName').innerText = userNick;
+                user.parentNode.querySelector(".profileName").innerText = userNick;
             }
         }
         if(userId) {
@@ -113,11 +113,11 @@ function refreshUserProfile(userId,userNick=null) {
     });
 
     // from chat container 
-    const usersList = chatContainer.querySelectorAll('.profile-pic');
+    const usersList = chatContainer.querySelectorAll(".profile-pic");
     usersList.forEach(user => {
         if(userNick) {
             if (user.dataset.userId === userId) {
-                user.parentNode.querySelector('.profileName').innerText = userNick;
+                user.parentNode.querySelector(".profileName").innerText = userNick;
             }
         }
         if(userId) {
@@ -136,7 +136,7 @@ function updateSelfProfile(userId, userName,isTimestamp=false,isAfterUploading=f
     if(!userId) { return; }
     const timestamp = new Date().getTime(); 
     let selfimagepath = isTimestamp ? `/profiles/${userId}.png?ts=${timestamp}` : `/profiles/${userId}.png`;
-    const selfProfileImage = getId('self-profile-image');
+    const selfProfileImage = getId("self-profile-image");
 
     selfProfileImage.onerror = () => {
         if (selfProfileImage.src != defaultProfileImageUrl) {
@@ -149,9 +149,9 @@ function updateSelfProfile(userId, userName,isTimestamp=false,isAfterUploading=f
     selfProfileImage.src = selfimagepath;
     
     if(isSettingsOpen && currentSettingsType == settingTypes.MyAccount) {
-        const settingsSelfNameElement = getId('settings-self-name');
-        const selfNameElement = getId('self-name');
-        const settingsSelfProfile = getId('settings-self-profile');
+        const settingsSelfNameElement = getId("settings-self-name");
+        const selfNameElement = getId("self-name");
+        const settingsSelfProfile = getId("settings-self-profile");
         if(userName){
             settingsSelfNameElement.innerText = userName;
             selfNameElement.innerText = userName;
@@ -183,13 +183,13 @@ function uploadImage(isGuild) {
     
     let formData = new FormData();
     const uploadedGuildId = currentGuildId;
-    const file = isGuild ? getId('guild-image').src : getId('settings-self-profile').src;
+    const file = isGuild ? getId("guild-image").src : getId("settings-self-profile").src;
     
     console.log(file, isGuild);
     
-    if (file && file.startsWith('data:image/')) {
-        const byteString = atob(file.split(',')[1]);
-        const mimeString = file.split(',')[0].split(':')[1].split(';')[0];
+    if (file && file.startsWith("data:image/")) {
+        const byteString = atob(file.split(",")[1]);
+        const mimeString = file.split(",")[0].split(":")[1].split(";")[0];
         const ab = new Uint8Array(byteString.length);
         
         for (let i = 0; i < byteString.length; i++) {
@@ -199,15 +199,15 @@ function uploadImage(isGuild) {
         const blob = new Blob([ab], { type: mimeString });
         
         if (blob.size <= 8 * 1024 * 1024) {
-            formData.append('photo', blob, 'profile-image.png');
+            formData.append("photo", blob, "profile-image.png");
             
             if (isGuild) {
-                formData.append('guildId', uploadedGuildId);
+                formData.append("guildId", uploadedGuildId);
             }
             
             console.log("Sending req...");
             let xhr = new XMLHttpRequest();
-            xhr.open('POST', '/api/upload_img');
+            xhr.open("POST", "/api/upload_img");
             xhr.onload = function () {
                 if (xhr.status === 200) {
                     if(isGuild) {
@@ -218,27 +218,27 @@ function uploadImage(isGuild) {
                         lastConfirmedProfileImg = file;
                     }
                 } else {
-                    console.error('Error uploading profile pic!');
+                    console.error("Error uploading profile pic!");
                 }
             };
             xhr.onerror = function() {
                 if(isGuild) {
-                    getId('guild-image').src = lastConfirmedGuildImg 
+                    getId("guild-image").src = lastConfirmedGuildImg 
                 } else {
-                    getId('settings-self-profile').src = lastConfirmedProfileImg;
+                    getId("settings-self-profile").src = lastConfirmedProfileImg;
                 }
             }
             xhr.send(formData);
         } else {
-            alertUser('Dosya boyutu 8 MB\'den büyük olamaz!');
-            getId('profileImage').value = ''; 
+            alertUser("Dosya boyutu 8 MB\"den büyük olamaz!");
+            getId("profileImage").value = ""; 
         }
     } else {
-        console.error('Invalid file format or undefined file.');
+        console.error("Invalid file format or undefined file.");
     }
 }
 function onEditImage(isGuild) {
-    const filedata = getId(isGuild ? 'guildImage':'profileImage').files[0];
+    const filedata = getId(isGuild ? "guildImage":"profileImage").files[0];
     if (!filedata) {
         console.log("No file. ", isGuild)
         return;
@@ -249,11 +249,11 @@ function onEditImage(isGuild) {
         function callbackAfterAccept(outputBase64) {
             console.log("Callback triggered!", isGuild)
             if(isGuild) {
-                lastConfirmedGuildImg =  getBase64Image(getId('guild-image'))
+                lastConfirmedGuildImg =  getBase64Image(getId("guild-image"))
             } else {
-                lastConfirmedProfileImg =  getBase64Image(getId('settings-self-profile'))
+                lastConfirmedProfileImg =  getBase64Image(getId("settings-self-profile"))
             }
-            getId(isGuild ? 'guild-image' : 'settings-self-profile').src = outputBase64;
+            getId(isGuild ? "guild-image" : "settings-self-profile").src = outputBase64;
             isChangedProfile = true;
             if(!currentPopUp) {
                 let _currentPopUp = generateConfirmationPanel();
@@ -269,7 +269,7 @@ function onEditImage(isGuild) {
         console.error("Error reading file:", error);
     };
     reader.readAsDataURL(filedata);
-    getId(isGuild ? 'guildImage':'profileImage').value = '';
+    getId(isGuild ? "guildImage":"profileImage").value = "";
     
     isUnsaved = true;
 

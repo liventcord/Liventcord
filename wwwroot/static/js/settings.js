@@ -44,9 +44,9 @@ const createEl = (tag, options) => Object.assign(document.createElement(tag), op
 
 
 function clearCookies() {
-    const cookies = document.cookie.split('; ');
+    const cookies = document.cookie.split("; ");
     for (const cookie of cookies) {
-        const [name] = cookie.split('=');
+        const [name] = cookie.split("=");
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
     }
 }
@@ -61,8 +61,8 @@ function saveBooleanCookie(name, value) {
 }
 
 function loadBooleanCookie(name) {
-    const cookieName = encodeURIComponent(name) + '=';
-    const cookies = document.cookie.split('; ');
+    const cookieName = encodeURIComponent(name) + "=";
+    const cookies = document.cookie.split("; ");
     for (const cookie of cookies) {
         if (cookie.startsWith(cookieName)) {
             const result = decodeURIComponent(cookie.substring(cookieName.length));
@@ -74,10 +74,10 @@ function loadBooleanCookie(name) {
 
 const toggleManager = {
     states: {
-        'notify-toggle': loadBooleanCookie('notify-toggle') ?? false,
-        'snow-toggle': loadBooleanCookie('snow-toggle') ?? false,
-        'party-toggle': loadBooleanCookie('party-toggle') ?? false,
-        'activity-toggle': loadBooleanCookie('activity-toggle') ?? false,
+        "notify-toggle": loadBooleanCookie("notify-toggle") ?? false,
+        "snow-toggle": loadBooleanCookie("snow-toggle") ?? false,
+        "party-toggle": loadBooleanCookie("party-toggle") ?? false,
+        "activity-toggle": loadBooleanCookie("activity-toggle") ?? false,
     },
     updateState(toggleId, newValue) {
         this.states[toggleId] = newValue;
@@ -88,28 +88,28 @@ const toggleManager = {
     updateToggleDisplay(toggleId, newValue) {
         const toggleElement = getId(toggleId);
         if (toggleElement) {
-            toggleElement.querySelector('.toggle-switch').classList.toggle('active', newValue);
-            toggleElement.classList.toggle('active', newValue);
+            toggleElement.querySelector(".toggle-switch").classList.toggle("active", newValue);
+            toggleElement.classList.toggle("active", newValue);
         }
     },
     triggerActions(toggleId, newValue) {
         const toggleActions = {
-            'snow-toggle': this.toggleEffect.bind(this, 'snow', newValue),
-            'party-toggle': this.toggleEffect.bind(this, 'party', newValue),
+            "snow-toggle": this.toggleEffect.bind(this, "snow", newValue),
+            "party-toggle": this.toggleEffect.bind(this, "party", newValue),
         };
         if (toggleActions[toggleId]) {
             toggleActions[toggleId]();
         }
     },
     toggleEffect(effect, enable) {
-        if (effect === 'snow') {
+        if (effect === "snow") {
             enable ? this.startSnowEffect() : this.stopSnowEffect();
-        } else if (effect === 'party') {
+        } else if (effect === "party") {
             enable ? this.startPartyEffect() : this.stopPartyEffect();
         }
     },
     startSnowEffect() {
-        const particeContainer = getId('confetti-container');
+        const particeContainer = getId("confetti-container");
         let skew = 1;
 
         function randomInRange(min, max) {
@@ -117,7 +117,7 @@ const toggleManager = {
         }
 
         (function frame() {
-            if (!toggleManager.states['snow-toggle'] || !isConfettiLoaded || !isDomLoaded) return;
+            if (!toggleManager.states["snow-toggle"] || !isConfettiLoaded || !isDomLoaded) return;
 
             skew = Math.max(0.8, skew - 0.001);
 
@@ -129,8 +129,8 @@ const toggleManager = {
                     x: Math.random(),
                     y: (Math.random() * skew) - 0.2
                 },
-                colors: ['#ffff'],
-                shapes: ['circle'],
+                colors: ["#ffff"],
+                shapes: ["circle"],
                 gravity: randomInRange(0.4, 0.6),
                 scalar: randomInRange(0.4, 1),
                 drift: randomInRange(-0.4, 0.4),
@@ -163,21 +163,21 @@ function setupToggle(id) {
 }
 
 function initializeCookies() {
-    ['activity-toggle', 'snow-toggle', 'party-toggle', 'notify-toggle'].forEach(setupToggle);
+    ["activity-toggle", "snow-toggle", "party-toggle", "notify-toggle"].forEach(setupToggle);
     
     console.log("init cookies", toggleManager.states);
-    if (toggleManager.states['snow-toggle']) toggleManager.toggleEffect('snow', true);
-    if (toggleManager.states['party-toggle']) toggleManager.toggleEffect('party', true);
+    if (toggleManager.states["snow-toggle"]) toggleManager.toggleEffect("snow", true);
+    if (toggleManager.states["party-toggle"]) toggleManager.toggleEffect("party", true);
 }
 
 
 
 
 function triggerFileInput() {
-    getId('profileImage').click();
+    getId("profileImage").click();
 }
 function triggerguildImageUpdate() {
-    getId('guildImage').click();
+    getId("guildImage").click();
 }
 
 
@@ -227,9 +227,9 @@ function onEditNick() {
 }
 
 function removeguildImage() {
-    apiClient.send(EventType.DELETE_GUILD_IMAGE,{'guildId': currentGuildId})
-    getId('guildImage').value = '';
-    getId('guild-image').src = createBlackImage();
+    apiClient.send(EventType.DELETE_GUILD_IMAGE,{"guildId": currentGuildId})
+    getId("guildImage").value = "";
+    getId("guild-image").src = createBlackImage();
 }
 
 
@@ -242,14 +242,14 @@ function removeguildImage() {
 
 let changeNicknameTimeout;
 function changeNickname() {
-    const newNicknameInput = getId('new-nickname-input');
+    const newNicknameInput = getId("new-nickname-input");
     const newNickname = newNicknameInput.value.trim();
 
-    if (newNickname !== '' && !changeNicknameTimeout && newNickname != currentUserNick) {
+    if (newNickname !== "" && !changeNicknameTimeout && newNickname != currentUserNick) {
 
         console.log("Changed your nickname to: " + newNickname);
         userNick = newNickname;
-        apiClient.send('set_nick', {'nick' : newNickname});
+        apiClient.send("set_nick", {"nick" : newNickname});
 
         newNicknameInput.value = newNickname;
         changeNicknameTimeout = setTimeout(() => {
@@ -261,13 +261,13 @@ function changeNickname() {
 
 let changeGuildNameTimeout;
 function changeGuildName() {
-    const newGuildInput = getId('guild-overview-name-input');
+    const newGuildInput = getId("guild-overview-name-input");
     const newGuildName = newGuildInput.value.trim();
-    if (newGuildName !== '' && !changeGuildNameTimeout && newGuildName != currentGuildName) {
+    if (newGuildName !== "" && !changeGuildNameTimeout && newGuildName != currentGuildName) {
         console.log("Changed guild name to: " + newGuildName);
-        const objecttosend = {'' : newGuildName,'guildId' : currentGuildId};
-        apiClient.send('set_guild_name', objecttosend);
-        const setInfoNick = getId('set-info-nick');
+        const objecttosend = {"" : newGuildName,"guildId" : currentGuildId};
+        apiClient.send("set_guild_name", objecttosend);
+        const setInfoNick = getId("set-info-nick");
         if(setInfoNick) {
             setInfoNick.innerText = newGuildName;
         }
@@ -284,12 +284,12 @@ async function requestMicrophonePermissions() {
     try {
         const isNoMic = false;
         if(isNoMic) {
-            const response = await fetch('/static/notification.mp3');
+            const response = await fetch("/static/notification.mp3");
             const blob = await response.blob();
             const reader = new FileReader();
             reader.onload = function () {
                 const bytes = new Uint8Array(reader.result);
-                audioManager.emit('audio_data', bytes);
+                audioManager.emit("audio_data", bytes);
             };
             reader.readAsArrayBuffer(blob);
         }
@@ -300,13 +300,13 @@ async function requestMicrophonePermissions() {
         
     } catch (error) {
         console.log(error);
-        alertUser('MİKROFON ERİŞİMİ ENGELLENDİ', 'Mikrofon izni reddedildi.');
+        alertUser("MİKROFON ERİŞİMİ ENGELLENDİ", "Mikrofon izni reddedildi.");
         return false;
     }
 } 
 
 function keydownHandler(event) {
-    if (event.key === 'Escape') {
+    if (event.key === "Escape") {
         event.preventDefault();
         if (isSettingsOpen) {
             closeSettings();
@@ -318,4 +318,4 @@ function keydownHandler(event) {
     }
 }
 
-document.addEventListener('keydown', keydownHandler);
+document.addEventListener("keydown", keydownHandler);
