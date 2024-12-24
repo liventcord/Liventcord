@@ -1,14 +1,55 @@
 
+const settingTranslations = {
+    en: {
+        "MyAccount": "My Account",
+        "SoundAndVideo": "Sound and Video",
+        "Notifications": "Notifications",
+        "ActivityPresence": "Activity Privacy",
+        "Appearance": "Appearance",
+        "Language": "Language",
+        "Overview": "Overview",
+        "Emoji": "Emoji",
+        "Invites": "Invites",
+        "Roles": "Roles",
+        "DeleteGuild": "Delete Guild",
+        "LogOut": "Log Out"
+    },
+    tr: {
+        "MyAccount": "Hesabım",
+        "SoundAndVideo": "Ses ve Görüntü",
+        "Notifications": "Bildirimler",
+        "ActivityPresence": "Etkinlik Gizliliği",
+        "Appearance": "Görünüm",
+        "Language": "Dil",
+        "Overview": "Genel Görünüm",
+        "Emoji": "Emoji",
+        "Invites": "Davetler",
+        "Roles": "Roller",
+        "DeleteGuild": "Sunucuyu Sil",
+        "LogOut": "Çıkış Yap"
+    }
+};
+
+function t(key) {
+    return translations[translations.currentLanguage]?.[key] || key;
+}
+
+function refreshUI() {
+    const settingsContainer = document.getElementById('settings-container');
+    if (settingsContainer) {
+        const settingsHtml = generateSettingsHtml(userSettings);
+        settingsContainer.innerHTML = settingsHtml;
+    }
+}
+
 function getGuildSettingsHTML() {
-    const guildSettingsHtml = generateSettingsHtml(getGuildSettings(),isGuild=true);
-    return guildSettingsHtml;
-    
+    return generateSettingsHtml(getGuildSettings(), true);
 }
+
 function getSettingsHtml() {
-    const userSettingsHtml = generateSettingsHtml(userSettings);
-    return userSettingsHtml;
-    
+    return generateSettingsHtml(userSettings);
 }
+
 function getActivityPresenceHtml() {
     return `
         <h3 id="activity-title">Etkinlik Gizliliği</h3>
@@ -118,15 +159,16 @@ function createToggle(id, label, description) {
     `;
 }
 function getLanguageHtml() {
-
     return `
-        <h3>Dil</h3>
-        <select class="dropdown" id="sound-mic-dropdown"></select>
-        <select class="dropdown" id="sound-output-dropdown"></select>
-        <select class="dropdown" id="camera-dropdown"></select>       
-    `
-
+        <h3>${t('Language')}</h3>
+        <select class="dropdown" id="language-dropdown">
+            <option value="en">English</option>
+            <option value="tr">Türkçe</option>
+        </select>
+    `;
 }
+
+
 function getAppearanceHtml() {
     const toggles = [
         { id: 'snow-toggle', label: 'Kış Modu', description: 'Kar yağışını aktifleştir.' },
@@ -163,13 +205,14 @@ function generateSettingsHtml(settings,isGuild=false) {
 }
 
 const userSettings = [
-    { category: 'MyAccount', label: 'Hesabım' },
-    { category: 'SoundAndVideo', label: 'Ses Ve Görüntü' },
-    { category: 'Notifications', label: 'Bildirimler' },
-    { category: 'ActivityPresence', label: 'Etkinlik Gizliliği' },
-    { category: 'Appearance', label: 'Görünüm' },
-    { category: 'Language', label: 'Dil' }
+    { category: 'MyAccount', label: t('MyAccount') },
+    { category: 'SoundAndVideo', label: t('SoundAndVideo') },
+    { category: 'Notifications', label: t('Notifications') },
+    { category: 'ActivityPresence', label: t('ActivityPresence') },
+    { category: 'Appearance', label: t('Appearance') },
+    { category: 'Language', label: t('Language') }
 ];
+
 
 const guildSettings = [
     { category: 'Overview', label: 'Genel Görünüm' },
@@ -177,16 +220,6 @@ const guildSettings = [
 ];
 
 
-function createDeleteGuildPrompt(guildId,guildName) {
-    if(!guildId) { return }
-    var onClickHandler = function() {
-        apiClient.send(EventType.DELETE_GUILD, guildId);
-    }
-    const actionText = translations.getDeleteGuildText(guildName)  
-    
-    askUser(translations.getDeleteGuildText(guildName),translations.getTranslation("delete_guild_text_2"),actionText,onClickHandler,isRed=true);
-
-} 
 
 
 
@@ -207,9 +240,10 @@ function getSettingsConfig() {
         SoundAndVideo: {
             title: 'Ses Ayarları',
             html: `
-                <select class="dropdown" id="sound-mic-dropdown"></select>
-                <select class="dropdown" id="sound-output-dropdown"></select>
-                <select class="dropdown" id="camera-dropdown"></select>
+                <select class="dropdown"></select>
+                <select class="dropdown"></select>
+                <select class="dropdown"></select>
+
             `
         },
         MyAccount: {
@@ -250,6 +284,21 @@ function selectSettingCategory(settingType) {
     const settingConfig = getSettingsConfig()[settingType] || { title: 'Unknown Setting', html: '<h3>Unknown Setting</h3>' };
     settingsContainer.innerHTML = settingConfig.html;
 
+
+    function initializeLanguageDropdown() {
+        const languageDropdown = document.getElementById('language-dropdown');
+        if (languageDropdown) {
+            languageDropdown.value = translations.currentLanguage;
+            languageDropdown.addEventListener('change', (event) => {
+                translations.currentLanguage = event.target.value;
+                translations.setLanguage(translations.currentLanguage);
+                refreshUI();
+            });
+        }
+    }
+    initializeLanguageDropdown();
+    
+    
     const closeButton = getCloseButtonElement();
     closeButton.addEventListener('click',closeSettings);
     settingsContainer.insertBefore(closeButton, settingsContainer.firstChild);
@@ -377,34 +426,7 @@ function reconstructSettings(_isGuildSettings) { //
 
 }
 
-function applyWiggleEffect(profileElement, selfProfileElement) {
-    if(profileElement) {
-        profileElement.classList.add('dancing-border');
-    }
-    if(selfProfileElement) {
-        selfProfileElement.classList.add('dancing-border');
-    }
-    setTimeout(() => {
-        if(profileElement) {
-            profileElement.classList.remove('dancing-border');
-        }
-        if(selfProfileElement) {
-            selfProfileElement.classList.remove('dancing-border');
-        }
-    }, 500); 
-}
 
-function resetWiggleEffect(...elements) {
-    elements.forEach(element => {
-        if (element) {
-            element.style.transition = 'none';
-            element.style.borderRadius = '0%'; 
-            setTimeout(() => {
-                element.style.transition = 'border-radius 0.1s'; 
-            }, 0);
-        }
-    });
-}
 
 function hideConfirmationPanel(pop) {
     pop.style.animation = 'slide-down 0.15s ease-in-out forwards';
@@ -494,34 +516,14 @@ function shakeScreen() {
 
     return;
 }
-function openGuildSettingsDd(event) {
-    const clicked_id = event.target.id;
-    toggleDropdown();
 
-    if ( clicked_id === 'invite-dropdown-button' ) {
-        createInviteUsersPop();
+function createDeleteGuildPrompt(guildId,guildName) {
+    if(!guildId) { return }
+    var onClickHandler = function() {
+        apiClient.send(EventType.DELETE_GUILD, guildId);
     }
-    else if ( clicked_id ===  'settings-dropdown-button') {
-        reconstructSettings(true);
-        openSettings(true);
-        selectSettingCategory(Overview);
-    }
-    else if ( clicked_id===  "channel-dropdown-button") {
-        createChannelsPop();
-    }
-    else if (clicked_id ===  "notifications-dropdown-button") {
-        
-    }
-    else if ( clicked_id ===  "exit-dropdown-button") {
-        askUser(translations.getTranslation("exit-dropdown-button"), translations.getTranslation("leave-guild-detail"),'Sunucudan ayrıl',leaveCurrentGuild)
-    }
+    const actionText = translations.getDeleteGuildText(guildName)  
     
-}
+    askUser(translations.getDeleteGuildText(guildName),translations.getTranslation("delete_guild_text_2"),actionText,onClickHandler,isRed=true);
 
-function updateSettingsProfileColor() {
-    const settingsProfileImg = getId('settings-self-profile');
-    const rightBarTop = getId('settings-rightbartop');
-    if(rightBarTop) {
-        rightBarTop.style.backgroundColor = getAverageRGB(settingsProfileImg);
-    }
-}
+} 

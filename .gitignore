@@ -1,10 +1,7 @@
-liventcordenv/
-
 bin/
 obj/
 publish/
 cache/
-ytcache/
 Migrations/
 Logs/
 

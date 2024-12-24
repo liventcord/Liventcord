@@ -368,3 +368,33 @@ function hideJsonPreview(event) {
 
 
 
+function openGuildSettingsDd(event) {
+    const clicked_id = event.target.id;
+    toggleDropdown();
+
+    if ( clicked_id === 'invite-dropdown-button' ) {
+        createInviteUsersPop();
+    }
+    else if ( clicked_id ===  'settings-dropdown-button') {
+        reconstructSettings(true);
+        openSettings(true);
+        selectSettingCategory(Overview);
+    }
+    else if ( clicked_id===  "channel-dropdown-button") {
+        createChannelsPop();
+    }
+    else if (clicked_id ===  "notifications-dropdown-button") {
+        
+    }
+    else if ( clicked_id ===  "exit-dropdown-button") {
+        askUser(translations.getTranslation("exit-dropdown-button"), translations.getTranslation("leave-guild-detail"),transition.getTranslation("leave-from-guild"),leaveCurrentGuild)
+    }
+    
+}
+function updateSettingsProfileColor() {
+    const settingsProfileImg = getId('settings-self-profile');
+    const rightBarTop = getId('settings-rightbartop');
+    if(rightBarTop) {
+        rightBarTop.style.backgroundColor = getAverageRGB(settingsProfileImg);
+    }
+}

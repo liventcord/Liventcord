@@ -6,11 +6,7 @@
     top: 112px;
     left: 353px;
     position: absolute;
-    
 }
-
-
-
 .dm-profile-img {
     left:  8px;
     position: absolute;
@@ -30,7 +26,6 @@
     justify-content: center;
     align-items: center; 
     display: flex;
-
 }
 .dm-container:hover {
     user-select: none;
@@ -53,9 +48,7 @@
     line-height: 0.8;
     transform: scaleX(1.2);
     color: #949ba4;
-
 }
-
 #dms-title {
     white-space: nowrap;
     right: 35px;
@@ -77,7 +70,6 @@
 .dm-selected  .content {
     color: white;
 }
-
 .content {
     font-size: 15px;
     color: #949ba4;
@@ -85,8 +77,6 @@
     margin-left: 30px;
     pointer-events: none;
 }
-
-
 #channel-list {
     z-index: 1;
     padding: 36px 47px;
@@ -97,7 +87,6 @@
     background-color: #2b2d31;     color: #ffffff;
     position: relative;
 }
-
 .channel-button {
     display: flex;
     flex-direction: row;
@@ -114,51 +103,28 @@
     position: relative; 
     padding-right: 20px;
 }
-
-
-
-
-
 .channel-users-container {
     display: flex;
     flex-direction: column;
     width: 100%;
     margin-right: 0px; 
 }
-
-
 .channel-button > span {
     margin-right: 10px;
 }
-
-
-
-
-
 #channel-list::-webkit-scrollbar {
     width: 6px; 
 }
-
-
 #channel-list::-webkit-scrollbar-thumb{
     background-color: #272626; 
     border-radius: 6px;
 }
-
-
 #channel-list::-webkit-scrollbar-track{
     background-color: #2f3136; 
 }
-
-
-
 .offline {
     filter: brightness(60%);
 }
-
-
-
-
 #file-button {
     position: absolute;
     width: 30px;height: 30px;
@@ -168,9 +134,6 @@
     background-color: #b5bac1;
     color: #313338;
 }
-
-
-
 #channel-info-container-for-friend {
     background-color: #313338;
     color: #ffffff;
@@ -180,11 +143,8 @@
     width: calc(100% - 190px);
     display: flex;
     z-index: 2;
-
 }
-
 #channel-info-for-friend {
-  
     user-select: none;
     font-size: 15px;
     position: relative;
@@ -193,7 +153,6 @@
     font-weight: bold;
 }
 #addfriendinputbutton {
-
     position: absolute;
     top: 160px;
     right: 463px; 
@@ -205,7 +164,6 @@
     height: 33px;
     border: none;
 }
-
 .messagetext {
     position: absolute;
     margin-top: 12px; margin-left: 25px;
@@ -213,7 +171,6 @@
     color: red;
     user-select: none;
     pointer-events: none;
-    
 }
 @keyframes moveUp {
     0% { margin-top: 12px; opacity: 1; }
@@ -224,12 +181,10 @@
     color: #8a8b90;
     cursor: auto;
 }
-
 #addfriendinputbutton.active {
     background-color: #5865f2;
     cursor: pointer;
 }
-
 #addfriendinputfield {
     width: 94.6%;
     height: 45px;
@@ -244,37 +199,25 @@
     text-indent: 10px;
     outline: none; 
 }
-
 #addfriendinputfield:focus {
     border-color: #377bd3;
-
 }
-
-
-
-
 .horizontal-line {
     border: none;
     right: 0px;
     width: 1px;
     top: 40px;
-
     position: relative;
     z-index: 1;
     border-top: 100vh solid rgb(63, 66, 71);
     transform: rotate(180deg);
 }
-
-
 #friend-menu-buttons {
     display: flex;
     flex-wrap: nowrap;  
     margin-left: 15px;
     align-items: center;  
 }
-
-
-
 .friend-menu-button {
     white-space: nowrap;
     cursor: pointer;
@@ -288,33 +231,23 @@
     border-radius: 4%;
     color: #c2c2c2;
     z-index: 6;
-    
 }
-
-
-
-
-
-
 #friend-icon-sign {
     top: 0px;
     left: 327px;
     position: absolute;
     z-index: 2;    
 }
-
 #open-friends-button {
     color: white;
     background-color:#248046;
 }
-
 #addfriendtext {
     white-space: nowrap;
     color: white;
     font-weight: bold;
     margin-left: 25px; margin-top: 10px;
     font-size: 15px;
-    
 }
 #addfrienddetailtext {
     white-space: nowrap;
@@ -326,16 +259,6 @@
     position: relative;
     display: block;
 }
-
-
-
-
-
-
-
-
-
-
 #preview-close-button {
     z-index: 11;
     top:200px;
@@ -346,13 +269,10 @@
     border-radius: 45%;
     position: absolute;
 }
-
-
 #friends-popup-container {
     z-index: 1;
     margin-top: 200px;
 }
-
 #friends-container {
     flex: 1;
     height: calc(100vh - 18vh);
@@ -367,21 +287,16 @@
     color: #dcddde;
     scroll-behavior: smooth;
 }
-
-
 #friends-container::-webkit-scrollbar {
     width: 8px;
 }
-
 #friends-container::-webkit-scrollbar-thumb {
     background-color: #212222;
     border-radius: 6px;
 }
-
 #friends-container::-webkit-scrollbar-track {
     background-color: #2b2d31;
 }
-
 #friendsSearchInput {
     border: none;
     width: 95%;
@@ -394,9 +309,7 @@
     margin-left: 15px;
     align-items: center;
     position: relative;
-
 }
-
 .friend-card {
     position: relative;
     display: none;
@@ -410,40 +323,31 @@
     transition: background-color 0.3s ease;
     width: 95%;
 }
-  
 .friend-card.visible {
     display: flex;
 }
-
-
 .friend-card:hover {
     background-color: #393c41; 
 }
 .friend-card:hover .friend-discriminator {
     background-color: #393c41; 
 }
- 
 .friend-card:not(:last-child)::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
-    
     height: 0.5px;
     background-color: #ffffff18;
 }
-  
- 
 #friends-container .friend-card:first-child::before {
     content: "";
     position: absolute;
     top: 0;
     left: 0;
-   
     height: 1px;
     background-color: #ffffff18;
 }
-  
 .pendingAlert {
     display: none;
     background-color: rgb(242, 63, 66);
@@ -462,7 +366,6 @@
 #pendingAlertRight {
     margin-left: -20px;
 }
-
 .friend-image {
     border-radius: 50%;
     width: 32px;
@@ -470,8 +373,6 @@
     object-fit: cover;
     margin-right: 10px;
 }
-
-
 .friend-name {
     font-size: 16px;
     margin-bottom: 5px;
@@ -489,14 +390,9 @@
     color: #c7c3c3;
     pointer-events: none;
 }
-
-
 .friend-icon, #friend-label {
     pointer-events: none;
 }
-
-
-
 .friend-container {
     border: none;
     display: flex;
@@ -510,11 +406,9 @@
     pointer-events: auto;
     transition: background-color 0.3s, color 0.3s, box-shadow 0.3s; 
 }
-
 .friend-container:hover {
     background-color: rgb(53, 55, 60);
 }
-
 .friend-container #friend-label {
     color: #949ba4;
     user-select: none;
@@ -523,42 +417,29 @@
     padding-left: 55px;
     transition: color 0.3s;
 }
-
 .friend-container:hover #friend-label {
     color: white;
 }
 .friend-container #friendiconsvg {
     fill: #949ba4 !important;  
 }
-
 .friend-container:hover #friendiconsvg {
     fill: white !important;  
 }
-
 .friend-container.dm-selected #friendiconsvg {
     fill: white !important;  
 }
-
-
-
-
 .friend-container.dm-selected {
     color: #fff;
 }
-
 .friend-container.dm-selected #friend-label {
     color: white;
 }
-
-
-
 #friend-icon {
     position: absolute;
     left: 93px;
     top: 65px;
     height: 30px; width: 30px;
-    
-
 }
 .friend-button {
     display: flex;
@@ -567,8 +448,6 @@
     margin-left: auto;
     cursor: pointer;
 }
-
-
 .friend-button .gray-sphere {
     background-color: #2b2d31;
     border-radius: 50%;
@@ -578,18 +457,13 @@
     align-items: center;
     justify-content: center;
 }
-
 .friend-button .gray-sphere img {
     width: 22px;
     height: 22px;
 }
-
 .friend_button_element {
     margin-left: 15px;
 }
-
-
-
 .status-bubble {
     padding: 6px 6px;
     border-radius: 20px;
@@ -597,7 +471,6 @@
     margin-left: 30px;
     margin-top: 30px;
 }
-
 .dm-bubble {
     color: white;
     padding: 5px;
@@ -608,19 +481,15 @@
     margin-top: 25px;
     border: 3px solid #2f3136;
 }
-
 .online {
     background-color: #23a55a;  
 }
-
 .offline {
     background-color: white;
 }
-
 .hidden {
     display: none;
 }
-
 #users-list-button,#closeUsersButton {
     position: absolute;
     width: 40px;
@@ -632,29 +501,20 @@
     z-index: 6;
 }
 #wumpusalone {
-
     width: 400px;
     height: auto;
     position: relative;
     top: 40%;
     left: 30%;
 }
-
-
-
-
 .description-rectangle {
-
     margin-top: -100px; 
     background-color: #000000cc;
     position: fixed;
     padding: 13px 6px;
     border-radius: 5px;
-
-
 }
 .description-rectangle-text {
-
     color: white;
     font-size: 14px;
     white-space: nowrap;
@@ -665,8 +525,6 @@
     margin-left: -160px;
     font-family: gg sans medium !important;
 }
-
-
 .activity-card {
     cursor: pointer;
     background-color: rgb(30,31,34);
@@ -681,38 +539,31 @@
     width: 152%;
     height: 46px;
 }
-
 .activity-card:first-of-type {
     margin-top: -28px;
 }
-
 .activity-card-avatar {
     border-radius: 50%;
     width: 30px;
     height: 30px;
     margin-right: 10px;
 }
-
 .activity-card-content {
     display: flex;
     align-items: center;
 }
-
 .activity-card-nick {
     font-size: 16px;
     margin-top: -6px;
     margin-left: 2px;
 }
-
 .activity-card-title {
     font-weight:lighter;
     color: #b3b8bf;
     font-size: 14px;
     margin-top: 20px;
     margin-left: -70px; 
-    
 }
-
 .activity-card-icon {
     border-radius: 10px;
     width: 30px;

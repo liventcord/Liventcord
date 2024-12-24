@@ -369,7 +369,6 @@ function createMessageContext(messageId, userId) {
 
 
 function createMenuItem(labelKey, itemOptions) {
-  console.log(labelKey,typeof(labelKey));
   const translatedLabel = translations.getContextTranslation(labelKey);
   const li = createEl("li", { textContent: translatedLabel });
 

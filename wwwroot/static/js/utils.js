@@ -1,5 +1,9 @@
-let defaultProfileImageUrl = `/static/images/guest.png`;
+function getId(string) {
+    return document.getElementById(string);
+}
 
+
+let defaultProfileImageUrl = `/static/images/guest.png`;
 function isValidFriendName(input) {
     const pattern = /^[^#]+#\d{4}$/;
     return pattern.test(input);

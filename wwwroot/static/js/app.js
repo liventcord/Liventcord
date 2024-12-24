@@ -62,6 +62,10 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 
     setTimeout(() => window.scrollTo(0, 0), 20);
+    setTimeout(() => {
+        openSettings();
+        selectSettingCategory('Language')
+    }, 0);
 });
 
 function initializeApp() {

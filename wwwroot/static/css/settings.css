@@ -6,8 +6,6 @@ html *
     font-family: 'gg sans SemiBold', sans-serif !important;
 }
 body {
-
-
     margin: 0;
     display: flex;
     flex-direction: row;
@@ -16,13 +14,10 @@ body {
     overflow-x:hidden;
     min-height: 100vh;
     user-select: none;
-
-
 }
 table {
     width: 100%;
     border-collapse: collapse;
-
 }
 th, td {
     border: 1px solid #36393f;
@@ -46,33 +41,26 @@ th {
     border-radius: 5px;
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
     z-index: 50;
-
 }
 .context-menu {
     --menu-left: 0;
     --menu-top: 0;
     left: var(--menu-left);
     top: var(--menu-top);
-
 }
-
-
 .context-menu ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
-
 .context-menu ul li {
     padding: 5px 30px;
     cursor: pointer;
     position: relative;
 }
-
 .context-menu ul li:hover {
     background-color: #555;
 }
-
 .context-menu ul ul {
     display: none;
     position: absolute;
@@ -83,28 +71,18 @@ th {
     border-radius: 5px;
     z-index: 1;
 }
-
 .context-menu ul li:hover > ul {
     display: block;
     max-width: 300px;
 }
-
-
-
-
-
 .white-rod {
     position: fixed;
     width: 5px; height: 50px;
     margin-top:-60px; margin-left: -40px;
-
     border-radius:50px;
     background-color: white;
     display: none;
 }
-
-
-
 .guilds-list li img {
     transition: border-radius 0.5s ease, border 0.5s ease;
     border-radius: 50%;
@@ -114,44 +92,32 @@ th {
     height: 50px;
     margin-left: -30px;
     cursor: pointer;
-
 }
-
 .guilds-list li img[src='/static/images/icons/icon.png']:hover {
     border: 10px solid #677bc4;
 }
-
 .guilds-list li img:not([src='/static/images/icons/icon.png']):hover {
     border-radius: 0px;
 }
 .guilds-list li:hover .white-rod {
     display: block;
 }
-
 .guilds-list   .selected-guild .white-rod {
     display: block;
 }
 .guilds-list .selected-guild:hover .white-rod {
     display: block;
 }
-
 .guilds-list::-webkit-scrollbar {
     width: 8px;
 }
-
-
 .guilds-list::-webkit-scrollbar-thumb{
     background-color: #21222200;
     border-radius: 6px;
 }
-
-
 .guilds-list::-webkit-scrollbar-track{
     background-color: #2b2d31;
 }
-
-
-
 .outer-parent {
     width: 100%;
     height: 100%;
@@ -161,24 +127,18 @@ th {
     left: 0;
     z-index: 5;
     background-color: #000000b4;
-
 }
 #settings-menu button:hover {
     background-color: #677bc4;
 }
-
-
 #settings-menu {
+    display: flex;
+    flex-direction: row;
+    height: auto;
     background-color: #2f3136;
-    border-radius: 5px;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    transform-origin: center center;
-    opacity: 1;
-    
+    border-radius: 10px;
+    overflow: hidden;
 }
-
 @keyframes settings-menu-scale-appear {
     0% {
         transform: scale(0.85);
@@ -189,7 +149,6 @@ th {
         opacity: 1;
     }
 }
-
 @keyframes settings-menu-scale-disappear {
     0% {
         transform: scale(1);
@@ -200,7 +159,6 @@ th {
         opacity: 0;
     }
 }
-
 @keyframes settings-menu-slide-in {
     0% {
         transform: translateY(100%) scale(0.85);
@@ -211,7 +169,6 @@ th {
         opacity: 1;
     }
 }
-
 @keyframes settings-menu-slide-out {
     0% {
         transform: translateY(0) scale(1);
@@ -222,10 +179,6 @@ th {
         opacity: 0;
     }
 }
-
-
-
-
 #settings-self-profile {
     width: 80px;
     height: 80px;
@@ -248,7 +201,6 @@ th {
     margin-right: 15px;
     margin-top: 12px;
     color: #b5bac1;
-
 }
 .profile-dots3-text {
     font-size: 20px;
@@ -257,7 +209,6 @@ th {
     text-indent: 0.5px;
     user-select: none;
 }
-
 #profile-display {
     width: 120px;
     height: 120px;
@@ -305,7 +256,6 @@ th {
     cursor: pointer;
     user-select: none;
 }
-
 #uploadText {
     margin-top: 20px;
     font-size: 12px;
@@ -317,9 +267,7 @@ th {
     position: absolute;
     margin-left: 140px;
     top: 20px;
-
 }
-
 .settings-menu-button {
     display: block;
     font-size: 20px;
@@ -329,7 +277,6 @@ th {
     cursor: pointer;
     background-color: #0064cf;
     color: #fff;
-
 }
 @keyframes shakeScreenAnimation {
     0% {
@@ -341,34 +288,23 @@ th {
     100% {
       transform: translateX(-5px);
     }
-
   }
-
 .shake-screen {
     animation: shakeScreenAnimation 0.1s ease-in-out 10 alternate;
 }
 .dropdown {
-    max-width: 400px;
-    font-size: 20px;
-
-    position: absolute;
+    width: 100%;
+    font-size: 16px;
     color: white;
     background-color: #202020;
+    min-height: 40px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
 }
-#sound-mic-dropdown {
-    top: 200px;
+#language-dropdown {
+    top: 400px; 
 }
-#sound-output-dropdown {
-    top: 100px;
-}
-#camera-dropdown {
-    top: 300px;
-}
-
-
-
-
-
 #guild-name-input {
     padding: 10px;
     background-color: #1e1f22;
@@ -380,19 +316,14 @@ th {
     height: 5%;
     margin-left: 10px;
 }
-
-
-
 .create-guild-verify {
     background-color: #5c64f3;
     right: 10px;
 }
-
 .create-guild-back {
     background-color: transparent;
     left: -20px;
 }
-
 .create-guild-title {
     top: 50%;
     text-transform: uppercase;
@@ -402,7 +333,6 @@ th {
     font-weight: bold;
     font-size: 14px;
 }
-
 #invite-users-title {
     color: white;
     font-size: 16px;
@@ -410,7 +340,6 @@ th {
     padding-left: 20px;
     font-weight: bold;
 }
-
 #profile-container {
     display: flex;
     margin-top: 257px;
@@ -420,10 +349,8 @@ th {
     color: white;
     font-size: 25px;
     user-select: text;
-
     font-weight: bold;
 }
-
 #profile-discriminator {
     font-weight: bold;
     color: rgb(181, 186, 193);
@@ -432,9 +359,6 @@ th {
     user-select: text;
     position: fixed;
 }
-
-
-
 #invite-users-send-text {
     font-weight: bold;
     color: rgb(181, 186, 193);
@@ -461,11 +385,8 @@ th {
     position: fixed;
     top: 6%;
     left: 12%;
-
 }
-
 #invite-users-channel-name-hash {
-
     color: rgb(181, 186, 193);
     font-size: 25px;
     position: fixed;
@@ -486,15 +407,12 @@ th {
     background-color: rgb(30, 31, 34);
 }
 #create-channel-send-text {
-
     color: rgb(181, 186, 193);
     font-size: 13px;
     padding-left: 20px;
     margin-top: -40px;
 }
-
 #create-channel-type {
-
     color: rgb(181, 186, 193);
     font-size: 12px;
     padding-left: 20px;
@@ -509,17 +427,12 @@ th {
     font-weight: bold;
 }
 #channel-icon {
-
     color: white;
     font-size: 20px;
-
     padding-left: 25px;
     margin-top: 310px;
-
     z-index: 1;
     position: fixed;
-
-
 }
 #create-channel-send-input {
     border: none;
@@ -542,7 +455,6 @@ th {
     align-items: center;
     flex-direction: column;
 }
-
 #create-channel-text-type, #create-channel-voice-type {
     background-color: rgb(43, 45, 49);
     width: 92%;
@@ -552,50 +464,34 @@ th {
     left: 50%;
     transform: translate(-50%,-50%);
 }
-
 #create-channel-voice-type {
-
     top: 220px;
     left: 50%;
     transform: translate(-50%,-50%);
 }
-
-
-#settings-menu button:hover {
-    background-color: #677bc4;
-}
 #change-nick-button {
     left: 300px;
     position: absolute;
-
 }
-
 .settings-buttons {
     font-size: 16px;
-    height: 30px;
-    margin-top: 10px;
-    width: 185px;
-    margin-left: 420px;
+    margin: 10px 0;
+    padding: 10px 15px;
+    width: 100%;
     color: lightgray;
     background-color: transparent;
-    padding: 5px 20px;
     border: none;
     border-radius: 5px;
     text-align: left;
+    transition: background-color 0.2s, color 0.2s;
+    cursor: pointer;
 }
-
 #settings-leftbar {
     background-color: #2b2d31;
-    height: 100%;
-    width: 350px;
-    padding-right: 318px;
-    padding-top: 80px;
-    scroll-behavior: smooth;
-
-    overflow-x: hidden;
-    overflow-y: scroll;
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
 }
-
 #settings-leftbar::-webkit-scrollbar {
     width: 8px;
     background-color: #202020;
@@ -607,8 +503,6 @@ th {
     top: 200px;
     background-color: #202020;
     position: absolute;
-
-
 }
 #guild-settings-rightbar {
     width: 660px;
@@ -617,8 +511,6 @@ th {
     top: 200px;
     background-color: transparent;
     position: absolute;
-
-
 }
 #settings-rightbartop {
     width: 660px;
@@ -632,28 +524,21 @@ th {
     width: 600px;
     height: 200px;
     border-radius: 10px;
-
-
     top: 100px;
     right: 25px;
     background-color: #2b2d31;
     position: absolute;
-
-
 }
 #guild-overview-name-input:hover {
     cursor: not-allowed;
 }
-
 #guild-overview-name-input:disabled {
     color: #888;
     cursor: not-allowed;
 }
-
 #guild-overview-name-input:disabled:focus {
     outline: none;
 }
-
 #set-info-title-nick,
 #set-info-title-email,
 #set-info-title-guild-name {
@@ -663,9 +548,7 @@ th {
     font-size: 16px;
     font-weight: bold;
 }
-
 #set-info-title-guild-name {
-
     margin-left: 320px;
     margin-top: -150px;
     font-size: 12px
@@ -673,8 +556,6 @@ th {
 #set-info-title-email {
     margin-top: 70px;
 }
-
-
 #set-info-nick,
 #set-info-email,
 #set-info-email-eye  {
@@ -688,7 +569,6 @@ th {
 #set-info-email,#set-info-email-eye  {
     margin-top: -60px;
 }
-
 #set-info-nick {
     margin-top: -50px;
 }
@@ -697,15 +577,12 @@ th {
     margin-left: 540px;
     margin-top: 110px;
 }
-
 #settings-title {
-    left: 0px;
     color: #ffff;
     position: absolute;
     white-space: nowrap;
     top: 25px;
 }
-
 #left-settings-title {
     left: 440px;
     color: #ffff;
@@ -714,14 +591,9 @@ th {
     text-transform: uppercase;
     top: 50px;
 }
-
-
-
-
 .file-upload-input {
     display: none;
 }
-
 .file-upload-label {
     display: inline-block;
     padding: 8px 20px;
@@ -731,7 +603,6 @@ th {
     cursor: pointer;
     text-align: center;
 }
-
 #upload-profile-button {
     position: absolute;
     bottom: 25px;
@@ -739,40 +610,28 @@ th {
 }
 #profileImageForm input[type="file"] {
     display: none;
-
 }
-
 #profileImageForm label {
-
     display: inline-block;
     padding: 8px 20px;
     margin-top: 90px;
-
     background-color: #1c6bc0;
     color: #fff;
     border-radius: 5px;
-
     text-align: center;
 }
-
 #guildImageForm input[type="file"] {
     display: none;
-
 }
-
 #guildImageForm label {
-
     display: inline-block;
     padding: 8px 20px;
     margin-top: 90px;
-
     background-color: #1c6bc0;
     color: #fff;
     border-radius: 5px;
-
     text-align: center;
 }
-
 #clearButton {
     display: flex;
     align-items: center;
@@ -787,22 +646,15 @@ th {
     right: 10px;
     cursor: pointer;
 }
-
 #guildImageForm label {
-
     display: inline-block;
     padding: 8px 20px;
     margin-top: 90px;
-
     background-color: #1c6bc0;
     color: #fff;
     border-radius: 5px;
-
     text-align: center;
 }
-
-
-
 #new-nickname-input {
     width: 100%;
     position: relative;
@@ -827,19 +679,11 @@ th {
     margin-left: 355px;
     padding: 10px;
     width: 255px;
-
     box-sizing: border-box;
     border: none;
     color: white;
-
     background-color: rgb(30,31,34);
 }
-
-
-
-
-
-
 .sound-panel-button {
     border-radius: 5px;
     border: none;
@@ -851,16 +695,12 @@ th {
     margin-top: 53px;
     transition: background-color 0.3s;
 }
-
 .sound-panel-button:hover {
     background-color: #444;
 }
-
 .sound-panel-button svg {
     pointer-events: none;
 }
-
-
 #sound-panel {
     display: none;
     justify-content: center;
@@ -873,7 +713,6 @@ th {
     left: 72px;
     width: 240px;
 }
-
 #camera-sound-panel {
     color: white;
     font-size: 17px;
@@ -882,13 +721,10 @@ th {
     padding-left: 15px;
     padding-top: 5px;
 }
-
-
 .button-container {
     border: 2px solid gray;
     border-radius: 25px;
     position: absolute;
-
 }
 #settings-button {
     margin-top: -33px;
@@ -902,8 +738,6 @@ th {
     border: none;
     outline: none;
 }
-
-
 @keyframes rotate360 {
     from {
         transform: rotate(0deg);
@@ -912,22 +746,17 @@ th {
         transform: rotate(360deg);
     }
 }
-
 #settings-button:hover svg {
     animation: rotate360 1s linear;
 }
-
 #settings-button:not(:hover) svg {
     animation: none;
 }
-
-
 #earphonebtn {
     position: absolute;
     top: 50%;
     left: 50%;
 }
-
 #microphone-button {
     margin-top: -35px;margin-left: 157px;
     position: fixed;
@@ -941,45 +770,32 @@ th {
 #microphone-button:hover {
     background-color: #535353;
 }
-
 #earphone-button {
     margin-top: -35px;margin-left: 189px;
     position: fixed;
     user-select: none;
     width:20px; height:20px;
-
-
     border-radius: 5px;
-
     background-color: #ffffff00;
-
     cursor: pointer;
     transform: scaleX(-1);
 }
 #earphone-button:hover {
     background-color: #535353;
 }
-
-
-
 #self-profile-image {
     border-radius: 25px;
     transition: border-radius 0.3s;
 }
-
-
 #self-profile-image:hover {
     border-radius: 0px;
 }
-
 #self-profile-image:hover + #self-bubble {
     display: none;
 }
-
 #self-profile-image {
     border-radius: 50%;
     position: absolute;
-
     left: 5px;
     bottom: 1px;
     transition: border-radius 0.2s ease-out;
@@ -1009,17 +825,13 @@ th {
     text-overflow: ellipsis;
     user-select: text;
 }
-
 #avatar-wrapper {
     border-radius: 5px;
     background-color: #232428;
     width: 120px; height: 42px;
     margin-top: 7px;left: 20px;
     position: relative;
-
 }
-
-
 #user-info-panel {
     position: fixed;
     bottom: 0px;
@@ -1030,11 +842,7 @@ th {
     width: 257px;
     overflow: hidden;
 }
-
-
-
 #sound-panel-status {
-
     left: 30px;
     top: 4px;
     font-size: auto;
@@ -1047,12 +855,8 @@ th {
     position: absolute;
     left: 5px;
     top: 10px;
-
     transform: rotate(45deg);
-
 }
-
-
 #sound-info-icon {
     color:rgb(148, 155, 164);
     font-size: 11px;
@@ -1079,7 +883,6 @@ th {
 #self-discriminator {
     position: absolute; left: 50px; top: 22px; font-size: 13px; color:#adadad
 }
-
 #loading-screen {
     position: fixed;
     width: 100%;
@@ -1094,7 +897,6 @@ th {
     --rotation-speed: 0.5s;
     --delay-speed: 1.2s;
 }
-
 #loading-element {
     width: 100px;
     height: 100px;
@@ -1105,7 +907,6 @@ th {
     transform: translate(-50%, -50%) rotate(0deg);
     animation: rotateAnimation var(--rotation-speed) linear infinite;
 }
-
 @keyframes rotateAnimation {
     0% {
         transform: translate(-50%, -50%) rotate(0deg);
@@ -1117,7 +918,6 @@ th {
         transform: translate(-50%, -50%) rotate(360deg);
     }
 }
-
 @keyframes delayAnimation {
     0%, 50% {
         opacity: 0;
@@ -1126,24 +926,15 @@ th {
         opacity: 1;
     }
 }
-
 #main-logo {
     width: 30px;
     height: 30px;
     border: 10px solid #313338;
     -webkit-user-drag: none;
 }
-
-
 #main-logo:hover {
     border: 10px solid #677bc4;
 }
-
-
-
-
-
-
 #close-settings-button {
     width: 36px;
     height: 36px;
@@ -1159,7 +950,6 @@ th {
     margin-top: 20px;
     box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }
-
 #close-settings-button svg {
     width: 18px;
     height: 18px;
@@ -1173,9 +963,7 @@ th {
     position: fixed;
     margin-top: 65px;
     color: oklab(0.786807 -0.0025776 -0.0110238);
-
 }
-
 #create-guild-button {
     width:60px; height: 60px ;position:absolute;border:none; font-size:35px;
         border-radius: 50px; z-index:3; left:5px; bottom:50px; cursor: pointer; line-height: 0px;
@@ -1186,18 +974,14 @@ th {
     width: 25px;
     position: fixed;
     left: 442px;
-
     top: 15px;
-
     border-top: 1px solid #cccccc23;
     transform: rotate(90deg);
 }
-
 .vertical-line-long {
     border: none;
     width:100%;
     margin-top: 20px;
-
     border-top: 1px solid #cccccc23;
     transform: rotate(180deg);
 }
@@ -1210,27 +994,17 @@ th {
     transform: rotate(180deg);
     z-index: 1;
 }
-
-
-
-
-
-
-
-
 #guild-container-friend {
     background-color: #2b2d31;
     position: absolute;
     display: inline-block;
     width: 260px;
     height: 50px;
-
     left: 22px;
     top: 0px;
     z-index: 3;
     pointer-events: auto;
 }
-
 #guild-container {
     background-color: #2b2d31;
     position: absolute;
@@ -1242,11 +1016,6 @@ th {
     z-index: 3;
     pointer-events: auto;
 }
-
-
-
-
-
 .guilds-list {
     list-style-type: none;
     background-color: #1e1f22;
@@ -1255,23 +1024,17 @@ th {
     margin-top: 0px;
     width: 32px;
     z-index: 3;
-
 }
-
 .guilds-list li img {
     transition: border-radius 0.5s ease, border 0.5s ease;
     border-radius: 50%;
     width: 50px;
     margin-top: 5px;
-
     position: relative;
     height: 50px;
     margin-left: -30px;
-
     cursor: pointer;
-
 }
-
 #guild-settings-button {
     font-size: 22px;
     width: 20px;
@@ -1280,14 +1043,10 @@ th {
     left: 198px;
     bottom: 14px;
     display: none;
-
     transform: scaleX(1.5) rotate(180deg);
     color: #b4b4b4;
     position: absolute;
-
 }
-
-
 #guild-name {
     width: 80%;
     padding-left: 20px; padding-top: 15px; font-size: 15px; font-weight: bold;
@@ -1296,37 +1055,24 @@ th {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
 }
-
-
-
-
 .white-rod {
     position: fixed;
     width: 5px; height: 50px;
     margin-top:-54px; margin-left: -40px;
-
     border-radius:50px;
     background-color: white;
     display: none;
 }
-
-
-
-
-
-
 #settings-rightcontainer {
-    font-size: 20px;
-    width: 660px;
-    height: 250px;
-    border-radius: 10px;
-    top:40px;
-    left: 710px;
-    position: absolute;
-    color: white
-
+    color: white;
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+    background-color: #333;
+    border-left: 1px solid #444;
 }
 .toggle-card {
     display: flex;
@@ -1336,19 +1082,16 @@ th {
     justify-content: space-between;
     position: relative;
 }
-
 .toggle-card label:nth-child(1) {
     font-size: 16px;
     color: white;
     flex: 1 1 100%;
 }
-
 .toggle-card label:nth-child(2) {
     color: lightgray;
     font-size: 12px;
     flex: 1 1 100%;
 }
-
 .toggle-card .toggle-box {
     width: 50px;
     height: 25px;
@@ -1360,8 +1103,6 @@ th {
     transition: background-color 0.3s;
     cursor: pointer;
 }
-
-
 .toggle-box .icon {
     position: absolute;
     width: 25px;
@@ -1369,7 +1110,6 @@ th {
     transition: transform 0.3s;
     transform: translateX(0);
 }
-
 .toggle-switch {
     width: 20px;
     height: 20px;
@@ -1381,7 +1121,6 @@ th {
 .enabled-toggle {
     opacity: 0;
 }
-
 .disabled-toggle {
     opacity: 0;
 }
@@ -1396,31 +1135,24 @@ th {
 .enabled-toggle {
     opacity: 0;
 }
-
 .disabled-toggle {
     opacity: 0;
 }
-
 .toggle-switch.active .enabled-toggle {
     opacity: 1;
 }
-
 .toggle-switch.active .disabled-toggle {
     opacity: 0;
 }
 .toggle-switch:not(.active) .enabled-toggle {
     opacity: 0;
 }
-
 .toggle-switch:not(.active) .disabled-toggle {
     opacity: 1;
 }
-
-
 .toggle-box.active {
     background-color: rgb(35, 165, 90);
 }
-
 .toggle-box.active .toggle-switch {
     transform: translateX(25px);
 }
@@ -1428,16 +1160,11 @@ th {
     font-size: 13px;
     color: rgb(181, 186, 193 );
 }
-
-
-
 /*crop */
-
 #image-to-crop {
     width: 100% !important;
     height: auto !important;
 }
-
 #image-container {
     width: 100%;
     height: auto;
@@ -1452,7 +1179,6 @@ th {
     cursor: pointer !important;
     border-radius: 0 !important;
 }
-
 .cr-slider::-moz-range-thumb {
     width: 10px !important;
     height: 20px !important;
