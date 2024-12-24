@@ -8,16 +8,6 @@ let userListFriActiveHtml;
 
 
 
-//TODO
-//If guild id does not exist, navigate to channels@me
-//if channel id does not exist, navigate to guilds first channel
-
-
-
-
-
-
-
 const observer = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -141,12 +131,6 @@ function initializeListeners() {
     const guildContainer = getId('guild-container');
     guildContainer.addEventListener('click', handleGuildClick);
 
-    if (isOnMe && !isPathnameCorrect(window.location.pathname)) {
-        window.history.pushState(null, null, "/channels/@me");
-    }
-    if (isOnGuild && currentGuildData && !(passed_guild_id in currentGuildData)) {
-        window.history.pushState(null, null, "/channels/@me");
-    }
     addContextListeners();
 }
 
@@ -158,10 +142,14 @@ function handleGuildClick(event) {
 function isDefined(variable) {
     return typeof variable !== 'undefined' && variable !== null;
 }
+
 function initializeGuild() {
     initialiseMe();
-    if (isDefined(passed_guild_id) && passed_channel_id && isDefined(passed_owner_id)) {
-        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name, passed_owner_id);
+    if(validateRoute()) {
+        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name);
+    } else {
+        console.warn("Route cannot be validated!!");
+        return;
     }
 
     if (isDefined(passed_message_readen)) {
@@ -177,12 +165,10 @@ function initializeGuild() {
         updateMemberList(guild_members, true);
     }
 
-    if (guilds_data && guilds_data.length > 0) {
+    if (isOnGuild && guilds_data && guilds_data.length > 0) {
         guilds_data.forEach(data => {
-            if (isOnGuild) {
-                cacheInterface.addChannel(data.guildId, data.guildChannels);
-                updateChannels(data.guildChannels);
-            }
+            cacheInterface.addChannel(data.guildId, data.guildChannels);
+            updateChannels(data.guildChannels);
         });
     }
 

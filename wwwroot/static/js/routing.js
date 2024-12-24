@@ -1,11 +1,32 @@
+const ID_LENGTH = 18
+
+
 function changePageToMe() {
     window.location.href = "/channels/@me";
 }
 function changePageToGuild() {
     window.location.href = "/";
 }
+function isIdDefined(id) {
+    return typeof id !== 'undefined' && id !== null && id.length == ID_LENGTH;
+}
+function validateRoute() {
+    if(!isIdDefined(passed_guild_id) | !isIdDefined(passed_channel_id) | !isIdDefined(passed_owner_id)) {
+        window.history.pushState(null, null, "/channels/@me");
+        return false;
+    }
 
+    if (isOnMe && !isPathnameCorrect(window.location.pathname)) {
+        window.history.pushState(null, null, "/channels/@me");
+        return false;
+    }
+    if (isOnGuild && cacheInterface.doesGuildExist(passed_guild_id)) {
+        window.history.pushState(null, null, "/channels/@me");
+        return false;
+    }
 
+    return true;
+}
 
 document.addEventListener('visibilitychange', function() {
     if (!document.hidden) {
@@ -29,7 +50,7 @@ window.addEventListener('popstate', function(event) {
             const parts = pathStr.split('/');
             const guildID = parts[2];
             const channelId = parts[3];
-            loadGuild(guildID, channelId, null, null, false);
+            loadGuild(guildID, channelId,  null, false);
         } else {
             console.error('Unknown URL format:', pathStr);
         }

@@ -336,13 +336,7 @@ function displayCannotSendMessage(failedMessageContent) {
 function displayStartMessage() {
 
     if(!isOnDm) {
-        let isGuildBorn = false;
-        if (currentGuildData && currentGuildData[currentGuildId]) {
-            const rootChan = currentGuildData[currentGuildId].RootChannel;
-            if (rootChan && currentChannelId == rootChan) {
-                isGuildBorn = true;
-            }
-        }
+        let isGuildBorn = cacheInterface.isRootChannel(currentGuildId,currentChannelId)
         if(chatContent.querySelector('.startmessage') || chatContent.querySelector('#guildBornTitle')) { return; }
         const message = createEl('div',{className:'startmessage'});
         const titleToWrite = isGuildBorn ? currentGuildName : `#${currentChannelName} kanalına hoş geldin!`;
