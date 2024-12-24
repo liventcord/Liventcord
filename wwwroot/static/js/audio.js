@@ -618,3 +618,32 @@ function playAudioBuffer(audioBuffer) {
 
 
 
+
+function applyWiggleEffect(profileElement, selfProfileElement) {
+    if(profileElement) {
+        profileElement.classList.add('dancing-border');
+    }
+    if(selfProfileElement) {
+        selfProfileElement.classList.add('dancing-border');
+    }
+    setTimeout(() => {
+        if(profileElement) {
+            profileElement.classList.remove('dancing-border');
+        }
+        if(selfProfileElement) {
+            selfProfileElement.classList.remove('dancing-border');
+        }
+    }, 500); 
+}
+
+function resetWiggleEffect(...elements) {
+    elements.forEach(element => {
+        if (element) {
+            element.style.transition = 'none';
+            element.style.borderRadius = '0%'; 
+            setTimeout(() => {
+                element.style.transition = 'border-radius 0.1s'; 
+            }, 0);
+        }
+    });
+}

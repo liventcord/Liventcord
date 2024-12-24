@@ -253,6 +253,9 @@ class Translations {
       }
     });
   }
+  initializeTranslationsSettings() {
+    // only process settings ui translations
+  }
 
 
 
@@ -388,10 +391,6 @@ class Translations {
   };
 
   getContextTranslation(key) {
-    if (this.currentLanguage === "en") {
-      return key; 
-    }
-
     const translation = this.contextTranslations[this.currentLanguage]?.[key];
 
     if (!translation) {
@@ -409,8 +408,10 @@ class Translations {
   }
 
   setLanguage(language) {
+    console.log(`Selected Language: ${language}`);
     this.currentLanguage = language;
     this.initializeTranslations();
+    this.initializeTranslationsSettings();
   }
 }
 

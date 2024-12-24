@@ -8,21 +8,16 @@
     position: absolute;
     width: 455px;
     z-index: 50;
-
     padding: 15px 100px;
     border: none;
     border-radius: 5px;
-
     background-color: #0f0f0f;
     color: #fff;
-
     animation: slide-up 0.5s ease-in-out forwards;
 }
-
 #settings-unsaved-popup.slide-out {
     animation: slide-down 0.5s ease-in-out forwards;
 }
-
 @keyframes slide-up {
     from {
         transform: translate(-50%, 100%);
@@ -31,7 +26,6 @@
         transform: translate(-50%, 0);
     }
 }
-
 @keyframes slide-down {
     from {
         transform: translate(-50%, 0);
@@ -48,9 +42,7 @@
     background-color: #2b2d31;
     z-index: 2; 
 }
-
 .pop-up {
-
     position: fixed;
     top: 50%;
     left: 50%;
@@ -62,33 +54,23 @@
     display: flex;
     flex-direction: column; 
 }
-
-
-
 .pop-up-content::-webkit-scrollbar {
     width: 5px;
 }
-
 .pop-up-content::-webkit-scrollbar-track {
     background: transparent;
 }
-
 .pop-up-content::-webkit-scrollbar-thumb {
     background-color: rgb(26, 27, 30); 
     border-radius: 10px; 
     border: transparent;
 }
-
 #guild-pop-up {
     animation: guild-pop-up-animation 0.3s forwards; 
     display: flex;
     justify-content: center;
     text-align: center; 
 }
-
-
-
-
 @keyframes guild-pop-up-animation {
     0% {
         width: 0;
@@ -98,7 +80,6 @@
         width: 440px;
         height: 560px;
     }
-
 }
 @keyframes guild-pop-up-create-guild-animation {
     0% {
@@ -109,7 +90,6 @@
         width: 440px;
         height: 360px;
     }
-
 }
 @keyframes guild-pop-up-join-guild-animation {
     0% {
@@ -120,7 +100,6 @@
         width: 440px;
         height: 425px;
     }
-
 }
 @keyframes pop-up-animation {
     0% {
@@ -152,7 +131,6 @@
         height: 455px;
     }
 }
-
 @keyframes pop-up-animation-channel {
     0% {
         width: 0;
@@ -175,10 +153,6 @@
         margin: 0;
     }
 }
-
-
-
-
 .pop-up-content {
     color: white;
     overflow-y: scroll;
@@ -186,7 +160,6 @@
     padding: 50px;
     margin-bottom: 38px; /
 }
-
 .pop-up-subject {
     font-size: 24px;
     z-index: 3;
@@ -200,7 +173,6 @@
     position: fixed;
     text-align: center; 
 }
-
 .pop-up-accept.inactive {
     background-color: #3b428a;
     color: #8a8b90;
@@ -214,7 +186,6 @@
     font-size: 18px;
     width: 40%; height: 23%;
     background-color: #5865f2;
-    
     color: wheat;
     border: none;
     border-radius: 3px;
@@ -262,13 +233,10 @@
 .pop-up-accept:hover {
     background-color: #4750bb;
 }
-
-
 .guild-pop-button-container {
     bottom: 0%;
     width: 100%;
     height: 18.5%;
-
     position: fixed;
     background-color: #2b2d31;
     display: flex;
@@ -302,7 +270,6 @@
 }
 #createChannelPopContainer {
     animation: pop-up-animation-channel 0.3s forwards; 
-    
 }
 .guild-pop-up-subject {
     font-size: 24px;
@@ -316,13 +283,10 @@
 .guild-pop-up-content {
     width: 400px;
     text-align: center;
-    
     font-size: 16px;
     color: #c2bebe;
     position:fixed;
-
     top: 15%; left: 50%;
-
     transform: translate(-50%, -50%);
 }
 #guild-popup-option2-title {
@@ -331,15 +295,11 @@
     margin-left: 0px;
     z-index: 1;
     font-size: 20px;
-
-
 }
-
 .guild-pop-up-accept {
     font-size: 18px;
     width: 93%; height: 13%;
     background-color:#4e5058;
-
     color: white;
     border: none;
     border-radius: 3px;
@@ -349,12 +309,10 @@
     transition: background-color 0.3s ease;
     transform: translate(-50%, -50%);
 }
-
 .popup-bottom-container {
     font-size: 18px;
     width: 93%; height: 8%;
     background-color:#2b2d31;;
-
     color: white;
     border: none;
     border-radius: 10px;
@@ -367,7 +325,6 @@
     height: 24.5%;
     top: 87.5%;
     width: 100%;
-
 }
 #profile-popup-bottom-container {
     height: 53%;
@@ -391,7 +348,6 @@
     width: 100%;
 }
 #popOptionButton{
-
     border: 1px solid gray;
     top: 40%;
     background-color: transparent;
@@ -407,11 +363,9 @@
 #popOptionButton2:hover {
     filter: brightness(140%);
 }
-
 #settings-unsaved-popup-text {
     margin-left: -85px;
 }
-
 #settings-unsaved-popup-resetbutton {
     position: absolute;
     right: 180px;
@@ -419,27 +373,20 @@
     top: 15px;
     cursor: pointer;
 }
-
 #settings-unsaved-popup-resetbutton:hover {
     text-decoration: underline;
 }
-
 #settings-unsaved-popup-applybutton {
     color: #fff;
     position: absolute;
     right: 10px;
     top: 7px;
     border:none;
-
     cursor: pointer;
-    
     border-radius: 5px;
     font-size: 16px;
     padding: 10px 10px;
-
-   
     background-color: #23a55a;
-    
 }
 #settings-unsaved-popup-applybutton:hover {
     background-color: #14773d;
