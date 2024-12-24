@@ -5,7 +5,7 @@
 let bottomestChatDateStr;
 let lastMessageDate = null; 
 let currentLastDate;
-let lastSenderID = '';
+let lastSenderID = "";
 
 let unknownReplies = [];
 
@@ -16,23 +16,23 @@ let chatContentInitHtml;
 let isReachedChannelEnd = false;
 let isOldMessageCd = false;
 
-const CLYDE_ID = '1';
+const CLYDE_ID = "1";
 
 function createChatScrollButton() {
-    let scrollButton = getId('scroll-to-bottom');
+    let scrollButton = getId("scroll-to-bottom");
     
-    if(!chatContainer) chatContainer = getId('chat-container');
-    chatContainer.addEventListener('scroll', function() {
+    if(!chatContainer) chatContainer = getId("chat-container");
+    chatContainer.addEventListener("scroll", function() {
         let threshold = window.innerHeight;
         let hiddenContent = chatContainer.scrollHeight - (chatContainer.scrollTop + chatContainer.clientHeight);
         if (hiddenContent > threshold) {
-            scrollButton.style.display = 'flex'; 
+            scrollButton.style.display = "flex"; 
         } else {
-            scrollButton.style.display = 'none';
+            scrollButton.style.display = "none";
         }
     });
-    scrollButton.addEventListener('click', function() {
-        scrollButton.style.display = 'none';
+    scrollButton.addEventListener("click", function() {
+        scrollButton.style.display = "none";
         scrollToBottom();
     });
 }
@@ -62,12 +62,12 @@ function getOldMessagesOnScroll() {
     if (hasJustFetchedMessages) { return; }
     const oldestDate = getMessageDate();
     if (!oldestDate) return;
-    if (oldestDate == '1970-01-01 00:00:00.000000+00:00') { return; }
+    if (oldestDate == "1970-01-01 00:00:00.000000+00:00") { return; }
     getOldMessages(oldestDate);
 }
 
 async function handleScroll() {
-    if (loadingScreen && loadingScreen.style.display === 'flex') { return; }
+    if (loadingScreen && loadingScreen.style.display === "flex") { return; }
 
     const buffer = 10; 
     const scrollPosition = chatContainer.scrollTop;
@@ -75,7 +75,7 @@ async function handleScroll() {
 
     if (isAtTop && !isFetchingOldMessages && chatContent.children.length > 0) {
         isFetchingOldMessages = true;
-        console.log('Fetching old messages...');
+        console.log("Fetching old messages...");
         try {
             let continueLoop = true;
 
@@ -92,17 +92,17 @@ async function handleScroll() {
                     await getOldMessagesOnScroll();
                 } else {
                     continueLoop = false; 
-                    console.log('Scroll position exceeded threshold.');
+                    console.log("Scroll position exceeded threshold.");
                 }
 
                 await new Promise(resolve => setTimeout(resolve, 500)); 
             }
         } catch (error) {
-            console.error('Error fetching old messages:', error);
+            console.error("Error fetching old messages:", error);
         } finally {
             isFetchingOldMessages = false;
             stopFetching = true; // Stop further requests if still at top
-            console.log('Fetching complete. Resetting flag.');
+            console.log("Fetching complete. Resetting flag.");
         }
     }
 }
@@ -147,13 +147,13 @@ function handleOldMessagesResponse(data) {
     ) {
         displayStartMessage()
     } else if (isNaN(oldestMessageDateOnChannel)) {
-        console.error('Invalid oldest message date from data.')
+        console.error("Invalid oldest message date from data.")
     }
 }
 
 function handleHistoryResponse(data) {
     if (isChangingPage) {
-        console.log('Changing page. Ignoring history response.')
+        console.log("Changing page. Ignoring history response.")
         return
     }
 
@@ -167,9 +167,9 @@ function handleHistoryResponse(data) {
         return
     }
 
-    if (guildId !== currentGuildId) console.warn('History guild ID is different from current guild')
+    if (guildId !== currentGuildId) console.warn("History guild ID is different from current guild")
     if (channelId !== currentChannelId)
-        console.warn('History channel ID is different from current channel')
+        console.warn("History channel ID is different from current channel")
 
     cacheInterface.setMessages(guildId,guildId, messages)
 
@@ -201,42 +201,42 @@ function handleHistoryResponse(data) {
 }
 function createDateBar(currentDate) {
     const formattedDate = new Date(currentDate).toLocaleDateString(translations.getLocale(), {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
+        day: "numeric",
+        month: "long",
+        year: "numeric"
     });
-    const datebar = createEl('span',{className:'dateBar', textContent:formattedDate});
+    const datebar = createEl("span",{className:"dateBar", textContent:formattedDate});
     chatContent.appendChild(datebar);
 }
 function createProfileImageChat(newMessage, messageContentElement, nick, userId, date, isBot, isAfterDeleting=false,replyBar) {
     if(!messageContentElement) {
-        console.error('No msg content element. ', replyBar); return;
+        console.error("No msg content element. ", replyBar); return;
     }
-    const profileImg = createEl('img', { className: 'profile-pic', id: userId });
+    const profileImg = createEl("img", { className: "profile-pic", id: userId });
     setProfilePic(profileImg,userId);
     
-    profileImg.style.width = '40px';
-    profileImg.style.height = '40px';
+    profileImg.style.width = "40px";
+    profileImg.style.height = "40px";
     profileImg.dataset.userId = userId;
     appendToProfileContextList(userId);
 
-    profileImg.addEventListener("mouseover", function() { this.style.borderRadius = '0px'; });
-    profileImg.addEventListener("mouseout", function() { this.style.borderRadius = '25px'; });
+    profileImg.addEventListener("mouseover", function() { this.style.borderRadius = "0px"; });
+    profileImg.addEventListener("mouseout", function() { this.style.borderRadius = "25px"; });
 
-    const authorAndDate = createEl('div');
-    authorAndDate.classList.add('author-and-date');
-    const nickElement = createEl('span');
+    const authorAndDate = createEl("div");
+    authorAndDate.classList.add("author-and-date");
+    const nickElement = createEl("span");
     nickElement.textContent = nick;
-    nickElement.classList.add('nick-element');
+    nickElement.classList.add("nick-element");
     if(isBot) {
-        const botSign = createEl('span',{className: 'botSign'});
+        const botSign = createEl("span",{className: "botSign"});
         authorAndDate.appendChild(botSign);
     }
     authorAndDate.appendChild(nickElement);
     const messageDate = new Date(date);
-    const dateElement = createEl('span');
+    const dateElement = createEl("span");
     dateElement.textContent = getFormattedDate(messageDate);
-    dateElement.classList.add('date-element');
+    dateElement.classList.add("date-element");
     authorAndDate.appendChild(dateElement);
     if(replyBar) {
         newMessage.appendChild(profileImg);
@@ -244,21 +244,21 @@ function createProfileImageChat(newMessage, messageContentElement, nick, userId,
 
         newMessage.appendChild(messageContentElement);
         
-        const mediaElement = newMessage.querySelector('.imageElement');
+        const mediaElement = newMessage.querySelector(".imageElement");
         if(mediaElement) {
             messageContentElement.appendChild(mediaElement);
         }
         if(replyBar ) {
             newMessage.insertBefore(replyBar, newMessage.firstChild);
         }
-        newMessage.classList.add('replier');
+        newMessage.classList.add("replier");
     } else {
         
         if (isAfterDeleting) {
             newMessage.appendChild(profileImg);
             newMessage.appendChild(authorAndDate);
             newMessage.appendChild(messageContentElement);
-            const mediaElement = newMessage.querySelector('.imageElement');
+            const mediaElement = newMessage.querySelector(".imageElement");
             if(mediaElement && messageContentElement) {
                 messageContentElement.appendChild(mediaElement);
             }
@@ -275,7 +275,7 @@ function createProfileImageChat(newMessage, messageContentElement, nick, userId,
     setProfilePic(profileImg,userId);
 
     
-    messageContentElement.classList.add('onsmallprofile');
+    messageContentElement.classList.add("onsmallprofile");
 
     
 }
@@ -305,13 +305,13 @@ function displayChatMessage(data) {
         return;
     }
     if (!channelId || !date ) {return; }
-    if (!attachmentUrls && content == ''){ return; }
+    if (!attachmentUrls && content == ""){ return; }
 
 
 
     const nick = getUserNick(userId);
-    const newMessage = createEl('div',{className : 'message'});
-    const messageContentElement = createEl('p', {id:'message-content-element'});
+    const newMessage = createEl("div",{className : "message"});
+    const messageContentElement = createEl("p", {id:"message-content-element"});
 
     currentMessagesCache[messageId] = newMessage;
     messages_raw_cache[messageId] = data;
@@ -352,9 +352,9 @@ function displayChatMessage(data) {
         bottomestChatDateStr = date;
     }
     let formattedMessage = replaceCustomEmojis(content);
-    if (isURL(content)) {formattedMessage = '';  }
-    messageContentElement.style.position = 'relative';
-    messageContentElement.style.wordBreak = 'break-all';
+    if (isURL(content)) {formattedMessage = "";  }
+    messageContentElement.style.position = "relative";
+    messageContentElement.style.wordBreak = "break-all";
     newMessage.id = messageId;
     newMessage.dataset.userId =  userId;
     newMessage.dataset.date =  date;
@@ -391,21 +391,21 @@ function displayChatMessage(data) {
         chatContent.appendChild(newMessage);
         const previousSibling = newMessage.previousElementSibling
         if(previousSibling) {
-            const previousMsgContent = previousSibling.querySelector('#message-content-element');
-            if (isCreatedProfile && previousMsgContent && previousMsgContent.classList.contains('onsmallprofile')) {
-                newMessage.classList.add('profile-after-profile');
+            const previousMsgContent = previousSibling.querySelector("#message-content-element");
+            if (isCreatedProfile && previousMsgContent && previousMsgContent.classList.contains("onsmallprofile")) {
+                newMessage.classList.add("profile-after-profile");
             }
 
         }
     }
 
     if(userId == CLYDE_ID) {
-        const youCanSeeText = createEl('p',{textContent : 'Bunu sadece sen görebilirsin.'});
-        youCanSeeText.style.fontSize = '12px';
-        youCanSeeText.style.color = 'rgb(148, 155, 164)';
+        const youCanSeeText = createEl("p",{textContent : "Bunu sadece sen görebilirsin."});
+        youCanSeeText.style.fontSize = "12px";
+        youCanSeeText.style.color = "rgb(148, 155, 164)";
 
-        const parentElement = createEl('div',{display:'flex', flexDirection: 'column',zIndex: 1});
-        parentElement.style.height = '100%';
+        const parentElement = createEl("div",{display:"flex", flexDirection: "column",zIndex: 1});
+        parentElement.style.height = "100%";
 
         parentElement.appendChild(messageContentElement);
 
@@ -450,18 +450,18 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             return 
         }
         const data = {
-            'messageId' : messageId,
-            'guildId' : currentGuildId, 
-            'channelId' : currentChannelId
+            "messageId" : messageId,
+            "guildId" : currentGuildId, 
+            "channelId" : currentChannelId
         }
-        apiClient.send('get_message_date',data);
+        apiClient.send("get_message_date",data);
         return;
     }
     const messagesArray = Array.isArray(messages) ? messages : [messages];
 
     const replyIds = messagesArray
         .filter(msg => !repliesList.has(msg.messageId) && !replyCache[msg.messageId])
-        .filter(msg => msg.replyToId !== undefined && msg.replyToId !== null && msg.replyToId !== '')
+        .filter(msg => msg.replyToId !== undefined && msg.replyToId !== null && msg.replyToId !== "")
         .map(msg => msg.replyToId);
 
     if (replyIds.length > 0) {
@@ -470,25 +470,25 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             guildId: currentGuildId,
             channelId: currentChannelId
         };
-        apiClient.send('get_bulk_reply', data);
+        apiClient.send("get_bulk_reply", data);
     }
 }
 
 function updateChatWidth() {
-    if (getId('user-list').style.display == 'none') {
-        getId('user-input').classList.add('user-list-hidden');
-        getId('gifbtn').classList.add('gifbtn-user-list-hidden');
-        getId('emojibtn').classList.add('emojibtn-user-list-hidden');
+    if (getId("user-list").style.display == "none") {
+        getId("user-input").classList.add("user-list-hidden");
+        getId("gifbtn").classList.add("gifbtn-user-list-hidden");
+        getId("emojibtn").classList.add("emojibtn-user-list-hidden");
     } else {
-        getId('user-input').classList.remove('user-list-hidden');
-        getId('gifbtn').classList.remove('gifbtn-user-list-hidden');
-        getId('emojibtn').classList.remove('emojibtn-user-list-hidden');
+        getId("user-input").classList.remove("user-list-hidden");
+        getId("gifbtn").classList.remove("gifbtn-user-list-hidden");
+        getId("emojibtn").classList.remove("emojibtn-user-list-hidden");
     }
 }
 
 function getMessageFromChat(top = true) {
     const messages = Array.from(chatContent.children);
-    const filteredMessages = messages.filter(message => message.classList.contains('message'));
+    const filteredMessages = messages.filter(message => message.classList.contains("message"));
 
 
     if (filteredMessages.length === 0) return null;
@@ -507,7 +507,7 @@ function getMessageFromChat(top = true) {
 
 
 function getHistoryFromOneChannel(channelId, isDm = false) {
-    console.log('Retrieving history...');
+    console.log("Retrieving history...");
     const messages = cacheInterface.getMessages(currentGuildId,channelId);
 
     if (!isDm && messages && Array.isArray(messages)) {
@@ -525,7 +525,7 @@ function getHistoryFromOneChannel(channelId, isDm = false) {
             return; 
 
         } else {
-            console.warn('No messages found in cache for this channel.');
+            console.warn("No messages found in cache for this channel.");
         }
     }
 
@@ -537,23 +537,23 @@ function fetchMessagesFromServer(channelId, isDm = false) {
         isDm: isDm,
     };
     if (isOnGuild) {
-        requestData['guildId'] = currentGuildId;
+        requestData["guildId"] = currentGuildId;
     }
 
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
     }, 1000);
 
-    apiClient.send('get_history', requestData);
+    apiClient.send("get_history", requestData);
 }
 
 
 function createMsgOptionButton(message,isReply) {
-    const textc = isReply ? '↪' : '⋯'; 
+    const textc = isReply ? "↪" : "⋯"; 
     
-    const newButton = createEl('button',{className:'message-button'});
+    const newButton = createEl("button",{className:"message-button"});
 
-        const textEl = createEl('div', { textContent: textc, className: 'message-button-text' });
+        const textEl = createEl("div", { textContent: textc, className: "message-button-text" });
         newButton.appendChild(textEl);
     if(isReply) {
         newButton.onclick = function() {
@@ -569,21 +569,21 @@ function createMsgOptionButton(message,isReply) {
         newButton.style.border = "none";
     });
     newButton.addEventListener("mouseover", function() {
-        newButton.style.backgroundColor = '#393a3b';
+        newButton.style.backgroundColor = "#393a3b";
     });    
     newButton.addEventListener("mouseout", function() {
-        newButton.style.backgroundColor = '#313338';
+        newButton.style.backgroundColor = "#313338";
     });
-    newButton.addEventListener('focus', () => {
-        newButton.classList.add('is-focused');
+    newButton.addEventListener("focus", () => {
+        newButton.classList.add("is-focused");
     });
-    newButton.addEventListener('blur', () => {
-        newButton.classList.remove('is-focused');
+    newButton.addEventListener("blur", () => {
+        newButton.classList.remove("is-focused");
     });
-    let buttonContainer = message.querySelector('.message-button-container');
+    let buttonContainer = message.querySelector(".message-button-container");
     if (!buttonContainer) {
-        buttonContainer = createEl('div');
-        buttonContainer.classList.add('message-button-container');
+        buttonContainer = createEl("div");
+        buttonContainer.classList.add("message-button-container");
         message.appendChild(buttonContainer);
     }
 
@@ -593,12 +593,12 @@ function createMsgOptionButton(message,isReply) {
 
 function createNonProfileImage(newMessage,  date) {
     const messageDate = new Date(date);
-    const smallDateElement = createEl('p');
-    smallDateElement.className = 'small-date-element';
+    const smallDateElement = createEl("p");
+    smallDateElement.className = "small-date-element";
     smallDateElement.textContent = getFormattedDateForSmall(messageDate);
     newMessage.appendChild(smallDateElement);
-    smallDateElement.style.position = 'absolute'; 
-    smallDateElement.style.marginLeft = '5px'; 
+    smallDateElement.style.position = "absolute"; 
+    smallDateElement.style.marginLeft = "5px"; 
 
     return smallDateElement;
 }

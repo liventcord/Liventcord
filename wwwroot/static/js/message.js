@@ -47,7 +47,7 @@ class Message {
 
 
 async function sendMessage(content, user_ids) {
-    if (content == '') { return }
+    if (content == "") { return }
     if(isOnDm && currentDmId && !isFriend(currentDmId) && !hasSharedGuild(currentDmId)) {
         displayCannotSendMessage(content);
         return;
@@ -68,21 +68,21 @@ async function sendMessage(content, user_ids) {
             reactionEmojisIds: null,
             lastEdited: null
         };
-        apiClient.send('new_message', message);
-        chatInput.value = '';
+        apiClient.send("new_message", message);
+        chatInput.value = "";
         closeReplyMenu();
         return;
     } 
     
     try {
         const file = fileInput.files[0];
-        fileInput.value = '';
+        fileInput.value = "";
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('guildId', currentGuildId);
-        formData.append('channelId',channelIdToSend)
-        const uploadResponse = await fetch('/upload', {
-            method: 'POST',
+        formData.append("file", file);
+        formData.append("guildId", currentGuildId);
+        formData.append("channelId",channelIdToSend)
+        const uploadResponse = await fetch("/upload", {
+            method: "POST",
             body: formData
         });
         if (uploadResponse.ok) {
@@ -91,23 +91,23 @@ async function sendMessage(content, user_ids) {
             data.type = uploadData.type;
             data.attachmentUrls = uploadData.attachmentUrls;
             data.attachmentId = uploadData.attachmentId;
-            console.log('File uploaded successfully:', data.fileName);
+            console.log("File uploaded successfully:", data.fileName);
             if(isOnGuild) {
-                apiClient.send('new_message', data);
+                apiClient.send("new_message", data);
             } else {
-                alertUser('Implement Direct messages ');
+                alertUser("Implement Direct messages ");
             }
             
-            chatInput.value = '';
+            chatInput.value = "";
             closeReplyMenu();
-            fileImagePreview.innerHTML = '';
+            fileImagePreview.innerHTML = "";
             
         } else {
-            console.error('Failed to upload file:', uploadResponse.statusText);
+            console.error("Failed to upload file:", uploadResponse.statusText);
         }
         
     } catch (error) {
-        console.error('Error Sending File Message:', error);
+        console.error("Error Sending File Message:", error);
     }
 
 };
@@ -128,17 +128,17 @@ function replaceCustomEmojis(message) {
 
 }
 function displayWelcomeMessage(userName,date) {
-    const newMessage = createEl('div',{className : 'message'});
-    const messageContentElement = createEl('div', {id:'message-content-element'});
-    const authorAndDate = createEl('div');
-    authorAndDate.classList.add('author-and-date');
-    const nickElement = createEl('span');
+    const newMessage = createEl("div",{className : "message"});
+    const messageContentElement = createEl("div", {id:"message-content-element"});
+    const authorAndDate = createEl("div");
+    authorAndDate.classList.add("author-and-date");
+    const nickElement = createEl("span");
     nickElement.textContent = userName;
-    nickElement.classList.add('nick-element');
+    nickElement.classList.add("nick-element");
     authorAndDate.appendChild(nickElement);
-    const dateElement = createEl('span');
+    const dateElement = createEl("span");
     dateElement.textContent = getFormattedDate(new Date(date));
-    dateElement.classList.add('date-element');
+    dateElement.classList.add("date-element");
     authorAndDate.appendChild(dateElement);
     newMessage.appendChild(authorAndDate);
     newMessage.appendChild(messageContentElement);
@@ -152,12 +152,12 @@ function getOldMessages(date,messageId=null) {
         isDm : isOnDm
     }
     if(messageId) {
-        data['messageId'] = messageId;
+        data["messageId"] = messageId;
     }
 
-    data['channelId'] = isOnDm ? currentDmId : currentChannelId;
+    data["channelId"] = isOnDm ? currentDmId : currentChannelId;
     if(isOnGuild) {
-        data['guildId'] = currentGuildId;
+        data["guildId"] = currentGuildId;
     }
     apiClient.send(EventType.GET_SCROLL_HISTORY,data);
     hasJustFetchedMessages = setTimeout(() => {
@@ -185,7 +185,7 @@ function deleteLocalMessage(messageId,guildId,channelId,isDm) {
 
     for (let i = 0; i < messages.length; i++) {
         let element = messages[i];
-        if (!element.classList || !element.classList.contains('message')) { continue; }
+        if (!element.classList || !element.classList.contains("message")) { continue; }
         const userId = element.dataset.userId;
     
         if (String(element.id) == String(messageId)) {
@@ -195,12 +195,12 @@ function deleteLocalMessage(messageId,guildId,channelId,isDm) {
             if(foundMsg) {
                 lastSenderID = foundMsg.dataset.userId;
             }
-        } // Check if the element matches the currentSenderOfMsg and it doesn't have a profile picture already
-        else if (!element.querySelector('.profile-pic') && getBeforeElement(element).dataset.userId != element.dataset.userId) {
+        } // Check if the element matches the currentSenderOfMsg and it doesn"t have a profile picture already
+        else if (!element.querySelector(".profile-pic") && getBeforeElement(element).dataset.userId != element.dataset.userId) {
             console.log("Creating profile img...");
-            const messageContentElement = element.querySelector('#message-content-element');
+            const messageContentElement = element.querySelector("#message-content-element");
             const date = element.dataset.date;
-            const smallDate = element.querySelector('.small-date-element');
+            const smallDate = element.querySelector(".small-date-element");
             if(smallDate)  {
                 smallDate.remove();
             }
@@ -210,7 +210,7 @@ function deleteLocalMessage(messageId,guildId,channelId,isDm) {
             break;
         }
     }
-    const dateBars = chatContent.querySelectorAll('.dateBar');
+    const dateBars = chatContent.querySelectorAll(".dateBar");
 
     dateBars.forEach(bar => {
         if (bar === chatContent.lastElementChild) {

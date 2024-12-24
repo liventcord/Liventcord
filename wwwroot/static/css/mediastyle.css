@@ -101,7 +101,7 @@
     width: 100%;
 }
 .emoji {
-    background-image: url('/static/images/emojis.png');
+    background-image: url("/static/images/emojis.png");
     background-size: 3360px 3120px;
     width: 80px;
     height: 80px;

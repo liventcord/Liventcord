@@ -12,7 +12,7 @@ class BaseCache {
         this.data[key] = Array.isArray(value) ? value : [];
     }
     setObject(key, value) {
-        this.data[key] = typeof value === 'object' && value !== null ? value : {};
+        this.data[key] = typeof value === "object" && value !== null ? value : {};
     }
     remove(key, id) {
         if (this.data[key]) {

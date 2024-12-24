@@ -1,6 +1,6 @@
 let currentGuildId;
 let currentDmId;
-let currentGuildName = '';
+let currentGuildName = "";
 
 
 
@@ -21,28 +21,28 @@ function getManageableGuilds() {
 
 
 function createMainLogo() {
-    const mainLogoImg = createEl('img', {
-        id: 'main-logo',
-        src: '/static/images/icons/icon.png',
-        'data-src': '/static/images/icons/icon.png',
-        style: 'width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;'
+    const mainLogoImg = createEl("img", {
+        id: "main-logo",
+        src: "/static/images/icons/icon.png",
+        "data-src": "/static/images/icons/icon.png",
+        style: "width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;"
     });
 
-    mainLogoImg.addEventListener('mousedown', () => {
-        mainLogoImg.style.transform = 'translateY(50px)';
+    mainLogoImg.addEventListener("mousedown", () => {
+        mainLogoImg.style.transform = "translateY(50px)";
     });
 
-    mainLogoImg.addEventListener('mouseup', () => {
-        mainLogoImg.style.transform = 'translateY(0)';
+    mainLogoImg.addEventListener("mouseup", () => {
+        mainLogoImg.style.transform = "translateY(0)";
     });
 
-    mainLogoImg.addEventListener('mouseleave', () => {
-        mainLogoImg.style.transform = 'translateY(0)';
+    mainLogoImg.addEventListener("mouseleave", () => {
+        mainLogoImg.style.transform = "translateY(0)";
     });
 
-    mainLogoImg.addEventListener('click', clickMainLogo);
+    mainLogoImg.addEventListener("click", clickMainLogo);
 
-    const mainLogo = createEl('li');
+    const mainLogo = createEl("li");
     mainLogo.appendChild(mainLogoImg);
 
     return mainLogo;
@@ -53,19 +53,19 @@ function setGuildImage(guildId, imageElement, isUploaded) {
 }
 
 function createGuildListItem(guild) {
-    const li = createEl('li');
-    const img = createEl('img', {
-        className: 'guilds-list',
+    const li = createEl("li");
+    const img = createEl("img", {
+        className: "guilds-list",
         id: guild.guildId,
         src: guild.isGuildUploadedImg ? `/guilds/${guild.guildId}` : createBlackImage(),
     });
 
-    img.addEventListener('click', () => {
+    img.addEventListener("click", () => {
         loadGuild(guild.guildId, guild.rootChannel, guild.guildName);
     });
 
     li.appendChild(img);
-    li.appendChild(createEl('div', { className: 'white-rod' }));
+    li.appendChild(createEl("div", { className: "white-rod" }));
     return li;
 }
 function doesGuildExistInBar(guildId) {
@@ -95,7 +95,7 @@ function updateGuildList(guildData) {
 }
 
 function appendToGuildList(guild) {
-    const guildsList = getId('guilds-list');
+    const guildsList = getId("guilds-list");
     if (guildsList.querySelector(`#${guild.guildId}`)) return;
 
     const guildListItem = createGuildListItem(guild);
@@ -106,13 +106,13 @@ function appendToGuildList(guild) {
 function removeFromGuildList(guildId) {
     const guildImg = getId(guildId);
     if (guildImg) {
-        const parentLi = guildImg.closest('li');
+        const parentLi = guildImg.closest("li");
         if (parentLi) parentLi.remove();
     }
 }
 
 function updateGuild(uploadedGuildId) {
-    const guildList = getId('guilds-list').querySelectorAll('img');
+    const guildList = getId("guilds-list").querySelectorAll("img");
     guildList.forEach((img) => {
         if (img.id === uploadedGuildId) {
             setGuildImage(uploadedGuildId, img, !!uploadedGuildId);
@@ -122,68 +122,68 @@ function updateGuild(uploadedGuildId) {
 
 
 function createGuild() {
-    const guildName = getId('guild-name-input').value;
-    const guildPhotoFile = getId('guildImageInput').files[0];
+    const guildName = getId("guild-name-input").value;
+    const guildPhotoFile = getId("guildImageInput").files[0];
 
     if (guildPhotoFile) {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/gif', 'image/png', 'image/webp', 'image/bmp', 'image/tiff', 'image/svg+xml'];
+        const allowedTypes = ["image/jpeg", "image/jpg", "image/gif", "image/png", "image/webp", "image/bmp", "image/tiff", "image/svg+xml"];
         if (!allowedTypes.includes(guildPhotoFile.type)) {
-            alertUser('Yalnızca resim dosyaları yükleyebilirsiniz (JPG, PNG veya GIF)!');
-            getId('guildImageInput').value = '';
-            getId('guildImg').style.backgroundImage = '';
+            alertUser("Yalnızca resim dosyaları yükleyebilirsiniz (JPG, PNG veya GIF)!");
+            getId("guildImageInput").value = "";
+            getId("guildImg").style.backgroundImage = "";
             return; 
         }
 
         if (guildPhotoFile.size > 8 * 1024 * 1024) {
-            alertUser('Dosya boyutu 8 MB\'den küçük olmalıdır!');
-            getId('guildImageInput').value = '';
-            getId('guildImg').style.backgroundImage = '';
+            alertUser("Dosya boyutu 8 MB\"den küçük olmalıdır!");
+            getId("guildImageInput").value = "";
+            getId("guildImg").style.backgroundImage = "";
             return; 
         }
     }
 
     let formData = new FormData();
     if (guildPhotoFile) {
-        formData.append('Photo', guildPhotoFile);
+        formData.append("Photo", guildPhotoFile);
     }
-    formData.append('GuildName', guildName);
+    formData.append("GuildName", guildName);
 
-    fetch('/api/guilds', {
-        method: 'POST',
+    fetch("/api/guilds", {
+        method: "POST",
         body: formData,
-        credentials: 'same-origin'
+        credentials: "same-origin"
     }).then(response => {
         if (response.ok) {
             return response.json();
         }
         return response.text();
     }).then(data => {
-        console.log('Guild creation response:', data);
-        if (typeof(data) === 'object') {
-            const popup = getId('guild-pop-up');
+        console.log("Guild creation response:", data);
+        if (typeof(data) === "object") {
+            const popup = getId("guild-pop-up");
             if (popup) {
                 popup.parentNode.remove();
             }
             changeUrlWithFireWorks(data.guildId, data.rootChannel, data.guildName);
         } else {
-            alertUser('Sunucu oluşturma hatası', data);
+            alertUser("Sunucu oluşturma hatası", data);
         }
     }).catch(error => {
-        console.error('Error:', error);
+        console.error("Error:", error);
     });
 }
 
 function selectGuildList(guildId) {
-    const guildList = getId('guilds-list'); 
+    const guildList = getId("guilds-list"); 
     if (!guildList) return; 
     
-    const foundGuilds = guildList.querySelectorAll('img');
+    const foundGuilds = guildList.querySelectorAll("img");
     
     foundGuilds.forEach(guild => {
         if (guild.id === guildId) {
-            guild.parentNode.classList.add('selected-guild');
+            guild.parentNode.classList.add("selected-guild");
         } else {
-            guild.parentNode.classList.remove('selected-guild');
+            guild.parentNode.classList.remove("selected-guild");
         }
     });
 }
@@ -237,8 +237,8 @@ function loadGuild(guildId,channelId,guildName,isChangingUrl=true) {
 
 function joinVoiceChannel(channelId) {
     if(currentVoiceChannelId == channelId) { return; }
-    const data = { 'guildId' : currentGuildId, 'channelId' : channelId }
-    apiClient.send('join_voice_channel',data);
+    const data = { "guildId" : currentGuildId, "channelId" : channelId }
+    apiClient.send("join_voice_channel",data);
     return;
 }
 
@@ -246,7 +246,7 @@ function joinVoiceChannel(channelId) {
 function refreshInviteId() {
     if(!cacheInterface.isInvitesEmpty(currentGuildId)) { return; }
     console.log("Implement invites")
-    //apiClient.send('get_invites',{'guildId' : currentGuildId});
+    //apiClient.send("get_invites",{"guildId" : currentGuildId});
 }
 
 function fetchMembers() {
@@ -262,7 +262,7 @@ function fetchMembers() {
 
     } else {
         console.log("Fetching members...");
-        apiClient.send('get_members',{'guildId' : currentGuildId});
+        apiClient.send("get_members",{"guildId" : currentGuildId});
 
     }
 
@@ -292,11 +292,11 @@ function getGuildMembers() {
 
 
 function joinToGuild(inviteId) {
-    apiClient.send('join_to_guild',{'invite_id':inviteId});
+    apiClient.send("join_to_guild",{"invite_id":inviteId});
 }
 
 function leaveCurrentGuild() {
-    apiClient.send('leave_from_guild',currentGuildId);
+    apiClient.send("leave_from_guild",currentGuildId);
 }
 
 

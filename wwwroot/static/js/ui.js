@@ -14,44 +14,44 @@ const settingsHtml = '<svg class="actionIcon_f6f816" aria-hidden="true" role="im
 const muteHtml = '<svg class="icon_cdc675" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="m2.7 22.7 20-20a1 1 0 0 0-1.4-1.4l-20 20a1 1 0 1 0 1.4 1.4ZM10.8 17.32c-.21.21-.1.58.2.62V20H9a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.06A8 8 0 0 0 20 10a1 1 0 0 0-2 0c0 1.45-.52 2.79-1.38 3.83l-.02.02A5.99 5.99 0 0 1 12.32 16a.52.52 0 0 0-.34.15l-1.18 1.18ZM15.36 4.52c.15-.15.19-.38.08-.56A4 4 0 0 0 8 6v4c0 .3.03.58.1.86.07.34.49.43.74.18l6.52-6.52ZM5.06 13.98c.16.28.53.31.75.09l.75-.75c.16-.16.19-.4.08-.61A5.97 5.97 0 0 1 6 10a1 1 0 0 0-2 0c0 1.45.39 2.81 1.06 3.98Z" class=""></path></svg>';
 const inviteVoiceHtml = '<svg class="icon_cdc675" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M13 3a1 1 0 1 0-2 0v8H3a1 1 0 1 0 0 2h8v8a1 1 0 0 0 2 0v-8h8a1 1 0 0 0 0-2h-8V3Z" class=""></path></svg>';
 
-const selectedChanColor = 'rgb(64, 66, 73)';
-const hoveredChanColor = 'rgb(53, 55, 60';
+const selectedChanColor = "rgb(64, 66, 73)";
+const hoveredChanColor = "rgb(53, 55, 60";
 
 let loadingScreen;
 function enableLoadingScreen() {
-    loadingScreen = createEl('div', { id: 'loading-screen' });
+    loadingScreen = createEl("div", { id: "loading-screen" });
     document.body.appendChild(loadingScreen);
-    const loadingElement = createEl('img', { id: 'loading-element' });
+    const loadingElement = createEl("img", { id: "loading-element" });
     loadingScreen.appendChild(loadingElement);
-    loadingElement.src = '/static/images/icons/icon.png';
+    loadingElement.src = "/static/images/icons/icon.png";
 }
 function isLoadingScreen() {
     if(!loadingScreen) {
         return false;
     }
-    return loadingScreen.style.display == 'flex';
+    return loadingScreen.style.display == "flex";
 }
 
 
 function toggleEmail() {
-    const eyeIcon = getId('set-info-email-eye');
+    const eyeIcon = getId("set-info-email-eye");
     isEmailToggled = !isEmailToggled;
     getId("set-info-email").textContent = isEmailToggled ? email : masked_email;    
     if (isEmailToggled) {
-        eyeIcon.classList.remove('fa-eye');
-        eyeIcon.classList.add('fa-eye-slash');
+        eyeIcon.classList.remove("fa-eye");
+        eyeIcon.classList.add("fa-eye-slash");
     } else {
-        eyeIcon.classList.remove('fa-eye-slash');
-        eyeIcon.classList.add('fa-eye');
+        eyeIcon.classList.remove("fa-eye-slash");
+        eyeIcon.classList.add("fa-eye");
     }
 }
 
 
 
 function handleToggleClick(toggleElement, toggleClickCallback) {
-    toggleElement.addEventListener('click', function() {
-        this.classList.toggle('active');
-        this.querySelector('.toggle-switch').classList.toggle('active');
+    toggleElement.addEventListener("click", function() {
+        this.classList.toggle("active");
+        this.querySelector(".toggle-switch").classList.toggle("active");
         toggleClickCallback();
     });
 }
@@ -63,9 +63,9 @@ function handleResize() {
     
     if(window.innerWidth < 1200) {
         if(isOnMe) {
-            disableElement('user-list');
-            const userLine = document.querySelector('.horizontal-line');
-            userLine.style.display = 'none';
+            disableElement("user-list");
+            const userLine = document.querySelector(".horizontal-line");
+            userLine.style.display = "none";
         } else {
             setUserListLine();
         }   
@@ -73,8 +73,8 @@ function handleResize() {
         setUserListLine();
     }
     
-    const inputRightToSet = userList.style.display === 'flex' ? '463px' : '76px';
-    const addFriendInputButton = getId('addfriendinputbutton');
+    const inputRightToSet = userList.style.display === "flex" ? "463px" : "76px";
+    const addFriendInputButton = getId("addfriendinputbutton");
     if (addFriendInputButton) {
         addFriendInputButton.style.right = inputRightToSet;
     }
@@ -82,58 +82,58 @@ function handleResize() {
 
 
 function loadMainToolbar() {
-    disableElement('tb-call')
-    disableElement('tb-video-call')
-    disableElement('tb-pin')
-    disableElement('tb-createdm')
-    disableElement('tb-showprofile')
-    disableElement('tb-search')
+    disableElement("tb-call")
+    disableElement("tb-video-call")
+    disableElement("tb-pin")
+    disableElement("tb-createdm")
+    disableElement("tb-showprofile")
+    disableElement("tb-search")
 }
 function loadGuildToolbar() {
-    disableElement('tb-call')
-    disableElement('tb-video-call')
-    enableElement('tb-pin')
-    disableElement('tb-createdm')
-    enableElement('tb-showprofile')
-    enableElement('tb-search')
+    disableElement("tb-call")
+    disableElement("tb-video-call")
+    enableElement("tb-pin")
+    disableElement("tb-createdm")
+    enableElement("tb-showprofile")
+    enableElement("tb-search")
 }
 function loadDmToolbar() {
-    enableElement('tb-call')
-    enableElement('tb-video-call')
-    enableElement('tb-pin')
-    enableElement('tb-createdm')
-    enableElement('tb-showprofile')
-    enableElement('tb-search')
+    enableElement("tb-call")
+    enableElement("tb-video-call")
+    enableElement("tb-pin")
+    enableElement("tb-createdm")
+    enableElement("tb-showprofile")
+    enableElement("tb-search")
 }
 
 
 function fillDropDownContent() {
     if(permissionManager.canManageChannels()) {
-        enableElement('channel-dropdown-button');
+        enableElement("channel-dropdown-button");
     } else {
-        disableElement('channel-dropdown-button');
+        disableElement("channel-dropdown-button");
     }
     if(permissionManager.canManageChannels()) {
-        enableElement('invite-dropdown-button');
+        enableElement("invite-dropdown-button");
     } else {
-        disableElement('invite-dropdown-button');
+        disableElement("invite-dropdown-button");
     }
 
     if(permissionManager.IsSelfOwner) {
-        disableElement('exit-dropdown-button');
+        disableElement("exit-dropdown-button");
     } else {
-        enableElement('exit-dropdown-button');
+        enableElement("exit-dropdown-button");
     }
 }
 
 function setActiveIcon() {
-    let favicon = getId('favicon');
-    let activeIconHref = '/static/images/icons/iconactive.png';
+    let favicon = getId("favicon");
+    let activeIconHref = "/static/images/icons/iconactive.png";
     favicon.href = activeIconHref;
 }
 function setInactiveIcon() {
-    let favicon = getId('favicon');
-    let activeIconHref =  '/static/images/icons/icon.png';
+    let favicon = getId("favicon");
+    let activeIconHref =  "/static/images/icons/icon.png";
     favicon.href = activeIconHref;
 }
 
@@ -146,12 +146,12 @@ function setInactiveIcon() {
 
 
 function isProfilePopOpen() {
-    return Boolean(getId('profilePopContainer'))    
+    return Boolean(getId("profilePopContainer"))    
 }
 
 
 function hideLoadingScreen() {
-    loadingScreen.style.display = 'none';
+    loadingScreen.style.display = "none";
 }
 
 
@@ -193,22 +193,22 @@ function alertUser(subject, content) {
     } else {
         console.error(subject);
     }
-    const popUpSubject = createEl('h1', { className: 'pop-up-subject', textContent: subject });
-    const popUpContent = createEl('p', { className: 'pop-up-content', textContent: content });
+    const popUpSubject = createEl("h1", { className: "pop-up-subject", textContent: subject });
+    const popUpContent = createEl("p", { className: "pop-up-content", textContent: content });
 
-    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: translations.getTranslation("ok") });
-    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: translations.getTranslation("cancel") });
+    const popAcceptButton = createEl("button", { className: "pop-up-accept", textContent: translations.getTranslation("ok") });
+    const popRefuseButton = createEl("button", { className: "pop-up-refuse", textContent: translations.getTranslation("cancel") });
 
-    const buttonContainer = createEl('div', { className: 'pop-button-container' });
+    const buttonContainer = createEl("div", { className: "pop-button-container" });
     buttonContainer.appendChild(popAcceptButton);
     buttonContainer.appendChild(popRefuseButton);
 
     const contentElements = [popUpSubject, popUpContent, buttonContainer];
 
-    popAcceptButton.addEventListener('click', function () {
+    popAcceptButton.addEventListener("click", function () {
         closePopUp(outerParent, outerParent.firstChild);
     });
-    popRefuseButton.addEventListener('click', function () {
+    popRefuseButton.addEventListener("click", function () {
         closePopUp(outerParent, outerParent.firstChild);
     });
 
@@ -219,24 +219,24 @@ function alertUser(subject, content) {
 }
 
 function askUser(subject, content, actionText, acceptCallback, isRed = false) {
-    const popUpSubject = createEl('h1', { className: 'pop-up-subject', textContent: subject });
-    const popUpContent = createEl('p', { className: 'pop-up-content', textContent: content });
-    const popAcceptButton = createEl('button', { className: 'pop-up-accept', textContent: actionText });
+    const popUpSubject = createEl("h1", { className: "pop-up-subject", textContent: subject });
+    const popUpContent = createEl("p", { className: "pop-up-content", textContent: content });
+    const popAcceptButton = createEl("button", { className: "pop-up-accept", textContent: actionText });
     if (isRed) {
-        popAcceptButton.style.backgroundColor = 'rgb(218, 55, 60)';
+        popAcceptButton.style.backgroundColor = "rgb(218, 55, 60)";
     }
     let outerParent;
-    popAcceptButton.addEventListener('click', function () {
+    popAcceptButton.addEventListener("click", function () {
         acceptCallback();
         closePopUp(outerParent, outerParent.firstChild);
     });
 
-    const popRefuseButton = createEl('button', { className: 'pop-up-refuse', textContent: translations.getTranslation("cancel") });
-    popRefuseButton.addEventListener('click', function () {
+    const popRefuseButton = createEl("button", { className: "pop-up-refuse", textContent: translations.getTranslation("cancel") });
+    popRefuseButton.addEventListener("click", function () {
         closePopUp(outerParent, outerParent.firstChild);
     });
 
-    const buttonContainer = createEl('div', { className: 'pop-button-container' });
+    const buttonContainer = createEl("div", { className: "pop-button-container" });
     buttonContainer.appendChild(popAcceptButton);
     buttonContainer.appendChild(popRefuseButton);
 
@@ -284,7 +284,7 @@ function loadObservedContent(targetElement) {
 
     const sanitizedHTML = sanitizeHTML(jsonData);
 
-    const tempDiv = createEl('div');
+    const tempDiv = createEl("div");
     tempDiv.innerHTML = sanitizedHTML;
 
     while (tempDiv.firstChild) {
@@ -298,10 +298,10 @@ function loadObservedContent(targetElement) {
 // media preview
 function beautifyJson(jsonData) {
     try {
-        const beautifiedJson = JSON.stringify(jsonData, null, '\t');
+        const beautifiedJson = JSON.stringify(jsonData, null, "\t");
         return beautifiedJson;
     } catch (error) {
-        console.error('Error beautifying JSON:', error);
+        console.error("Error beautifying JSON:", error);
         return null;
     }
 }
@@ -311,13 +311,13 @@ function beautifyJson(jsonData) {
 
 
 function displayImagePreview(sourceimage) {
-    enableElement('image-preview-container');
-    let previewImage = getId('preview-image');
-    previewImage.style.animation = 'preview-image-animation 0.2s forwards';
+    enableElement("image-preview-container");
+    let previewImage = getId("preview-image");
+    previewImage.style.animation = "preview-image-animation 0.2s forwards";
     previewImage.src = sourceimage;
     currentSelectedImg = sourceimage;
-    const previewBtn  = getId('preview-image-button')
-    if (!sourceimage.startsWith('data:')) { 
+    const previewBtn  = getId("preview-image-button")
+    if (!sourceimage.startsWith("data:")) { 
         previewBtn.href = sourceimage;
         previewBtn.target = sourceimage;
     } else {
@@ -328,39 +328,39 @@ function displayImagePreview(sourceimage) {
 }
 
 function displayJsonPreview(sourceJson) {
-    let jsonPreviewContainer = getId('json-preview-container');
+    let jsonPreviewContainer = getId("json-preview-container");
 
-    jsonPreviewContainer.style.display = 'flex';
-    let jsonPreviewElement = getId('json-preview-element')
+    jsonPreviewContainer.style.display = "flex";
+    let jsonPreviewElement = getId("json-preview-element")
 
     jsonPreviewElement.dataset.content_observe = sourceJson;
-    jsonPreviewElement.style.userSelect = 'text';
-    jsonPreviewElement.style.whiteSpace = 'pre-wrap';
+    jsonPreviewElement.style.userSelect = "text";
+    jsonPreviewElement.style.whiteSpace = "pre-wrap";
     observer.observe(jsonPreviewElement);
 }
 
 
 function hideImagePreviewRequest(event) {
-    if(event.target.id ==='image-preview-container') {
+    if(event.target.id ==="image-preview-container") {
         hideImagePreview();
     }
 }
 function hideImagePreview() {
-    let previewImage = getId('preview-image');
-    previewImage.style.animation = 'preview-image-disappear-animation 0.15s forwards';
+    let previewImage = getId("preview-image");
+    previewImage.style.animation = "preview-image-disappear-animation 0.15s forwards";
     setTimeout(() => {
-        disableElement('image-preview-container');
+        disableElement("image-preview-container");
 
-        previewImage.src = '';
+        previewImage.src = "";
     }, 150);
 
 }
 
 
 function hideJsonPreview(event) {
-    if(event.target.id ==='json-preview-container') {
-        let jsonPreviewContainer = getId('json-preview-container');
-        jsonPreviewContainer.style.display = 'none';
+    if(event.target.id ==="json-preview-container") {
+        let jsonPreviewContainer = getId("json-preview-container");
+        jsonPreviewContainer.style.display = "none";
     }
 }
 
@@ -372,10 +372,10 @@ function openGuildSettingsDd(event) {
     const clicked_id = event.target.id;
     toggleDropdown();
 
-    if ( clicked_id === 'invite-dropdown-button' ) {
+    if ( clicked_id === "invite-dropdown-button" ) {
         createInviteUsersPop();
     }
-    else if ( clicked_id ===  'settings-dropdown-button') {
+    else if ( clicked_id ===  "settings-dropdown-button") {
         reconstructSettings(true);
         openSettings(true);
         selectSettingCategory(Overview);
@@ -392,8 +392,8 @@ function openGuildSettingsDd(event) {
     
 }
 function updateSettingsProfileColor() {
-    const settingsProfileImg = getId('settings-self-profile');
-    const rightBarTop = getId('settings-rightbartop');
+    const settingsProfileImg = getId("settings-self-profile");
+    const rightBarTop = getId("settings-rightbartop");
     if(rightBarTop) {
         rightBarTop.style.backgroundColor = getAverageRGB(settingsProfileImg);
     }

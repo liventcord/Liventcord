@@ -3,13 +3,13 @@ let currentUserId;
 let currentDiscriminator = null;
 let currentUserNick;
 
-const deletedUser = 'Deleted User';
+const deletedUser = "Deleted User";
 let lastTopSenderId = null;
 
 let userNames = {};
-userNames['1'] = {
-    nick: 'Clyde',
-    discriminator: '0000',
+userNames["1"] = {
+    nick: "Clyde",
+    discriminator: "0000",
     is_blocked: false
 };
 
@@ -22,27 +22,27 @@ function getUserNick(userId) {
     return userId in userNames ? userNames[userId].nick : deletedUser;
 }
 function getUserDiscriminator(userId) { 
-    return userId in userNames ? userNames[userId].discriminator : '0000';
+    return userId in userNames ? userNames[userId].discriminator : "0000";
 }
 
 
 function logOut() {
 
-    fetch('/auth/logout', {
-        method: 'POST',
-        credentials: 'same-origin'
+    fetch("/auth/logout", {
+        method: "POST",
+        credentials: "same-origin"
     })
     .then(response => {
         if (response.ok) {
-            document.body.innerHTML = '';
-            window.location.href = '/';
+            document.body.innerHTML = "";
+            window.location.href = "/";
         } else {
-            console.error('Logout failed:', response.statusText);
+            console.error("Logout failed:", response.statusText);
 
         }
     })
     .catch(error => {
-        console.error('Error during logout:', error);
+        console.error("Error during logout:", error);
     });
 }
 function getUserIdFromNick(nick) {

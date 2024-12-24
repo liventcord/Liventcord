@@ -74,7 +74,7 @@ namespace LiventCord.Helpers
                     sharedGuildsMap = await _membersController.GetSharedGuilds(guildId, userId) ?? new List<string>();
                 }
 
-                _logger.LogInformation("Fetching friends' statuses...");
+                _logger.LogInformation("Fetching friends statuses...");
                 var friendsStatus = await _friendController.GetFriendsStatus(userId) ?? null;
 
                 _logger.LogInformation("Fetching DM members...");
@@ -106,7 +106,7 @@ namespace LiventCord.Helpers
 
 
                 string jsonDataScript = $@"
-                    <script id='data-script' type='application/json'>
+                    <script id=data-script type=application/json>
                         {JsonSerializer.Serialize(jsonData, options)}
                     </script>";
 

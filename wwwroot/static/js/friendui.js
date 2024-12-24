@@ -1,14 +1,14 @@
 
 
 function activateDmContainer(friend_id) {
-    getId('friend-container-item').classList.remove('dm-selected');
+    getId("friend-container-item").classList.remove("dm-selected");
     if(!existingUsersDmContainers || existingUsersDmContainers.size < 1) { return }
     
     existingUsersDmContainers.forEach(dmContainer => {
         if(dmContainer.id == friend_id) {
-            dmContainer.classList.add('dm-selected');
+            dmContainer.classList.add("dm-selected");
         } else {
-            dmContainer.classList.remove('dm-selected');
+            dmContainer.classList.remove("dm-selected");
         }
     });
 }
@@ -16,7 +16,7 @@ function disableDmContainers() {
     if(!existingUsersDmContainers || existingUsersDmContainers.size < 1) { return }
         
     existingUsersDmContainers.forEach(dmContainer => {
-        dmContainer.classList.remove('dm-selected');
+        dmContainer.classList.remove("dm-selected");
     });
 }
 
@@ -25,43 +25,43 @@ let existingUsersIds = new Set();
 function createDmContainer(friend) {
     const isOnline = friend.isOnline;
     const friendId = friend.userId;
-    const dmContainer = createEl('div', { className: 'dm-container', id: friendId });
+    const dmContainer = createEl("div", { className: "dm-container", id: friendId });
     const friendNick = friend.nickName;
 
     if(friendId == currentDmId) {
-        dmContainer.classList.add('dm-selected');
+        dmContainer.classList.add("dm-selected");
     }
-    const profileImg = createEl('img', { className: 'dm-profile-img' });
+    const profileImg = createEl("img", { className: "dm-profile-img" });
 
     setProfilePic(profileImg, friendId);
     const bubble = createDmBubble(isOnline);
-    profileImg.style.transition = 'border-radius 0.5s ease-out';
-    bubble.style.transition = 'opacity 0.5s ease-in-out';
+    profileImg.style.transition = "border-radius 0.5s ease-out";
+    bubble.style.transition = "opacity 0.5s ease-in-out";
     let hoverTimeout;
-    profileImg.addEventListener('mouseover', function() {
-        this.style.borderRadius = '0px';
+    profileImg.addEventListener("mouseover", function() {
+        this.style.borderRadius = "0px";
         if (bubble) {
             clearTimeout(hoverTimeout); 
-            bubble.style.opacity = '0';
+            bubble.style.opacity = "0";
             hoverTimeout = setTimeout(function() {
-                bubble.style.display = 'none';
+                bubble.style.display = "none";
             }, 500); 
         }
     });
 
-    profileImg.addEventListener('mouseout', function() {
-        this.style.borderRadius = '25px';
+    profileImg.addEventListener("mouseout", function() {
+        this.style.borderRadius = "25px";
         if (bubble) {
             clearTimeout(hoverTimeout); 
-            bubble.style.display = 'block'; 
+            bubble.style.display = "block"; 
             setTimeout(function() {
-                bubble.style.opacity = '1';
+                bubble.style.opacity = "1";
             }, 10);
         }
     });
     
 
-    dmContainer.addEventListener('click', () => {
+    dmContainer.addEventListener("click", () => {
         OpenDm(friendId);
     });
 
@@ -70,13 +70,13 @@ function createDmContainer(friend) {
     dmContainer.appendChild(bubble);
     dmContainer.appendChild(profileImg);
 
-    const titleContent = createEl('p',{className:'content',textContent:friendNick});
+    const titleContent = createEl("p",{className:"content",textContent:friendNick});
     dmContainer.appendChild(titleContent);
 
-    const closeBtn = createEl('div');
-    closeBtn.classList.add('close-dm-btn');
-    closeBtn.textContent = 'X';
-    closeBtn.addEventListener('click', (event) => {
+    const closeBtn = createEl("div");
+    closeBtn.classList.add("close-dm-btn");
+    closeBtn.textContent = "X";
+    closeBtn.addEventListener("click", (event) => {
         event.stopPropagation();
         removeDm(friendId); 
     });
@@ -93,7 +93,7 @@ function appendToDmList(user) {
     if (existingUsersIds.has(user.userId)) {return; }
 
     const dmContainer = createDmContainer(user);
-    const dmContainerParent = getId('dm-container-parent');
+    const dmContainerParent = getId("dm-container-parent");
 
     dmContainerParent.appendChild(dmContainer);
     existingUsersDmContainers.add(dmContainer);
@@ -103,8 +103,8 @@ function appendToDmList(user) {
 
 
 function updateDmsList(users) {
-    if (typeof users !== 'object' || users === null) {
-        console.error('Expected a dictionary of users');
+    if (typeof users !== "object" || users === null) {
+        console.error("Expected a dictionary of users");
         return;
     }
     
@@ -120,7 +120,7 @@ function updateDmsList(users) {
 
     Object.entries(users).forEach(([userId, user]) => {
         const dmContainer = createDmContainer({ userId, ...user });
-        const dmContainerParent = getId('dm-container-parent');
+        const dmContainerParent = getId("dm-container-parent");
 
         dmContainerParent.appendChild(dmContainer);
         existingUsersDmContainers.add(dmContainer);
@@ -130,10 +130,10 @@ function updateDmsList(users) {
 let notifyTimeout;
 
 function print_message(message) {
-    const messagetext = createEl('div');
-    messagetext.className = 'messagetext'; 
+    const messagetext = createEl("div");
+    messagetext.className = "messagetext"; 
     messagetext.textContent = message;
-    const parentNode = getId('friends-popup-container');
+    const parentNode = getId("friends-popup-container");
     parentNode.appendChild(messagetext);
 
     if (notifyTimeout) {
@@ -146,7 +146,7 @@ function print_message(message) {
     }, 10000);
 }
 function addToDmList(userData) {
-    const dmContainerParent = getId('dm-container-parent');
+    const dmContainerParent = getId("dm-container-parent");
     const existingDmContainer =  dmContainerParent.querySelector(`#${CSS.escape(userData.userId)}`);
     if(existingDmContainer) {
         dmContainerParent.insertBefore(existingDmContainer, dmContainerParent.firstChild); 
@@ -176,8 +176,8 @@ function selectFriendMenu(clickedButton) {
         return;
     }
 
-    getId("open-friends-button").style.backgroundColor = '#248046';
-    getId("open-friends-button").style.color = 'white';
+    getId("open-friends-button").style.backgroundColor = "#248046";
+    getId("open-friends-button").style.color = "white";
 
     isAddFriendsOpen = false;
     currentSelectedStatus = getRequestType(clickedButton);
@@ -190,30 +190,30 @@ function selectFriendMenu(clickedButton) {
         const reqType = getRequestType(button);
 
         button.style.backgroundColor = reqType === currentSelectedStatus ? highlightedColor : defaultColor;
-        button.style.color = reqType === currentSelectedStatus ? 'white' : grayColor;
+        button.style.color = reqType === currentSelectedStatus ? "white" : grayColor;
     });
 
     getFriends(currentSelectedStatus);
 }
 
 function getRequestType(btn) {
-    return Object.keys(buttonElements).find(key => buttonElements[key] === btn) || 'online';
+    return Object.keys(buttonElements).find(key => buttonElements[key] === btn) || "online";
 }
 
 function initializeButtonsList(ButtonsList) {
     ButtonsList.forEach(element => {
         const reqType = getRequestType(element);
 
-        element.addEventListener('click', () => selectFriendMenu(element));
-        element.addEventListener('mouseenter', () => {
+        element.addEventListener("click", () => selectFriendMenu(element));
+        element.addEventListener("mouseenter", () => {
             element.style.backgroundColor = highlightedColor;
-            element.style.color = 'white';
+            element.style.color = "white";
         });
 
-        element.addEventListener('mouseleave', () => {
+        element.addEventListener("mouseleave", () => {
             const isActive = reqType === currentSelectedStatus && !isAddFriendsOpen;
             element.style.backgroundColor = isActive ? highlightedColor : defaultColor;
-            element.style.color = isActive ? 'white' : grayColor;
+            element.style.color = isActive ? "white" : grayColor;
         });
     });
 }
@@ -230,19 +230,19 @@ function resetButtons() {
 
 
 
-function createGraySphere(content, contentClass = '', hoverText = '') {
-    const graySphere = createEl('div', { className: 'gray-sphere friend_button_element' });
+function createGraySphere(content, contentClass = "", hoverText = "") {
+    const graySphere = createEl("div", { className: "gray-sphere friend_button_element" });
 
     if(hoverText) {
-        graySphere.addEventListener('mouseenter', function() {
-            const descriptionRectangle = createEl('div', { className: 'description-rectangle'});
-            const textEl = createEl('div', { className: 'description-rectangle-text', textContent: hoverText  });
+        graySphere.addEventListener("mouseenter", function() {
+            const descriptionRectangle = createEl("div", { className: "description-rectangle"});
+            const textEl = createEl("div", { className: "description-rectangle-text", textContent: hoverText  });
     
             descriptionRectangle.appendChild(textEl);
             graySphere.appendChild(descriptionRectangle);
         });
-        graySphere.addEventListener('mouseleave', function() {
-            const descriptionRectangle = graySphere.querySelector('.description-rectangle');
+        graySphere.addEventListener("mouseleave", function() {
+            const descriptionRectangle = graySphere.querySelector(".description-rectangle");
             if (descriptionRectangle) {
                 descriptionRectangle.remove();
             }
@@ -252,14 +252,14 @@ function createGraySphere(content, contentClass = '', hoverText = '') {
     if (content instanceof HTMLElement) {
         graySphere.appendChild(content);
     } else {
-        const textElement = createEl('div', { className: contentClass, textContent: content });
+        const textElement = createEl("div", { className: contentClass, textContent: content });
         graySphere.appendChild(textElement);
     }
     return graySphere;
 }
 function createButtonWithBubblesImg(button,html,hoverText) {
-    const icon = createEl('div', { innerHTML:html });
-    icon.style.pointerEvents = 'none';
+    const icon = createEl("div", { innerHTML:html });
+    icon.style.pointerEvents = "none";
     const iconSphere = createGraySphere(icon,"",hoverText);
     button.appendChild(iconSphere);
     return iconSphere;
@@ -272,25 +272,25 @@ const ButtonTypes = {
 }
 
 function updateUsersStatus(friend) { 
-    const activityCard = createEl('div', { className: 'activity-card', id: friend.userId });
-    const contentDiv = createEl('div', { className: 'activity-card-content' });
-    const avatarImg = createEl('img', { className: 'activity-card-avatar' });
+    const activityCard = createEl("div", { className: "activity-card", id: friend.userId });
+    const contentDiv = createEl("div", { className: "activity-card-content" });
+    const avatarImg = createEl("img", { className: "activity-card-avatar" });
     setProfilePic(avatarImg, friend.userId);
-    const nickHeading = createEl('h2', { className: 'activity-card-nick' });
+    const nickHeading = createEl("h2", { className: "activity-card-nick" });
     nickHeading.textContent = friend.nickName || getUserNick(friend.userId);
-    const titleSpan = createEl('span', { className: 'activity-card-title' });
-    titleSpan.textContent = friend.activity || '';
+    const titleSpan = createEl("span", { className: "activity-card-title" });
+    titleSpan.textContent = friend.activity || "";
     contentDiv.appendChild(avatarImg);
     contentDiv.appendChild(nickHeading);
     contentDiv.appendChild(titleSpan);
 
-    const iconImg = createEl('img', { className: 'activity-card-icon', src: '/static/images/defaultmediaimage.png' });
+    const iconImg = createEl("img", { className: "activity-card-icon", src: "/static/images/defaultmediaimage.png" });
 
     activityCard.appendChild(contentDiv);
     activityCard.appendChild(iconImg);
 
 
-    getId('user-list').appendChild(activityCard);
+    getId("user-list").appendChild(activityCard);
     
 }
 function openAddFriend() {
@@ -306,40 +306,40 @@ function openAddFriend() {
 function updateFriendButton() {
     let friendsBtn = getId("open-friends-button");
     friendsBtn.style.color = "#2fc770";
-    friendsBtn.style.backgroundColor = 'transparent';
+    friendsBtn.style.backgroundColor = "transparent";
 }
 
 function clearFriendContainer() {
-    friendsContainer.innerHTML = '';
+    friendsContainer.innerHTML = "";
 }
 
 function createAddFriendForm() {
-    const addfriendtext = createEl('div', { id: 'addfriendtext', textContent: 'ARKADAŞ EKLE' });
-    const addfrienddetailtext = createEl('div', { id: 'addfrienddetailtext', textContent: 'Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin.' });
-    const addfriendinputcontainer = createEl('div');
-    const addfriendinput = createEl('input', { id: 'addfriendinputfield', placeholder: 'Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin.', autocomplete: "off" });
-    const addfriendinputbutton = createEl('button', { id: 'addfriendinputbutton', textContent: 'Arkadaşlık İsteği Gönder' });
+    const addfriendtext = createEl("div", { id: "addfriendtext", textContent: "ARKADAŞ EKLE" });
+    const addfrienddetailtext = createEl("div", { id: "addfrienddetailtext", textContent: "Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin." });
+    const addfriendinputcontainer = createEl("div");
+    const addfriendinput = createEl("input", { id: "addfriendinputfield", placeholder: "Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin.", autocomplete: "off" });
+    const addfriendinputbutton = createEl("button", { id: "addfriendinputbutton", textContent: "Arkadaşlık İsteği Gönder" });
 
-    const userlistline = createEl('hr', { className: "vertical-line-long" });
+    const userlistline = createEl("hr", { className: "vertical-line-long" });
 
-    addfriendinputbutton.classList.add('inactive'); 
+    addfriendinputbutton.classList.add("inactive"); 
 
-    addfriendinput.addEventListener('input', () => {
+    addfriendinput.addEventListener("input", () => {
         const inputValue = addfriendinput.value.trim();
-        toggleButtonState(inputValue !== ''); 
+        toggleButtonState(inputValue !== ""); 
     });
 
     function toggleButtonState(isActive) {
         if (isActive) {
-            addfriendinputbutton.classList.remove('inactive');
-            addfriendinputbutton.classList.add('active');
+            addfriendinputbutton.classList.remove("inactive");
+            addfriendinputbutton.classList.add("active");
         } else {
-            addfriendinputbutton.classList.remove('active');
-            addfriendinputbutton.classList.add('inactive');
+            addfriendinputbutton.classList.remove("active");
+            addfriendinputbutton.classList.add("inactive");
         }
     }
 
-    addfriendinputbutton.addEventListener('click', () => {
+    addfriendinputbutton.addEventListener("click", () => {
         submitAddFriend();
     });
 
@@ -353,8 +353,8 @@ function createAddFriendForm() {
 }
 
 function adjustButtonPosition() {
-    const inputrighttoset = userList.style.display === 'flex' ? '463px' : '76px';
-    const addfriendinputbutton = getId('addfriendinputbutton');
+    const inputrighttoset = userList.style.display === "flex" ? "463px" : "76px";
+    const addfriendinputbutton = getId("addfriendinputbutton");
     addfriendinputbutton.style.right = inputrighttoset;
 }
 
@@ -362,28 +362,28 @@ function adjustButtonPosition() {
 
 
 function createFriendCardBubble(isOnline) {
-    const bubble = createEl('span',{className:'status-bubble'})
-    bubble.style.marginLeft = '20px';
-    bubble.style.marginTop = '25px';
-    bubble.style.padding = '5px';
-    bubble.style.border = '3px solid #2f3136';
+    const bubble = createEl("span",{className:"status-bubble"})
+    bubble.style.marginLeft = "20px";
+    bubble.style.marginTop = "25px";
+    bubble.style.padding = "5px";
+    bubble.style.border = "3px solid #2f3136";
 
     if (isOnline) {
-        bubble.classList.add('online');
+        bubble.classList.add("online");
     } else {
-        bubble.classList.add('offline');
+        bubble.classList.add("offline");
     }
 
     return bubble;
 }
 
 function createDmBubble(isOnline) {
-    const bubble = createEl('span',{className:'dm-bubble'});
+    const bubble = createEl("span",{className:"dm-bubble"});
 
     if (isOnline) {
-        bubble.classList.add('online');
+        bubble.classList.add("online");
     } else {
-        bubble.classList.add('offline');
+        bubble.classList.add("offline");
     }
 
     return bubble;
@@ -395,7 +395,7 @@ function populateFriendsContainer(friends, isPending) {
     });
     if (isPopulating || !currentSelectedStatus) {  return;  }
     isPopulating = true;
-    const friendsContainer = getId('friends-container');
+    const friendsContainer = getId("friends-container");
     try {
         
         if (currentSelectedStatus == online) {
@@ -410,20 +410,20 @@ function populateFriendsContainer(friends, isPending) {
         }
         
         const friendsCount = friends.length;
-        const textToWrite = friendsCount !== 0 ? getFriendsTranslation() + ' — ' + friendsCount : '';
-        const friendsTitleContainer = createEl('h2',{marginRight: '50px', marginTop: '100px',textContent:textToWrite, id:"friendsTitleContainer"});
+        const textToWrite = friendsCount !== 0 ? getFriendsTranslation() + " — " + friendsCount : "";
+        const friendsTitleContainer = createEl("h2",{marginRight: "50px", marginTop: "100px",textContent:textToWrite, id:"friendsTitleContainer"});
         
         if (friendsCount === 0) {
-            if(friendsContainer.querySelector('#wumpusalone')) { return; }
-            friendsContainer.innerHTML = '';
-            const imgElement = createEl('img');
-            imgElement.id = 'wumpusalone';
-            imgElement.src = '/static/images/wumpusalone.png';
-            imgElement.style.userSelect = 'none';
-            disableElement('friendsTitleContainer');
+            if(friendsContainer.querySelector("#wumpusalone")) { return; }
+            friendsContainer.innerHTML = "";
+            const imgElement = createEl("img");
+            imgElement.id = "wumpusalone";
+            imgElement.src = "/static/images/wumpusalone.png";
+            imgElement.style.userSelect = "none";
+            disableElement("friendsTitleContainer");
             friendsContainer.appendChild(imgElement);
         } else {
-            const initialFriendsContainerHtml = `<input id='friendsSearchInput' autocomplete='off' placeholder='Ara' onkeyup="filterFriends()"></input>`;
+            const initialFriendsContainerHtml = `<input id="friendsSearchInput" autocomplete="off" placeholder="Ara" onkeyup="filterFriends()"></input>`;
             friendsContainer.innerHTML = initialFriendsContainerHtml;
             friendsContainer.appendChild(friendsTitleContainer);
             setTimeout(() => {
@@ -435,41 +435,41 @@ function populateFriendsContainer(friends, isPending) {
                     updateUsersStatus(friend)
                 }
             }
-            enableElement('friendsTitleContainer');
+            enableElement("friendsTitleContainer");
         }
 
         existingFriends = friends;
     } catch (error) {
-        console.error('Error populating friends container:', error);
+        console.error("Error populating friends container:", error);
     } finally {
         isPopulating = false;
     }
 }
 function createFriendCard(friend, isPending, friendsContainer) {
-    const friendCard = createEl('div', { className: 'friend-card', id: friend.userId });
-    const img = createEl('img');
+    const friendCard = createEl("div", { className: "friend-card", id: friend.userId });
+    const img = createEl("img");
     setProfilePic(img, friend.userId);
-    img.classList.add('friend-image');
-    img.style.transition = 'border-radius 0.5s ease-out';
+    img.classList.add("friend-image");
+    img.style.transition = "border-radius 0.5s ease-out";
 
     const bubble = createFriendCardBubble(friend.is_online);
-    bubble.style.transition = 'display 0.5s ease-in-out';
+    bubble.style.transition = "display 0.5s ease-in-out";
     if (!isPending) friendCard.appendChild(bubble);
 
-    img.addEventListener('mouseover', () => handleImageHover(img, bubble, isPending, friend.is_online, true));
-    img.addEventListener('mouseout', () => handleImageHover(img, bubble, isPending, friend.is_online, false));
+    img.addEventListener("mouseover", () => handleImageHover(img, bubble, isPending, friend.is_online, true));
+    img.addEventListener("mouseout", () => handleImageHover(img, bubble, isPending, friend.is_online, false));
 
     appendToProfileContextList(friend, friend.userId);
 
-    const friendInfo = createEl('div', { className: 'friend-info' });
-    friendInfo.appendChild(createEl('div', { className: 'friend-name', textContent: friend.name }));
-    friendInfo.appendChild(createEl('div', { className: 'friend-discriminator', textContent: `#${friend.discriminator}` }));
+    const friendInfo = createEl("div", { className: "friend-info" });
+    friendInfo.appendChild(createEl("div", { className: "friend-name", textContent: friend.name }));
+    friendInfo.appendChild(createEl("div", { className: "friend-discriminator", textContent: `#${friend.discriminator}` }));
     const onlineStatus = isPending ? 
         (friend.is_friends_requests_to_user ? translations[currentLanguage].incoming-friend-request : translations[currentLanguage].outgoing-friend-request) : 
         (friend.is_online ? translations[currentLanguage].online : translations[currentLanguage].offline);
-    friendInfo.appendChild(createEl('div', { className: 'friend-status', textContent: onlineStatus }));
+    friendInfo.appendChild(createEl("div", { className: "friend-status", textContent: onlineStatus }));
 
-    const friendButton = createEl('div', { className: 'friend-button' });
+    const friendButton = createEl("div", { className: "friend-button" });
 
     if (isPending) {
         addpending-buttons(friendButton, friend);
@@ -485,21 +485,21 @@ function createFriendCard(friend, isPending, friendsContainer) {
 }
 
 function handleImageHover(img, bubble, isPending, isOnline, isMouseOver) {
-    img.style.borderRadius = isMouseOver ? '0px' : '25px';
+    img.style.borderRadius = isMouseOver ? "0px" : "25px";
     if (bubble && !isPending) {
-        bubble.style.display = (isMouseOver || isOnline) ? 'none' : 'block';
+        bubble.style.display = (isMouseOver || isOnline) ? "none" : "block";
     }
 }
 
 
 
 function addFriendButtons(friendButton, friend) {
-    const sendMsgBtn = createButtonWithBubblesImg(friendButton, ButtonTypes.SendMsgBtn, 'Mesaj Gönder');
-    sendMsgBtn.addEventListener('click', () => OpenDm(friend.userId));
+    const sendMsgBtn = createButtonWithBubblesImg(friendButton, ButtonTypes.SendMsgBtn, "Mesaj Gönder");
+    sendMsgBtn.addEventListener("click", () => OpenDm(friend.userId));
 
-    const optionsButton = createButtonWithBubblesImg(friendButton, ButtonTypes.OptionsBtn, '');
+    const optionsButton = createButtonWithBubblesImg(friendButton, ButtonTypes.OptionsBtn, "");
     optionsButton.id = friend.userId;
-    optionsButton.addEventListener('click', (event) => handleOptionsClick(event, optionsButton));
+    optionsButton.addEventListener("click", (event) => handleOptionsClick(event, optionsButton));
 }
 
 function handleOptionsClick(event, optionsButton) {
@@ -511,15 +511,15 @@ function handleOptionsClick(event, optionsButton) {
 }
 function getFriendsTranslation() {
     switch (currentSelectedStatus) {
-      case 'online':
+      case "online":
         return translations[currentLanguage].online;
-      case 'offline':
+      case "offline":
         return translations[currentLanguage].offline;
-      case 'pending':
+      case "pending":
         return translations[currentLanguage].pending;
-      case 'blocked':
+      case "blocked":
         return translations[currentLanguage].blocked;
-      case 'all':
+      case "all":
         return translations[currentLanguage].all;
       default:
         return "";

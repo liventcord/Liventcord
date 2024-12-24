@@ -1,28 +1,28 @@
 const EventType = Object.freeze({
-    CREATE_CHANNEL: 'create_channel',
-    JOIN_GUILD: 'join_guild',
-    CREATE_GUILD: 'create_guild',
-    DELETE_GUILD: 'delete_guild',
-    DELETE_GUILD_IMAGE: 'delete_guild_image',
-    NEW_MESSAGE: 'new_message',
-    GET_MEMBERS: 'get_members',
-    GET_CHANNELS: 'get_channels',
-    GET_FRIENDS: 'get_friends',
-    GET_HISTORY: 'get_history',
-    GET_SCROLL_HISTORY: 'get_old_history',
-    GET_GUILDS: 'get_guilds',
-    GET_INVITES: 'get_invites',
-    START_TYPING: 'start_typing',
-    STOP_TYPING: 'stop_typing',
-    ADD_FRIEND: 'add_friend',
-    ADD_FRIEND_ID: 'add_friend_id'
+    CREATE_CHANNEL: "create_channel",
+    JOIN_GUILD: "join_guild",
+    CREATE_GUILD: "create_guild",
+    DELETE_GUILD: "delete_guild",
+    DELETE_GUILD_IMAGE: "delete_guild_image",
+    NEW_MESSAGE: "new_message",
+    GET_MEMBERS: "get_members",
+    GET_CHANNELS: "get_channels",
+    GET_FRIENDS: "get_friends",
+    GET_HISTORY: "get_history",
+    GET_SCROLL_HISTORY: "get_old_history",
+    GET_GUILDS: "get_guilds",
+    GET_INVITES: "get_invites",
+    START_TYPING: "start_typing",
+    STOP_TYPING: "stop_typing",
+    ADD_FRIEND: "add_friend",
+    ADD_FRIEND_ID: "add_friend_id"
 });
 
 const HttpMethod = Object.freeze({
-    POST: 'POST',
-    GET: 'GET',
-    PUT: 'PUT',
-    DELETE: 'DELETE',
+    POST: "POST",
+    GET: "GET",
+    PUT: "PUT",
+    DELETE: "DELETE",
 });
 
 const EventHttpMethodMap = {
@@ -126,9 +126,9 @@ class CustomHttpConnection {
         try {
             const response = await fetch(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { "Content-Type": "application/json" },
                 body: method === HttpMethod.GET ? undefined : JSON.stringify(data),
-                credentials: 'same-origin',
+                credentials: "same-origin",
             });
     
             if (!response.ok) {
