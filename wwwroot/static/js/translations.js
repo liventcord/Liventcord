@@ -246,7 +246,7 @@ class Translations {
           if(element.className == "iconWrapper") {
             element.ariaLabel = textToUse;      
           } else {
-            console.log("Set text for: ",key, " as: ",textToUse)
+            //console.log("Set text for: ",key, " as: ",textToUse)
             element.textContent = textToUse;
           }
         }

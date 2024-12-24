@@ -4,10 +4,6 @@ let currentGuildName = '';
 
 
 
-function getGuildName(guildId) {
-    const guild = currentGuildData[guildId];
-    return guild ? guild.name : 'Unknown Guild';
-}
 
 function getManageableGuilds() {
     if(!permissionsMap) { return [] }
@@ -72,21 +68,23 @@ function createGuildListItem(guild) {
     li.appendChild(createEl('div', { className: 'white-rod' }));
     return li;
 }
-
+function doesGuildExistInBar(guildId) {
+    return Boolean(guildsList.querySelector(guildId));
+}
 function updateGuildList(guildData) {
     if (!guildData) {
         console.warn("Tried to update guild list without data.");
         return;
     }
 
-    currentGuildData = guildData;
+    cacheInterface.addGuild(guildData);
     guildsList.innerHTML = "";
 
     const mainLogo = createMainLogo();
     guildsList.appendChild(mainLogo);
 
     guildData.guilds.forEach((guild) => {
-        if (getId(guild.guildId)) return;
+        if (doesGuildExistInBar(guild.guildId)) return;
 
         cacheInterface.setGuildOwner(guild.guildId, guild.ownerId);
         const guildListItem = createGuildListItem(guild);
@@ -190,7 +188,7 @@ function selectGuildList(guildId) {
     });
 }
 
-function loadGuild(guildId,channelId,guildName,guildOwnerId,isChangingUrl=true) {
+function loadGuild(guildId,channelId,guildName,isChangingUrl=true) {
     if(!guildId || !channelId ) {
         console.error("Load guild called with null values: ", guildId,channelId)
         return; 
@@ -249,16 +247,6 @@ function refreshInviteId() {
     if(!cacheInterface.isInvitesEmpty(currentGuildId)) { return; }
     console.log("Implement invites")
     //apiClient.send('get_invites',{'guildId' : currentGuildId});
-}
-
-
-function addGuild(guildId, guildName, ownerId) {
-    const data = {
-        "guildId": guildId,
-        "guildName": guildName,
-        "ownerId": ownerId
-    };
-    currentGuildData[guildId] = data;
 }
 
 function fetchMembers() {

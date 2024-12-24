@@ -44,7 +44,7 @@ apiClient.on('join_guild_response',data=> {
     
     
     permissionManager.permissionsMap[data.guildId] = data.permissionsMap;
-    loadGuild(data.joinedGuildId,data.joinedChannelId,data.joinedGuildName,data.joinedOwnerId);
+    loadGuild(data.joinedGuildId,data.joinedChannelId,data.joinedGuildName);
 
     if(closeCurrentJoinPop) {
         closeCurrentJoinPop();

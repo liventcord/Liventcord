@@ -981,7 +981,6 @@ th {
 .vertical-line {
     border: none;
     width: 25px;
-    position: fixed;
     left: 415px;
     top: 15px;
     border-top: 1px solid #cccccc23;

@@ -35,6 +35,9 @@ class ChannelCache extends BaseCache {
     getChannels(guildId) {
         return this.get(guildId) || [];
     }
+    isRootChannel(guildId,channelId) {
+        console.error(this);
+    }
     updateChannel(guildId, channel, add = true) {
         const channels = this.getChannels(guildId);
         const index = channels.findIndex(channel => channel.id === channel.id);
@@ -157,6 +160,9 @@ class GuildCache {
         }
         return this.guilds[guildId];
     }
+    doesGuildExist(guildId) {
+        return Boolean(this.guilds[guildId]);    
+    }
     initialiseGuildOwnerIds(passedGuildOwnerIds) {
         if (typeof passedGuildOwnerIds !== "object" || passedGuildOwnerIds === null) {
             console.error("Invalid input: passedGuildOwnerIds must be an object.");
@@ -178,8 +184,14 @@ class GuildCacheInterface {
     getGuild(guildId) {
         return this.guildCache.getGuild(guildId);
     }
+    doesGuildExist(guildId) {
+        return this.guildCache.doesGuildExist(guildId);
+    }
     getGuildName(guildId) {
         return this.guildCache.getGuild(guildId).guildName;
+    }
+    addGuild(guildData) {
+        console.error(guildData)
     }
     isInvitesEmpty(guildId) {
         return this.guildCache.getGuild(guildId).invites.getInviteIds(guildId) != null;
@@ -206,6 +218,9 @@ class GuildCacheInterface {
     //channels
     getChannels(guildId) {
         return this.getGuild(guildId)?.channels.getChannels() || [];
+    }
+    isRootChannel(guildId,channelId) {
+        this.getGuild(guildId)?.channels.isRootChannel(guildId,channelId);
     }
     setChannels(guildId, channelsData) {
         this.getGuild(guildId)?.channels.setChannels(channelsData);
