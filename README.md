@@ -23,7 +23,7 @@ Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**
 
 ## Getting Started
 
-To get started with **LiventCord**, you can set up the backend locally or interact with the main server hosted at [leventcord.bsite.net](https://leventcord.bsite.net)
+To get started with **LiventCord**, you can set up the backend locally
 
 ### Prerequisites
 
