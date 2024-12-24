@@ -225,7 +225,7 @@
     position: absolute;
     bottom: 100px;
     right: 300px;
-    z-index: 50;
+    z-index: 3;
     line-height: 35px;
     background-color: #232428;
     color: #ffffff;
