@@ -134,7 +134,8 @@ th {
 #settings-menu {
     display: flex;
     flex-direction: row;
-    height: auto;
+    height: 100%;
+    width: 100%;
     background-color: #2f3136;
     border-radius: 10px;
     overflow: hidden;
@@ -946,7 +947,7 @@ th {
     border: 2px solid oklab(0.786807 -0.0025776 -0.0110238);
     border-radius: 50%;
     cursor: pointer;
-    margin-left: 700px;
+    margin-left: 95%;
     margin-top: 20px;
     box-shadow: 0 0 4px rgba(0,0,0,0.2);
 }

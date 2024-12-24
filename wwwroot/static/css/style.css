@@ -499,10 +499,10 @@
     background-color: #313338;
     color: #ffffff;
     position: fixed;
-    padding: 5px;
+    padding: 9px;
     z-index: 1;
     padding-left: 350px;
-    width: 60%;
+    width: 100%;
 }
 .truncated {
     overflow: hidden; 
@@ -512,7 +512,6 @@
 #channel-info {
     font-size: 17px;
     margin-left: 10px;
-    margin-top: 7px;
     width: calc(100vw - 800px);
 }
 #hash-sign {
