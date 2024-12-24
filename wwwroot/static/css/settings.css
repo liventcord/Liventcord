@@ -474,6 +474,15 @@ th {
     left: 300px;
     position: absolute;
 }
+#settings-leftbar {
+    background-color: #2b2d31;
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .settings-buttons {
     font-size: 16px;
     margin: 10px 0;
@@ -487,12 +496,11 @@ th {
     transition: background-color 0.2s, color 0.2s;
     cursor: pointer;
 }
-#settings-leftbar {
-    background-color: #2b2d31;
-    flex: 1;
-    padding: 20px;
-    overflow-y: auto;
+
+#settings-leftbar .settings-buttons:last-child {
+    margin-top: auto;
 }
+
 #settings-leftbar::-webkit-scrollbar {
     width: 8px;
     background-color: #202020;
@@ -974,7 +982,7 @@ th {
     border: none;
     width: 25px;
     position: fixed;
-    left: 442px;
+    left: 415px;
     top: 15px;
     border-top: 1px solid #cccccc23;
     transform: rotate(90deg);

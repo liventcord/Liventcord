@@ -253,7 +253,7 @@ function generateSettingsHtml(settings, isGuild = false) {
 
     return `
         ${buttons}
-        <button class="settings-buttons" style="bottom:10%; left:0px; position:fixed;" onclick="logOutPrompt()">${t("LogOut")}</button>
+        <button class="settings-buttons" onclick="logOutPrompt()">${t("LogOut")}</button>
     `;
 }
 
