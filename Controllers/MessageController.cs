@@ -94,7 +94,7 @@ namespace LiventCord.Controllers {
             {
                 var results = await _context.Messages
                     .FromSqlInterpolated(
-                        $"SELECT * FROM messages WHERE guild_id = {guildId} AND search_vector @@ to_tsquery("english", {query})")
+                        $"SELECT * FROM messages WHERE guild_id = {guildId} AND search_vector @@ to_tsquery('english', {query})")
                     .ToListAsync();
 
                 if (results.Count == 0)
@@ -107,6 +107,7 @@ namespace LiventCord.Controllers {
                 return StatusCode(500, $"An error occurred while searching: {ex.Message}");
             }
         }
+
 
 
 

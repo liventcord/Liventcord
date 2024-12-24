@@ -237,7 +237,7 @@ public class FileController : ControllerBase
             
             if (file.Extension == ".jpg" || file.Extension == ".png" || file.Extension == ".jpeg" || file.Extension == ".gif")
             {
-                html += $"<div><h3>{file.FileName}</h3><img src="{fileUrl}" alt="{file.FileName}" width="200" /></div>";
+                html += $"<div><h3>{file.FileName}</h3><img src='{fileUrl}' alt='{file.FileName}' width='200' /></div>";
             }
             else
             {
