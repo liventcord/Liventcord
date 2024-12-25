@@ -122,6 +122,7 @@ async function loadGifContent() {
     const query = getId("mediaMenuSearchbar").value;
     if (!query) {
         mediaMenuContainer.innerHTML = "";
+        showCategoriesList();
         return;
     }
     const gifWorkerUrl = `https://liventcord-gif-worker.efekantunc0.workers.dev?q=${encodeURIComponent(query)}`;
@@ -187,7 +188,7 @@ function showCategoriesList() {
     categoryNameText.style.display = "none";
     getId("gifsBackBtn").style.display = "none";
     getId("mediaMenuSearchbar").style.display = "flex";
-    fetchCategoryUrls();
+    loadMenuGifContent();
     categoryName.textContent = "";
 }
 function showCategoryView(categoryName) {
@@ -325,12 +326,44 @@ async function loadMenuGifContent() {
         displayContent([], "gif");
     }
 }
+function initialiseEmojiPreview() {
+    const emoji = getId("emojibtn");
+    const totalEmojis = 73;
+    const emojiWidth = 48;
+    const emojiHeight = 48;
 
+    let isHovered = false;
+    let currentEmojiPosition = '0px 0px';
+
+    function getRandomEmojiPosition() {
+      const randomIndex = Math.floor(Math.random() * totalEmojis);
+      const row = Math.floor(randomIndex / (960 / emojiWidth));
+      const col = randomIndex % (960 / emojiWidth);
+      return `-${col * emojiWidth}px -${row * emojiHeight}px`;
+    }
+
+    emoji.addEventListener('mouseover', () => {
+      if (!isHovered) {
+        currentEmojiPosition = getRandomEmojiPosition();
+        emoji.style.backgroundPosition = currentEmojiPosition;
+        emoji.classList.add('hovered');
+        emoji.classList.remove('selected');
+        isHovered = true;
+      }
+    });
+
+    emoji.addEventListener('mouseout', () => {
+      emoji.classList.remove('hovered');
+      emoji.classList.add('selected');
+      emoji.style.backgroundPosition = currentEmojiPosition;
+      isHovered = false;
+    });
+}
 
 function initialiseMedia() {
+    initialiseEmojiPreview();
     mediaMenu = getId("media-menu");
     mediaMenuContainer = getId("media-menu-container");
-
     mediaMenu.style.display = "none";
     const searchBar = getId("mediaMenuSearchbar");
 

@@ -895,38 +895,7 @@ input[type="file"] {
     background-color: #424242;
     z-index: 9;
 }
-.gifbtn-base,
-.emojibtn-base {
-    background-color: rgb(181, 186, 193);
-    right: 600px;
-    bottom: 10px;
-    z-index: 2;
-    position: absolute;
-    border-radius: 50px;
-    width: 30px;
-    height: 30px;
-    border: none;   
-}
-.gifbtn-base {
-    font-weight: bold;
-    text-indent: -4px;
-    right: 650px;
-    border-radius: 2px;
-    bottom: 12px;
-    width: 25px; height: 25px;
-}
-.emojibtn-base:hover {
-    background-color: white;
-}
-.gifbtn-base:hover {
-    background-color: white;
-}
-.gifbtn-user-list-hidden {
-    right: 360px;
-}
-.emojibtn-user-list-hidden {
-    right: 400px;
-}
+
 textarea.scrollable {
     overflow-y: auto;
 }

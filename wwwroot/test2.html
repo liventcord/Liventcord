@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emoji Sprite Sheet with Hover</title>
+  <title>Random Emoji Hover Effect</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -15,18 +15,8 @@
       background-color: #f5f5f5;
     }
 
-    #emoji-container {
-      display: flex;
-      flex-wrap: wrap;
-      width: 960px;
-      background-color: white;
-      border: 2px solid #ccc;
-      border-radius: 10px;
-      padding: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
 
-    .emoji {
+    #emoji-preview {
       position: relative;
       width: 48px;
       height: 48px;
@@ -34,59 +24,73 @@
       background-size: 960px 192px;
       margin: 2px;
       border-radius: 50%;
-      overflow: hidden;
-      transition: background-color 0.3s ease;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      mix-blend-mode: grayscale;
     }
 
-    .emoji::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgb(255, 173, 0); 
-      opacity: 0;
-      z-index: 1;
-      border-radius: 50%;
-      mix-blend-mode: screen; 
-      transition: opacity 0.3s ease;
+    #emoji-preview.hovered {
+      animation: wiggle 0.3s ease forwards;
+      filter: sepia(1) saturate(12) hue-rotate(30deg) brightness(1.5);
     }
 
-    .emoji:hover::after {
-      opacity: 1;
+    #emoji-preview.selected {
+      background-color: transparent;
     }
 
-    .emoji:hover {
-      filter: none;
+    @keyframes wiggle {
+      0% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(10deg);
+      }
+      50% {
+        transform: rotate(-10deg);
+      }
+      75% {
+        transform: rotate(5deg);
+      }
+      100% {
+        transform: rotate(0deg);
+      }
     }
   </style>
 </head>
 <body>
-  <div id="emoji-container"></div>
+  <div id="emoji-preview"></div>
 
   <script>
-    const renderEmojis = () => {
-      const container = document.getElementById('emoji-container');
-      const emojiCount = 73;
-      const columns = 20;
-      const cellSize = 48;
+    const emoji = document.querySelector('#emoji-preview');
+    const totalEmojis = 73;
+    const emojiWidth = 48;
+    const emojiHeight = 48;
 
-      for (let i = 0; i < emojiCount; i++) {
-        const row = Math.floor(i / columns);
-        const col = i % columns;
-        const x = -(col * cellSize);
-        const y = -(row * cellSize);
+    let isHovered = false;
+    let currentEmojiPosition = '0px 0px';
 
-        const emoji = document.createElement('div');
-        emoji.classList.add('emoji');
-        emoji.style.backgroundPosition = `${x}px ${y}px`;
+    function getRandomEmojiPosition() {
+      const randomIndex = Math.floor(Math.random() * totalEmojis);
+      const row = Math.floor(randomIndex / (960 / emojiWidth));
+      const col = randomIndex % (960 / emojiWidth);
+      return `-${col * emojiWidth}px -${row * emojiHeight}px`;
+    }
 
-        container.appendChild(emoji);
+    emoji.addEventListener('mouseover', () => {
+      if (!isHovered) {
+        currentEmojiPosition = getRandomEmojiPosition();
+        emoji.style.backgroundPosition = currentEmojiPosition;
+        emoji.classList.add('hovered');
+        emoji.classList.remove('selected');
+        isHovered = true;
       }
-    };
+    });
 
-    document.addEventListener('DOMContentLoaded', renderEmojis);
+    emoji.addEventListener('mouseout', () => {
+      emoji.classList.remove('hovered');
+      emoji.classList.add('selected');
+      emoji.style.backgroundPosition = currentEmojiPosition;
+      isHovered = false;
+    });
   </script>
 </body>
 </html>
