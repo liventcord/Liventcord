@@ -188,7 +188,7 @@ function selectGuildList(guildId) {
     });
 }
 
-function loadGuild(guildId,channelId,guildName,isChangingUrl=true) {
+function loadGuild(guildId,channelId,guildName,isChangingUrl=true,isInitial=false) {
     if(!guildId || !channelId ) {
         console.error("Load guild called with null values: ", guildId,channelId)
         return; 
@@ -225,9 +225,9 @@ function loadGuild(guildId,channelId,guildName,isChangingUrl=true) {
     }
     
     if(isOnMe) {
-        loadApp();
+        loadApp(null,isInitial);
     } else if (isOnDm) {
-        loadApp();
+        loadApp(null,isInitial);
     } else if (isOnGuild){
         changecurrentGuild();
     } 
