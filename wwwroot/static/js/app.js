@@ -143,7 +143,7 @@ function isDefined(variable) {
 function initializeGuild() {
     initialiseMe();
     if(validateRoute()) {
-        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name);
+        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name,false,true);
     } else {
         console.warn("Route cannot be validated!!");
         return;
@@ -393,7 +393,7 @@ function changecurrentGuild() {
     isChangingPage = false;
 }
 
-function loadApp(friendId=null) {
+function loadApp(friendId=null,isInitial=false) {
     if(isChangingPage) {return;  }
     isChangingPage = true;
     const userList = getId("user-list");
@@ -415,9 +415,11 @@ function loadApp(friendId=null) {
         if(currentDmId) {
             lastDmId = currentDmId;
         }
-        
-        fetchMembers();
-        getChannels();
+        if(!isInitial) {
+            fetchMembers();
+            getChannels();
+
+        }
         disableElement("dms-title");
         disableElement("dm-container-parent");
         disableElement("friend-container-item");

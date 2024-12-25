@@ -47,6 +47,7 @@ function onMouseMove(e) {
     mediaMenu.style.height = Math.min(viewportHeight, newHeight) + "px";
 }
 
+
 function onMouseUp() {
     if (isResizing) {
         isResizing = false;
@@ -56,31 +57,70 @@ function onMouseUp() {
     }
 }
 
-function renderEmojis(container) {
-    const spriteWidth = 80;
-    const spriteHeight = 80;
-    const columns = Math.floor(3360 / spriteWidth);
-    const rows = Math.floor(3120 / spriteHeight);
-    const totalEmojis = columns * rows - 24;
 
-    const fragment = document.createDocumentFragment(); 
 
-    for (let i = 0; i < totalEmojis; i++) {
-        const row = Math.floor(i / columns);
-        const col = i % columns;
-        const x = -(col * spriteWidth);
-        const y = -(row * spriteHeight);
+// Line count is 42
+// Humans  is 245
+// Nature is 213
+// Food is 129
+// Activities is 76
+// Travel is 131
+// Objects is 223
+// Symbols is 328
+// Flags is 269
 
-        const emoji = document.createElement("div");
-        emoji.className = "emoji";
-        emoji.style.backgroundPosition = `${x}px ${y}px`;
 
-        fragment.appendChild(emoji);
-    }
+const categories = [
+    { title: "Humans", class: "human", count: 245 },
+    { title: "Nature", class: "nature", count: 213 },
+    { title: "Food", class: "food", count: 129 },
+    { title: "Activities", class: "activities", count: 76 },
+    { title: "Travel", class: "travel", count: 131 },
+    { title: "Objects", class: "objects", count: 223 },
+    { title: "Symbols", class: "symbols", count: 328 },
+    { title: "Flags", class: "flags", count: 269 }
+];
 
-    container.innerHTML = ""; 
-    container.appendChild(fragment);
+function renderEmojis(container, categories) {
+    const spriteWidth = 40; // Width of each emoji
+    const spriteHeight = 40; // Height of each emoji
+    const sheetWidth = 1680; // Total width of the spritesheet
+    const columns = Math.floor(sheetWidth / spriteWidth); // Number of emojis per row
+
+    let currentIndex = 0;
+
+    categories.forEach(category => {
+        const categoryContainer = document.createElement("div");
+        categoryContainer.className = "emoji-category";
+
+        const categoryTitle = document.createElement("div");
+        categoryTitle.className = "category-title";
+        categoryTitle.textContent = category.title;
+        categoryContainer.appendChild(categoryTitle);
+
+        const emojisContainer = document.createElement("div");
+        emojisContainer.className = "emojis-container";
+
+        for (let i = 0; i < category.count; i++) {
+            const col = currentIndex % columns; // Column position
+            const row = Math.floor(currentIndex / columns); // Row position
+            const x = -(col * spriteWidth); // Background X position
+            const y = -(row * spriteHeight); // Background Y position
+
+            const emoji = document.createElement("div");
+            emoji.className = `emoji ${category.class}`;
+            emoji.style.backgroundPosition = `${x}px ${y}px`;
+
+            emojisContainer.appendChild(emoji);
+
+            currentIndex++;
+        }
+
+        categoryContainer.appendChild(emojisContainer);
+        container.appendChild(categoryContainer);
+    });
 }
+
 
 
 function getEmojiPanel() {
@@ -94,7 +134,7 @@ function getEmojiPanel() {
         }
     });
 
-    renderEmojis(emojisContainer);
+    renderEmojis(emojisContainer,categories);
     emojiPanel.appendChild(emojisContainer);
     return emojiPanel.outerHTML;
 }
@@ -396,7 +436,8 @@ function initialiseMedia() {
         }
     });
     gifsBackBtn.addEventListener("click",showCategoriesList);
-    
+    mediaMenu.style.width = 1200+ "px";
+    mediaMenu.style.height = 1200 + "px";
 
     mediaMenu.addEventListener("mousedown", (e) => {
         initialX = e.clientX;
