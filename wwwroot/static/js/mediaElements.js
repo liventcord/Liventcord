@@ -1,4 +1,5 @@
 let defaultMediaImageUrl = "/static/images/defaultmediaimage.png"
+const linkWorkerUrl = "https://liventcord-link-worker.efekantunc0.workers.dev";
 
 
 const maxWidth = 512;
@@ -219,7 +220,6 @@ function processMediaLink(link, newMessage, messageContentElement, content) {
         if (isImageURL(link) || isAttachmentUrl(link)) {
             mediaElement = document.createElement("img");
             mediaElement.src = link; 
-            mediaElement.alt = "Loading..."; 
             mediaElement.style.width = "100%"; 
             mediaElement.style.height = "auto";
             mediaElement.dataset.dummy = link;
@@ -300,7 +300,7 @@ async function displayWebPreview(messageElement, url) {
 
         const requestPromise = (async () => {
             try {
-                const response = await fetch(`https://liventcord-link-worker.efekantunc0.workers.dev/?url=${encodeURIComponent(url)}`);
+                const response = await fetch(`${linkWorkerUrl}/?url=${encodeURIComponent(url)}`);
                 const data = await response.json();
                 if (!data.title && !data.description) {
                     console.log("No metadata found.");

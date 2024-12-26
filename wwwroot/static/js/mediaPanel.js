@@ -1,14 +1,14 @@
-//TODO: make emojibtn use previews
 let isResizing = false;
 let initialX, initialY, initialWidth, initialHeight;
 let initialLeft, initialTop;
 let resizingTop, resizingBottom, resizingLeft, resizingRight;
-const exampleTenorId = "LIVDSRZULELA";
 let isMediaMenuOpen = false;
 let currentMenuType = "";
 let mediaMenu, mediaMenuContainer;
 let direction = "";
 
+const exampleTenorId = "LIVDSRZULELA";
+const gifWorkerUrl = "https://liventcord-gif-worker.efekantunc0.workers.dev";
 
 
 
@@ -157,8 +157,8 @@ async function loadGifContent() {
         showCategoriesList();
         return;
     }
-    const gifWorkerUrl = `https://liventcord-gif-worker.efekantunc0.workers.dev?q=${encodeURIComponent(query)}`;
-    const response = await fetch(gifWorkerUrl);
+    const gifUrl = `${gifWorkerUrl}?q=${encodeURIComponent(query)}`;
+    const response = await fetch(gifUrl);
     if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
     const data = await response.json();
     if (data.error) throw new Error(`API error: ${data.error}`);
