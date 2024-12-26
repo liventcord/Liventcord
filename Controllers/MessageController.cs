@@ -116,7 +116,7 @@ namespace LiventCord.Controllers {
         {
             return await _context.Messages
                 .Where(m => m.ChannelId == channelId)
-                .OrderByDescending(m => m.Date)
+                .OrderBy(m => m.Date)
                 .Take(50)
                 .ToListAsync();
         }
