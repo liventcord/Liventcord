@@ -199,7 +199,15 @@ app.MapFallback(async context =>
     }
 });
 
-
+//Cache disabling
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
+    context.Response.Headers["Pragma"] = "no-cache";
+    context.Response.Headers["Expires"] = "0";
+    
+    await next.Invoke();
+});
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
