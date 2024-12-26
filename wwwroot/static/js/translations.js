@@ -76,6 +76,7 @@ class Translations {
         "guild-born-title" : "Welcome to guild",
         "fail-message-text": "The message could not be delivered. This might be because you do not share any servers with the recipient or the recipient only accepts direct messages from friends.",
         "start-of-guild" : "This, is the start of guild.",
+        "channelSearchInput": "Search"
       },
 
       tr: {
@@ -150,6 +151,7 @@ class Translations {
         "guild-born-title" : "klanına hoşgeldin!",
         "fail-message-text": "Mesajın iletilemedi. Bunun nedeni alıcıyla herhangi bir sunucu paylaşmıyor olman veya alıcının sadece arkadaşlarından direkt mesaj kabul ediyor olması olabilir.",
         "start-of-guild" : "Bu, sunucunun başlangıcıdır.",
+        "channelSearchInput": "Ara",
       }
     };
   }
