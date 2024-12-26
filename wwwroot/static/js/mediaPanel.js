@@ -59,15 +59,7 @@ function onMouseUp() {
 
 
 
-// Line count is 42
-// Humans  is 245
-// Nature is 213
-// Food is 129
-// Activities is 76
-// Travel is 131
-// Objects is 223
-// Symbols is 328
-// Flags is 269
+
 
 
 const categories = [
@@ -130,7 +122,7 @@ function getEmojiPanel() {
         style: {
             display: "flex",
             flexWrap: "wrap",
-            justifyContent: "center", 
+            justifyContent: "center",
         }
     });
 
@@ -297,12 +289,12 @@ function displayContent(contentData, type, isCategory = false) {
 function toggleGifs(isTop) {
 
     if (currentMenuType === "gif") {
-        toggleMediaMenu(); 
+        toggleMediaMenu();
     } else {
         currentMenuType = "gif";
         loadMenuGifContent();
         if (!isMediaMenuOpen) {
-            toggleMediaMenu(); 
+            toggleMediaMenu();
         }
     }
 }
@@ -310,20 +302,20 @@ function toggleGifs(isTop) {
 function toggleEmojis(isTop) {
 
     if (currentMenuType === "emoji") {
-        toggleMediaMenu(); 
+        toggleMediaMenu();
     } else {
         currentMenuType = "emoji";
         mediaMenuContainer.innerHTML = getEmojiPanel();
 
         if (!isMediaMenuOpen) {
-            toggleMediaMenu(); 
+            toggleMediaMenu();
         }
     }
 }
 
 function httpGetSync(url) {
     const xmlHttp = new XMLHttpRequest();
-    xmlHttp.open("GET", url, false); 
+    xmlHttp.open("GET", url, false);
     xmlHttp.send(null);
     if (xmlHttp.status === 200) {
         return xmlHttp.responseText;
@@ -356,9 +348,9 @@ async function fetchCategoryUrls() {
 
 async function loadMenuGifContent() {
     console.log("Loading GIF content...");
-    
+
     const categoryUrls = await fetchCategoryUrls();
-    
+
     if (categoryUrls.length > 0) {
         displayContent(categoryUrls, "gif", true);
     } else {
@@ -414,7 +406,7 @@ function initialiseMedia() {
 
     getId("emojibtntop").addEventListener("click", (e) => {
         toggleEmojis(false);
-        e.stopPropagation(); 
+        e.stopPropagation();
     });
     getId("gifbtn").addEventListener("click", (e) => {
         toggleGifs(false);
@@ -422,11 +414,11 @@ function initialiseMedia() {
     });
     getId("emojibtn").addEventListener("click", (e) => {
         toggleEmojis(false);
-        e.stopPropagation(); 
+        e.stopPropagation();
     });
     getId("gifbtntop").addEventListener("click", (e) => {
         toggleGifs(true);
-        e.stopPropagation(); 
+        e.stopPropagation();
     });
 
     document.body.addEventListener("click", (event) => {
@@ -459,7 +451,7 @@ function initialiseMedia() {
             document.addEventListener("mouseup", onMouseUp);
         }
     });
-    
+
 }
 
 document.addEventListener("DOMContentLoaded", initialiseMedia);

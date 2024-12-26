@@ -10,7 +10,7 @@ namespace LiventCord.Models
         public required string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
-        [StringLength(128, MinimumLength = 1, ErrorMessage = "Password must be between 1 and 128 characters.")]
+        [StringLength(128, MinimumLength = 5, ErrorMessage = "Password must be between 5 and 128 characters.")]
         public required string Password { get; set; }
 
         [Required(ErrorMessage = "Nickname is required.")]

@@ -43,7 +43,7 @@ class PermissionManager {
     }
     
 
-    addGuilfSelfCreated(guildId) {
+    addGuildSelfCreated(guildId) {
         permissionsMap[guildId] = {
             "read_messages": 1,
             "send_messages": 1,

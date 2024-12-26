@@ -37,7 +37,7 @@ namespace LiventCord.Routes
                     {
                         if (fileName.EndsWith("404_files/noodle.gif"))
                         {
-                            context.Response.Redirect("https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+                            context.Response.Redirect("https://liventcord.github.io/LiventCordPages/static/404_files/noodle.gif");
                         }
                         else
                         {

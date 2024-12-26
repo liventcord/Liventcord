@@ -86,7 +86,6 @@ function createFireWorks() {
     return;
 }
 function changeUrlWithFireWorks(guildId,channelId,guildName) { 
-    guildOwnerIds[guildId] = currentUserId
     loadGuild(guildId,channelId,guildName,currentUserId)
     cacheInterface.addGuild(guildId,guildName,currentUserId);
 

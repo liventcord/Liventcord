@@ -500,23 +500,32 @@
         var passedGuildOwnerIds = {};
 
         function renderGuilds(guilds) {
-            const blackImage = createBlackImage(); 
+            const blackImage = createBlackImage();
+            const uniqueGuildIds = new Set();
 
             return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
+                if (uniqueGuildIds.has(guildId)) {
+                    return '';
+                }
+
+                uniqueGuildIds.add(guildId);
                 passedGuildOwnerIds[guildId] = ownerId;
                 const guildIdStr = String(guildId);
-                const imgSrc = `/guilds/${guildIdStr}`;
                 const guildNameStr = guildName ? String(guildName) : '';
 
-                return `
-                    <li>
-                        <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-                        onerror="this.onerror=null;this.src='${blackImage}';" 
-                        onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
-                        <div class="white-rod"></div>
-                    </li>
-                `;
+                return createGuildListItem(guildIdStr, `/guilds/${guildIdStr}`, blackImage, rootChannel, guildNameStr);
             }).join('');
+        }
+
+        function createGuildListItem(guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) {
+            return `
+                <li>
+                    <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+                    onerror="this.onerror=null;this.src='${blackImage}';" 
+                    onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
+                    <div class="white-rod"></div>
+                </li>
+            `;
         }
 
         if (guilds_data && Array.isArray(guilds_data)) {
