@@ -22,12 +22,14 @@ namespace LiventCord.Controllers
         public LoginController(AppDbContext context, IConfiguration configuration)
         {
             _context = context;
-            _secretKey = configuration["AppSettings:SecretKey"] ?? string.Empty;
+            var appSecretKey = configuration["AppSettings:SecretKey"];
+            _secretKey = appSecretKey ?? "DefaultSecretKey";
 
-            if (string.IsNullOrWhiteSpace(_secretKey))
-                throw new ArgumentException("SecretKey is missing or invalid in AppSettings.");
+            if (appSecretKey == null)
+            {
+                Console.WriteLine("Using the default 'SecretKey' in AppSettings. This is not recommended for production.");
+            }
         }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginAuth([FromForm] LoginRequest loginRequest)
