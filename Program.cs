@@ -16,9 +16,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddJsonFile("Properties/appsettings.json", optional: true);
 
-bool isPostgres = bool.TryParse(builder.Configuration["AppSettings:SecretKey"], out var result) && result;
+bool usePostgres = bool.TryParse(builder.Configuration["AppSettings:usePostgres"], out var result) && result;
 
-if (isPostgres)
+if (usePostgres)
 {
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(builder.Configuration.GetConnectionString("RemoteConnection")));
