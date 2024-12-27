@@ -131,7 +131,7 @@ var app = builder.Build();
 
 bool isDevelopment = app.Environment.IsDevelopment();
 
-
+Console.WriteLine(isDevelopment);
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();

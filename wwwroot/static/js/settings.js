@@ -78,6 +78,7 @@ const toggleManager = {
         "snow-toggle": loadBooleanCookie("snow-toggle") ?? false,
         "party-toggle": loadBooleanCookie("party-toggle") ?? false,
         "activity-toggle": loadBooleanCookie("activity-toggle") ?? false,
+        "slide-toggle": loadBooleanCookie("slide-toggle") ?? false
     },
     updateState(toggleId, newValue) {
         this.states[toggleId] = newValue;
@@ -107,6 +108,9 @@ const toggleManager = {
         } else if (effect === "party") {
             enable ? this.startPartyEffect() : this.stopPartyEffect();
         }
+    },
+    isSlide() {
+        return this.states['slide-toggle'];
     },
     startSnowEffect() {
         const particeContainer = getId("confetti-container");
@@ -163,11 +167,12 @@ function setupToggle(id) {
 }
 
 function initializeCookies() {
-    ["activity-toggle", "snow-toggle", "party-toggle", "notify-toggle"].forEach(setupToggle);
+    ["activity-toggle", "snow-toggle", "party-toggle", "notify-toggle","slide-toggle"].forEach(setupToggle);
     
     console.log("init cookies", toggleManager.states);
     if (toggleManager.states["snow-toggle"]) toggleManager.toggleEffect("snow", true);
     if (toggleManager.states["party-toggle"]) toggleManager.toggleEffect("party", true);
+    
 }
 
 
