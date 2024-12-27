@@ -39,7 +39,7 @@ else
     }
 
     var dataDirectory = Path.GetDirectoryName(connectionString);
-    if (!Directory.Exists(dataDirectory))
+    if (!string.IsNullOrEmpty(dataDirectory) && !Directory.Exists(dataDirectory))
     {
         Directory.CreateDirectory(dataDirectory);
         Console.WriteLine($"Info: Created missing directory {dataDirectory}");
