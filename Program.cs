@@ -20,15 +20,35 @@ bool usePostgres = bool.TryParse(builder.Configuration["AppSettings:usePostgres"
 
 if (usePostgres)
 {
+    var connectionString = builder.Configuration.GetConnectionString("RemoteConnection");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("RemoteConnection string is missing in the configuration.");
+    }
     builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(builder.Configuration.GetConnectionString("RemoteConnection")));
+        options.UseNpgsql(connectionString));
 }
 else
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("SqlitePath")));
-}
+    var connectionString = builder.Configuration.GetConnectionString("SqlitePath");
 
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = "Data/liventcord.db";
+        Console.WriteLine("Warning: SqlitePath is missing. Using default path: Data/liventcord.db");
+    }
+
+    var dataDirectory = Path.GetDirectoryName(connectionString);
+    if (!string.IsNullOrEmpty(dataDirectory) && !Directory.Exists(dataDirectory))
+    {
+        Directory.CreateDirectory(dataDirectory);
+        Console.WriteLine($"Info: Created missing directory {dataDirectory}");
+    }
+
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite($"Data Source={connectionString}"));
+}
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
     .Filter.ByExcluding(logEvent => logEvent.MessageTemplate.Text.Contains("db query"))
