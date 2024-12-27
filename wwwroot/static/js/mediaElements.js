@@ -223,6 +223,9 @@ function processMediaLink(link, newMessage, messageContentElement, content) {
             mediaElement.style.width = "100%"; 
             mediaElement.style.height = "auto";
             mediaElement.dataset.dummy = link;
+            mediaElement.addEventListener("click", function () {
+                displayImagePreview(mediaElement.src);
+            });
             messageContentElement.appendChild(mediaElement);
         } else if (isTenorURL(link)) {
             mediaElement = createTenorElement(messageContentElement, content, link);
