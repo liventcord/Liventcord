@@ -4,10 +4,10 @@ publish/
 cache/
 Migrations/
 Logs/
+Data/
 wwwroot/static/css/loginfullstyles.css
 appsettings.Development.json
 appsettings.json
-
 *.suo
 *.user
 *.userprefs
