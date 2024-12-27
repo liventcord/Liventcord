@@ -1,4 +1,5 @@
 using System.IO.Compression;
+using System.Text.Json;
 using LiventCord.Controllers;
 using LiventCord.Helpers;
 using LiventCord.Routes;
@@ -13,6 +14,41 @@ using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile("Properties/appsettings.json", optional: true);
+
+bool usePostgres = bool.TryParse(builder.Configuration["AppSettings:usePostgres"], out var result) && result;
+
+if (usePostgres)
+{
+    var connectionString = builder.Configuration.GetConnectionString("RemoteConnection");
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        throw new InvalidOperationException("RemoteConnection string is missing in the configuration.");
+    }
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    var connectionString = builder.Configuration.GetConnectionString("SqlitePath");
+
+    if (string.IsNullOrEmpty(connectionString))
+    {
+        connectionString = "Data/liventcord.db";
+        Console.WriteLine("Warning: SqlitePath is missing. Using default path: Data/liventcord.db");
+    }
+
+    var dataDirectory = Path.GetDirectoryName(connectionString);
+    if (!Directory.Exists(dataDirectory))
+    {
+        Directory.CreateDirectory(dataDirectory);
+        Console.WriteLine($"Info: Created missing directory {dataDirectory}");
+    }
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite($"Data Source={connectionString}"));
+}
+
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
@@ -20,10 +56,9 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+
+
 builder.Host.UseSerilog(); 
-
-
-
 builder.Services.AddScoped<FriendController>();
 builder.Services.AddScoped<TypingController>();
 builder.Services.AddScoped<MessageController>();
@@ -38,10 +73,12 @@ builder.Services.AddScoped<GuildController>();
 builder.Services.AddScoped<PermissionsController>();
 builder.Services.AddScoped<UploadController>();
 builder.Services.AddScoped<InviteController>();
+builder.Services.AddMemoryCache();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
-builder.Configuration.AddJsonFile("Properties/appsettings.json", optional: false, reloadOnChange: true);
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("LocalConnection")));
+
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -68,13 +105,11 @@ builder.Services.AddControllers()
 
             return new BadRequestObjectResult(errors);
         };
-    });
+    }).AddJsonOptions(options =>
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase);
 
 
-builder.Services.AddMemoryCache();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddHttpContextAccessor();
+
 
 builder.Services.AddResponseCompression(options =>
 {
@@ -94,45 +129,29 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 });
 
 var app = builder.Build();
-app.UseSerilogRequestLogging();
 
-app.UseSwagger(c =>
+bool isDevelopment = app.Environment.IsDevelopment();
+
+
+using (var scope = app.Services.CreateScope())
 {
-    c.RouteTemplate = "swagger/{documentName}/swagger.json";
-    var swaggerFilePath = Path.Combine(builder.Environment.ContentRootPath, "swagger.json");
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    context.Database.EnsureCreated();
+}
 
-    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-    {
-        File.WriteAllText(swaggerFilePath, System.Text.Json.JsonSerializer.Serialize(swaggerDoc));
-    });
-});
-
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LiventCord API V1");
-    c.RoutePrefix = "docs";
-});
-
-app.MapGet("/docs2", async context =>
-{
-    var filePath = Path.Combine(app.Environment.WebRootPath, "redocs.html");
-
-    if (!File.Exists(filePath))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        await context.Response.WriteAsync("Documentation not yet generated.");
-    }
-    else
-    {
-        context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(filePath);
-    }
-});
-
-app.UseResponseCompression();
 
 
 app.UseExceptionHandler("/error");
+
+
+if (isDevelopment)
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/error");
+}
 
 app.Map("/error", (HttpContext context) =>
 {
@@ -177,7 +196,6 @@ app.UseStatusCodePages(async context =>
     }
 });
 
-// Fallback for non-API routes
 app.MapFallback(async context =>
 {
     var acceptHeader = context.Request.Headers["Accept"].ToString();
@@ -186,7 +204,7 @@ app.MapFallback(async context =>
     {
         context.Response.StatusCode = StatusCodes.Status404NotFound;
         context.Response.ContentType = "text/html";
-        var filePath = Path.Combine(app.Environment.WebRootPath,"static","404", "404.html");
+        var filePath = Path.Combine(app.Environment.WebRootPath, "static", "404", "404.html");
         await context.Response.SendFileAsync(filePath);
     }
     else
@@ -198,13 +216,33 @@ app.MapFallback(async context =>
 });
 
 
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
+app.UseResponseCompression();
 
 RouteConfig.ConfigureRoutes(app);
+
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+    var swaggerFilePath = Path.Combine(builder.Environment.ContentRootPath, "swagger.json");
+
+    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
+    {
+        File.WriteAllText(swaggerFilePath, System.Text.Json.JsonSerializer.Serialize(swaggerDoc));
+    });
+});
+
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "LiventCord API V1");
+    c.RoutePrefix = "docs";
+});
+
 
 app.MapGet("/login", async context =>
 {
@@ -233,6 +271,22 @@ app.MapGet("/channels/{guildId}/{channelId}", async (HttpContext context, AppLog
 app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic, string friendId) =>
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
+});
+
+app.MapGet("/docs2", async context =>
+{
+    var filePath = Path.Combine(app.Environment.WebRootPath, "redocs.html");
+
+    if (!File.Exists(filePath))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        await context.Response.WriteAsync("Documentation not yet generated.");
+    }
+    else
+    {
+        context.Response.ContentType = "text/html";
+        await context.Response.SendFileAsync(filePath);
+    }
 });
 
 

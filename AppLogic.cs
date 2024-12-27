@@ -70,16 +70,11 @@ namespace LiventCord.Helpers
                     _logger.LogInformation("Fetching guild members for guildId: {GuildId}", guildId);
                     guildMembers = await _membersController.GetGuildMembers(guildId);
 
-                    if (!string.IsNullOrEmpty(channelId)) {
-                        _logger.LogInformation("Fetching typing members...");
-                        typingMembers = await _typingController.GetTypingUsers(guildId, channelId) ?? new List<string>();
-                    }
-
                     _logger.LogInformation("Fetching shared guilds...");
                     sharedGuildsMap = await _membersController.GetSharedGuilds(guildId, userId) ?? new List<string>();
                 }
 
-                _logger.LogInformation("Fetching friends' statuses...");
+                _logger.LogInformation("Fetching friends statuses...");
                 var friendsStatus = await _friendController.GetFriendsStatus(userId) ?? null;
 
                 _logger.LogInformation("Fetching DM members...");
@@ -90,24 +85,29 @@ namespace LiventCord.Helpers
                 {
                     email = user.Email ?? "",
                     userId,
-                    userName = user.Nickname ?? "",
+                    nickName = user.Nickname ?? "",
                     userDiscriminator = user.Discriminator ?? "",
                     guildId,
                     channelId,
                     guildName = guild?.GuildName ?? "",
                     authorId = guild?.OwnerId ?? "",
                     guildMembers,
-                    typingMembers,
                     sharedGuildsMap,
                     permissionsMap,
                     friendsStatus,
                     dmFriends,
                     guildsJson = guilds
                 };
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
+                };
+
 
                 string jsonDataScript = $@"
-                    <script id='data-script' type='application/json'>
-                        {JsonSerializer.Serialize(jsonData)}
+                    <script id=data-script type=application/json>
+                        {JsonSerializer.Serialize(jsonData, options)}
                     </script>";
 
                 var filePath = Path.Combine(context.RequestServices.GetRequiredService<IWebHostEnvironment>().WebRootPath, "app.html");

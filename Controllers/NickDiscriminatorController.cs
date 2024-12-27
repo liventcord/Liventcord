@@ -31,18 +31,18 @@ namespace LiventCord.Controllers
 
 
         [NonAction]
-        public async Task<string?> GetOrCreateDiscriminator(string nickname)
+        public async Task<string?> GetOrCreateDiscriminator(string nickName)
         {
             var existingDiscriminators = await _context.Users
-                .Where(u => u.Nickname.ToLower() == nickname.ToLower())
+                .Where(u => u.Nickname.ToLower() == nickName.ToLower())
                 .Select(u => u.Discriminator)
                 .ToListAsync();
 
             if (_cache.TryGetValue("reserved_discriminators", out Dictionary<string, string>? reservedDiscriminators))
             {
-                if (reservedDiscriminators != null && reservedDiscriminators.ContainsKey(nickname))
+                if (reservedDiscriminators != null && reservedDiscriminators.ContainsKey(nickName))
                 {
-                    existingDiscriminators.Add(reservedDiscriminators[nickname]);
+                    existingDiscriminators.Add(reservedDiscriminators[nickName]);
                 }
             }
 
