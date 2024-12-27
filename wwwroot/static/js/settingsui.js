@@ -384,7 +384,6 @@ function createToggle(id, label, description) {
 }
 
 
-let isUsingSlide =  false;
 function openSettings(isNotLoadingDefault = false) {
     if (!isNotLoadingDefault) {
         reconstructSettings(false);
@@ -393,14 +392,14 @@ function openSettings(isNotLoadingDefault = false) {
 
     getId('settings-overlay').style.display = 'flex';
 
-    if (isUsingSlide) {
+    if (toggleManager.isSlide()) {
         getId('settings-menu').style.animation = 'settings-menu-slide-in 0.3s forwards';
     } else {
         getId('settings-menu').style.animation = 'settings-menu-scale-appear 0.3s forwards';
     }
 
 
-    if (isUsingSlide) {
+    if (toggleManager.isSlide()) {
         getId('settings-menu').style.animation = 'settings-menu-slide-in 0.3s forwards';
     } else {
         getId('settings-menu').style.animation = 'settings-menu-scale-appear 0.3s forwards';
@@ -415,7 +414,7 @@ function closeSettings() {
         return;
     }
 
-    if (isUsingSlide) {
+    if (toggleManager.isSlide()) {
         getId('settings-menu').style.animation = 'settings-menu-slide-out 0.3s forwards';
     } else {
         getId('settings-menu').style.animation = 'settings-menu-scale-disappear 0.3s forwards';
