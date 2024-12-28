@@ -57,6 +57,62 @@ function setGuildImage(guildId, imageElement, isUploaded) {
 function doesGuildExistInBar(guildId) {
     return Boolean(guildsList.querySelector(guildId));
 }
+
+let keybindHandlers = {}; 
+let isGuildKeyDown = false;
+
+
+function clearKeybinds() {
+    if (keybindHandlers['shift']) {
+        document.removeEventListener('keydown', keybindHandlers['shift']);
+    }
+    keybindHandlers = {};
+}
+
+
+function addKeybinds() {
+    clearKeybinds();
+    const guilds = Array.from(document.querySelectorAll('#guilds-list img'));
+    const handler = (event) => {
+        if (event.shiftKey) {
+            if (
+                (event.key >= '1' && event.key <= '9') || // Shift + 1-9
+                event.key === 'ArrowUp' || event.key === 'ArrowDown' // Shift + ArrowUp/ArrowDown
+            ) {
+                event.preventDefault();
+            }
+            if (isGuildKeyDown) return;
+            const key = event.key;
+            const index = parseInt(key, 10) - 1;
+            console.log(guilds);
+            if (index >= 0 && index < guilds.length) {
+                guilds[index].click();
+            }
+            if (!event.shiftKey && !isNaN(key)) {
+                const index = parseInt(key, 10) - 1;
+                if (index >= 0 && index < guilds.length) {
+                    guilds[index].click();
+                    currentGuildIndex = index;
+                }
+            }
+            if (!event.shiftKey && (key === 'ArrowUp' || key === 'ArrowDown')) {
+                if (key === 'ArrowUp') {
+                    currentGuildIndex = (currentGuildIndex + 1) % guilds.length;
+                } else if (key === 'ArrowDown') {
+                    currentGuildIndex = (currentGuildIndex - 1 + guilds.length) % guilds.length;
+                }
+                guilds[currentGuildIndex].click();
+            }
+            isGuildKeyDown = true;
+        }
+    };
+    keybindHandlers['shift'] = handler;
+    document.addEventListener('keydown', handler);
+    document.addEventListener('keyup', (event) => {
+        isGuildKeyDown = false;
+        event.preventDefault(); 
+    });
+}
 function updateGuildList(guildData) {
     if (!guildData) {
         console.warn("Tried to update guild list without data.");
