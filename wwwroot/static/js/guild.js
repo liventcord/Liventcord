@@ -52,22 +52,8 @@ function setGuildImage(guildId, imageElement, isUploaded) {
     imageElement.src = isUploaded ? `/guilds/${guildId}` : createBlackImage();
 }
 
-function createGuildListItem(guild) {
-    const li = createEl("li");
-    const img = createEl("img", {
-        className: "guilds-list",
-        id: guild.guildId,
-        src: guild.isGuildUploadedImg ? `/guilds/${guild.guildId}` : createBlackImage(),
-    });
 
-    img.addEventListener("click", () => {
-        loadGuild(guild.guildId, guild.rootChannel, guild.guildName);
-    });
 
-    li.appendChild(img);
-    li.appendChild(createEl("div", { className: "white-rod" }));
-    return li;
-}
 function doesGuildExistInBar(guildId) {
     return Boolean(guildsList.querySelector(guildId));
 }
@@ -208,7 +194,7 @@ function loadGuild(guildId,channelId,guildName,isChangingUrl=true,isInitial=fals
         return;
     }
     currentGuildId = guildId;
-    permissionManager = new PermissionManager(permissionsMap, currentGuildId);
+    permissionManager = new PermissionManager(initialPermissionsMap, currentGuildId);
     selectGuildList(guildId);
     if(guildName) {
         currentGuildName = guildName;

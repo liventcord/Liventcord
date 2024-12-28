@@ -437,16 +437,7 @@
 
     let keybindHandlers = {}; 
     let isGuildKeyDown = false;
-    function createBlackImage() {
-        const canvas = document.createElement('canvas');
-        canvas.width = 50;
-        canvas.height = 50;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/png');
-    }    
-    
+
 
 
     function clearKeybinds() {
@@ -463,117 +454,6 @@
         const hiddenNickname = '*'.repeat(nickName.length);
         return `${hiddenNickname}@${domain}`;
     }
-
-
-    const dataScript = document.getElementById('data-script');
-    if (dataScript) {
-
-        const dataScript = document.getElementById('data-script');
-        const jsonData = JSON.parse(dataScript.textContent);
-        
-        var email = jsonData.email;
-        var masked_email = getMaskedEmail(email);
-        var passed_user_id = jsonData.userId;
-        var nick_name = jsonData.nickName;
-        var user_discriminator = jsonData.userDiscriminator;
-        var passed_guild_id = jsonData.guildId;
-        var passed_friend_id = jsonData.friendId;
-        var passed_channel_id = jsonData.channelId;
-        var passed_guild_name = jsonData.guildName;
-        var passed_owner_id = jsonData.authorId;
-        var passed_message_readen = jsonData.messagesReaden;
-        var shared_guilds_map = jsonData.sharedGuildsMap;
-        var permissionsMap = jsonData.permissionsMap;
-        var passed_friends_status = jsonData.friendsStatus;
-        var passed_dm_friends = jsonData.dmFriends || [];
-        var guilds_data = jsonData.guildsJson;
-        var guild_members = jsonData.guildMembers;
-        
-        
-        currentGuildId = passed_guild_id; 
-        
-        
-        const guildsList = document.getElementById('guilds-list');
-        
-        
-        console.log('Data loaded:', jsonData);
-        var passedGuildOwnerIds = {};
-
-        function renderGuilds(guilds) {
-            const blackImage = createBlackImage();
-            const uniqueGuildIds = new Set();
-
-            return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
-                if (uniqueGuildIds.has(guildId)) {
-                    return '';
-                }
-
-                uniqueGuildIds.add(guildId);
-                passedGuildOwnerIds[guildId] = ownerId;
-                const guildIdStr = String(guildId);
-                const guildNameStr = guildName ? String(guildName) : '';
-
-                return createGuildListItem(guildIdStr, `/guilds/${guildIdStr}`, blackImage, rootChannel, guildNameStr);
-            }).join('');
-        }
-
-        function createGuildListItem(guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) {
-            return `
-                <li>
-                    <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-                    onerror="this.onerror=null;this.src='${blackImage}';" 
-                    onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
-                    <div class="white-rod"></div>
-                </li>
-            `;
-        }
-
-        if (guilds_data && Array.isArray(guilds_data)) {
-            guilds_data.forEach((guild) => {
-                console.log(guild)
-                console.log('Guild Members:', guild.guildMembers);
-                console.log('Guild Channels:', guild.guildChannels);
-                cacheInterface.setMemberIds(guild.guildId,guild.guildMembers);
-
-                guild.guildMembers.forEach((memberId) => {
-                    console.log(memberId);
-                });
-
-                guild.guildChannels.forEach((channel) => {
-                    console.log(channel);
-                });
-                guildsList.innerHTML += renderGuilds(guilds_data);
-            });
-        } else {
-            console.error("Non array guild data");
-        }
-
-
-        const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
-        if (selectedGuild) {
-            selectedGuild.parentNode.classList.add('selected-guild');
-        }
-
-
-
-        const preventDrag = (elementId) => {
-            const element = document.getElementById(elementId);
-            if (element) {
-                element.addEventListener('dragstart', function(event) {
-                    event.preventDefault();
-                });
-            }
-        };
-
-        preventDrag('main-logo');
-        preventDrag('preview-image');
-        addKeybinds();
-
-        
-
-
-    }
-
 
 
     function addKeybinds() {

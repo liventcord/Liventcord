@@ -280,6 +280,15 @@ app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic
     await appLogic.HandleChannelRequest(context, null, null, friendId);
 });
 
+app.Map("/api/init", appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        var appLogic = context.RequestServices.GetRequiredService<AppLogic>();
+        await appLogic.HandleInitRequest(context);
+    });
+});
+
 app.MapGet("/docs2", async context =>
 {
     var filePath = Path.Combine(app.Environment.WebRootPath, "redocs.html");

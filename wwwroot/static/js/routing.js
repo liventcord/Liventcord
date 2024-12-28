@@ -11,7 +11,7 @@ function isIdDefined(id) {
     return typeof id !== "undefined" && id !== null && id.length == ID_LENGTH;
 }
 function validateRoute() {
-    if(!isIdDefined(passed_guild_id) | !isIdDefined(passed_channel_id) | !isIdDefined(passed_owner_id)) {
+    if(!isIdDefined(initialGuildId) | !isIdDefined(initialChannelId) | !isIdDefined(initialOwnerId)) {
         window.history.pushState(null, null, "/channels/@me");
         return false;
     }
@@ -20,7 +20,7 @@ function validateRoute() {
         window.history.pushState(null, null, "/channels/@me");
         return false;
     }
-    if (isOnGuild && cacheInterface.doesGuildExist(passed_guild_id)) {
+    if (isOnGuild && cacheInterface.doesGuildExist(initialGuildId)) {
         window.history.pushState(null, null, "/channels/@me");
         return false;
     }
