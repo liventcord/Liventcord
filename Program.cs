@@ -130,15 +130,23 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 var app = builder.Build();
 
 bool isDevelopment = app.Environment.IsDevelopment();
-
-Console.WriteLine(isDevelopment);
+Console.WriteLine("Is running development: " + isDevelopment);
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.EnsureCreated();
 }
+if(isDevelopment) {
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
+        context.Response.Headers["Pragma"] = "no-cache";
+        context.Response.Headers["Expires"] = "0";
 
+        await next();
+    });
 
+}
 
 app.UseExceptionHandler("/error");
 

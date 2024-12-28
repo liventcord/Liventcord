@@ -201,9 +201,13 @@ function handleCategoryGifs(responseText) {
     mediaMenuContainer.innerHTML = "";
     gifs.forEach(gif => {
         console.log(gif);
-        const gifImg = createEl("img", { className: "gif-content" , src: gif.media[0].gif.url });
-
+        const gifImg = createEl("img", { className: "gif-content" });
+        gifImg.src = defaultMediaImageUrl; 
         mediaMenuContainer.appendChild(gifImg);
+        gifImg.onload = function() {
+            gifImg.src = gif.media[0].gif.url; 
+        };
+        
     });
 }
 
