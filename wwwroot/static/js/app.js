@@ -86,6 +86,7 @@ let initialUserId;
 let initialNickname;
 let initialDiscriminator;
 let initialPermissionsMap;
+let initialGuildsData;
 let maskedEmail;
 function initialiseState(data) {
     const {
@@ -93,9 +94,6 @@ function initialiseState(data) {
         userId,
         nickName: nick_name,
         userDiscriminator: user_discriminator,
-        guildId,
-        friendId,
-        channelId,
         guildName,
         ownerId,
         messagesReaden,
@@ -103,34 +101,34 @@ function initialiseState(data) {
         permissionsMap,
         friendsStatus: passed_friends_status,
         dmFriends: passed_dm_friends = [],
-        guildsJson,
+        guildsJson: guildsArray,
         guildMembers: guild_members
     } = data;  
     
     console.log('Data loaded:', data);
 
-    initialGuildId = guildId;
-    initialChannelId = channelId;
     initialOwnerId = ownerId;
     initialUserId = userId;
     initialNickname = nick_name;
     initialDiscriminator = user_discriminator;
     initialPermissionsMap = permissionsMap;
+    initialGuildsData = guildsArray;
+    currentGuildName = guildName;
     updateDmsList(passed_dm_friends);
     friendCache.initialiseFriends(passed_friends_status);
 
     maskedEmail = getMaskedEmail(email);
-    currentGuildId = guildId; 
 
     const guildsList = document.getElementById('guilds-list');
     
-    if (Array.isArray(guildsJson)) {
-        guildsJson.forEach(guild => {
+    if (Array.isArray(guildsArray)) {
+        guildsArray.forEach(guild => {
+            guildCache.getGuild(guild.guildId).setName(guild.guildName);
             cacheInterface.setMemberIds(guild.guildId, guild.guildMembers);
-            guild.guildMembers.forEach(console.log);
-            guild.guildChannels.forEach(console.log);
+            guild.guildMembers.forEach( ()=> {console.log(guild.guildMembers)});
+            guild.guildChannels.forEach( ()=> {console.log(guild.guildChannels)});
         });
-        guildsList.innerHTML += renderGuilds(guildsJson);
+        guildsList.innerHTML += renderGuilds(guildsArray);
     } else {
         console.error("Non-array guild data");
     }
@@ -250,34 +248,27 @@ function isDefined(variable) {
 }
 function initializeGuild() {
     initialiseMe();
-    if(validateRoute()) {
-        loadGuild(initialGuildId, passed_channel_id, passed_guild_name,false,true);
+    let {isValid,initialGuildId,initialChannelId,initialFriendId} = validateRoute();
+    console.warn(isValid,initialGuildId,initialChannelId);
+    if(isValid) {
+        loadGuild(initialGuildId, initialChannelId,null,false,true);
     } else {
         console.warn("Route cannot be validated!!");
         return;
     }
-
-    if (isDefined(passed_message_readen)) {
-        readenMessagesCache = passed_message_readen;
+    if (isDefined(initialFriendId)) {
+        addUser(initialFriendId, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
     }
-
-    if (isDefined(passed_friend_id)) {
-        addUser(passed_friend_id, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
-    }
-
-    if (isDefined(guild_members) && isDefined(initialGuildId)) {
-        cacheInterface.updateMembers(initialGuildId, guild_members);
-        updateMemberList(guild_members, true);
-    }
-
-    if (isOnGuild && guilds_data && guilds_data.length > 0) {
-        guilds_data.forEach(data => {
+    
+    
+    fetchMembers();
+    if (isOnGuild && initialGuildsData && initialGuildsData.length > 0) {
+        initialGuildsData.forEach(data => {
             cacheInterface.addChannel(data.guildId, data.guildChannels);
             updateChannels(data.guildChannels);
         });
     }
 
-    guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
 }
 function initializeProfile() {
     currentUserId = initialUserId;
@@ -547,7 +538,7 @@ function loadApp(friendId=null,isInitial=false) {
         enableElement("guild-container",false,true);
         disableElement("guild-settings-button");
         activateDmContainer(friendId);
-        const friendNick = passed_friend_name != undefined && passed_friend_id == friendId ? passed_friend_name : getUserNick(friendId);
+        const friendNick = initialFriendName != undefined && initialFriendId == friendId ? initialFriendName : getUserNick(friendId);
         chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
 
         channelTitle.textContent = friendNick;

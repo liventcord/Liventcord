@@ -190,16 +190,43 @@ class Translations {
   };
   
   replacePlaceholder(templateKey, replacements, truncation = {}) {
-    const text = this.templateTranslations[this.currentLanguage]?.[templateKey];
-    if (!text) return "";
-  
-    return Object.keys(replacements).reduce((result, key) => {
-      const value = truncation[key]
-        ? truncateString(replacements[key], truncation[key])
-        : replacements[key];
-      return result.replace(`{{${key}}}`, value);
-    }, text);
+      console.log("Current Language:", this.currentLanguage); 
+
+      const languageData = this.templateTranslations[templateKey];
+      if (!languageData) {
+          console.log(`No template found for key: ${templateKey}`);
+          return "";
+      }
+
+      const text = languageData[this.currentLanguage];
+      if (!text) {
+          console.log(`No translation found for key: ${templateKey} in language: ${this.currentLanguage}`);
+          return "";
+      }
+
+      console.log("Template Text:", text);
+      console.log("Replacements:", replacements);
+      console.log("Truncation:", truncation);
+
+      const result = Object.keys(replacements).reduce((result, key) => {
+          console.log(`Processing placeholder: {{${key}}}, Replacement Value:`, replacements[key]);
+
+          const value = truncation[key]
+              ? truncateString(replacements[key], truncation[key])
+              : replacements[key];
+          
+          if (truncation[key]) {
+              console.log(`Truncated Value for {{${key}}}:`, value);
+          }
+
+          return result.replace(`{{${key}}}`, value);
+      }, text);
+
+      console.log("Final Result:", result);
+      return result;
   }
+
+
   
   getDeleteGuildText(guildName) {
     return this.replacePlaceholder("delete_guild_text", { guildName });

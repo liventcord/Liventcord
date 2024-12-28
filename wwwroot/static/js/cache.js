@@ -133,6 +133,9 @@ class Guild {
         this.invites = new InviteIdsCache();
         this.ownerId = null;
     }
+    setName(guildName) {
+        this.guildName = guildName;
+    }
     setOwner(ownerId) {
         this.ownerId = ownerId;
     }
@@ -154,35 +157,32 @@ class GuildCache {
         this.guilds = {};
         GuildCache.instance = this;
     }
+
     getGuild(guildId) {
         if (!this.guilds[guildId]) {
             this.guilds[guildId] = new Guild(guildId);
+            console.error(guildId);
         }
         return this.guilds[guildId];
     }
     doesGuildExist(guildId) {
         return Boolean(this.guilds[guildId]);    
     }
-    initialiseGuildOwnerIds(passedGuildOwnerIds) {
-        if (typeof passedGuildOwnerIds !== "object" || passedGuildOwnerIds === null) {
-            console.error("Invalid input: passedGuildOwnerIds must be an object.");
-            return;
-        }
-        Object.entries().forEach(([guildId, ownerId]) => {
-            this.getGuild(guildId).setOwner(ownerId);
-        });
-    }
+
 }
 class GuildCacheInterface {
     constructor() {
         this.guildCache = new GuildCache();
     }
     //guild
-    setGuildOwner(guildId, ownerId) {
-        this.getGuild(guildId)?.setOwner(ownerId);
-    }
     getGuild(guildId) {
         return this.guildCache.getGuild(guildId);
+    }
+    setName(guildId,guildName) {
+        this.getGuild(guildId)?.setName(guildName);
+    }
+    setGuildOwner(guildId, ownerId) {
+        this.getGuild(guildId)?.setOwner(ownerId);
     }
     doesGuildExist(guildId) {
         return this.guildCache.doesGuildExist(guildId);
