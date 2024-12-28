@@ -153,52 +153,67 @@ function handleOldMessagesResponse(data) {
 
 function handleHistoryResponse(data) {
     if (isChangingPage) {
-        console.log("Changing page. Ignoring history response.")
-        return
+        console.log("Changing page. Ignoring history response.");
+        return;
     }
 
-    isLastMessageStart = false
-    currentMessagesCache = {}
+    isLastMessageStart = false;
+    currentMessagesCache = {};
 
-    const { messages, channelId, guildId, oldestMessageDate } = data
+    const { messages, channelId, guildId, oldestMessageDate } = data;
 
     if (!Array.isArray(messages) || messages.length === 0) {
-        displayStartMessage()
-        return
+        displayStartMessage();
+        return;
     }
 
-    if (guildId !== currentGuildId) console.warn("History guild ID is different from current guild")
+    if (guildId !== currentGuildId) console.warn("History guild ID is different from current guild");
     if (channelId !== currentChannelId)
-        console.warn("History channel ID is different from current channel")
+        console.warn("History channel ID is different from current channel");
 
-    cacheInterface.setMessages(guildId,guildId, messages)
+    cacheInterface.setMessages(guildId, guildId, messages);
 
-    const firstMessageDateOnChannel = new Date(oldestMessageDate)
-    const repliesList = new Set()
+    const firstMessageDateOnChannel = new Date(oldestMessageDate);
+    const repliesList = new Set();
 
-    setTimeout(() => {
-        messages.forEach((msgData) => {
-            const msg = new Message(msgData)
-            const foundReply = displayChatMessage(msg)
+    chatContainer.style.overflow = 'hidden';
 
-            if (foundReply) {
-                repliesList.add(msg.messageId)
-                unknownReplies.pop(msg.messageId)
-            }
-        })
-    }, 5)
+    messages.forEach((msgData) => {
+        const msg = new Message(msgData);
+        const foundReply = displayChatMessage(msg);
 
-    fetchReplies(messages, repliesList)
+        if (foundReply) {
+            repliesList.add(msg.messageId);
+            unknownReplies.pop(msg.messageId);
+        }
+    });
 
-    setTimeout(scrollToBottom, 20)
+    fetchReplies(messages, repliesList);
+
+    const checkRenderCompletion = setInterval(() => {
+        if (chatContainer.scrollHeight > 0) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            chatContainer.style.overflow = '';
+
+            clearInterval(checkRenderCompletion);
+        }
+    }, 50); 
 
     if (
         messages[0]?.Date &&
         new Date(messages[0].Date).getTime() === firstMessageDateOnChannel.getTime()
     ) {
-        displayStartMessage()
+        displayStartMessage();
     }
 }
+
+
+
+
+
+
+
 function createDateBar(currentDate) {
     const formattedDate = new Date(currentDate).toLocaleDateString(translations.getLocale(), {
         day: "numeric",
