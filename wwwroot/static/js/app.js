@@ -41,16 +41,126 @@ function assignElements() {
     
 
 }
+const createBlackImage = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/png');
+};
+
+const renderGuilds = (guilds) => {
+    const blackImage = createBlackImage();
+    const uniqueGuildIds = new Set();
+    return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
+        if (uniqueGuildIds.has(guildId)) return '';
+        uniqueGuildIds.add(guildId);
+        return createGuildListItem(String(guildId), `/guilds/${guildId}`, blackImage, rootChannel, guildName || '');
+    }).join('');
+};
+
+const createGuildListItem = (guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) => `
+    <li>
+        <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+        onerror="this.onerror=null;this.src='${blackImage}';" 
+        onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
+        <div class="white-rod"></div>
+    </li>
+`;
 
 
+const preventDrag = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+        });
+    }
+};
+let initialGuildId;
+let initialChannelId;
+let initialOwnerId;
+let initialUserId;
+let initialNickname;
+let initialDiscriminator;
+let initialPermissionsMap;
+let maskedEmail;
+function initialiseState(data) {
+    const {
+        email,
+        userId,
+        nickName: nick_name,
+        userDiscriminator: user_discriminator,
+        guildId,
+        friendId,
+        channelId,
+        guildName,
+        ownerId,
+        messagesReaden,
+        sharedGuildsMap: shared_guilds_map,
+        permissionsMap,
+        friendsStatus: passed_friends_status,
+        dmFriends: passed_dm_friends = [],
+        guildsJson,
+        guildMembers: guild_members
+    } = data;  
+    
+    console.log('Data loaded:', data);
 
+    initialGuildId = guildId;
+    initialChannelId = channelId;
+    initialOwnerId = ownerId;
+    initialUserId = userId;
+    initialNickname = nick_name;
+    initialDiscriminator = user_discriminator;
+    initialPermissionsMap = permissionsMap;
+    updateDmsList(passed_dm_friends);
+    friendCache.initialiseFriends(passed_friends_status);
 
+    maskedEmail = getMaskedEmail(email);
+    currentGuildId = guildId; 
 
+    const guildsList = document.getElementById('guilds-list');
+    
+    if (Array.isArray(guildsJson)) {
+        guildsJson.forEach(guild => {
+            cacheInterface.setMemberIds(guild.guildId, guild.guildMembers);
+            guild.guildMembers.forEach(console.log);
+            guild.guildChannels.forEach(console.log);
+        });
+        guildsList.innerHTML += renderGuilds(guildsJson);
+    } else {
+        console.error("Non-array guild data");
+    }
 
+    const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
+    if (selectedGuild) {
+        selectedGuild.parentNode.classList.add('selected-guild');
+    }
 
+    preventDrag('main-logo');
+    preventDrag('preview-image');
+    addKeybinds();
+}
+
+async function loadInitialData() {
+    try {
+        const response = await fetch("/api/init");
+        if (!response.ok) {
+            throw new Error('Failed to load initial data');
+        }
+        const rawResponse = await response.text(); 
+        const initData = JSON.parse(rawResponse); 
+        initialiseState(initData); 
+        initializeApp();
+    } catch (error) {
+        console.error("Error loading initial data:", error);
+    }
+}
 document.addEventListener("DOMContentLoaded", function () {
-    initializeApp();
-
+    loadInitialData();
     setTimeout(() => window.scrollTo(0, 0), 20);
 
 });
@@ -67,7 +177,6 @@ function initializeApp() {
     initializeProfile();
     initialiseAudio();
     initializeCookies(); 
-    getId("data-script").remove();
     isDomLoaded = true;
 }
 function initialiseAudio() {
@@ -139,11 +248,10 @@ function handleGuildClick(event) {
 function isDefined(variable) {
     return typeof variable !== "undefined" && variable !== null;
 }
-
 function initializeGuild() {
     initialiseMe();
     if(validateRoute()) {
-        loadGuild(passed_guild_id, passed_channel_id, passed_guild_name,false,true);
+        loadGuild(initialGuildId, passed_channel_id, passed_guild_name,false,true);
     } else {
         console.warn("Route cannot be validated!!");
         return;
@@ -157,8 +265,8 @@ function initializeGuild() {
         addUser(passed_friend_id, passed_friend_name, passed_friend_discriminator, passed_friend_blocked);
     }
 
-    if (isDefined(guild_members) && isDefined(passed_guild_id)) {
-        cacheInterface.updateMembers(passed_guild_id, guild_members);
+    if (isDefined(guild_members) && isDefined(initialGuildId)) {
+        cacheInterface.updateMembers(initialGuildId, guild_members);
         updateMemberList(guild_members, true);
     }
 
@@ -172,11 +280,11 @@ function initializeGuild() {
     guildCache.initialiseGuildOwnerIds(passedGuildOwnerIds);
 }
 function initializeProfile() {
-    currentUserId = passed_user_id;
-    currentUserNick = nick_name;
-    currentDiscriminator = user_discriminator;
+    currentUserId = initialUserId;
+    currentUserNick = initialNickname;
+    currentDiscriminator = initialDiscriminator;
     getId("self-name").textContent = currentUserNick;
-    getId("self-discriminator").textContent = "#"+user_discriminator;
+    getId("self-discriminator").textContent = "#"+initialDiscriminator;
     updateSelfProfile(currentUserId);
 }
 

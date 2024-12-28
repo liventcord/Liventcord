@@ -36,7 +36,7 @@ function isLoadingScreen() {
 function toggleEmail() {
     const eyeIcon = getId("set-info-email-eye");
     isEmailToggled = !isEmailToggled;
-    getId("set-info-email").textContent = isEmailToggled ? email : masked_email;    
+    getId("set-info-email").textContent = isEmailToggled ? email : maskedEmail;    
     if (isEmailToggled) {
         eyeIcon.classList.remove("fa-eye");
         eyeIcon.classList.add("fa-eye-slash");

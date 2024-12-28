@@ -280,15 +280,15 @@
 }
 @supports (-moz-appearance: none) {
     #chat-container {
-        scrollbar-width: thin;
+        scrollbar-width: auto;
         scrollbar-color: #212222 #2b2d31;
     }
     #channel-list {
-        scrollbar-width: thin;
+        scrollbar-width: auto;
         scrollbar-color: #212222 #2f3136;
     }
     #user-list {
-        scrollbar-width: thin;
+        scrollbar-width: auto;
         scrollbar-color: #212222 #2b2d31;
     }
 }

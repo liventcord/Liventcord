@@ -36,7 +36,7 @@ class ChannelCache extends BaseCache {
         return this.get(guildId) || [];
     }
     isRootChannel(guildId,channelId) {
-        console.error(this);
+        console.log("Root channel unhandled");
     }
     updateChannel(guildId, channel, add = true) {
         const channels = this.getChannels(guildId);
@@ -168,7 +168,7 @@ class GuildCache {
             console.error("Invalid input: passedGuildOwnerIds must be an object.");
             return;
         }
-        Object.entries(passedGuildOwnerIds).forEach(([guildId, ownerId]) => {
+        Object.entries().forEach(([guildId, ownerId]) => {
             this.getGuild(guildId).setOwner(ownerId);
         });
     }

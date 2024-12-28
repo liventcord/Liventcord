@@ -330,8 +330,7 @@ function toggleButtonState(booleanstate) {
 const friendCache = new FriendsCache();
 
 document.addEventListener("DOMContentLoaded", function () {
-  updateDmsList(passed_dm_friends);
-  friendCache.initialiseFriends(passed_friends_status);
+
   window.addEventListener("resize", handleResize);
   friendsContainer = getId("friends-container");
 
