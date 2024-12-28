@@ -176,12 +176,11 @@ function handleHistoryResponse(data) {
     const firstMessageDateOnChannel = new Date(oldestMessageDate);
     const repliesList = new Set();
 
-    chatContainer.style.overflow = 'hidden';
+    const wasAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop === chatContainer.clientHeight;
 
     messages.forEach((msgData) => {
         const msg = new Message(msgData);
         const foundReply = displayChatMessage(msg);
-
         if (foundReply) {
             repliesList.add(msg.messageId);
             unknownReplies.pop(msg.messageId);
@@ -190,15 +189,35 @@ function handleHistoryResponse(data) {
 
     fetchReplies(messages, repliesList);
 
-    const checkRenderCompletion = setInterval(() => {
-        if (chatContainer.scrollHeight > 0) {
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+    const scrollToBottom = () => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    };
 
-            chatContainer.style.overflow = '';
+    if (wasAtBottom) {
+        scrollToBottom();
+    }
 
-            clearInterval(checkRenderCompletion);
+    const observer = new MutationObserver(() => {
+        if (wasAtBottom) {
+            scrollToBottom();
         }
-    }, 50); 
+    });
+
+    observer.observe(chatContainer, {
+        childList: true,
+        subtree: true,
+    });
+
+    const mediaElements = chatContainer.querySelectorAll("img, video, iframe");
+    mediaElements.forEach((media) => {
+        if (!media.complete) {
+            media.addEventListener("load", () => {
+                if (wasAtBottom) {
+                    scrollToBottom();
+                }
+            });
+        }
+    });
 
     if (
         messages[0]?.Date &&
@@ -207,6 +226,7 @@ function handleHistoryResponse(data) {
         displayStartMessage();
     }
 }
+
 
 
 
