@@ -153,7 +153,6 @@ function handleOldMessagesResponse(data) {
 
 function handleHistoryResponse(data) {
     if (isChangingPage) {
-        console.log("Changing page. Ignoring history response.");
         return;
     }
 
@@ -178,6 +177,8 @@ function handleHistoryResponse(data) {
 
     const wasAtBottom = chatContainer.scrollHeight - chatContainer.scrollTop === chatContainer.clientHeight;
 
+    chatContainer.style.overflow = 'hidden'; // Disable scrolling temporarily
+
     messages.forEach((msgData) => {
         const msg = new Message(msgData);
         const foundReply = displayChatMessage(msg);
@@ -197,10 +198,14 @@ function handleHistoryResponse(data) {
         scrollToBottom();
     }
 
-    const observer = new MutationObserver(() => {
-        if (wasAtBottom) {
-            scrollToBottom();
+    const ensureScrollAtBottom = () => {
+        if (wasAtBottom && !isUserInteracted) {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+    };
+
+    const observer = new MutationObserver(() => {
+        ensureScrollAtBottom();
     });
 
     observer.observe(chatContainer, {
@@ -209,15 +214,48 @@ function handleHistoryResponse(data) {
     });
 
     const mediaElements = chatContainer.querySelectorAll("img, video, iframe");
+    const mediaLoadedPromises = [];
+
     mediaElements.forEach((media) => {
         if (!media.complete) {
-            media.addEventListener("load", () => {
-                if (wasAtBottom) {
-                    scrollToBottom();
-                }
+            const mediaPromise = new Promise((resolve) => {
+                media.addEventListener("load", resolve);
             });
+            mediaLoadedPromises.push(mediaPromise);
         }
     });
+
+    const checkAllMediaLoaded = () => {
+        const mediaElements = chatContainer.querySelectorAll("img, video, iframe");
+        return Array.from(mediaElements).every(media => media.complete);
+    };
+
+    Promise.all(mediaLoadedPromises).then(() => {
+        chatContainer.style.overflow = '';
+        observer.disconnect();
+    });
+
+    const monitorContentSizeChanges = () => {
+        const currentHeight = chatContainer.scrollHeight;
+
+        if (currentHeight !== lastHeight) {
+            if (wasAtBottom && !isUserInteracted) {
+                chatContainer.scrollTop = currentHeight;
+            }
+        }
+
+        lastHeight = currentHeight;
+
+        if (checkAllMediaLoaded()) {
+            chatContainer.style.overflow = '';
+            observer.disconnect();
+        } else {
+            setTimeout(monitorContentSizeChanges, 50);
+        }
+    };
+
+    let lastHeight = chatContainer.scrollHeight;
+    monitorContentSizeChanges();
 
     if (
         messages[0]?.Date &&
@@ -225,13 +263,39 @@ function handleHistoryResponse(data) {
     ) {
         displayStartMessage();
     }
+
+    let isUserInteracted = false;
+
+    const userScrollEvents = ['mousedown', 'touchstart', 'wheel'];
+
+    const releaseScrollLock = () => {
+        isUserInteracted = true;
+        chatContainer.style.overflow = ''; 
+        userScrollEvents.forEach(event => chatContainer.removeEventListener(event, releaseScrollLock)); 
+    };
+
+    userScrollEvents.forEach(event => chatContainer.addEventListener(event, releaseScrollLock));
+
+    chatContainer.addEventListener('scroll', () => {
+        if (chatContainer.scrollTop < chatContainer.scrollHeight - chatContainer.clientHeight) {
+            isUserInteracted = true; 
+        } else {
+            isUserInteracted = false; 
+        }
+    });
+
+    const preventScrollJump = () => {
+        if (!isUserInteracted) {
+            ensureScrollAtBottom(); 
+        }
+    };
+
+    setInterval(preventScrollJump, 50);
+    setTimeout(() => {
+        console.log("Scolled!");
+        scrollToBottom();
+    }, 200);
 }
-
-
-
-
-
-
 
 
 function createDateBar(currentDate) {

@@ -53,12 +53,7 @@ function getUserIdFromNick(nick) {
     }
     return null;
 }
-function getCurrentDmFriends() {
-    return {
-        currentUserId: { nick:  currentUserNick },
-        currentDmId: { nick : getUserNick(currentDmId)}
-    }
-}
+
 
 
 
