@@ -86,7 +86,12 @@ function createDmContainer(friend) {
 }
 
 
-
+function getCurrentDmFriends() {
+    return {
+        currentUserId: { nick:  currentUserNick },
+        currentDmId: { nick : getUserNick(currentDmId)}
+    }
+}
 
 
 function appendToDmList(user) {
