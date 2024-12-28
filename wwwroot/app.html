@@ -48,129 +48,10 @@
 </head>
 
 
+
+
 <body>
-    <script>
-        const useCDN = false;
-
-        function loadFontStyles() {
-            const styles = `
-                @font-face {
-                    font-family: 'gg sans normal';
-                    font-style: normal;
-                    font-weight: 400;
-                    src: local('gg sans Normal'),
-                        url('${useCDN 
-                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Regular.woff' 
-                            : '/static/vendor/gg-sans-regular.woff'}') format('woff');
-                }
-                
-                @font-face {
-                    font-family: 'gg sans medium';
-                    font-style: normal;
-                    font-weight: 500;
-                    src: local('gg sans Medium'),
-                        url('${useCDN 
-                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Medium.woff' 
-                            : '/static/vendor/gg-sans-medium.woff'}') format('woff');
-                }
-                
-                @font-face {
-                    font-family: 'gg sans semibold';
-                    font-style: normal;
-                    font-weight: 600;
-                    src: local('gg sans SemiBold'),
-                        url('${useCDN 
-                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Semibold.woff' 
-                            : '/static/vendor/gg-sans-semibold.woff'}') format('woff');
-                }
-            `;
-            const styleSheet = document.createElement('style');
-            styleSheet.type = 'text/css';
-            styleSheet.innerText = styles;
-            document.head.appendChild(styleSheet);
-        }
-
-        loadFontStyles();
-
-        const cdnConfettiUrl = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
-        const localConfettiUrl = "/static/vendor/confetti.browser.min.js";
-        const confettiUrl = useCDN ? cdnConfettiUrl : localConfettiUrl;
-
-        let isConfettiLoaded = false;
-
-        function loadScript(url, callback) {
-            const script = document.createElement('script');
-            script.src = url;
-            script.onload = () => {
-                isConfettiLoaded = true;
-                callback();
-            };
-            script.onerror = () => {
-                console.error("Failed to load confetti script.");
-            };
-            document.body.appendChild(script);
-        }
-
-        function initialize() {
-            if (isConfettiLoaded) {
-                initializeCookies();
-            } else {
-                setTimeout(initialize, 100); 
-            }
-        }
-
-        loadScript(confettiUrl, initialize);
-
-
-        let isCropieInitialized = false;
-        const croppieUrl = useCDN 
-            ? "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"
-            : "/static/vendor/croppie.js";
-        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e";
-
-        async function fetchAndModifyScript(url) {
-            try {
-                const response = await fetch(url);
-                const scriptContent = await response.text();
-
-                if (!crypto || !crypto.subtle) {
-                    console.warn('Crypto context unavailable. Appending script without modification.');
-                    appendScript(scriptContent);
-                    return;
-                }
-
-                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
-                const hashArray = Array.from(new Uint8Array(hashBuffer)); 
-                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); 
-
-                if (hashHex === expectedHash) {
-                    let scriptLines = scriptContent.split('\n');
-                    let lineNumberToModify = 1088; 
-                    if (lineNumberToModify - 1 < scriptLines.length) {
-                        scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
-                    }
-                    let modifiedScriptContent = scriptLines.join('\n');
-                    appendScript(modifiedScriptContent);
-                } else {
-                    console.warn('Hash does not match. Appending original script.');
-                    appendScript(scriptContent);
-                }
-
-            } catch (error) {
-                console.error('Error fetching or modifying the script:', error);
-            }
-        }
-        function appendScript(scriptContent) {
-            let newScript = document.createElement('script');
-            newScript.type = 'text/javascript';
-            newScript.text = scriptContent;
-            document.body.appendChild(newScript);
-            isCropieInitialized = true;
-        }
-
-        fetchAndModifyScript(croppieUrl);
-
-    </script>
+    
     <div id="loading-screen"><img id="loading-element" src="/static/images/icons/icon.png"></div>
 
     <div id="channel-list">
@@ -412,15 +293,6 @@
 
     <div id="searchbar"></div>
         
-
-        
-</body>
-</html>
-
-
-
-
-<body>
     
     <audio id="audio-player" style="display: none;"></audio>
 
@@ -433,74 +305,6 @@
 
 
 
-    <script>
-
-    let keybindHandlers = {}; 
-    let isGuildKeyDown = false;
-
-
-
-    function clearKeybinds() {
-        if (keybindHandlers['shift']) {
-            document.removeEventListener('keydown', keybindHandlers['shift']);
-        }
-        keybindHandlers = {};
-    }
-    function getMaskedEmail(email) {
-        const parts = email.split('@');
-        if (parts.length !== 2) return email;
-        const nickName = parts[0];
-        const domain = parts[1];
-        const hiddenNickname = '*'.repeat(nickName.length);
-        return `${hiddenNickname}@${domain}`;
-    }
-
-
-    function addKeybinds() {
-        clearKeybinds();
-        const guilds = Array.from(document.querySelectorAll('#guilds-list img'));
-        const handler = (event) => {
-            if (event.shiftKey) {
-                if (
-                    (event.key >= '1' && event.key <= '9') || // Shift + 1-9
-                    event.key === 'ArrowUp' || event.key === 'ArrowDown' // Shift + ArrowUp/ArrowDown
-                ) {
-                    event.preventDefault();
-                }
-                if (isGuildKeyDown) return;
-                const key = event.key;
-                const index = parseInt(key, 10) - 1;
-                console.log(guilds);
-                if (index >= 0 && index < guilds.length) {
-                    guilds[index].click();
-                }
-                if (!event.shiftKey && !isNaN(key)) {
-                    const index = parseInt(key, 10) - 1;
-                    if (index >= 0 && index < guilds.length) {
-                        guilds[index].click();
-                        currentGuildIndex = index;
-                    }
-                }
-                if (!event.shiftKey && (key === 'ArrowUp' || key === 'ArrowDown')) {
-                    if (key === 'ArrowUp') {
-                        currentGuildIndex = (currentGuildIndex + 1) % guilds.length;
-                    } else if (key === 'ArrowDown') {
-                        currentGuildIndex = (currentGuildIndex - 1 + guilds.length) % guilds.length;
-                    }
-                    guilds[currentGuildIndex].click();
-                }
-                isGuildKeyDown = true;
-            }
-        };
-        keybindHandlers['shift'] = handler;
-        document.addEventListener('keydown', handler);
-        document.addEventListener('keyup', (event) => {
-            isGuildKeyDown = false;
-            event.preventDefault(); 
-        });
-    }
-
-</script>
 
     
 
@@ -624,5 +428,128 @@
             <div id="settings-rightcontainer"></div>
         </div>
     </div>
-<body>
-    
+    <script>
+        const useCDN = false;
+
+        function loadFontStyles() {
+            const styles = `
+                @font-face {
+                    font-family: 'gg sans normal';
+                    font-style: normal;
+                    font-weight: 400;
+                    src: local('gg sans Normal'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Regular.woff' 
+                            : '/static/vendor/gg-sans-regular.woff'}') format('woff');
+                }
+                
+                @font-face {
+                    font-family: 'gg sans medium';
+                    font-style: normal;
+                    font-weight: 500;
+                    src: local('gg sans Medium'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Medium.woff' 
+                            : '/static/vendor/gg-sans-medium.woff'}') format('woff');
+                }
+                
+                @font-face {
+                    font-family: 'gg sans semibold';
+                    font-style: normal;
+                    font-weight: 600;
+                    src: local('gg sans SemiBold'),
+                        url('${useCDN 
+                            ? 'https://fonts.cdnfonts.com/s/93931/gg sans Semibold.woff' 
+                            : '/static/vendor/gg-sans-semibold.woff'}') format('woff');
+                }
+            `;
+            const styleSheet = document.createElement('style');
+            styleSheet.type = 'text/css';
+            styleSheet.innerText = styles;
+            document.head.appendChild(styleSheet);
+        }
+
+        loadFontStyles();
+
+        const cdnConfettiUrl = "https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js";
+        const localConfettiUrl = "/static/vendor/confetti.browser.min.js";
+        const confettiUrl = useCDN ? cdnConfettiUrl : localConfettiUrl;
+
+        let isConfettiLoaded = false;
+
+        function loadScript(url, callback) {
+            const script = document.createElement('script');
+            script.src = url;
+            script.onload = () => {
+                isConfettiLoaded = true;
+                callback();
+            };
+            script.onerror = () => {
+                console.error("Failed to load confetti script.");
+            };
+            document.body.appendChild(script);
+        }
+
+        function initialize() {
+            if (isConfettiLoaded) {
+                initializeCookies();
+            } else {
+                setTimeout(initialize, 100); 
+            }
+        }
+
+        loadScript(confettiUrl, initialize);
+
+
+        let isCropieInitialized = false;
+        const croppieUrl = useCDN 
+            ? "https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.js"
+            : "/static/vendor/croppie.js";
+        const expectedHash = "0176d11cac2bfdb9e0695a0050e980b2fa0ff55f86eb7e4cf03b32c838e8cb9e";
+
+        async function fetchAndModifyScript(url) {
+            try {
+                const response = await fetch(url);
+                const scriptContent = await response.text();
+
+                if (!crypto || !crypto.subtle) {
+                    console.warn('Crypto context unavailable. Appending script without modification.');
+                    appendScript(scriptContent);
+                    return;
+                }
+
+                const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(scriptContent));
+                const hashArray = Array.from(new Uint8Array(hashBuffer)); 
+                const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join(''); 
+
+                if (hashHex === expectedHash) {
+                    let scriptLines = scriptContent.split('\n');
+                    let lineNumberToModify = 1088; 
+                    if (lineNumberToModify - 1 < scriptLines.length) {
+                        scriptLines[lineNumberToModify - 1] = 'zoomer.max = fix(8);'; 
+                    }
+                    let modifiedScriptContent = scriptLines.join('\n');
+                    appendScript(modifiedScriptContent);
+                } else {
+                    console.warn('Hash does not match. Appending original script.');
+                    appendScript(scriptContent);
+                }
+
+            } catch (error) {
+                console.error('Error fetching or modifying the script:', error);
+            }
+        }
+        function appendScript(scriptContent) {
+            let newScript = document.createElement('script');
+            newScript.type = 'text/javascript';
+            newScript.text = scriptContent;
+            document.body.appendChild(newScript);
+            isCropieInitialized = true;
+        }
+
+        fetchAndModifyScript(croppieUrl);
+
+    </script>
+
+</body>
+</html>

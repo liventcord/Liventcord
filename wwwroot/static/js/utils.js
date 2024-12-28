@@ -1,6 +1,14 @@
 function getId(string) {
     return document.getElementById(string);
 }
+function getMaskedEmail(email) {
+    const parts = email.split('@');
+    if (parts.length !== 2) return email;
+    const nickName = parts[0];
+    const domain = parts[1];
+    const hiddenNickname = '*'.repeat(nickName.length);
+    return `${hiddenNickname}@${domain}`;
+}
 
 
 let defaultProfileImageUrl = `/static/images/guest.png`;
