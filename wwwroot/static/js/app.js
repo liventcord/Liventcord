@@ -132,15 +132,13 @@ function initialiseState(data) {
     } else {
         console.error("Non-array guild data");
     }
+    addKeybinds();
 
     const selectedGuild = guildsList.querySelector(`img[id="${currentGuildId}"]`);
     if (selectedGuild) {
         selectedGuild.parentNode.classList.add('selected-guild');
     }
 
-    preventDrag('main-logo');
-    preventDrag('preview-image');
-    addKeybinds();
 }
 
 async function loadInitialData() {
@@ -159,6 +157,11 @@ async function loadInitialData() {
 }
 document.addEventListener("DOMContentLoaded", function () {
     loadInitialData();
+    window.onerror = (event, url, line, column, error) => {
+        let msg = "";
+        msg += "Error: " + error;
+        sendNotify(msg);
+    };
     setTimeout(() => window.scrollTo(0, 0), 20);
 
 });
