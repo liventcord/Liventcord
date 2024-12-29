@@ -68,51 +68,47 @@ function clearKeybinds() {
     }
     keybindHandlers = {};
 }
-
+let currentGuildIndex = 1; 
 
 function addKeybinds() {
     clearKeybinds();
     const guilds = Array.from(document.querySelectorAll('#guilds-list img'));
+    let isGuildKeyDown = false;
+
     const handler = (event) => {
-        if (event.shiftKey) {
-            if (
-                (event.key >= '1' && event.key <= '9') || // Shift + 1-9
-                event.key === 'ArrowUp' || event.key === 'ArrowDown' // Shift + ArrowUp/ArrowDown
-            ) {
-                event.preventDefault();
-            }
+        if (!event.shiftKey) return;
+
+        const key = event.key;
+
+        if (key === 'ArrowUp' || key === 'ArrowDown') {
+            event.preventDefault();
+
             if (isGuildKeyDown) return;
-            const key = event.key;
-            const index = parseInt(key, 10) - 1;
-            console.log(guilds);
-            if (index >= 0 && index < guilds.length) {
-                guilds[index].click();
+
+            if (key === 'ArrowUp') {
+                currentGuildIndex = (currentGuildIndex - 1 + guilds.length) % guilds.length;
+            } else if (key === 'ArrowDown') {
+                currentGuildIndex = (currentGuildIndex + 1) % guilds.length;
             }
-            if (!event.shiftKey && !isNaN(key)) {
-                const index = parseInt(key, 10) - 1;
-                if (index >= 0 && index < guilds.length) {
-                    guilds[index].click();
-                    currentGuildIndex = index;
-                }
-            }
-            if (!event.shiftKey && (key === 'ArrowUp' || key === 'ArrowDown')) {
-                if (key === 'ArrowUp') {
-                    currentGuildIndex = (currentGuildIndex + 1) % guilds.length;
-                } else if (key === 'ArrowDown') {
-                    currentGuildIndex = (currentGuildIndex - 1 + guilds.length) % guilds.length;
-                }
-                guilds[currentGuildIndex].click();
-            }
+
+            guilds[currentGuildIndex].click();
+
             isGuildKeyDown = true;
         }
     };
-    keybindHandlers['shift'] = handler;
+
     document.addEventListener('keydown', handler);
-    document.addEventListener('keyup', (event) => {
+
+    document.addEventListener('keyup', () => {
         isGuildKeyDown = false;
-        event.preventDefault(); 
     });
+
+    keybindHandlers['shift'] = handler;
 }
+
+
+
+
 function updateGuildList(guildData) {
     if (!guildData) {
         console.warn("Tried to update guild list without data.");
@@ -134,6 +130,8 @@ function updateGuildList(guildData) {
     });
 
     addKeybinds();
+    preventDrag('main-logo');
+    preventDrag('preview-image');
 }
 
 function appendToGuildList(guild) {
@@ -249,6 +247,8 @@ function loadGuild(guildId,channelId,guildName,isChangingUrl=true,isInitial=fals
         console.warn(" Already changing guild! can not change guild");
         return;
     }
+    addKeybinds();
+
     currentGuildId = guildId;
     permissionManager = new PermissionManager(initialPermissionsMap, currentGuildId);
     selectGuildList(guildId);
