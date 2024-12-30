@@ -1,3 +1,11 @@
+function getMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent,
+  );
+}
+const isMobile = getMobile();
+
+
 function getId(string) {
     return document.getElementById(string);
 }
