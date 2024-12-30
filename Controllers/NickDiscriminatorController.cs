@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LiventCord.Controllers
 {
@@ -16,6 +17,21 @@ namespace LiventCord.Controllers
             _context = context;
             _cache = cache;
         }
+        [Authorize]
+        [HttpPut("nicks")]
+        public async Task<IActionResult> ChangeNickname([FromBody] ChangeNicknameRequest request)
+        {
+            if (!ModelState.IsValid){    return BadRequest(ModelState);}
+
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null){    return NotFound("User not found");}
+            user.Nickname = request.NewNickname;
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Nickname updated successfully");
+        }
+
 
         [HttpGet("discriminators")]
         public async Task<IActionResult> GetNickDiscriminator([FromQuery] string nick)
@@ -56,8 +72,6 @@ namespace LiventCord.Controllers
                 : null;
         }
 
-
-
         private string SelectDiscriminator(IEnumerable<string> existing)
         {
             var set = new HashSet<string>(existing);
@@ -65,15 +79,6 @@ namespace LiventCord.Controllers
             return Enumerable.Range(0, 10000)
                 .Select(_ => random.Next(0, 10000).ToString("D4"))
                 .FirstOrDefault(d => !set.Contains(d)) ?? throw new InvalidOperationException();
-        }
-
-
-
-
-
-        private string CreateDiscriminator(string nick)
-        {
-            return (nick.GetHashCode() % 10000).ToString("D4");
         }
     }
 }

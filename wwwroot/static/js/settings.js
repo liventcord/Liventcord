@@ -254,7 +254,7 @@ function changeNickname() {
 
         console.log("Changed your nickname to: " + newNickname);
         userNick = newNickname;
-        apiClient.send("set_nick", {"nick" : newNickname});
+        apiClient.send(EventType.CHANGE_NICK, {"newNickname" : newNickname});
 
         newNicknameInput.value = newNickname;
         changeNicknameTimeout = setTimeout(() => {
