@@ -1,10 +1,8 @@
-
-
 function activateDmContainer(friend_id) {
     getId("friend-container-item").classList.remove("dm-selected");
-    if(!existingUsersDmContainers || existingUsersDmContainers.size < 1) { return }
+    if(!existingFriendsDmContainers || existingFriendsDmContainers.size < 1) { return }
     
-    existingUsersDmContainers.forEach(dmContainer => {
+    existingFriendsDmContainers.forEach(dmContainer => {
         if(dmContainer.id == friend_id) {
             dmContainer.classList.add("dm-selected");
         } else {
@@ -12,78 +10,168 @@ function activateDmContainer(friend_id) {
         }
     });
 }
+
 function disableDmContainers() {
-    if(!existingUsersDmContainers || existingUsersDmContainers.size < 1) { return }
+    if(!existingFriendsDmContainers || existingFriendsDmContainers.size < 1) { return }
         
-    existingUsersDmContainers.forEach(dmContainer => {
+    existingFriendsDmContainers.forEach(dmContainer => {
         dmContainer.classList.remove("dm-selected");
     });
 }
 
-let existingUsersDmContainers = new Set(); 
-let existingUsersIds = new Set();
-function createDmContainer(friend) {
-    const isOnline = friend.isOnline;
-    const friendId = friend.userId;
-    const dmContainer = createEl("div", { className: "dm-container", id: friendId });
-    const friendNick = friend.nickName;
-
-    if(friendId == currentDmId) {
-        dmContainer.classList.add("dm-selected");
+class DmUser {
+    constructor(friend) {
+        this.friend = friend;
+        this.friendId = friend.userId;
+        this.isOnline = friend.isOnline;
+        this.friendNick = friend.nickName;
+        this.dmContainer = this.createDmContainer();
     }
-    const profileImg = createEl("img", { className: "dm-profile-img" });
 
-    setProfilePic(profileImg, friendId);
-    const bubble = createDmBubble(isOnline);
-    profileImg.style.transition = "border-radius 0.5s ease-out";
-    bubble.style.transition = "opacity 0.5s ease-in-out";
-    let hoverTimeout;
-    profileImg.addEventListener("mouseover", function() {
-        this.style.borderRadius = "0px";
-        if (bubble) {
-            clearTimeout(hoverTimeout); 
-            bubble.style.opacity = "0";
-            hoverTimeout = setTimeout(function() {
-                bubble.style.display = "none";
-            }, 500); 
+    createDmContainer() {
+        const dmContainer = createEl("div", { className: "dm-container", id: this.friendId });
+        if (this.friendId == currentDmId) {
+            dmContainer.classList.add("dm-selected");
         }
-    });
 
-    profileImg.addEventListener("mouseout", function() {
-        this.style.borderRadius = "25px";
-        if (bubble) {
-            clearTimeout(hoverTimeout); 
-            bubble.style.display = "block"; 
-            setTimeout(function() {
-                bubble.style.opacity = "1";
-            }, 10);
-        }
-    });
-    
+        const profileImg = createEl("img", { className: "dm-profile-img" });
+        setProfilePic(profileImg, this.friendId);
 
-    dmContainer.addEventListener("click", () => {
-        OpenDm(friendId);
-    });
+        const bubble = createDmBubble(this.isOnline);
+        profileImg.style.transition = "border-radius 0.5s ease-out";
+        bubble.style.transition = "opacity 0.5s ease-in-out";
 
-    appendToProfileContextList(friend, friendId);
+        let hoverTimeout;
+        profileImg.addEventListener("mouseover", () => {
+            profileImg.style.borderRadius = "0px";
+            if (bubble) {
+                clearTimeout(hoverTimeout);
+                bubble.style.opacity = "0";
+                hoverTimeout = setTimeout(() => {
+                    bubble.style.display = "none";
+                }, 500);
+            }
+        });
 
-    dmContainer.appendChild(bubble);
-    dmContainer.appendChild(profileImg);
+        profileImg.addEventListener("mouseout", () => {
+            profileImg.style.borderRadius = "25px";
+            if (bubble) {
+                clearTimeout(hoverTimeout);
+                bubble.style.display = "block";
+                setTimeout(() => {
+                    bubble.style.opacity = "1";
+                }, 10);
+            }
+        });
 
-    const titleContent = createEl("p",{className:"content",textContent:friendNick});
-    dmContainer.appendChild(titleContent);
+        dmContainer.addEventListener("click", () => {
+            OpenDm(this.friendId);
+        });
 
-    const closeBtn = createEl("div");
-    closeBtn.classList.add("close-dm-btn");
-    closeBtn.textContent = "X";
-    closeBtn.addEventListener("click", (event) => {
-        event.stopPropagation();
-        removeDm(friendId); 
-    });
-    dmContainer.appendChild(closeBtn);
+        appendToProfileContextList(this.friend, this.friendId);
 
-    return dmContainer;
+        dmContainer.appendChild(bubble);
+        dmContainer.appendChild(profileImg);
+
+        const titleContent = createEl("p", { className: "content", textContent: this.friendNick });
+        dmContainer.appendChild(titleContent);
+
+        const closeBtn = createEl("div");
+        closeBtn.classList.add("close-dm-btn");
+        closeBtn.textContent = "X";
+        closeBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            removeDm(this.friendId);
+        });
+        dmContainer.appendChild(closeBtn);
+
+        return dmContainer;
+    }
 }
+
+let existingFriendsDmContainers = new Set();
+let existingFriendsIds = new Set();
+
+function appendToDmList(user) {
+    if (existingFriendsIds.has(user.userId)) { return; }
+
+    const dmUser = new DmUser(user);
+    const dmContainerParent = getId("dm-container-parent");
+
+    dmContainerParent.appendChild(dmUser.dmContainer);
+    existingFriendsDmContainers.add(dmUser.dmContainer);
+    existingFriendsIds.add(user.userId);
+    return dmUser.dmContainer;
+}
+
+function updateDmsList(friends) {
+    if (typeof friends !== "object" || friends === null) {
+        console.error("Expected a dictionary of users");
+        return;
+    }
+
+    const newFriendIds = new Set(Object.keys(friends));
+
+    if (existingFriendsIds.size === newFriendIds.size && [...existingFriendsIds].every(userId => newFriendIds.has(userId))) {
+        return;
+    }
+
+    existingFriendsDmContainers.forEach(dmContainer => dmContainer.remove());
+    existingFriendsDmContainers.clear();
+    existingFriendsIds.clear();
+
+    Object.entries(friends).forEach(([userId, user]) => {
+        const dmUser = new DmUser({ userId, ...user });
+        const dmContainerParent = getId("dm-container-parent");
+
+        dmContainerParent.appendChild(dmUser.dmContainer);
+        existingFriendsDmContainers.add(dmUser.dmContainer);
+        existingFriendsIds.add(userId);
+    });
+    friendsCache.setupDmFriends(friends);
+}
+
+function addToDmList(userData) {
+    const dmContainerParent = getId("dm-container-parent");
+    const existingDmContainer = dmContainerParent.querySelector(`#${CSS.escape(userData.userId)}`);
+    if (existingDmContainer) {
+        dmContainerParent.insertBefore(existingDmContainer, dmContainerParent.firstChild);
+        return;
+    }
+
+    const newContainer = appendToDmList(userData);
+    dmContainerParent.insertBefore(newContainer, dmContainerParent.firstChild);
+}
+
+const sampleData  = {
+    "user1": {
+        userId: "user1",
+        nickName: "Alice",
+        isOnline: true,
+    },
+    "user2": {
+        userId: "user2",
+        nickName: "Bob",
+        isOnline: false,
+    },
+    "user3": {
+        userId: "user3",
+        nickName: "Charlie",
+        isOnline: true,
+    },
+    "user4": {
+        userId: "user4",
+        nickName: "David",
+        isOnline: true,
+    },
+};
+
+function setupSampleUsers() {
+    Object.entries(sampleData).forEach(([userId, userData]) => {
+        appendToDmList(userData);
+    });
+}
+
 
 
 function getCurrentDmFriends() {
@@ -94,44 +182,6 @@ function getCurrentDmFriends() {
 }
 
 
-function appendToDmList(user) {
-    if (existingUsersIds.has(user.userId)) {return; }
-
-    const dmContainer = createDmContainer(user);
-    const dmContainerParent = getId("dm-container-parent");
-
-    dmContainerParent.appendChild(dmContainer);
-    existingUsersDmContainers.add(dmContainer);
-    existingUsersIds.add(user.userId);
-    return dmContainer;
-}
-
-
-function updateDmsList(users) {
-    if (typeof users !== "object" || users === null) {
-        console.error("Expected a dictionary of users");
-        return;
-    }
-    
-    const newUserIds = new Set(Object.keys(users));
-
-    if (existingUsersIds.size === newUserIds.size && [...existingUsersIds].every(userId => newUserIds.has(userId))) {
-        return; 
-    }
-
-    existingUsersDmContainers.forEach(dmContainer => dmContainer.remove());
-    existingUsersDmContainers.clear();
-    existingUsersIds.clear();
-
-    Object.entries(users).forEach(([userId, user]) => {
-        const dmContainer = createDmContainer({ userId, ...user });
-        const dmContainerParent = getId("dm-container-parent");
-
-        dmContainerParent.appendChild(dmContainer);
-        existingUsersDmContainers.add(dmContainer);
-        existingUsersIds.add(userId);
-    });
-}
 let notifyTimeout;
 
 function print_message(message) {
@@ -150,20 +200,6 @@ function print_message(message) {
         notifyTimeout = null;
     }, 10000);
 }
-function addToDmList(userData) {
-    const dmContainerParent = getId("dm-container-parent");
-    const existingDmContainer =  dmContainerParent.querySelector(`#${CSS.escape(userData.userId)}`);
-    if(existingDmContainer) {
-        dmContainerParent.insertBefore(existingDmContainer, dmContainerParent.firstChild); 
-        return; 
-    }
-
-    const newContainer = appendToDmList(userData);
-    dmContainerParent.insertBefore(newContainer, dmContainerParent.firstChild);
-
-}
-
-
 function selectFriendMenuStatus(status) {
     const statusMap = {
         online: buttonElements.online,

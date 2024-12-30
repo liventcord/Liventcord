@@ -204,8 +204,7 @@ class Translations {
       }
 
       const result = Object.keys(replacements).reduce((result, key) => {
-          console.log(`Processing placeholder: {{${key}}}, Replacement Value:`, replacements[key]);
-
+          //console.log(`Processing placeholder: {{${key}}}, Replacement Value:`, replacements[key]);
           const value = truncation[key]
               ? truncateString(replacements[key], truncation[key])
               : replacements[key];

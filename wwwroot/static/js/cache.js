@@ -123,6 +123,27 @@ class InviteIdsCache extends BaseCache {
         return this.get(guildId) || [];
     }
 }
+class VoiceChannelCache extends BaseCache {
+    constructor(channelId) {
+        super();
+        this.channelId = channelId;
+    }
+    addUserToVoiceChannel(userId) {
+        const users = this.get(this.channelId) || [];
+        if (!users.includes(userId)) {
+            users.push(userId);
+            this.set(this.channelId, users);
+        }
+    }
+    removeUserFromVoiceChannel(userId) {
+        const users = this.get(this.channelId) || [];
+        const updatedUsers = users.filter(user => user !== userId);
+        this.set(this.channelId, updatedUsers);
+    }
+    getUsersInVoiceChannel() {
+        return this.get(this.channelId) || [];
+    }
+}
 class Guild {
     constructor(guildId,guildName) {
         this.guildId = guildId;
@@ -243,27 +264,6 @@ class GuildCacheInterface {
     }
     getMessages(guildId, channelId) {
         return this.getGuild(guildId)?.messages.getMessages(channelId) || [];
-    }
-}
-class VoiceChannelCache extends BaseCache {
-    constructor(channelId) {
-        super();
-        this.channelId = channelId;
-    }
-    addUserToVoiceChannel(userId) {
-        const users = this.get(this.channelId) || [];
-        if (!users.includes(userId)) {
-            users.push(userId);
-            this.set(this.channelId, users);
-        }
-    }
-    removeUserFromVoiceChannel(userId) {
-        const users = this.get(this.channelId) || [];
-        const updatedUsers = users.filter(user => user !== userId);
-        this.set(this.channelId, updatedUsers);
-    }
-    getUsersInVoiceChannel() {
-        return this.get(this.channelId) || [];
     }
 }
 let replyCache = {};//<messageId> <replies>
