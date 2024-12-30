@@ -55,11 +55,11 @@ async function changeChannel(newChannel) {
     if(!currentChannels) { return; }
 
     currentChannels.forEach((channel, index) => {
-        const channelButton = channelsUl.querySelector(`li[id="${channel.ChannelId}"]`);
+        const channelButton = channelsUl.querySelector(`li[id="${channel.channelId}"]`);
         if(channelButton) {
-            if(channel.ChannelId != channelId) {
-                mouseHoverChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
-                mouseLeaveChannelButton(channelButton,channel.IsTextChannel,channel.ChannelId);
+            if(channel.channelId != channelId) {
+                mouseHoverChannelButton(channelButton,channel.isTextChannel,channel.channelId);
+                mouseLeaveChannelButton(channelButton,channel.isTextChannel,channel.channelId);
             } else if(!isTextChannel) {
                 const usersInChannel = usersInVoice[channelId];
                 if(usersInChannel) {
@@ -80,13 +80,16 @@ async function changeChannel(newChannel) {
 
 
 //channels
-function isChannelMatching(channelId,isTextChannel) {
-    if(isTextChannel) {
-        return currentChannelId == channelId;
+function isChannelMatching(channelId, isTextChannel) {
+    const currentChannel = isTextChannel ? currentChannelId : currentVoiceChannelId;
+    if (channelId === currentChannel) {
+        return true;
     } else {
-        return currentVoiceChannelId == channelId;
+        console.error("Match failed");
+        return false;
     }
 }
+
 
 function mouseHoverChannelButton(channelButton,isTextChannel,channelId) {
     if(!channelButton) { return; }
@@ -95,7 +98,8 @@ function mouseHoverChannelButton(channelButton,isTextChannel,channelId) {
 
     contentWrapper.style.display = "flex";
     if(isTextChannel) {
-        channelButton.style.backgroundColor = isChannelMatching(channelId,isTextChannel) ? selectedChanColor : hoveredChanColor;
+        const isMatch = isChannelMatching(channelId,isTextChannel);
+        channelButton.style.backgroundColor = isMatch ? selectedChanColor : hoveredChanColor;
     } else {
         channelButton.style.backgroundColor = hoveredChanColor;
     }
@@ -161,21 +165,6 @@ function removeChannelElement(channelId) {
     const existingChannelButton = channelsUl.querySelector(`li[id="${channelId}"]`);
     if (!existingChannelButton) { return; }
     existingChannelButton.remove();
-}
-function createChannelElement(channel) {
-    const { ChannelId: channelId, ChannelName: channelName, IsTextChannel: isTextChannel } = channel;
-
-    if (isChannelExist(channelId)) return;
-
-    const channelButton = createChannelButton(channelId, channelName, isTextChannel);
-    const contentWrapper = createContentWrapper(channel, channelName, isTextChannel);
-    
-    channelButton.appendChild(contentWrapper);
-    appendToChannelContextList(channelId);
-    channelsUl.appendChild(channelButton);
-
-    addEventListeners(channelButton, channelId, isTextChannel, channel);
-    handleChannelChangeOnLoad(channel, channelId);
 }
 
 function isChannelExist(channelId) {
@@ -246,9 +235,7 @@ function addEventListeners(channelButton, channelId, isTextChannel, channel) {
 
 function handleChannelChangeOnLoad(channel, channelId) {
     if (channelId == currentChannelId) {
-        setTimeout(() => {
-            changeChannel(channel);
-        }, 50);
+        changeChannel(channel);
     }
 }
 
@@ -299,9 +286,7 @@ function validateChannels(channels) {
 }
 
 function createChannelElement(channel) {
-    const channelId = channel.channelId;
-    const channelName = channel.channelName;
-    const isTextChannel = channel.isTextChannel;
+    const { channelId: channelId, channelName: channelName, isTextChannel: isTextChannel } = channel;
 
     if (isChannelExist(channelId)) return;
 
@@ -315,6 +300,7 @@ function createChannelElement(channel) {
     addEventListeners(channelButton, channelId, isTextChannel, channel);
     handleChannelChangeOnLoad(channel, channelId);
 }
+
 
 function addChannel(channel) {
     const channelId = channel.channelId;

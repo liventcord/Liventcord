@@ -267,8 +267,11 @@ function initializeGuild() {
     fetchMembers();
     if (isOnGuild && initialGuildsData && initialGuildsData.length > 0) {
         initialGuildsData.forEach(data => {
-            cacheInterface.addChannel(data.guildId, data.guildChannels);
-            updateChannels(data.guildChannels);
+            if(data.guildId == currentGuildId) {
+                cacheInterface.addChannel(data.guildId, data.guildChannels);
+                updateChannels(data.guildChannels);
+
+            }
         });
     }
 
