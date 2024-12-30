@@ -5,17 +5,43 @@ let currentGuildName = "";
 
 
 
+const renderGuilds = (guilds) => {
+    const blackImage = createBlackImage();
+    const uniqueGuildIds = new Set();
+    return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
+        if (uniqueGuildIds.has(guildId)) return '';
+        uniqueGuildIds.add(guildId);
+        return createGuildListItem(String(guildId), `/guilds/${guildId}`, blackImage, rootChannel, guildName || '');
+    }).join('');
+};
+
+const createGuildListItem = (guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) => `
+    <li>
+        <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
+        onerror="this.onerror=null;this.src='${blackImage}';" 
+        onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
+        <div class="white-rod"></div>
+    </li>
+`;
+
+
 function getManageableGuilds() {
-    if(!permissionsMap) { return [] }
-    const guildsWeAreAdminOn = [];
-    let isFoundAny = false;
-    for (const key in permissionsMap) {
-        if (permissionsMap[key].isAdmin) {
-            guildsWeAreAdminOn.push(key);
-            isFoundAny = true;
+    try {
+        permissionsMap = permissionManager.permissionsMap;
+        if(!permissionsMap) { return [] }
+        const guildsWeAreAdminOn = [];
+        let isFoundAny = false;
+        for (const key in permissionsMap) {
+            if (permissionsMap[key].isAdmin) {
+                guildsWeAreAdminOn.push(key);
+                isFoundAny = true;
+            }
         }
+        return isFoundAny ? guildsWeAreAdminOn : null;
+        
+    } catch (error) {
+        console.log(error.message);   
     }
-    return isFoundAny ? guildsWeAreAdminOn : null;
 }
 
 
@@ -240,9 +266,7 @@ function loadGuild(guildId,channelId,guildName,isChangingUrl=true,isInitial=fals
         if(window.location.pathname != state) {
             window.history.pushState(null, null, state);
         }
-    } else { 
-        console.warn("calling from popstate");
-    }
+    } 
     if(isChangingPage) {
         console.warn(" Already changing guild! can not change guild");
         return;

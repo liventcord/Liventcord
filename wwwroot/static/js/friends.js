@@ -91,8 +91,11 @@ class Friend {
 class FriendsCache {
   constructor() {
     this.friendsCache = {};
+    this.dmFriends = {};
   }
-
+  setupDmFriends(friends) {
+    this.dmFriends = friends;
+  }
   initialiseFriends(initData) {
     this.friendsCache = initData;
   }

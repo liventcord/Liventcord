@@ -41,44 +41,10 @@ function assignElements() {
     
 
 }
-const createBlackImage = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 50;
-    canvas.height = 50;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/png');
-};
-
-const renderGuilds = (guilds) => {
-    const blackImage = createBlackImage();
-    const uniqueGuildIds = new Set();
-    return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
-        if (uniqueGuildIds.has(guildId)) return '';
-        uniqueGuildIds.add(guildId);
-        return createGuildListItem(String(guildId), `/guilds/${guildId}`, blackImage, rootChannel, guildName || '');
-    }).join('');
-};
-
-const createGuildListItem = (guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) => `
-    <li>
-        <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
-        onerror="this.onerror=null;this.src='${blackImage}';" 
-        onclick="loadGuild('${encodeURIComponent(guildIdStr)}', '${encodeURIComponent(rootChannel)}', '${guildNameStr}')" />
-        <div class="white-rod"></div>
-    </li>
-`;
 
 
-const preventDrag = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-        element.addEventListener('dragstart', function(event) {
-            event.preventDefault();
-        });
-    }
-};
+
+
 let initialGuildId;
 let initialChannelId;
 let initialOwnerId;
@@ -115,6 +81,7 @@ function initialiseState(data) {
     initialGuildsData = guildsArray;
     currentGuildName = guildName;
     updateDmsList(passed_dm_friends);
+    setupSampleUsers();
     friendCache.initialiseFriends(passed_friends_status);
 
     maskedEmail = getMaskedEmail(email);
@@ -410,7 +377,6 @@ let lastDmId;
 
 function loadDmHome(isChangingUrl=true) {
     console.log("Loading main menu...");
-
     function handleMenu() {
         selectGuildList("main-logo");
         if(isChangingUrl) {

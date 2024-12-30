@@ -45,7 +45,7 @@ const EventHttpMethodMap = {
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
 };
 
-class CustomHttpConnection {
+class ApiClient {
     constructor() {
         this.listeners = {};
         this.nonResponseEvents = [EventType.START_TYPING, EventType.STOP_TYPING];
@@ -188,4 +188,4 @@ class CustomHttpConnection {
     }
 }
 
-const apiClient = new CustomHttpConnection();
+const apiClient = new ApiClient();

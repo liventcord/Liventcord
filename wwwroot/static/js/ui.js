@@ -31,7 +31,15 @@ function isLoadingScreen() {
     }
     return loadingScreen.style.display == "flex";
 }
-
+const createBlackImage = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 50;
+    canvas.height = 50;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#000000';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/png');
+};
 
 function toggleEmail() {
     const eyeIcon = getId("set-info-email-eye");
@@ -273,6 +281,14 @@ function clickMainLogo() {
     loadDmHome();
 }
 
+const preventDrag = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.addEventListener('dragstart', function(event) {
+            event.preventDefault();
+        });
+    }
+};
 
 function logOutPrompt() {
     const logOut = translations.getTranslation("log-out-button");

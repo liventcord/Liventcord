@@ -26,9 +26,7 @@ This branch sets up the development environment for running the server, specific
 
 Execute the following command to start the server:
 
-    ```bash
     $ ./run.sh
-    ```
 
 ---
 
