@@ -1,3 +1,16 @@
+const addfriendhighlightedcolor = "#248046";
+const addfrienddefaultcolor = "#248046";
+const highlightedColor = "#43444b";
+const defaultColor = "#313338";
+const grayColor = "#c2c2c2";
+
+const ButtonTypes = {
+    SendMsgBtn: `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22a10 10 0 1 0-8.45-4.64c.13.19.11.44-.04.61l-2.06 2.37A1 1 0 0 0 2.2 22H12Z" class=""></path></svg>`,
+    TickBtn: `<svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M21.7 5.3a1 1 0 0 1 0 1.4l-12 12a1 1 0 0 1-1.4 0l-6-6a1 1 0 1 1 1.4-1.4L9 16.58l11.3-11.3a1 1 0 0 1 1.4 0Z" class=""></path></svg>`,
+    CloseBtn : `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z" class=""></path></svg>`,
+    OptionsBtn : `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10 4a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" clip-rule="evenodd" class=""></path></svg>`,
+}
+
 function activateDmContainer(friend_id) {
     getId("friend-container-item").classList.remove("dm-selected");
     if(!existingFriendsDmContainers || existingFriendsDmContainers.size < 1) { return }
@@ -153,17 +166,7 @@ const sampleData  = {
         userId: "user2",
         nickName: "Bob",
         isOnline: false,
-    },
-    "user3": {
-        userId: "user3",
-        nickName: "Charlie",
-        isOnline: true,
-    },
-    "user4": {
-        userId: "user4",
-        nickName: "David",
-        isOnline: true,
-    },
+    }
 };
 
 function setupSampleUsers() {
@@ -184,7 +187,7 @@ function getCurrentDmFriends() {
 
 let notifyTimeout;
 
-function print_message(message) {
+function printFriendMessage(message) {
     const messagetext = createEl("div");
     messagetext.className = "messagetext"; 
     messagetext.textContent = message;
@@ -200,6 +203,17 @@ function print_message(message) {
         notifyTimeout = null;
     }, 10000);
 }
+
+
+let cachedFriends = [];
+async function getFriends(requestType) {
+    if (!isAddFriendsOpen && !cachedFriends) {
+        apiClient.send(EventType.GET_FRIENDS, { requestType: requestType });
+    } else {
+        populateFriendsContainer(cachedFriends);
+    }
+}
+
 function selectFriendMenuStatus(status) {
     const statusMap = {
         online: buttonElements.online,
@@ -212,16 +226,14 @@ function selectFriendMenuStatus(status) {
 }
 
 function selectFriendMenu(clickedButton) {
-    if (isPopulating) {
-        console.warn(isPopulating , "Populating friends list, returning.");
-        return;
-    }
+
 
     getId("open-friends-button").style.backgroundColor = "#248046";
     getId("open-friends-button").style.color = "white";
 
     isAddFriendsOpen = false;
     currentSelectedStatus = getRequestType(clickedButton);
+    console.log("Selected: ",currentSelectedStatus);
 
     if (!ButtonsList) {
         ButtonsList = Object.values(buttonElements);
@@ -305,12 +317,7 @@ function createButtonWithBubblesImg(button,html,hoverText) {
     button.appendChild(iconSphere);
     return iconSphere;
 }
-const ButtonTypes = {
-    SendMsgBtn: `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22a10 10 0 1 0-8.45-4.64c.13.19.11.44-.04.61l-2.06 2.37A1 1 0 0 0 2.2 22H12Z" class=""></path></svg>`,
-    TickBtn: `<svg class="icon_e01b91" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M21.7 5.3a1 1 0 0 1 0 1.4l-12 12a1 1 0 0 1-1.4 0l-6-6a1 1 0 1 1 1.4-1.4L9 16.58l11.3-11.3a1 1 0 0 1 1.4 0Z" class=""></path></svg>`,
-    CloseBtn : `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M17.3 18.7a1 1 0 0 0 1.4-1.4L13.42 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.58l-5.3-5.3a1 1 0 0 0-1.4 1.42L10.58 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.42l5.3 5.3Z" class=""></path></svg>`,
-    OptionsBtn : `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10 4a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" clip-rule="evenodd" class=""></path></svg>`,
-}
+
 
 function updateUsersStatus(friend) { 
     const activityCard = createEl("div", { className: "activity-card", id: friend.userId });
@@ -431,11 +438,15 @@ function createDmBubble(isOnline) {
 }
 
 function populateFriendsContainer(friends, isPending) {
+    console.log(friends,typeof(friends));
+    if (friends.length === 0) {
+        return;
+    }
+
     friends.forEach(user => {
         addUser(user.userId, user.nickName, user.discriminator);
     });
-    if (isPopulating || !currentSelectedStatus) {  return;  }
-    isPopulating = true;
+
     const friendsContainer = getId("friends-container");
     try {
         
@@ -457,9 +468,7 @@ function populateFriendsContainer(friends, isPending) {
         if (friendsCount === 0) {
             if(friendsContainer.querySelector("#wumpusalone")) { return; }
             friendsContainer.innerHTML = "";
-            const imgElement = createEl("img");
-            imgElement.id = "wumpusalone";
-            imgElement.src = "/static/images/wumpusalone.png";
+            const imgElement = createEl("img",{id:"wumpusalone",src:"/static/images/wumpusalone.png"});
             imgElement.style.userSelect = "none";
             disableElement("friendsTitleContainer");
             friendsContainer.appendChild(imgElement);
@@ -482,10 +491,9 @@ function populateFriendsContainer(friends, isPending) {
         existingFriends = friends;
     } catch (error) {
         console.error("Error populating friends container:", error);
-    } finally {
-        isPopulating = false;
     }
 }
+
 function createFriendCard(friend, isPending, friendsContainer) {
     const friendCard = createEl("div", { className: "friend-card", id: friend.userId });
     const img = createEl("img");
@@ -551,19 +559,6 @@ function handleOptionsClick(event, optionsButton) {
     }
 }
 function getFriendsTranslation() {
-    switch (currentSelectedStatus) {
-      case "online":
-        return translations[currentLanguage].online;
-      case "offline":
-        return translations[currentLanguage].offline;
-      case "pending":
-        return translations[currentLanguage].pending;
-      case "blocked":
-        return translations[currentLanguage].blocked;
-      case "all":
-        return translations[currentLanguage].all;
-      default:
-        return "";
-    }
+    return translations.getTranslation(currentSelectedStatus);
   }
   

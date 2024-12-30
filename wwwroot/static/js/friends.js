@@ -1,10 +1,6 @@
 const addFriendDiscriminatorErrorText = "Tanımlayıcı geçersiz! (#0000)";
 
-const addfriendhighlightedcolor = "#248046";
-const addfrienddefaultcolor = "#248046";
-const highlightedColor = "#43444b";
-const defaultColor = "#313338";
-const grayColor = "#c2c2c2";
+
 let isAddFriendsOpen = false;
 
 let currentSelectedStatus = null;
@@ -23,17 +19,8 @@ const blocked = "blocked";
 
 
 
-function getId(string) {
-  return document.getElementById(string);
-}
 
-const buttonElements = {
-  online: getId("online-button"),
-  all: getId("all-button"),
-  pending: getId("pending-button"),
-  blocked: getId("blocked-button"),
-};
-let ButtonsList = Object.values(buttonElements);
+
 
 const FriendErrorType = {
   INVALID_EVENT: "INVALID_EVENT",
@@ -125,7 +112,7 @@ class FriendsCache {
 
 
 function displayFriendsMessage(msg) {
-  print_message(msg);
+  printFriendMessage(msg);
   if (currentSelectedStatus === pending && !isAddFriendsOpen) {
     getFriends(pending);
   }
@@ -296,15 +283,7 @@ function submitAddFriend() {
   }
 }
 
-async function getFriends(request_type) {
-  if (!isAddFriendsOpen) {
-    try {
-      apiClient.send(EventType.GET_FRIENDS, { requestType: request_type });
-    } catch (error) {
-      console.error("Error fetching friends:", error);
-    }
-  }
-}
+
 
 function filterFriends() {
   const input = getId("friendsSearchInput").value.toLowerCase();
@@ -331,12 +310,21 @@ function toggleButtonState(booleanstate) {
 }
 
 const friendCache = new FriendsCache();
-
+let buttonElements = {};
+let ButtonsList = {};
 document.addEventListener("DOMContentLoaded", function () {
 
   window.addEventListener("resize", handleResize);
   friendsContainer = getId("friends-container");
 
-  //initializeButtonsList(ButtonsList);
-  //selectFriendMenu(buttonElements.online);
+  buttonElements = {
+    online: getId("online-button"),
+    all: getId("all-button"),
+    pending: getId("pending-button"),
+    blocked: getId("blocked-button"),
+  };
+  ButtonsList = Object.values(buttonElements);
+  initializeButtonsList(ButtonsList);
+
+  selectFriendMenu(buttonElements.online);
 });

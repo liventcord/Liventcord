@@ -53,6 +53,7 @@ namespace LiventCord.Routes
             MapRoute("/register", "register.html");
             MapRoute("/test","test.html");
             MapRoute("/test2","test2.html");
+            MapRoute("favicon.ico","static/images/icons/favicon.ico");
 
             List<string> urls = new List<string>
             {
