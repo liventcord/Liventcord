@@ -15,7 +15,8 @@ const EventType = Object.freeze({
     START_TYPING: "start_typing",
     STOP_TYPING: "stop_typing",
     ADD_FRIEND: "add_friend",
-    ADD_FRIEND_ID: "add_friend_id"
+    ADD_FRIEND_ID: "add_friend_id",
+    CHANGE_NICK: "change_nick"
 });
 
 const HttpMethod = Object.freeze({
@@ -33,7 +34,7 @@ const EventHttpMethodMap = {
     [EventType.DELETE_GUILD_IMAGE]: HttpMethod.DELETE,
     [EventType.NEW_MESSAGE]: HttpMethod.POST,
     [EventType.GET_MEMBERS]: HttpMethod.GET,
-    [EventType.GET_CHANNELS] : HttpMethod.GET,
+    [EventType.GET_CHANNELS]: HttpMethod.GET,
     [EventType.GET_FRIENDS]: HttpMethod.GET,
     [EventType.GET_HISTORY]: HttpMethod.GET,
     [EventType.GET_SCROLL_HISTORY]: HttpMethod.GET,
@@ -43,12 +44,34 @@ const EventHttpMethodMap = {
     [EventType.STOP_TYPING]: HttpMethod.POST,
     [EventType.ADD_FRIEND]: HttpMethod.POST,
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
+    [EventType.CHANGE_NICK]: HttpMethod.PUT
+};
+
+const EventUrlMap = {
+    [EventType.CREATE_CHANNEL]: "/guilds/{guildId}/channels",
+    [EventType.JOIN_GUILD]: "/guilds/{guildId}/members",
+    [EventType.CREATE_GUILD]: "/guilds",
+    [EventType.DELETE_GUILD]: "/guilds/{guildId}",
+    [EventType.DELETE_GUILD_IMAGE]: "/guilds/{guildId}/image",
+    [EventType.NEW_MESSAGE]: "/guilds/{guildId}/channels/{channelId}/messages",
+    [EventType.GET_MEMBERS]: "/guilds/{guildId}/members",
+    [EventType.GET_CHANNELS]: "/guilds/{guildId}/channels/",
+    [EventType.GET_FRIENDS]: "/friends",
+    [EventType.GET_HISTORY]: "/guilds/{guildId}/channels/{channelId}/messages",
+    [EventType.GET_SCROLL_HISTORY]: "/guilds/{guildId}/channels/{channelId}/messages",
+    [EventType.GET_GUILDS]: "/guilds",
+    [EventType.GET_INVITES]: "/guilds/{guildId}/invites",
+    [EventType.START_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/start",
+    [EventType.STOP_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/stop",
+    [EventType.ADD_FRIEND]: "/friends?name={friendName}&discriminator={friendDiscriminator}",
+    [EventType.ADD_FRIEND_ID]: "/friends?id={friendId}",
+    [EventType.CHANGE_NICK]: "/nicks"
 };
 
 class ApiClient {
     constructor() {
         this.listeners = {};
-        this.nonResponseEvents = [EventType.START_TYPING, EventType.STOP_TYPING];
+        this.nonResponseEvents = [EventType.START_TYPING, EventType.STOP_TYPING,EventType.CHANGE_NICK];
     }
 
     getHttpMethod(event) {
@@ -61,66 +84,21 @@ class ApiClient {
 
     getUrlForEvent(event, data = {}) {
         const basePath = "/api";
-        let url;
-
-        switch (event) {
-            case EventType.CREATE_CHANNEL:
-                url = `${basePath}/guilds/${data.guildId}/channels`;
-                break;
-            case EventType.JOIN_GUILD:
-                url = `${basePath}/guilds/${data.guildId}/members`;
-                break;
-            case EventType.CREATE_GUILD:
-                url = `${basePath}/guilds`;
-                break;
-            case EventType.DELETE_GUILD:
-                url = `${basePath}/guilds/${data.guildId}`;
-                break;
-            case EventType.DELETE_GUILD_IMAGE:
-                url = `${basePath}/guilds/${data.guildId}/image`;
-                break;
-            case EventType.NEW_MESSAGE:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
-                break;
-            case EventType.GET_MEMBERS:
-                url = `${basePath}/guilds/${data.guildId}/members`;
-                break;
-            case EventType.GET_CHANNELS:
-                url = `${basePath}/guilds/${data.guildId}/channels/`;
-                break;
-            case EventType.GET_FRIENDS:
-                url = `${basePath}/friends`;
-                break;
-            case EventType.GET_HISTORY:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
-                break;
-            case EventType.GET_SCROLL_HISTORY:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/messages`;
-                break;
-            case EventType.GET_GUILDS:
-                url = `${basePath}/guilds`;
-                break;
-            case EventType.GET_INVITES:
-                url = `${basePath}/guilds/${data.guildId}/invites`;
-                break;
-            case EventType.START_TYPING:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing/start`;
-                break;
-            case EventType.STOP_TYPING:
-                url = `${basePath}/guilds/${data.guildId}/channels/${data.channelId}/typing/stop`;
-                break;
-            case EventType.ADD_FRIEND:
-                url = `${basePath}/friends?name=${data.friendName}&discriminator=${friendDiscriminator}`;
-                break;
-            case EventType.ADD_FRIEND_ID:
-                url = `${basePath}/friends?id=${data.friendId}`;
-                break;
-            default:
-                throw new Error(`Unknown event: ${event}`);
+        const urlTemplate = EventUrlMap[event];
+        
+        if (!urlTemplate) {
+            throw new Error(`Unknown event: ${event}`);
         }
 
-        return { method: this.getHttpMethod(event), url };
+        let url = urlTemplate;
+        Object.keys(data).forEach(key => {
+            url = url.replace(`{${key}}`, data[key]);
+        });
+
+        return { method: this.getHttpMethod(event), url: basePath + url };
     }
+
+
 
     async sendRequest(data, url, method, expectsResponse = true) {
         try {
