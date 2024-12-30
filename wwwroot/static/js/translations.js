@@ -190,7 +190,6 @@ class Translations {
   };
   
   replacePlaceholder(templateKey, replacements, truncation = {}) {
-      console.log("Current Language:", this.currentLanguage); 
 
       const languageData = this.templateTranslations[templateKey];
       if (!languageData) {
@@ -204,10 +203,6 @@ class Translations {
           return "";
       }
 
-      console.log("Template Text:", text);
-      console.log("Replacements:", replacements);
-      console.log("Truncation:", truncation);
-
       const result = Object.keys(replacements).reduce((result, key) => {
           console.log(`Processing placeholder: {{${key}}}, Replacement Value:`, replacements[key]);
 
@@ -216,13 +211,12 @@ class Translations {
               : replacements[key];
           
           if (truncation[key]) {
-              console.log(`Truncated Value for {{${key}}}:`, value);
+              //console.log(`Truncated Value for {{${key}}}:`, value);
           }
 
           return result.replace(`{{${key}}}`, value);
       }, text);
 
-      console.log("Final Result:", result);
       return result;
   }
 
