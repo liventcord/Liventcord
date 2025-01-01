@@ -16,7 +16,8 @@ const EventType = Object.freeze({
     STOP_TYPING: "stop_typing",
     ADD_FRIEND: "add_friend",
     ADD_FRIEND_ID: "add_friend_id",
-    CHANGE_NICK: "change_nick"
+    CHANGE_NICK: "change_nick",
+    ADD_DM: "add_dm"
 });
 
 const HttpMethod = Object.freeze({
@@ -44,7 +45,8 @@ const EventHttpMethodMap = {
     [EventType.STOP_TYPING]: HttpMethod.POST,
     [EventType.ADD_FRIEND]: HttpMethod.POST,
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
-    [EventType.CHANGE_NICK]: HttpMethod.PUT
+    [EventType.CHANGE_NICK]: HttpMethod.PUT,
+    [EventType.ADD_DM]: HttpMethod.POST
 };
 
 const EventUrlMap = {
@@ -65,7 +67,8 @@ const EventUrlMap = {
     [EventType.STOP_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/stop",
     [EventType.ADD_FRIEND]: "/friends?name={friendName}&discriminator={friendDiscriminator}",
     [EventType.ADD_FRIEND_ID]: "/friends?id={friendId}",
-    [EventType.CHANGE_NICK]: "/nicks"
+    [EventType.CHANGE_NICK]: "/nicks",
+    [EventType.ADD_DM]: "/dm/friendId={friendId}"
 };
 
 class ApiClient {
@@ -99,8 +102,23 @@ class ApiClient {
     }
 
 
+    handleError(status, event) {
+        console.error(event,isOnDm);
+        if (event === EventType.ADD_DM && isOnDm && status === 404) {
+            alertUser("Error: User does not exists");
+        } else if (status === 404) {
+            alertUser("Error: The requested resource was not found.");
+        } else if (status >= 400 && status < 500) {
+            alertUser("Client error occurred.");
+        } else if (status >= 500) {
+            alertUser("Server error. Please try again later.");
+        } else {
+            alertUser("An unexpected error occurred.");
+        }
+    }
+    
 
-    async sendRequest(data, url, method, expectsResponse = true) {
+    async sendRequest(data, url, method, event,expectsResponse = true) {
         try {
             const response = await fetch(url, {
                 method,
@@ -108,20 +126,20 @@ class ApiClient {
                 body: method === HttpMethod.GET ? undefined : JSON.stringify(data),
                 credentials: "same-origin",
             });
-    
+
             if (!response.ok) {
-                console.error(`Request failed with status: ${response.status}`, { url, method });
-                return null; 
+                this.handleError(response.status, event);
+                return null;
             }
-    
+
             if (!expectsResponse) {
-                return null; 
+                return null;
             }
-    
+
             const responseBody = await response.text();
             return responseBody ? JSON.parse(responseBody) : null; 
         } catch (error) {
-            console.error("Failed to send request:", error, { url, method, data });
+            console.error("Failed to send request:", error);
             throw error;
         }
     }
@@ -137,7 +155,7 @@ class ApiClient {
         try {
             const { url, method } = this.getUrlForEvent(event, data);
     
-            const response = await this.sendRequest(data, url, method, expectsResponse);
+            const response = await this.sendRequest(data, url, method, event,expectsResponse);
             this.handleMessage(event, response);
         } catch (error) {
             console.error(`Error during request for event "${event}":`, error, event, data);

@@ -57,8 +57,7 @@ namespace LiventCord.Models
                 NickName = Nickname,
                 Discriminator = Discriminator,
                 Status = Status,
-                CreatedAt = CreatedAt,
-                Location = Location
+                CreatedAt = CreatedAt
             };
         }
         public void UpdateLastLogin()

@@ -180,9 +180,9 @@ class GuildCache {
     }
 
     getGuild(guildId) {
+        if(!guildId) return;
         if (!this.guilds[guildId]) {
             this.guilds[guildId] = new Guild(guildId);
-            console.error(guildId);
         }
         return this.guilds[guildId];
     }

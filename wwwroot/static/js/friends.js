@@ -100,6 +100,9 @@ class FriendsCache {
     }
     return userId in this.friendsCache;
   }
+  userExistsDm(userId) {
+    return userId in this.dmFriends;
+  }
 
   isOnline(userId) {
     if (!this.friendsCache || !this.friendsCache[userId]) {

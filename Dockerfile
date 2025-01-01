@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
 WORKDIR /src
 
 COPY ["LiventCord.csproj", "./"]
@@ -22,7 +22,7 @@ RUN dotnet publish "LiventCord.csproj" -c Release -o /app/publish \
   /p:PublishTrimmed=true \
   /p:PublishSingleFile=true
 
-FROM mcr.microsoft.com/dotnet/runtime-deps:7.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-alpine AS final
 
 RUN adduser --disabled-password \
   --home /app \

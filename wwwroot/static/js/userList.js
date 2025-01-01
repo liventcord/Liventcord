@@ -71,7 +71,6 @@ function renderUsers(users, tbody, isOnline) {
             profileContainer.appendChild(bubble);
             fragment.appendChild(profileContainer);
         } else {
-            console.error("is online mismatch");
         }
     }
 
@@ -123,10 +122,10 @@ function updateMemberList(members, ignoreIsOnMe = false) {
 }
 function categorizeMembers(members) {
     const onlineUsers = members.filter(member => 
-        member.status && member.status === "online"
+        member.isOnline
     );
     const offlineUsers = members.filter(member => 
-        !member.status || member.status !== "online"
+        !member.isOnline
     );
     return { onlineUsers, offlineUsers };
 }
@@ -186,24 +185,25 @@ function setUsersList(isUsersOpen, isLoadingFromCookie = false) {
     updateChatWidth();
     updateMediaPanelPosition();
 }
-
-function updateDmFriendList(friend_id,friendNick,friendDiscriminator) {
-    const usersData = {
-        currentUserId: {
-            userId:  currentUserId,
+function updateDmFriendList(friendId, friendNick, friendDiscriminator) {
+    const usersData = [
+        {
+            userId: currentUserId,
             name: currentUserNick,
-            is_online : true ,
+            isOnline: true,
             discriminator: currentDiscriminator
         },
-        friend_id: {
-            userId:  friend_id,
+        {
+            userId: friendId,
             name: friendNick,
-            is_online : isOnline(friend_id),
+            isOnline: friendCache.isOnline(friendId),
             discriminator: friendDiscriminator
         }
-    };
+    ];
+
     updateMemberList(usersData);
 }
+
 function updateUserListText() {
     const userListTitleHTML = `<h1 id="nowonline" style="font-weight: bolder;">${translations.getTranslation("user-list-title")}</h1> <ul> </ul>`;
     

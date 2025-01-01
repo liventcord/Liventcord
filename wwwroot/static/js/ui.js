@@ -195,6 +195,8 @@ function hideLoadingScreen() {
 
 
 
+let errorCount = 0;  
+
 function alertUser(subject, content) {
     if(content) {
         console.error(subject,content);
@@ -215,16 +217,22 @@ function alertUser(subject, content) {
 
     popAcceptButton.addEventListener("click", function () {
         closePopUp(outerParent, outerParent.firstChild);
+        errorCount--;
     });
     popRefuseButton.addEventListener("click", function () {
         closePopUp(outerParent, outerParent.firstChild);
+        errorCount--;
     });
 
     outerParent = createPopUp({
         contentElements: contentElements,
         id: null 
     });
+
+    outerParent.style.zIndex = 1000 + errorCount;  
+    errorCount++;
 }
+
 
 function askUser(subject, content, actionText, acceptCallback, isRed = false) {
     const popUpSubject = createEl("h1", { className: "pop-up-subject", textContent: subject });
