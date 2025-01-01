@@ -11,12 +11,12 @@ const ButtonTypes = {
     OptionsBtn : `<svg role="img" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M10 4a2 2 0 1 0 4 0 2 2 0 0 0-4 0Zm2 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm0 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" clip-rule="evenodd" class=""></path></svg>`,
 }
 
-function activateDmContainer(friend_id) {
+function activateDmContainer(friendId) {
     getId("friend-container-item").classList.remove("dm-selected");
     if(!existingFriendsDmContainers || existingFriendsDmContainers.size < 1) { return }
     
     existingFriendsDmContainers.forEach(dmContainer => {
-        if(dmContainer.id == friend_id) {
+        if(dmContainer.id == friendId) {
             dmContainer.classList.add("dm-selected");
         } else {
             dmContainer.classList.remove("dm-selected");
@@ -78,7 +78,7 @@ class DmUser {
         });
 
         dmContainer.addEventListener("click", () => {
-            OpenDm(this.friendId);
+            openDm(this.friendId);
         });
 
         appendToProfileContextList(this.friend, this.friendId);

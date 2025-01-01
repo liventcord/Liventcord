@@ -349,9 +349,7 @@ function initialiseMe() {
 
 let isChangingPage = false;
 
-function userExistsDm(userId) {
-    return userId in dm_friends;
-}
+
 function openDm(friendId) {
     const wasOnDm = isOnDm;
     isOnDm = true;
@@ -362,14 +360,14 @@ function openDm(friendId) {
     if(url != window.location.pathname) {
         window.history.pushState(null, null, url);
     }
-    if(!userExistsDm(friendId)) {
-        apiClient.send("add_dm",{"friend_id" : friendId});
+    if(!friendCache.userExistsDm(friendId)) {
+        apiClient.send(EventType.ADD_DM,{"friendId" : friendId});
     }
     loadApp(friendId);
     if(wasOnDm) {
         changeCurrentDm(friendId);
     }
-    GetHistoryFromOneChannel(friendId,true);
+    getHistoryFromOneChannel(friendId,true);
 }
 
 
@@ -510,7 +508,7 @@ function loadApp(friendId=null,isInitial=false) {
         enableElement("guild-container",false,true);
         disableElement("guild-settings-button");
         activateDmContainer(friendId);
-        const friendNick = initialFriendName != undefined && initialFriendId == friendId ? initialFriendName : getUserNick(friendId);
+        const friendNick = getUserNick(friendId);
         chatInput.placeholder = translations.getDmPlaceHolder(friendNick);
 
         channelTitle.textContent = friendNick;
@@ -520,7 +518,7 @@ function loadApp(friendId=null,isInitial=false) {
         setProfilePic(dmProfSign,friendId);
         dmProfSign.dataset.cid = friendId;
         
-        updateDmFriendList(friendId,friendNick,passed_friend_discriminator);
+        updateDmFriendList(friendId,friendNick,getUserDiscriminator(friendId));
     }
     
     
