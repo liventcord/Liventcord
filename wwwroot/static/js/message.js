@@ -165,8 +165,37 @@ function getOldMessages(date,messageId=null) {
     }, 1000);
 }
 
+function getLastSecondMessageDate() {
+    const messages = chatContent.children;
+    if (messages.length < 2) return  "";
+
+    const secondToLastMessage = messages[messages.length - 2];
+    if (secondToLastMessage) {
+        const dateGathered = secondToLastMessage.getAttribute("data-date");
+        if(dateGathered) {
+            const parsedDate = new Date(dateGathered);
+            const formattedDate = formatDate(parsedDate);
+            return formattedDate;
+        }
+    }
+    return "";
+}
 
 
+function getMessageDate(top=true) {
+    const messages = chatContent.children;
+    if (messages.length === 0) return null;
+
+    let targetElement = getMessageFromChat(top);
+    if (targetElement) {
+        const dateGathered = targetElement.getAttribute("data-date");
+        const parsedDate = new Date(dateGathered);
+        const formattedDate = formatDate(parsedDate);
+        return formattedDate;
+    } else {
+        return null;
+    }
+}
 
 
 

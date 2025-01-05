@@ -641,7 +641,7 @@ function fetchMessagesFromServer(channelId, isDm = false) {
 
     hasJustFetchedMessages = setTimeout(() => {
         hasJustFetchedMessages = null;
-    }, 1000);
+    }, 5000);
 
     apiClient.send("get_history", requestData);
 }

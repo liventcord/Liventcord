@@ -92,8 +92,12 @@ function initialiseState(data) {
         guildsArray.forEach(guild => {
             guildCache.getGuild(guild.guildId).setName(guild.guildName);
             cacheInterface.setMemberIds(guild.guildId, guild.guildMembers);
-            guild.guildMembers.forEach( ()=> {console.log(guild.guildMembers)});
-            guild.guildChannels.forEach( ()=> {console.log(guild.guildChannels)});
+            guild.guildMembers.forEach( ()=> {
+                //console.log(guild.guildMembers)
+            });
+            guild.guildChannels.forEach( ()=> {
+                //console.log(guild.guildChannels)
+            });
         });
         guildsList.innerHTML += renderGuilds(guildsArray);
     } else {

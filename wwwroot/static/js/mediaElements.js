@@ -2,6 +2,7 @@ let defaultMediaImageUrl = "/static/images/defaultmediaimage.png"
 const linkWorkerUrl = "https://liventcord-link-worker.efekantunc0.workers.dev";
 
 
+
 const maxWidth = 512;
 const maxHeight = 384;
 
@@ -21,13 +22,17 @@ function createTenorElement(msgContentElement, inputText, url) {
     imgElement.style.cursor = "pointer";
     imgElement.style.maxWidth = `${maxTenorWidth}px`;
     imgElement.style.maxHeight = `${maxTenorHeight}px`;
+    imgElement.setAttribute("loading", "lazy");
+    imgElement.setAttribute("data-src", tenorURL);
 
-    const actualImage = new Image();
-    actualImage.src = tenorURL;
-    actualImage.onload = function () {
-        imgElement.src = actualImage.src;
+    imgElement.onload = function () {
+        const actualSrc = imgElement.getAttribute("data-src");
+        if (actualSrc) {
+            imgElement.src = actualSrc;
+        }
     };
-    actualImage.onerror = function () {
+
+    imgElement.onerror = function () {
         imgElement.src = defaultErrorImageUrl;
         imgElement.remove();
         msgContentElement.textContent = inputText;
@@ -40,20 +45,23 @@ function createTenorElement(msgContentElement, inputText, url) {
     return imgElement;
 }
 
-
-
 function createImageElement(msgContentElement, inputText, url_src) {
     const imgElement = createEl("img", { class: "imageElement" });
     imgElement.src = defaultMediaImageUrl;
     imgElement.style.maxWidth = `${maxWidth}px`;
     imgElement.style.maxHeight = `${maxHeight}px`;
+    imgElement.setAttribute("data-src", url_src);
+    imgElement.setAttribute("loading", "lazy");
 
-    const actualImage = new Image();
-    actualImage.src = url_src;
-    actualImage.onload = function () {
-        imgElement.src = url_src;
+    imgElement.onload = function () {
+        const actualSrc = imgElement.getAttribute("data-src");
+        if (actualSrc && imgElement.src === defaultMediaImageUrl) {
+            imgElement.src = actualSrc;
+        }
     };
-    actualImage.onerror = function () {
+
+    imgElement.onerror = function () {
+        imgElement.src = defaultErrorImageUrl;
         imgElement.remove();
         msgContentElement.textContent = inputText;
     };

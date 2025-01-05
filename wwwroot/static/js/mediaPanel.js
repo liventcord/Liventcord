@@ -74,10 +74,10 @@ const categories = [
 ];
 
 function renderEmojis(container, categories) {
-    const spriteWidth = 40; // Width of each emoji
-    const spriteHeight = 40; // Height of each emoji
-    const sheetWidth = 1680; // Total width of the spritesheet
-    const columns = Math.floor(sheetWidth / spriteWidth); // Number of emojis per row
+    const spriteWidth = 40;
+    const spriteHeight = 40;
+    const sheetWidth = 1680; 
+    const columns = Math.floor(sheetWidth / spriteWidth);
 
     let currentIndex = 0;
 
@@ -94,10 +94,10 @@ function renderEmojis(container, categories) {
         emojisContainer.className = "emojis-container";
 
         for (let i = 0; i < category.count; i++) {
-            const col = currentIndex % columns; // Column position
-            const row = Math.floor(currentIndex / columns); // Row position
-            const x = -(col * spriteWidth); // Background X position
-            const y = -(row * spriteHeight); // Background Y position
+            const col = currentIndex % columns; 
+            const row = Math.floor(currentIndex / columns); 
+            const x = -(col * spriteWidth); 
+            const y = -(row * spriteHeight); 
 
             const emoji = document.createElement("div");
             emoji.className = `emoji ${category.class}`;
@@ -150,8 +150,7 @@ function handleMediaPanelResize() {
 
 
 
-async function loadGifContent() {
-    const query = getId("mediaMenuSearchbar").value;
+async function loadGifContent(query) {
     if (!query) {
         mediaMenuContainer.innerHTML = "";
         showCategoriesList();
@@ -247,7 +246,7 @@ function createCategoryBox(name, categoryPath, previewImage) {
         if (categoryPath === "trending") {
             fetchTrendingGifs();
         } else {
-            fetchCategoryGifs(categoryPath);
+            fetchCategoryGifs(name);
         }
         showCategoryView(name);
     };
@@ -404,7 +403,8 @@ function initialiseMedia() {
     const searchBar = getId("mediaMenuSearchbar");
 
     searchBar.addEventListener("keydown", debounce(async () => {
-        await loadGifContent();
+        const query = getId("mediaMenuSearchbar").value;
+        await loadGifContent(query);
     }, 300));
 
 

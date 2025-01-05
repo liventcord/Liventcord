@@ -186,6 +186,14 @@ class GuildCache {
         }
         return this.guilds[guildId];
     }
+    addGuild(guildData) {
+        if(!guildData) return;
+        const guildId = guildData.guildId;
+        const guildName = guildData.guildName;
+        if (!this.guilds[guildId]) {
+            this.guilds[guildId] = new Guild(guildId,guildName);
+        }
+    }
     doesGuildExist(guildId) {
         return Boolean(this.guilds[guildId]);    
     }
@@ -196,6 +204,9 @@ class GuildCacheInterface {
         this.guildCache = new GuildCache();
     }
     //guild
+    addGuild(guildData) {
+        this.guildCache.addGuild(guildData);
+    }
     getGuild(guildId) {
         return this.guildCache.getGuild(guildId);
     }
@@ -211,9 +222,7 @@ class GuildCacheInterface {
     getGuildName(guildId) {
         return this.guildCache.getGuild(guildId).guildName;
     }
-    addGuild(guildData) {
-        console.error(guildData)
-    }
+
     isInvitesEmpty(guildId) {
         return this.guildCache.getGuild(guildId).invites.getInviteIds(guildId) != null;
     }

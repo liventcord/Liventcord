@@ -44,7 +44,7 @@ class PermissionManager {
     
 
     addGuildSelfCreated(guildId) {
-        permissionsMap[guildId] = {
+        this.permissionsMap[guildId] = {
             "read_messages": 1,
             "send_messages": 1,
             "manage_messages": 1,
