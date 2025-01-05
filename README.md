@@ -21,8 +21,13 @@ This branch sets up the development environment for running the server, specific
       }
     }
     ```
+    
+### Step 2: Clone FrontEnd repository for assets
 
-### Step 2: Run the Server
+    $ git clone https://github.com/liventcord/LiventCordFrontEnd wwwroot
+
+---
+### Step 3: Run the Server
 
 Execute the following command to start the server:
 
