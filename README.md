@@ -6,7 +6,7 @@
 
 LiventCord is an open-source alternative to popular communication platforms, designed with privacy and security at its core. It provides a platform where users can communicate freely without being tracked or having their data used for advertising. As an open-source project, LiventCord ensures transparency and gives users full control over their data.
 
-Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**, LiventCord provides a reliable backend for managing communication and user interactions. Auto-generated documentation is available via Swagger and Redoc.
+Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**, LiventCord provides a reliable backend for managing communication and user interactions.
 
 ## Features
 
@@ -31,8 +31,9 @@ To get started with **LiventCord**, you can set up the backend locally
 - **PostgreSQL**(Optional) database system for storing user and message data
 
 ### Clone the Repository
-git clone https://github.com/liventcord/liventcord
 
+    $ git clone https://github.com/liventcord/liventcord
+---
 ### Step 1: Set Environment Variables
 
 1. Create the `Properties/appsettings.json` file in your project directory.
