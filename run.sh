@@ -1,6 +1,6 @@
 #!/bin/bash
 
-GIT_URL="https://github.com/liventcord/LiventCordFrontEnd"
+GIT_URL="https://github.com/liventcord/Frontend"
 DIR="wwwroot"
 
 if [ ! -d "$DIR" ]; then
