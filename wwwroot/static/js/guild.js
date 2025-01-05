@@ -40,7 +40,7 @@ function getManageableGuilds() {
         return isFoundAny ? guildsWeAreAdminOn : null;
         
     } catch (error) {
-        console.log(error.message);   
+        //console.log(error.message);   
     }
 }
 
@@ -162,10 +162,18 @@ function updateGuildList(guildData) {
 
 function appendToGuildList(guild) {
     const guildsList = getId("guilds-list");
-    if (guildsList.querySelector(`#${guild.guildId}`)) return;
+    if (guildsList.querySelector(`#${CSS.escape(guild.guildId)}`)) return;
+    
 
-    const guildListItem = createGuildListItem(guild);
-    guildsList.appendChild(guildListItem);
+    const guildListItem = createGuildListItem(
+        guild.guildId, 
+        guild.imgSrc, 
+        guild.blackImage, 
+        guild.rootChannel, 
+        guild.guildName
+    );
+    const tempElement = createEl("div",{"innerHTML":guildListItem})
+    guildsList.appendChild(tempElement.firstChild); 
     addKeybinds();
 }
 
@@ -230,7 +238,9 @@ function createGuild() {
             if (popup) {
                 popup.parentNode.remove();
             }
+
             changeUrlWithFireWorks(data.guildId, data.rootChannel, data.guildName);
+            appendToGuildList(data);
         } else {
             alertUser("Sunucu oluşturma hatası", data);
         }

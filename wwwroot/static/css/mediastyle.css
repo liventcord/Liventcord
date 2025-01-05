@@ -283,21 +283,33 @@
     border: none;   
 }
 #gifbtn {
+    background-color: rgb(218,224,246);
     font-weight: bold;
     text-indent: -4px;
     right: 650px;
     border-radius: 2px;
     bottom: 12px;
     width: 25px; height: 25px;
+    transition: background-color 0.3s ease;
 }
 
 #gifbtn:hover {
     background-color: white;
+    animation: shake 0.5s ease-in-out;
 }
-.gifbtn-user-list-hidden {
+
+@keyframes shake {
+    0% { transform:  rotate(0deg); }
+    25% { transform:  rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+    75% { transform:  rotate(-5deg); }
+    100% { transform:  rotate(0deg); }
+}
+
+.gifbtn-user-list-open {
     right: 360px;
 }
-.emojibtn-user-list-hidden {
+.emojibtn-user-list-open {
     right: 400px;
 }
 #emojibtn {
@@ -311,6 +323,9 @@
     border-radius: 50%;
     transition: transform 0.3s ease, filter 0.3s ease;
     transform: scale(0.5);
+    background-color: transparent;
+    filter: brightness(2.8);
+
 }
 
 #emojibtn.hovered {
@@ -319,10 +334,6 @@
     background-color: transparent;
 }
 
-#emojibtn.selected {
-    filter: brightness(2.8);
-    background-color: transparent;
-}
 
 @keyframes wiggle {
     0% {

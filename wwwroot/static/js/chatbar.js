@@ -272,20 +272,6 @@ function initializeChatComponents() {
 
 
 
-function getMessageDate(top=true) {
-    const messages = chatContent.children;
-    if (messages.length === 0) return null;
-
-    let targetElement = getMessageFromChat(top);
-    if (targetElement) {
-        const dateGathered = targetElement.getAttribute("data-date");
-        const parsedDate = new Date(dateGathered);
-        const formattedDate = formatDate(parsedDate);
-        return formattedDate;
-    } else {
-        return null;
-    }
-}
 
 
 

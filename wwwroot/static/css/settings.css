@@ -778,6 +778,8 @@ th {
 }
 #microphone-button:hover {
     background-color: #535353;
+    animation: shake 0.5s ease-in-out;
+
 }
 #earphone-button {
     margin-top: -35px;margin-left: 189px;
@@ -791,6 +793,8 @@ th {
 }
 #earphone-button:hover {
     background-color: #535353;
+    animation: shake 0.5s ease-in-out;
+
 }
 #self-profile-image {
     border-radius: 25px;
@@ -938,11 +942,12 @@ th {
 #main-logo {
     width: 30px;
     height: 30px;
-    border: 10px solid #313338;
+    border: 10px solid transparent;
     -webkit-user-drag: none;
 }
 #main-logo:hover {
     border: 10px solid #677bc4;
+    animation: shake 0.5s ease-in-out;
 }
 #close-settings-button {
     width: 36px;

@@ -438,7 +438,7 @@ function createDmBubble(isOnline) {
 }
 
 function populateFriendsContainer(friends, isPending) {
-    console.log(friends,typeof(friends));
+    //console.log(friends,typeof(friends));
     if (friends.length === 0) {
         return;
     }

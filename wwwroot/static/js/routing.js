@@ -11,10 +11,10 @@ function isIdDefined(id) {
     return typeof id !== "undefined" && id !== null && id.length == ID_LENGTH;
 }
 function validateRoute() {
-    console.log("Validating route...");
+    //console.log("Validating route...");
 
     const pathStr = window.location.pathname;
-    console.log("Current Path:", pathStr);
+    //console.log("Current Path:", pathStr);
 
     let guildId, channelId, friendId;
 
@@ -22,48 +22,48 @@ function validateRoute() {
 
     if (pathStr.startsWith("/channels/@me/")) {
         friendId = parts[3];
-        console.log("Friend ID:", friendId);
+        //console.log("Friend ID:", friendId);
     } else if (pathStr.startsWith("/channels/") && parts.length === 4) {
         guildId = parts[2];
         channelId = parts[3];
-        console.log("Guild ID:", guildId);
-        console.log("Channel ID:", channelId);
+        //console.log("Guild ID:", guildId);
+        //console.log("Channel ID:", channelId);
     }
 
     const isGuildIdDefined = isIdDefined(guildId);
     const isChannelIdDefined = isIdDefined(channelId);
-    console.log("Is Guild ID Defined:", isGuildIdDefined);
-    console.log("Is Channel ID Defined:", isChannelIdDefined);
+    //console.log("Is Guild ID Defined:", isGuildIdDefined);
+    //console.log("Is Channel ID Defined:", isChannelIdDefined);
 
     if (!isGuildIdDefined || !isChannelIdDefined) {
-        console.log("One or more IDs are not defined. Redirecting to /channels/@me.");
+        //console.log("One or more IDs are not defined. Redirecting to /channels/@me.");
         window.history.pushState(null, null, "/channels/@me");
         return { isValid: false, initialGuildId: null, initialChannelId: null, initialFriendId: null };
     }
 
     const currentPathname = window.location.pathname;
-    console.log("Current Pathname:", currentPathname);
+    //console.log("Current Pathname:", currentPathname);
     const isPathnameCorrectValue = isPathnameCorrect(currentPathname);
-    console.log("Is Pathname Correct:", isPathnameCorrectValue);
+    //console.log("Is Pathname Correct:", isPathnameCorrectValue);
 
     if (isOnMe && !isPathnameCorrectValue) {
-        console.log("User is on '/me' but pathname is incorrect. Redirecting to /channels/@me.");
+        //console.log("User is on '/me' but pathname is incorrect. Redirecting to /channels/@me.");
         window.history.pushState(null, null, "/channels/@me");
         return { isValid: false, initialGuildId: null, initialChannelId: null, initialFriendId: null };
     }
 
     if (isOnGuild) {
         const doesGuildExist = cacheInterface.doesGuildExist(guildId);
-        console.log("Does Guild Exist:", doesGuildExist);
+        //console.log("Does Guild Exist:", doesGuildExist);
 
         if (doesGuildExist) {
-            console.log("Guild exists. Redirecting to /channels/@me.");
+            //console.log("Guild exists. Redirecting to /channels/@me.");
             window.history.pushState(null, null, "/channels/@me");
             return { isValid: false, initialGuildId: null, initialChannelId: null, initialFriendId: null };
         }
     }
 
-    console.log("Route validated successfully.");
+    //console.log("Route validated successfully.");
     return { isValid: true, initialGuildId: guildId, initialChannelId: channelId, initialFriendId: friendId };
 }
 
@@ -93,10 +93,10 @@ window.addEventListener("popstate", function(event) {
             const channelId = parts[3];
             loadGuild(guildID, channelId,  null, false);
         } else {
-            console.error("Unknown URL format:", pathStr);
+            //console.error("Unknown URL format:", pathStr);
         }
         
     } catch (error) {
-        console.error(error);
+        //console.error(error);
     }
 });
