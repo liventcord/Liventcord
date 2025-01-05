@@ -48,13 +48,8 @@ To get started with **LiventCord**, you can set up the backend locally
       }
     }
     ```
-    
-### Step 2: Clone Frontend repository for assets
-
-    $ git clone https://github.com/liventcord/Frontend wwwroot
-
 ---
-### Step 3: Run the Server
+### Step 2: Run the Server
 
 Execute the following command to start the server:
 
