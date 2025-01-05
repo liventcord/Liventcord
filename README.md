@@ -30,6 +30,8 @@ To get started with **LiventCord**, you can set up the backend locally
 - **.NET Core SDK**
 - **PostgreSQL**(Optional) database system for storing user and message data
 
+### Clone the Repository
+git clone https://github.com/liventcord/liventcord
 
 ### Step 1: Set Environment Variables
 
