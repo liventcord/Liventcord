@@ -76,7 +76,13 @@ class Translations {
         "guild-born-title" : "Welcome to guild",
         "fail-message-text": "The message could not be delivered. This might be because you do not share any servers with the recipient or the recipient only accepts direct messages from friends.",
         "start-of-guild" : "This, is the start of guild.",
-        "channelSearchInput": "Search"
+        "channelSearchInput": "Search",
+        "friendsSearchInput": "Search",
+        "addfriendtext": "Add Friend",
+        "addfrienddetailtext": "You can add your friends with their LiventCord name.",
+        "addfriendinputbutton": "Send Friend Request",
+        "send-message": "Send Message",
+
       },
 
       tr: {
@@ -152,6 +158,13 @@ class Translations {
         "fail-message-text": "Mesajın iletilemedi. Bunun nedeni alıcıyla herhangi bir sunucu paylaşmıyor olman veya alıcının sadece arkadaşlarından direkt mesaj kabul ediyor olması olabilir.",
         "start-of-guild" : "Bu, sunucunun başlangıcıdır.",
         "channelSearchInput": "Ara",
+        "friendsSearchInput": "Ara",
+        "addfriendtext": "Arkadaş ekle",
+        "addfrienddetailtext": "Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin.",
+        "addfriendinputbutton": "Arkadaşlık İsteği Gönder",
+        "send-message": "Mesaj Gönder",
+
+        
       }
     };
   }
@@ -186,6 +199,14 @@ class Translations {
     "birth_of_channel": {
       "en": "Birth of channel {{channelName}}!",
       "tr": "{{channelName}} kanalının doğuşu!"
+    },
+    "welcome_channel": {
+      "en": "Welcome to channel {{channelName}}!",
+      "tr": "{{channelName}} kanalına hoşgeldin!"
+    },
+    "replying_to": {
+      "en": "Replying to {{userName}}",
+      "tr": "{{replyId}} kişisine yanıt veriliyor"
     }
   };
   
@@ -243,6 +264,15 @@ class Translations {
   
   getDmStartText(friendNick) {
     return this.replacePlaceholder("dm_start_text", { friendNick }, { friendNick: 15 });
+  }
+  getBirthChannel(channelName) {
+    return this.replacePlaceholder("birth_of_channel", {channelName} , {channelName: 15});
+  }
+  getWelcomeChannel(channelName) {
+    return this.replacePlaceholder("welcome_channel", {channelName} , {channelName: 15});
+  }
+  getReplyingTo(userName) {
+    return this.replacePlaceholder("replying_to", {userName})
   }
   
   

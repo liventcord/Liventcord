@@ -242,10 +242,14 @@
     color: white;
     background-color:#248046;
 }
+#open-friends-button:hover {
+    background-color: rgb(56, 136, 56);
+}
 #addfriendtext {
     white-space: nowrap;
     color: white;
     font-weight: bold;
+    text-transform: uppercase;
     margin-left: 25px; margin-top: 10px;
     font-size: 15px;
 }

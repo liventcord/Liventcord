@@ -64,9 +64,9 @@
                 </svg>
             </div>
             <button class="pendingAlert" id="pendingAlertLeft"> </button> 
-            <div id="friend-label">Arkadaşlar</div>
+            <div id="friend-label"></div>
         </div>
-        <span id="dms-title">DİREKT MESAJLAR</span>
+        <span id="dms-title"></span>
         <div id="dm-container-parent"></div>
         <ul style="width:310%;"><ul>
     </div>
@@ -76,7 +76,7 @@
         <div id="chat-top-bar">
             <div id="newMessagesBar" onclick="readCurrentMessages()">
                 <span id="newMessagesText">30 Haziran 2024'da 00:57'den beri 3+ yeni mesaj</span>
-                <span id="">Okunmuş olarak işaretle </span>
+                <span id="new-messages-span">Okunmuş olarak işaretle </span>
                 <svg class="barButtonIcon_cf58b5" aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12.66 21.98c.4-.03.56-.51.28-.8l-.06-.06a3 3 0 1 1 4.24-4.24l.53.52c.2.2.5.2.7 0l2.53-2.52a3 3 0 0 1 .64-.5c.14-.07.24-.2.27-.34a10 10 0 1 0-18.24 3.32c.13.19.11.44-.04.61l-2.06 2.37A1 1 0 0 0 2.2 22H12c.22 0 .44 0 .66-.02Z" class=""></path><path fill="currentColor" d="M23.7 17.7a1 1 0 0 0-1.4-1.4L18 20.58l-2.3-2.3a1 1 0 0 0-1.4 1.42l3 3a1 1 0 0 0 1.4 0l5-5Z" class=""></path></svg>
             </div>
         </div>
@@ -86,11 +86,6 @@
 
     <div id="friends-popup-container"></div>
     <div id="friends-container">
-        <div id="addfriendmenu">
-            <div id="addfriendtext"></div>
-            <div id="addfrienddetailtext"></div>
-            <div id="addfriendinput"></div>
-        </div>
         <img id="wumpusalone" src="/static/images/wumpusalone.png" style="user-select: none;">
     </div>
 
@@ -177,15 +172,15 @@
     <div id="channel-info-container-for-friend">
         
         <div id="channel-info-container-for-friend">
-            <div id="channel-info-for-friend">Arkadaşlar</div>
+            <div id="channel-info-for-friend"></div>
             <div id="friend-menu-buttons">
                 <hr class="vertical-line">
-                <button id="online-button" class="friend-menu-button" style="background-color:#43444b;">Çevrim İçi</button>
+                <button id="online-button" class="friend-menu-button" style="background-color:#43444b;"></button>
                 <button id="all-button" class="friend-menu-button">Tümü</button>
                 <button id="pending-button" class="friend-menu-button">Bekleyen</button>
                 <button class="pendingAlert" id="pendingAlertRight"> </button> 
                 <button id="blocked-button" class="friend-menu-button">Engellenen</button>
-                <button id="open-friends-button"  class="friend-menu-button" onclick="openAddFriend()" >Arkadaş Ekle</button>
+                <button id="open-friends-button"  class="friend-menu-button" onclick="openAddFriend()" ></button>
             </div>
         </div>
         

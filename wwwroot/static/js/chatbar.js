@@ -42,7 +42,7 @@ let replyCloseButton;
 function showReplyMenu(replyToMsgId,replyToUserId) {
 
     replyCloseButton.style.display = "flex";
-    replyInfo.textContent = getUserNick(replyToUserId) + " kişisine yanıt veriliyor";
+    replyInfo.textContent = translations.getReplyingTo(getUserNick(replyToUserId));
     replyInfo.style.display = "flex";
     currentReplyingTo = replyToMsgId;
     chatInput.classList.add("reply-opened")
@@ -325,9 +325,9 @@ function displayStartMessage() {
         let isGuildBorn = cacheInterface.isRootChannel(currentGuildId,currentChannelId)
         if(chatContent.querySelector(".startmessage") || chatContent.querySelector("#guildBornTitle")) { return; }
         const message = createEl("div",{className:"startmessage"});
-        const titleToWrite = isGuildBorn ? currentGuildName : `#${currentChannelName} kanalına hoş geldin!`;
+        const titleToWrite = isGuildBorn ? currentGuildName : translations.getWelcomeChannel(currentChannelName);
         const msgtitle = createEl("h1",{id:isGuildBorn ? "guildBornTitle" : "msgTitle",textContent:titleToWrite});
-        const startChannelText = `#${currentChannelName} kanalının doğuşu!`;
+        const startChannelText = translations.getBirthChannel(currentChannelName);
         const startGuildText =  translations.getTranslation("start-of-guild");
         const textToWrite = isGuildBorn  ? startGuildText : startChannelText; 
         const channelicon = createEl("div",{className:"channelIcon"});

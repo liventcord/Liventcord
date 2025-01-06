@@ -351,11 +351,12 @@ function clearFriendContainer() {
 }
 
 function createAddFriendForm() {
-    const addfriendtext = createEl("div", { id: "addfriendtext", textContent: "ARKADAŞ EKLE" });
-    const addfrienddetailtext = createEl("div", { id: "addfrienddetailtext", textContent: "Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin." });
+    const addfriendtext = createEl("div", { id: "addfriendtext", textContent: translations.getTranslation("addfriendtext") });
+    const addfrienddetailtext = createEl("div", { id: "addfrienddetailtext", 
+        textContent: translations.getTranslation("addfrienddetailtext") });
     const addfriendinputcontainer = createEl("div");
-    const addfriendinput = createEl("input", { id: "addfriendinputfield", placeholder: "Arkadaşlarını LiventCord kullanıcı adı ile ekleyebilirsin.", autocomplete: "off" });
-    const addfriendinputbutton = createEl("button", { id: "addfriendinputbutton", textContent: "Arkadaşlık İsteği Gönder" });
+    const addfriendinput = createEl("input", { id: "addfriendinputfield", placeholder: translations.getTranslation("addfrienddetailtext"), autocomplete: "off" });
+    const addfriendinputbutton = createEl("button", { id: "addfriendinputbutton", textContent: translations.getTranslation("addfriendinputbutton") });
 
     const userlistline = createEl("hr", { className: "vertical-line-long" });
 
@@ -427,6 +428,7 @@ function createDmBubble(isOnline) {
 }
 function displayWumpus() {
     if(friendsContainer.querySelector("#wumpusalone")) { return; }
+    removeElement("addfriendmenu");
     friendsContainer.innerHTML = "";
     const imgElement = createEl("img",{id:"wumpusalone",src:"/static/images/wumpusalone.png"});
     imgElement.style.userSelect = "none";
@@ -465,7 +467,7 @@ function populateFriendsContainer(friends, isPending) {
         if (friendsCount === 0) {
             displayWumpus();
         } else {
-            const initialFriendsContainerHtml = `<input id="friendsSearchInput" autocomplete="off" placeholder="Ara" onkeyup="filterFriends()"></input>`;
+            const initialFriendsContainerHtml = `<input id="friendsSearchInput" autocomplete="off" placeholder=${translations.getTranslation("friendsSearchInput")} onkeyup="filterFriends()"></input>`;
             friendsContainer.innerHTML = initialFriendsContainerHtml;
             friendsContainer.appendChild(friendsTitleContainer);
             setTimeout(() => {
@@ -535,7 +537,7 @@ function handleImageHover(img, bubble, isPending, isOnline, isMouseOver) {
 
 
 function addFriendButtons(friendButton, friend) {
-    const sendMsgBtn = createButtonWithBubblesImg(friendButton, ButtonTypes.SendMsgBtn, "Mesaj Gönder");
+    const sendMsgBtn = createButtonWithBubblesImg(friendButton, ButtonTypes.SendMsgBtn, translations.getTranslation("send-message"));
     sendMsgBtn.addEventListener("click", () => OpenDm(friend.userId));
 
     const optionsButton = createButtonWithBubblesImg(friendButton, ButtonTypes.OptionsBtn, "");
