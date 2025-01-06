@@ -34,9 +34,7 @@ This branch sets up the development environment for running the server, specific
     ```
 
 ### Step 2: Run the Server
-    ```bash
-    dotnet run
-    ```
+dotnet run
 
 ---
 
