@@ -2,7 +2,6 @@ using System.IO.Compression;
 using System.Text.Json;
 using LiventCord.Controllers;
 using LiventCord.Helpers;
-using LiventCord.Routes;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -245,59 +244,6 @@ app.UseSwaggerUI(c =>
 });
 
 
-app.MapGet("/login", async context =>
-{
-    if (context.User.Identity?.IsAuthenticated == true)
-    {
-        context.Response.Redirect("/app");
-        return;
-    }
-
-    context.Response.ContentType = "text/html";
-    var filePath = Path.Combine(app.Environment.WebRootPath, "login.html");
-    await context.Response.SendFileAsync(filePath);
-});
-
-app.MapGet("/app", context =>
-{
-    context.Response.Redirect("/channels/@me");
-    return Task.CompletedTask;
-});
-
-app.MapGet("/channels/{guildId}/{channelId}", async (HttpContext context, AppLogic appLogic, string guildId, string channelId) =>
-{
-    await appLogic.HandleChannelRequest(context, guildId, channelId);
-});
-
-app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic, string friendId) =>
-{
-    await appLogic.HandleChannelRequest(context, null, null, friendId);
-});
-
-app.Map("/api/init", appBuilder =>
-{
-    appBuilder.Run(async context =>
-    {
-        var appLogic = context.RequestServices.GetRequiredService<AppLogic>();
-        await appLogic.HandleInitRequest(context);
-    });
-});
-
-app.MapGet("/docs2", async context =>
-{
-    var filePath = Path.Combine(app.Environment.WebRootPath, "redocs.html");
-
-    if (!File.Exists(filePath))
-    {
-        context.Response.StatusCode = StatusCodes.Status404NotFound;
-        await context.Response.WriteAsync("Documentation not yet generated.");
-    }
-    else
-    {
-        context.Response.ContentType = "text/html";
-        await context.Response.SendFileAsync(filePath);
-    }
-});
 
 
 app.MapControllers();

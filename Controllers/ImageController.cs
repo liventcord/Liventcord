@@ -35,6 +35,10 @@ namespace LiventCord.Controllers
             if (!FileExtensions.IsValidImageExtension(extension))
                 return BadRequest("Invalid file type. Only images are allowed.");
 
+            if (!IsValidFileName(photo.FileName))
+                return BadRequest("Invalid file name.");
+
+
             using var memoryStream = new MemoryStream();
             await photo.CopyToAsync(memoryStream);
 
@@ -146,6 +150,10 @@ namespace LiventCord.Controllers
             }
 
             await _context.SaveChangesAsync();
+        }
+        private bool IsValidFileName(string fileName)
+        {
+            return !string.IsNullOrEmpty(fileName) && Path.GetInvalidFileNameChars().All(c => !fileName.Contains(c));
         }
 
 
