@@ -1,10 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using LiventCord.Helpers;
 using LiventCord.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
-using System.ComponentModel.DataAnnotations;
 
 
 namespace LiventCord.Controllers
@@ -21,8 +17,8 @@ namespace LiventCord.Controllers
         [NonAction]
         public async Task<bool> CanManageChannels(string userId, string guildId)
         {
-            var authorId = await GetGuildAuthor(guildId);
-            return authorId == userId || await HasPermission(userId, guildId, PermissionFlags.ManageChannels);
+            var ownerId = await GetGuildOwner(guildId);
+            return ownerId == userId || await HasPermission(userId, guildId, PermissionFlags.ManageChannels);
         }
         [NonAction]
         public async Task<bool> CanSendMessages(string userId, string guildId,string ?oldSenderId=null)
@@ -30,8 +26,8 @@ namespace LiventCord.Controllers
             if(oldSenderId != null && oldSenderId != userId) {
                 return false;
             }
-            var authorId = await GetGuildAuthor(guildId);
-            if (authorId == userId) return true;
+            var ownerId = await GetGuildOwner(guildId);
+            if (ownerId == userId) return true;
 
             bool canSendMessages = await HasPermission(userId, guildId, PermissionFlags.SendMessages);
 
@@ -42,10 +38,10 @@ namespace LiventCord.Controllers
         [NonAction]
         public async Task<bool> IsUserAdmin(string guildId, string userId)
         {
-            var authorId = await GetGuildAuthor(guildId);
-            return authorId == userId || await HasPermission(userId, guildId, PermissionFlags.IsAdmin);
+            var ownerId = await GetGuildOwner(guildId);
+            return ownerId == userId || await HasPermission(userId, guildId, PermissionFlags.IsAdmin);
         }
-        private async Task<string> GetGuildAuthor(string guildId)
+        private async Task<string> GetGuildOwner(string guildId)
         {
             var guild = await _dbContext.Guilds.FirstOrDefaultAsync(g => g.GuildId == guildId);
             return guild?.OwnerId ?? throw new Exception("Guild not found");

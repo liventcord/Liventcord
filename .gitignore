@@ -1,16 +1,13 @@
-liventcordenv/
-
 bin/
 obj/
 publish/
 cache/
-ytcache/
 Migrations/
 Logs/
-
+Data/
+wwwroot/static/css/loginfullstyles.css
 appsettings.Development.json
 appsettings.json
-
 *.suo
 *.user
 *.userprefs
@@ -23,8 +20,7 @@ appsettings.json
 *.dSYM/
 *.db
 *.pdb
-
+.bash_history
 
 
 global.json
-wwwroot

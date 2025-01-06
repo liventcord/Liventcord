@@ -4,7 +4,7 @@ dotnet run &
 DOTNET_PID=$!
 echo "Started .NET application (PID: $DOTNET_PID). Waiting for it to initialize..."
 
-sleep 5
+sleep 10
 
 rm -f swagger.json
 SWAGGER_URL="http://localhost:5005/swagger/v1/swagger.json"

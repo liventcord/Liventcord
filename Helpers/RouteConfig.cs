@@ -37,7 +37,7 @@ namespace LiventCord.Routes
                     {
                         if (fileName.EndsWith("404_files/noodle.gif"))
                         {
-                            context.Response.Redirect("https://raw.githubusercontent.com/liventcord/LiventCordPages/refs/heads/main/static/404_files/noodle.gif");
+                            context.Response.Redirect("https://liventcord.github.io/LiventCordPages/static/404_files/noodle.gif");
                         }
                         else
                         {
@@ -52,6 +52,8 @@ namespace LiventCord.Routes
             MapRoute("/download", "download.html");
             MapRoute("/register", "register.html");
             MapRoute("/test","test.html");
+            MapRoute("/test2","test2.html");
+            MapRoute("favicon.ico","static/images/icons/favicon.ico");
 
             List<string> urls = new List<string>
             {

@@ -12,30 +12,6 @@ namespace LiventCord.Controllers
     [Authorize]
     public class FriendController : BaseController
     {
-
-        private readonly AppDbContext _dbContext;
-        public FriendController(AppDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
-
-        
-        [NonAction] 
-        public async Task<List<PublicUser>> GetFriendsStatus(string userId)
-        {
-            var publicFriends = await _dbContext.Friends
-                .Where(f => f.UserId == userId && f.Status == FriendStatus.Accepted)
-                .Join(_dbContext.Users,
-                    friend => friend.FriendId,
-                    user => user.UserId,
-                    (friend, user) => user.GetPublicUser())
-                .ToListAsync();
-
-            return publicFriends;
-        }
-
-                
         [HttpGet("")]
         public async Task<IActionResult> GetFriendEndpoint()
         {
@@ -65,6 +41,30 @@ namespace LiventCord.Controllers
                 return BadRequest(new { Type = "error", Message = result.Message });
             }
         }
+        private readonly AppDbContext _dbContext;
+        public FriendController(AppDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+
+        
+        [NonAction] 
+        public async Task<List<PublicUser>> GetFriendsStatus(string userId)
+        {
+            var publicFriends = await _dbContext.Friends
+                .Where(f => f.UserId == userId && f.Status == FriendStatus.Accepted)
+                .Join(_dbContext.Users,
+                    friend => friend.FriendId,
+                    user => user.UserId,
+                    (friend, user) => user.GetPublicUser())
+                .ToListAsync();
+
+            return publicFriends;
+        }
+
+                
+        
 
 
         private async Task<List<FriendDto>> GetFriends(string userId)

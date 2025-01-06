@@ -1,39 +1,20 @@
-# LiventCord
+# Development Environment Setup
 
-**LiventCord** is a privacy-focused communication platform that enables real-time messaging, channel management, file sharing, and voice/video communication, with a focus on data security.
+This branch sets up the development environment for running the server, specifically for the /app SPA route.
 
-## Why LiventCord?
+## Quick Start
 
-LiventCord is an open-source alternative to popular communication platforms, designed with privacy and security at its core. It provides a platform where users can communicate freely without being tracked or having their data used for advertising. As an open-source project, LiventCord ensures transparency and gives users full control over their data.
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/liventcord/Liventcord --depth 1
+    ```
 
-Built with **.NET Core** and using **PostgreSQL** with **Entity Framework Core**, LiventCord provides a reliable backend for managing communication and user interactions.
+2. Switch to the `dev` branch:
+    ```bash
+    git checkout dev
+    ```
 
-## Features
 
-- **Guild & Channel Management**: APIs to create, join, and manage guilds and channels.
-- **Messaging**: Send, receive, and delete messages with rich formatting, mentions, reactions, and emoji support.
-- **Search**: Full-text search to quickly retrieve past conversations.
-- **Friendship & Invitations**: Manage friends and invite users to guilds.
-- **Permissions**: Fine-grained control over guild and channel permissions.
-- **File Sharing**: Upload and retrieve various file types (images, videos, documents, etc.).
-- **Voice & Video**: Real-time group and direct voice/video chat.
-- **Custom Profiles**: Users can personalize profiles with avatars.
-- **Custom Presence**: Set status with custom messages to reflect availability or activity.
-- **Direct Messaging**: 1-on-1 messaging with real-time updates.
-
-## Getting Started
-
-To get started with **LiventCord**, you can set up the backend locally
-
-### Prerequisites
-
-- **.NET Core SDK**
-- **PostgreSQL**(Optional) database system for storing user and message data
-
-### Clone the Repository
-
-    $ git clone https://github.com/liventcord/liventcord
----
 ### Step 1: Set Environment Variables
 
 1. Create the `Properties/appsettings.json` file in your project directory.
@@ -42,22 +23,20 @@ To get started with **LiventCord**, you can set up the backend locally
     ```json
     {
       "ConnectionStrings": {
+        "isPostgres": "true/false",
         "RemoteConnection": "Host=host;Database=database;Username=username;Password=password;Port=port;SSL Mode=sslmode",
         "SqlitePath": "Data Source=Data/<Database-name>.db",
-        "isPostgres": "true/false",
       },
       "AppSettings": {
         "SecretKey": "Secret-Key"
       }
     }
     ```
----
+
 ### Step 2: Run the Server
-
-Execute the following command to start the server:
-
-    $ ./run.sh
-
+```bash
+dotnet run
+```
 ---
 
 ### Contributing

@@ -34,7 +34,7 @@ namespace LiventCord.Controllers
        
 
 
-        // GET /api/guilds
+        
         [HttpGet("")]
         public async Task<IActionResult> HandleGetGuilds()
         {
@@ -44,7 +44,7 @@ namespace LiventCord.Controllers
 
 
 
-        // POST /api/guilds
+        
         [HttpPost("")]
         public async Task<IActionResult> CreateGuild([FromForm] CreateGuildRequest request)
         {
@@ -138,7 +138,7 @@ namespace LiventCord.Controllers
 
 
 
-        // DELETE /api/guilds/{guildId}
+        
         [HttpDelete("/api/guilds/{guildId}")]
         public async Task<IActionResult> DeleteGuildEndpoint([FromRoute][IdLengthValidation] string guildId)
         {

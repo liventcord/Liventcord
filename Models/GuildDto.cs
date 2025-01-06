@@ -1,4 +1,4 @@
-// Models/GuildDto.cs
+
 namespace LiventCord.Models
 {
     public class GuildDto

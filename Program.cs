@@ -45,11 +45,10 @@ else
         Console.WriteLine($"Info: Created missing directory {dataDirectory}");
     }
 
+
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseSqlite($"Data Source={connectionString}"));
 }
-
-
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
     .Filter.ByExcluding(logEvent => logEvent.MessageTemplate.Text.Contains("db query"))
@@ -131,15 +130,23 @@ builder.Services.Configure<BrotliCompressionProviderOptions>(options =>
 var app = builder.Build();
 
 bool isDevelopment = app.Environment.IsDevelopment();
-
-
+Console.WriteLine("Is running development: " + isDevelopment);
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     context.Database.EnsureCreated();
 }
+if(isDevelopment) {
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
+        context.Response.Headers["Pragma"] = "no-cache";
+        context.Response.Headers["Expires"] = "0";
 
+        await next();
+    });
 
+}
 
 app.UseExceptionHandler("/error");
 
@@ -229,12 +236,6 @@ RouteConfig.ConfigureRoutes(app);
 app.UseSwagger(c =>
 {
     c.RouteTemplate = "swagger/{documentName}/swagger.json";
-    var swaggerFilePath = Path.Combine(builder.Environment.ContentRootPath, "swagger.json");
-
-    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-    {
-        File.WriteAllText(swaggerFilePath, System.Text.Json.JsonSerializer.Serialize(swaggerDoc));
-    });
 });
 
 app.UseSwaggerUI(c =>
@@ -271,6 +272,15 @@ app.MapGet("/channels/{guildId}/{channelId}", async (HttpContext context, AppLog
 app.MapGet("/channels/{friendId}", async (HttpContext context, AppLogic appLogic, string friendId) =>
 {
     await appLogic.HandleChannelRequest(context, null, null, friendId);
+});
+
+app.Map("/api/init", appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        var appLogic = context.RequestServices.GetRequiredService<AppLogic>();
+        await appLogic.HandleInitRequest(context);
+    });
 });
 
 app.MapGet("/docs2", async context =>
