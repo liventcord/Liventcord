@@ -3,6 +3,9 @@
 This branch sets up the development environment for running the server, specifically for the /app SPA route.
 
 ## Quick Start
+Clone the repository
+    $ git clone https://github.com/liventcord/Liventcord --depth 1
+    $ git checkout dev
 
 ### Step 1: Set Environment Variables
 
@@ -12,26 +15,19 @@ This branch sets up the development environment for running the server, specific
     ```json
     {
       "ConnectionStrings": {
+        "isPostgres": "true/false",
         "RemoteConnection": "Host=host;Database=database;Username=username;Password=password;Port=port;SSL Mode=sslmode",
         "SqlitePath": "Data Source=Data/<Database-name>.db",
-        "isPostgres": "true/false",
       },
       "AppSettings": {
         "SecretKey": "Secret-Key"
       }
     }
     ```
-    
-### Step 2: Clone FrontEnd repository for assets
 
-    $ git clone https://github.com/liventcord/LiventCordFrontEnd wwwroot
+### Step 2: Run the Server
 
----
-### Step 3: Run the Server
-
-Execute the following command to start the server:
-
-    $ ./run.sh
+    $ dotnet run
 
 ---
 
