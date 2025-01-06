@@ -31,16 +31,6 @@ function isLoadingScreen() {
     }
     return loadingScreen.style.display == "flex";
 }
-const createBlackImage = () => {
-    const canvas = document.createElement('canvas');
-    canvas.width = 50;
-    canvas.height = 50;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/png');
-};
-
 function toggleEmail() {
     const eyeIcon = getId("set-info-email-eye");
     isEmailToggled = !isEmailToggled;
@@ -300,7 +290,7 @@ const preventDrag = (elementId) => {
 
 function logOutPrompt() {
     const logOut = translations.getTranslation("log-out-button");
-    askUser(logOut,translations.getTranslation("log-out-prompt"),logOut,logOut,color=isRed=true);
+    askUser(logOut,translations.getTranslation("log-out-prompt"),logOut,logOutApp,isRed=true);
 }
 
 function loadObservedContent(targetElement) {

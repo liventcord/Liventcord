@@ -1,9 +1,4 @@
 
-apiClient.on("update_guilds",data => {
-    updateGuildList(data);
-});
-
-
 apiClient.on("deletion_message", data=> {
     deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
     guildCache.removeMessage(data.messageId,data.channelId,data.guildId);

@@ -23,7 +23,7 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
         }
     } else {
         if (failedGuilds.has(srcId)) {
-            imgToUpdate.src = createBlackImage();
+            imgToUpdate.src = blackImage
             return;
         }
     }
@@ -37,9 +37,9 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
     if (requestInProgress[srcId]) {
         try {
             const base64data = await requestInProgress[srcId];
-            imgToUpdate.src = base64data || (isProfile ? defaultProfileImageUrl : createBlackImage());
+            imgToUpdate.src = base64data || (isProfile ? defaultProfileImageUrl : blackImage);
         } catch {
-            imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
+            imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage
         }
         return;
     }
@@ -48,7 +48,7 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
         try {
             const response = await fetch(imageUrl);
             if (response.status === 404) {
-                imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
+                imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage
                 isProfile ? failedProfiles.add(srcId) : failedGuilds.add(srcId);
                 return null;
             }
@@ -72,7 +72,7 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
 
             return base64data;
         } catch (error) {
-            imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
+            imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage
             isProfile ? failedProfiles.add(srcId) : failedGuilds.add(srcId);
             return null;
         } finally {
@@ -82,13 +82,13 @@ async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
 
     try {
         const base64data = await requestInProgress[srcId];
-        imgToUpdate.src = base64data || (isProfile ? defaultProfileImageUrl : createBlackImage());
+        imgToUpdate.src = base64data || (isProfile ? defaultProfileImageUrl : blackImage);
     } catch {
-        imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
+        imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage
     }
 
     imgToUpdate.addEventListener("error", function () {
-        imgToUpdate.src = isProfile ? defaultProfileImageUrl : createBlackImage();
+        imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage
         isProfile ? failedProfiles.add(srcId) : failedGuilds.add(srcId);
     });
 }

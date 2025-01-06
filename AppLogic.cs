@@ -62,7 +62,7 @@ namespace LiventCord.Helpers
                     guildMembers = new List<PublicUser>(),
                     sharedGuildsMap = new List<string>(),
                     permissionsMap = new Dictionary<string, string>(),
-                    friendsStatus = _friendController.GetFriendsStatus(userId),
+                    friendsStatus = await _friendController.GetFriendsStatus(userId),
                     dmFriends = new List<string>(),
                     guildsJson = guilds
                 };
