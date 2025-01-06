@@ -236,12 +236,6 @@ RouteConfig.ConfigureRoutes(app);
 app.UseSwagger(c =>
 {
     c.RouteTemplate = "swagger/{documentName}/swagger.json";
-    var swaggerFilePath = Path.Combine(builder.Environment.ContentRootPath, "swagger.json");
-
-    c.PreSerializeFilters.Add((swaggerDoc, httpReq) =>
-    {
-        File.WriteAllText(swaggerFilePath, System.Text.Json.JsonSerializer.Serialize(swaggerDoc));
-    });
 });
 
 app.UseSwaggerUI(c =>
