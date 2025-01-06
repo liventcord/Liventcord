@@ -3,9 +3,17 @@
 This branch sets up the development environment for running the server, specifically for the /app SPA route.
 
 ## Quick Start
-Clone the repository
-    $ git clone https://github.com/liventcord/Liventcord --depth 1
-    $ git checkout dev
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/liventcord/Liventcord --depth 1
+    ```
+
+2. Switch to the `dev` branch:
+    ```bash
+    git checkout dev
+    ```
+
 
 ### Step 1: Set Environment Variables
 
@@ -26,8 +34,9 @@ Clone the repository
     ```
 
 ### Step 2: Run the Server
-
-    $ dotnet run
+    ```bash
+    dotnet run
+    ```
 
 ---
 
