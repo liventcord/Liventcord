@@ -48,11 +48,11 @@ apiClient.on("deleted_guild", data => {
             removeFromGuildList(data.guildId);
             loadDmHome();
         } else {
-            alertUser("Sunucu silme başarısız.");
+            alertUser(data);
         }
         
     } else {
-        alertUser("Sunucu silme hatası",data);
+        alertUser(data);
     }
 });
 apiClient.on("get_invites", data => {

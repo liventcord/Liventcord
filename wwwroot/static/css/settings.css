@@ -963,6 +963,7 @@ th {
     margin-left: 95%;
     margin-top: 20px;
     box-shadow: 0 0 4px rgba(0,0,0,0.2);
+    z-index:1;
 }
 #close-settings-button svg {
     width: 18px;

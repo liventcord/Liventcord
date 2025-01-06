@@ -213,7 +213,7 @@ function createGuild() {
             changeUrlWithFireWorks(data.guildId, data.rootChannel, data.guildName);
             appendToGuildList(data);
         } else {
-            alertUser("Sunucu oluşturma hatası", data);
+            alertUser(data);
         }
     }).catch(error => {
         console.error("Error:", error);
