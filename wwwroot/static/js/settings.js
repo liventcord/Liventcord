@@ -234,7 +234,7 @@ function onEditNick() {
 function removeguildImage() {
     apiClient.send(EventType.DELETE_GUILD_IMAGE,{"guildId": currentGuildId})
     getId("guildImage").value = "";
-    getId("guild-image").src = createBlackImage();
+    getId("guild-image").src = blackImage
 }
 
 

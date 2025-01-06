@@ -85,6 +85,7 @@ class FriendsCache {
   }
   initialiseFriends(initData) {
     this.friendsCache = initData;
+    populateFriendsContainer(this.friendsCache);
   }
 
   addFriend(friend) {
@@ -329,5 +330,4 @@ document.addEventListener("DOMContentLoaded", function () {
   ButtonsList = Object.values(buttonElements);
   initializeButtonsList(ButtonsList);
 
-  selectFriendMenu(buttonElements.online);
 });

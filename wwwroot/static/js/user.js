@@ -26,7 +26,7 @@ function getUserDiscriminator(userId) {
 }
 
 
-function logOut() {
+function logOutApp() {
 
     fetch("/auth/logout", {
         method: "POST",

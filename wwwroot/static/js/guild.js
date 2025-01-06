@@ -6,16 +6,15 @@ let currentGuildName = "";
 
 
 const renderGuilds = (guilds) => {
-    const blackImage = createBlackImage();
     const uniqueGuildIds = new Set();
     return guilds.map(({ guildId, rootChannel, guildName, ownerId }) => {
         if (uniqueGuildIds.has(guildId)) return '';
         uniqueGuildIds.add(guildId);
-        return createGuildListItem(String(guildId), `/guilds/${guildId}`, blackImage, rootChannel, guildName || '');
+        return createGuildListItem(String(guildId), `/guilds/${guildId}`, rootChannel, guildName || '');
     }).join('');
 };
 
-const createGuildListItem = (guildIdStr, imgSrc, blackImage, rootChannel, guildNameStr) => `
+const createGuildListItem = (guildIdStr, imgSrc, rootChannel, guildNameStr) => `
     <li>
         <img id="${guildIdStr}" src="${imgSrc}" style="width: 50px; height: 50px; border: none;" 
         onerror="this.onerror=null;this.src='${blackImage}';" 
@@ -75,7 +74,7 @@ function createMainLogo() {
 }
 
 function setGuildImage(guildId, imageElement, isUploaded) {
-    imageElement.src = isUploaded ? `/guilds/${guildId}` : createBlackImage();
+    imageElement.src = isUploaded ? `/guilds/${guildId}` : blackImage
 }
 
 
@@ -135,40 +134,12 @@ function addKeybinds() {
 
 
 
-function updateGuildList(guildData) {
-    if (!guildData) {
-        console.warn("Tried to update guild list without data.");
-        return;
-    }
-
-    cacheInterface.addGuild(guildData);
-    guildsList.innerHTML = "";
-
-    const mainLogo = createMainLogo();
-    guildsList.appendChild(mainLogo);
-
-    guildData.guilds.forEach((guild) => {
-        if (doesGuildExistInBar(guild.guildId)) return;
-
-        cacheInterface.setGuildOwner(guild.guildId, guild.ownerId);
-        const guildListItem = createGuildListItem(guild);
-        guildsList.appendChild(guildListItem);
-    });
-
-    addKeybinds();
-    preventDrag('main-logo');
-    preventDrag('preview-image');
-}
-
 function appendToGuildList(guild) {
     const guildsList = getId("guilds-list");
     if (guildsList.querySelector(`#${CSS.escape(guild.guildId)}`)) return;
-    
-
     const guildListItem = createGuildListItem(
         guild.guildId, 
         guild.imgSrc, 
-        guild.blackImage, 
         guild.rootChannel, 
         guild.guildName
     );

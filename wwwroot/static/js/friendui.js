@@ -205,14 +205,6 @@ function printFriendMessage(message) {
 }
 
 
-let cachedFriends = [];
-async function getFriends(requestType) {
-    if (!isAddFriendsOpen && !cachedFriends) {
-        apiClient.send(EventType.GET_FRIENDS, { requestType: requestType });
-    } else {
-        populateFriendsContainer(cachedFriends);
-    }
-}
 
 function selectFriendMenuStatus(status) {
     const statusMap = {
@@ -226,11 +218,9 @@ function selectFriendMenuStatus(status) {
 }
 
 function selectFriendMenu(clickedButton) {
-
-
     getId("open-friends-button").style.backgroundColor = "#248046";
     getId("open-friends-button").style.color = "white";
-
+    displayWumpus();
     isAddFriendsOpen = false;
     currentSelectedStatus = getRequestType(clickedButton);
     console.log("Selected: ",currentSelectedStatus);
@@ -246,7 +236,6 @@ function selectFriendMenu(clickedButton) {
         button.style.color = reqType === currentSelectedStatus ? "white" : grayColor;
     });
 
-    getFriends(currentSelectedStatus);
 }
 
 function getRequestType(btn) {
@@ -436,9 +425,17 @@ function createDmBubble(isOnline) {
 
     return bubble;
 }
+function displayWumpus() {
+    if(friendsContainer.querySelector("#wumpusalone")) { return; }
+    friendsContainer.innerHTML = "";
+    const imgElement = createEl("img",{id:"wumpusalone",src:"/static/images/wumpusalone.png"});
+    imgElement.style.userSelect = "none";
+    disableElement("friendsTitleContainer");
+    friendsContainer.appendChild(imgElement);
+}
 
 function populateFriendsContainer(friends, isPending) {
-    //console.log(friends,typeof(friends));
+    console.log(friends,typeof(friends));
     if (friends.length === 0) {
         return;
     }
@@ -466,12 +463,7 @@ function populateFriendsContainer(friends, isPending) {
         const friendsTitleContainer = createEl("h2",{marginRight: "50px", marginTop: "100px",textContent:textToWrite, id:"friendsTitleContainer"});
         
         if (friendsCount === 0) {
-            if(friendsContainer.querySelector("#wumpusalone")) { return; }
-            friendsContainer.innerHTML = "";
-            const imgElement = createEl("img",{id:"wumpusalone",src:"/static/images/wumpusalone.png"});
-            imgElement.style.userSelect = "none";
-            disableElement("friendsTitleContainer");
-            friendsContainer.appendChild(imgElement);
+            displayWumpus();
         } else {
             const initialFriendsContainerHtml = `<input id="friendsSearchInput" autocomplete="off" placeholder="Ara" onkeyup="filterFriends()"></input>`;
             friendsContainer.innerHTML = initialFriendsContainerHtml;
