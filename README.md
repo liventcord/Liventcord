@@ -1,20 +1,13 @@
-# Development Environment Setup
+# Main Environment Setup
 
-This branch sets up the development environment for running the server, specifically for the /app SPA route.
+This branch sets up environment for running the server.
 
 ## Quick Start
 
 1. Clone the repository:
-    ```bash
-    git clone https://github.com/liventcord/Liventcord --depth 1
-    ```
-
-2. Switch to the `dev` branch:
-    ```bash
-    git checkout dev
-    ```
-
-
+```bash
+git clone https://github.com/liventcord/Liventcord --depth 1
+```
 ### Step 1: Set Environment Variables
 
 1. Create the `Properties/appsettings.json` file in your project directory.
