@@ -8,7 +8,7 @@ This branch sets up environment for running the server.
 ```bash
 git clone https://github.com/liventcord/Liventcord --depth 1
 ```
-### Step 1: Set Environment Variables
+### Set Environment Variables
 
 1. Create the `Properties/appsettings.json` file in your project directory.
 2. Add the following JSON configuration, replacing placeholders with your actual values:
@@ -26,7 +26,7 @@ git clone https://github.com/liventcord/Liventcord --depth 1
     }
     ```
 
-### Step 2: Run the Server
+### Run the Server
 ```bash
 dotnet run
 ```
