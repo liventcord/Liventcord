@@ -16,12 +16,13 @@ git clone https://github.com/liventcord/Liventcord --depth 1
     ```json
     {
       "ConnectionStrings": {
-        "isPostgres": "true/false",
         "RemoteConnection": "Host=host;Database=database;Username=username;Password=password;Port=port;SSL Mode=sslmode",
         "SqlitePath": "Data Source=Data/<Database-name>.db",
       },
       "AppSettings": {
-        "SecretKey": "Secret-Key"
+        "SecretKey": "Secret-Key",
+        "usePostgres": "true/false",
+        "port" : "port"
       }
     }
     ```
