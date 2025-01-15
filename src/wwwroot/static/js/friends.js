@@ -145,25 +145,22 @@ function handleDenyFriendRequestResponse(message) {
 }
 
 
-
 function handleFriendEventResponse(message) {
   const { type } = message;
 
   switch (type) {
-    case FriendRequestType.add_friend_request:
-    case FriendRequestType.add_friend_request_id:
+    case 'add_friend':
+    case 'add_friend_request_id':
       handleAddFriendResponse(message);
       break;
-    case FriendRequestType.accept_friend_request:
+    case 'accept_friend_request':
       handleAcceptFriendRequestResponse(message);
       break;
-    case FriendRequestType.remove_friend_request:
+    case 'remove_friend':
+    case 'remove_friend_request':
       handleRemoveFriendResponse(message);
       break;
-    case FriendRequestType.remove_friend:
-      handleRemoveFriendResponse(message);
-      break;
-    case FriendRequestType.deny_friend_request:
+    case 'deny_friend_request':
       handleDenyFriendRequestResponse(message);
       break;
     default:

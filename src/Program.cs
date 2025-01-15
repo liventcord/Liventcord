@@ -34,7 +34,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+builder
+    .Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.Cookie.HttpOnly = true;
@@ -43,7 +44,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.LoginPath = "/auth/login";
     });
 
-builder.Services.AddControllers()
+builder
+    .Services.AddControllers()
     .ConfigureApiBehaviorOptions(options =>
     {
         options.InvalidModelStateResponseFactory = context =>
@@ -52,7 +54,9 @@ builder.Services.AddControllers()
                 .ModelState.Where(entry => entry.Value?.Errors.Count > 0)
                 .ToDictionary(
                     entry => entry.Key,
-                    entry => entry.Value?.Errors.Select(e => e?.ErrorMessage).ToArray() ?? Array.Empty<string>()
+                    entry =>
+                        entry.Value?.Errors.Select(e => e?.ErrorMessage).ToArray()
+                        ?? Array.Empty<string>()
                 );
             return new BadRequestObjectResult(errors);
         };
@@ -92,13 +96,16 @@ if (isDevelopment)
 {
     Console.WriteLine("Is running development: " + isDevelopment);
 
-    app.Use(async (context, next) =>
-    {
-        context.Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate, proxy-revalidate";
-        context.Response.Headers["Pragma"] = "no-cache";
-        context.Response.Headers["Expires"] = "0";
-        await next();
-    });
+    app.Use(
+        async (context, next) =>
+        {
+            context.Response.Headers["Cache-Control"] =
+                "no-store, no-cache, must-revalidate, proxy-revalidate";
+            context.Response.Headers["Pragma"] = "no-cache";
+            context.Response.Headers["Expires"] = "0";
+            await next();
+        }
+    );
     app.UseDeveloperExceptionPage();
 }
 else

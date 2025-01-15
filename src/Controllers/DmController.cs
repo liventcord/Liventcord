@@ -38,22 +38,14 @@ namespace LiventCord.Controllers
 
         [HttpPost("")]
         public async Task<IActionResult> AddDmEndpoint(
-            [FromRoute] [IdLengthValidation] string friendId
+            [FromBody] [IdLengthValidation] string friendId
         )
         {
             var result = await AddDmUser(UserId!, friendId);
-
-            if (result.IsSuccess)
-            {
-                return Ok(new { Type = "success", Message = result.Message });
-            }
-            else
-            {
-                return BadRequest(new { Type = "error", Message = result.Message });
-            }
+            return result;
         }
 
-        private async Task<Result> AddDmUser(string userId, string friendId)
+        private async Task<IActionResult> AddDmUser(string userId, string friendId)
         {
             var friend = await _dbContext
                 .Users.Where(u => u.UserId == friendId)
@@ -61,10 +53,10 @@ namespace LiventCord.Controllers
                 .FirstOrDefaultAsync();
 
             if (friend == null)
-                return Result.Failure("Friend not found.");
+                return NotFound("Friend not found."); // 404 Not Found
 
             if (friend.UserId == userId)
-                return Result.Failure("You cannot add yourself as a friend.");
+                return BadRequest("You cannot add yourself as a friend."); // 400 Bad Request
 
             var existingFriendship = await _dbContext.Friends.AnyAsync(f =>
                 (f.UserId == userId && f.FriendId == friend.UserId)
@@ -72,7 +64,7 @@ namespace LiventCord.Controllers
             );
 
             if (existingFriendship)
-                return Result.Failure("You are already friends with this user.");
+                return Conflict("You are already friends with this user."); // 409 Conflict
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
@@ -96,7 +88,7 @@ namespace LiventCord.Controllers
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Result.Success("Friend request sent.");
+                return Ok("Friend request sent.");
             }
         }
     }

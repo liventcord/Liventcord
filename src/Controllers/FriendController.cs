@@ -30,62 +30,44 @@ namespace LiventCord.Controllers
         [HttpPost("")]
         public async Task<IActionResult> AddFriendEndpoint([FromBody] AddFriendRequest request)
         {
-            if (
-                string.IsNullOrWhiteSpace(request.FriendName)
-                || string.IsNullOrWhiteSpace(request.FriendDiscriminator)
-            )
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new { Code = "ERR_INVALID_INPUT" });
+                return BadRequest("Invalid request data.");
             }
 
-            var result = await AddFriend(UserId!, request.FriendName, request.FriendDiscriminator);
-
-            if (result.IsSuccess)
-            {
-                return Ok(new { Code = result.Message });
-            }
-            else if (result.Message == "ERR_USER_NOT_FOUND")
-            {
-                return NotFound(new { Code = result.Message });
-            }
-            else
-            {
-                return BadRequest(new { Code = result.Message });
-            }
-        }
-
-        private async Task<Result> AddFriend(
-            string userId,
-            string friendName,
-            string friendDiscriminator
-        )
-        {
             var friend = await _dbContext
                 .Users.Where(u =>
-                    u.Nickname == friendName && u.Discriminator == friendDiscriminator
+                    u.Nickname == request.FriendName
+                    && u.Discriminator == request.FriendDiscriminator
                 )
-                .Select(u => new { u.UserId, u.Nickname })
+                .Select(u => new { u.UserId })
                 .FirstOrDefaultAsync();
 
             if (friend == null)
-                return Result.Failure("ERR_USER_NOT_FOUND");
+            {
+                return NotFound("Friend not found.");
+            }
 
-            if (friend.UserId == userId)
-                return Result.Failure("ERR_CANNOT_ADD_SELF");
+            if (friend.UserId == UserId)
+            {
+                return BadRequest("You cannot add yourself as a friend.");
+            }
 
             var existingFriendship = await _dbContext.Friends.AnyAsync(f =>
-                (f.UserId == userId && f.FriendId == friend.UserId)
-                || (f.UserId == friend.UserId && f.FriendId == userId)
+                (f.UserId == UserId && f.FriendId == friend.UserId)
+                || (f.UserId == friend.UserId && f.FriendId == UserId)
             );
 
             if (existingFriendship)
-                return Result.Failure("ERR_ALREADY_FRIENDS");
+            {
+                return Conflict("You are already friends with this user.");
+            }
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
                 var newFriendship = new Friend
                 {
-                    UserId = userId,
+                    UserId = UserId,
                     FriendId = friend.UserId,
                     Status = FriendStatus.Pending,
                 };
@@ -93,7 +75,7 @@ namespace LiventCord.Controllers
                 var reverseFriendship = new Friend
                 {
                     UserId = friend.UserId,
-                    FriendId = userId,
+                    FriendId = UserId,
                     Status = FriendStatus.Pending,
                 };
 
@@ -103,7 +85,7 @@ namespace LiventCord.Controllers
                 await _dbContext.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return Result.Success("SUCCESS_REQUEST_SENT");
+                return Ok("Friend request sent.");
             }
         }
 
@@ -182,6 +164,15 @@ namespace LiventCord.Controllers
     }
 }
 
+public enum AddFriendErrorCode
+{
+    None,
+    UserNotFound,
+    CannotAddSelf,
+    AlreadyFriends,
+    UnknownError,
+}
+
 public class AddFriendRequest
 {
     public required string FriendName { get; set; }
@@ -194,16 +185,4 @@ public class FriendDto
     public required string Nickname { get; set; }
     public required string Discriminator { get; set; }
     public FriendStatus Status { get; set; }
-}
-
-public class Result
-{
-    public bool IsSuccess { get; set; }
-    public required string Message { get; set; }
-
-    public static Result Success(string message) =>
-        new Result { IsSuccess = true, Message = message };
-
-    public static Result Failure(string message) =>
-        new Result { IsSuccess = false, Message = message };
 }

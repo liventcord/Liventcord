@@ -3,15 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 
-public static class ConfigHandler {
-    public static void HandleConfig(WebApplicationBuilder builder) {
+public static class ConfigHandler
+{
+    public static void HandleConfig(WebApplicationBuilder builder)
+    {
         builder.Configuration.AddJsonFile("Properties/appsettings.json", optional: true);
 
-        int port = 5005;  
+        int port = 5005;
 
-        if (int.TryParse(builder.Configuration["AppSettings:port"], out int configPort) && configPort > 0)
+        if (
+            int.TryParse(builder.Configuration["AppSettings:port"], out int configPort)
+            && configPort > 0
+        )
         {
-            port = configPort;  
+            port = configPort;
         }
         else
         {
@@ -19,7 +24,6 @@ public static class ConfigHandler {
         }
         Console.WriteLine($"Running on port: {port}");
         builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
-
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
@@ -31,6 +35,7 @@ public static class ConfigHandler {
 
         HandleDatabase(builder);
     }
+
     static void HandleDatabase(WebApplicationBuilder builder)
     {
         var databaseType = builder.Configuration["AppSettings:DatabaseType"];
@@ -38,21 +43,29 @@ public static class ConfigHandler {
 
         if (string.IsNullOrEmpty(connectionString))
         {
-            Console.WriteLine("Connection string is missing in the configuration. Defaulting to SQLite.");
+            Console.WriteLine(
+                "Connection string is missing in the configuration. Defaulting to SQLite."
+            );
             connectionString = "Data/liventcord.db";
         }
 
-        Console.WriteLine($"Configured Database Type: {databaseType ?? "None (defaulting to SQLite)"}");
+        Console.WriteLine(
+            $"Configured Database Type: {databaseType ?? "None (defaulting to SQLite)"}"
+        );
 
         switch (databaseType?.ToLowerInvariant())
         {
             case "postgresql":
-                builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseNpgsql(connectionString)
+                );
                 break;
 
             case "mysql":
             case "mariadb":
-                builder.Services.AddDbContext<AppDbContext>(options => options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+                );
                 break;
 
             case "sqlite":
@@ -64,12 +77,10 @@ public static class ConfigHandler {
                     Directory.CreateDirectory(dataDirectory);
                     Console.WriteLine($"Info: Created missing directory {dataDirectory}");
                 }
-                builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite($"Data Source={fullPath}"));
+                builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseSqlite($"Data Source={fullPath}")
+                );
                 break;
-
         }
     }
-
-
-
 }

@@ -2,9 +2,9 @@ using System.Drawing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
+
 namespace LiventCord.Controllers
 {
-
     [ApiController]
     [Route("")]
     public class FileController : ControllerBase
@@ -15,7 +15,8 @@ namespace LiventCord.Controllers
 
         public FileController(
             AppDbContext context,
-            FileExtensionContentTypeProvider fileTypeProvider,IWebHostEnvironment env
+            FileExtensionContentTypeProvider fileTypeProvider,
+            IWebHostEnvironment env
         )
         {
             _context = context;
@@ -60,7 +61,8 @@ namespace LiventCord.Controllers
         [HttpGet("/api/list_files")]
         public async Task<IActionResult> ListFiles()
         {
-            if (!_env.IsDevelopment()) {
+            if (!_env.IsDevelopment())
+            {
                 return NotFound();
             }
 
@@ -120,5 +122,4 @@ namespace LiventCord.Controllers
             return Content(html, "text/html");
         }
     }
-    
 }

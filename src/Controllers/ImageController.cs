@@ -91,7 +91,8 @@ namespace LiventCord.Controllers
         private async Task<T?> GetExistingFile<T>(string? userId, string? guildId)
             where T : FileBase
         {
-            if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(guildId)) return null;
+            if (string.IsNullOrEmpty(userId) && string.IsNullOrEmpty(guildId))
+                return null;
 
             return await _context
                 .Set<T>()
@@ -132,7 +133,7 @@ namespace LiventCord.Controllers
 
             SetFileIds(existingFile, userId, guildId);
 
-            await _context.SaveChangesAsync(); 
+            await _context.SaveChangesAsync();
 
             _logger.LogInformation(
                 "Updated file: {FileId}, {FileName}, {UserId}, {GuildId}, {Extension}",
@@ -154,15 +155,16 @@ namespace LiventCord.Controllers
         )
             where T : FileBase
         {
-            T? newFile = Activator.CreateInstance(
-                typeof(T),
-                fileId,
-                fileName,
-                content,
-                extension,
-                userId,
-                guildId
-            ) as T;
+            T? newFile =
+                Activator.CreateInstance(
+                    typeof(T),
+                    fileId,
+                    fileName,
+                    content,
+                    extension,
+                    userId,
+                    guildId
+                ) as T;
 
             if (newFile == null)
             {
@@ -184,7 +186,6 @@ namespace LiventCord.Controllers
 
             await _context.Set<T>().AddAsync(newFile);
         }
-
 
         private void SetFileIds<T>(T file, string? userId, string? guildId)
             where T : FileBase
@@ -210,8 +211,6 @@ namespace LiventCord.Controllers
                     break;
             }
         }
-
-
 
         private bool IsValidFileName(string fileName)
         {

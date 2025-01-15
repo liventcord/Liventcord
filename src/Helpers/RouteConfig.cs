@@ -52,7 +52,6 @@ public static class RouteConfig
         MapRoute("/service-worker.js", "pwa/service-worker.js");
         MapRoute("/manifest.json", "pwa/manifest.json");
 
-        
         app.MapFallback(async context =>
         {
             var acceptHeader = context.Request.Headers["Accept"].ToString();
@@ -61,7 +60,12 @@ public static class RouteConfig
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 context.Response.ContentType = "text/html";
-                var filePath = Path.Combine(app.Environment.WebRootPath, "static", "404", "404.html");
+                var filePath = Path.Combine(
+                    app.Environment.WebRootPath,
+                    "static",
+                    "404",
+                    "404.html"
+                );
                 await context.Response.SendFileAsync(filePath);
             }
             else
@@ -71,7 +75,6 @@ public static class RouteConfig
                 await context.Response.WriteAsync("404 Not Found");
             }
         });
-
 
         app.MapGet(
             "/login",
@@ -84,7 +87,12 @@ public static class RouteConfig
                 }
 
                 context.Response.ContentType = "text/html";
-                var filePath = Path.Combine(app.Environment.WebRootPath, "static", "login", "login.html");
+                var filePath = Path.Combine(
+                    app.Environment.WebRootPath,
+                    "static",
+                    "login",
+                    "login.html"
+                );
                 await context.Response.SendFileAsync(filePath);
             }
         );
