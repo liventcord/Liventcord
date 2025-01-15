@@ -27,7 +27,11 @@ public static class ConfigHandler
 
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
-            .Filter.ByExcluding(logEvent => logEvent.MessageTemplate.Text.Contains("db query"))
+            .Filter.ByExcluding(logEvent =>
+                logEvent.Properties.TryGetValue("SourceContext", out var sourceContext) &&
+                (sourceContext.ToString().Contains("Microsoft.AspNetCore") || 
+                sourceContext.ToString().Contains("Microsoft.EntityFrameworkCore.Database.Command")) &&
+                logEvent.Level < LogEventLevel.Warning)
             .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
