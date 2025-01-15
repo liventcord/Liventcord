@@ -12,7 +12,9 @@ userNames["1"] = {
     discriminator: "0000",
     is_blocked: false
 };
-
+function getSelfFullDisplay() {
+    return initialState.user.nickname+"#"+initialState.user.discriminator;
+}
 
 function copySelfName() {
     if(!currentUserNick | !currentDiscriminator) return;

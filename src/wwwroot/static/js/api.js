@@ -101,23 +101,14 @@ class ApiClient {
         return { method: this.getHttpMethod(event), url: basePath + url };
     }
 
-    async handleError(response) {
-        let errorCode = null;
 
-        try {
-            const responseBody = await response.json();
-            errorCode = responseBody?.code || null;
-        } catch (err) {
-            console.error("Failed to parse error response:", err);
-        }
-
-        
-        printFriendMessage(translations.getErrorMessage(errorCode) || "An unexpected error occurred.");
+    async handleError(response, event) {
+        let predefinedMessage = translations.getErrorMessage(response.status)?.[event] || translations.getErrorMessage('default');
+        printFriendMessage(predefinedMessage);
+        console.error(`Error [${response.status}] for event "${event}": ${predefinedMessage}`);
     }
     
     
-    
-
     async sendRequest(data, url, method, event, expectsResponse = true) {
         const body = method === HttpMethod.POST ? JSON.stringify(data) : undefined;
         const headers = method === HttpMethod.GET ? undefined : { "Content-Type": "application/json" };
@@ -131,7 +122,7 @@ class ApiClient {
             });
     
             if (!response.ok) {
-                await this.handleError(response);
+                await this.handleError(response, event);
                 return null;
             }
     
@@ -142,11 +133,10 @@ class ApiClient {
             const responseBody = await response.text();
             return responseBody ? JSON.parse(responseBody) : null;
         } catch (error) {
-            console.error("Failed to send request:", error);
+            console.error(`Failed to send request for event "${event}":`, error);
             throw error;
         }
     }
-    
     
     async send(event, data = {}) {
         if (!event) {
@@ -158,26 +148,25 @@ class ApiClient {
     
         try {
             const { url, method } = this.getUrlForEvent(event, data);
+            const response = await this.sendRequest(data, url, method, event, expectsResponse);
     
-            const response = await this.sendRequest(data, url, method, event,expectsResponse);
-            this.handleMessage(event, response);
+            if (response) {
+                this.handleMessage(event, response);
+            }
         } catch (error) {
             console.error(`Error during request for event "${event}":`, error, event, data);
         }
     }
-
-    handleMessage(event,  data) {
+    handleMessage(event, data) {
         if (this.nonResponseEvents.includes(event)) {
-            //console.log(`Event "${event}" processed. No response expected.`);
-            return; 
+            return;
         }
-        //console.log(`Received response for event "${event}" `, data);
+    
         if (this.listeners[event] && data != null) {
-            this.listeners[event].forEach(callback => {
-                callback(data);
-            });
+            this.listeners[event].forEach(callback => callback(data));
         }
     }
+    
 
 
     on(event, callback) {

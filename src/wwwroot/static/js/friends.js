@@ -106,7 +106,7 @@ function displayFriendActionMessage(userNick, isSuccess, errorType) {
     ? getFriendMessage(userNick, isSuccess, errorType) 
     : getFriendMessage(userNick, false, errorType); 
   
-  displayFriendsMessage(text);
+  printFriendMessage(text);
 }
 
 function handleAddFriendResponse(message) {
@@ -164,7 +164,7 @@ function handleFriendEventResponse(message) {
       handleDenyFriendRequestResponse(message);
       break;
     default:
-      displayFriendsMessage(errorMessages[FriendErrorType.INVALID_EVENT]);
+      printFriendMessage(errorMessages[FriendErrorType.INVALID_EVENT]);
   }
 }
 
@@ -249,7 +249,12 @@ function submitAddFriend() {
 
   if (currentValue && currentValue.length > 0) {
     if (!isValidFriendName(currentValue)) {
-      displayFriendsMessage(translations.getTranslation("addFriendDiscriminatorErrorText"));
+      printFriendMessage(translations.getTranslation("addFriendDiscriminatorErrorText"));
+      return;
+    }
+
+    if(currentValue == getSelfFullDisplay()) {
+      printFriendMessage(translations.getTranslation("friendAddYourselfErrorText"));
       return;
     }
 

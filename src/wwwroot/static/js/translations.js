@@ -84,7 +84,8 @@ class Translations {
         "addfriendinputbutton": "Send Friend Request",
         "send-message": "Send Message",
         "more": "More",
-        "addFriendDiscriminatorErrorText": "Invalid discriminator! (#0000)"
+        "addFriendDiscriminatorErrorText": "Invalid discriminator! (#0000)",
+        "friendAddYourselfErrorText": "You can't friend yourself!"
 
       },
 
@@ -168,7 +169,8 @@ class Translations {
         "addfriendinputbutton": "Arkadaşlık İsteği Gönder",
         "send-message": "Mesaj Gönder",
         "more": "Daha fazla",
-        "addFriendDiscriminatorErrorText": "Tanımlayıcı geçersiz! (#0000)"
+        "addFriendDiscriminatorErrorText": "Tanımlayıcı geçersiz! (#0000)",
+        "friendAddYourselfErrorText": "Kendini arkadaş ekleyemezsin!"
         
       }
     };
@@ -384,29 +386,47 @@ class Translations {
   initializeErrorTranslations() {
     this.errorTranslations = {
       en: {
-        [FriendErrorType.ERR_INVALID_EVENT]: "Unknown error!",
-        [FriendErrorType.ERR_CANNOT_ADD_SELF]: "You cannot friend yourself!",
-        [FriendErrorType.ERR_USER_NOT_FOUND]: "User not found!",
-        [FriendErrorType.ERR_INVALID_IDENTIFIER]: "Invalid identifier!",
-        [FriendErrorType.ERR_FRIEND_REQUEST_EXISTS]: "You already sent a request to this user!",
-        [FriendErrorType.ERR_FRIEND_REQUEST_NOT_EXISTS]: "You haven't sent a request to this user!",
-        [FriendErrorType.ERR_REQUEST_ALREADY_ACCEPTED]: "You have already accepted this request!",
-        [FriendErrorType.ERR_NOT_FRIENDS]: "You are not friends with this user!",
-        [FriendErrorType.ERR_REQUEST_NOT_SENT]: "This user hasn't sent you a request!",
-        [FriendErrorType.ERR_SUCCESS]: "Operation completed successfully!",
+        404: {
+          add_friend: "The user you are trying to add was not found.",
+          accept_friend_request: "The friend request you are trying to accept was not found.",
+          remove_friend: "The friend you are trying to remove was not found.",
+          deny_friend_request: "The friend request you are trying to deny was not found."
+        },
+        409: {
+          add_friend: "This user is already your friend.",
+          accept_friend_request: "The friend request has already been accepted or denied.",
+          remove_friend: "You cannot remove this user at the moment.",
+          deny_friend_request: "The friend request has already been accepted or denied."
+        },
+        400: {
+          add_friend: "Invalid request to add friend.",
+          remove_friend: "Invalid request to remove friend."
+        },
+        500: {
+          default: "Internal server error. Please try again later."
+        },
         default: "An unexpected error occurred. Please try again."
       },
       tr: {
-        [FriendErrorType.ERR_INVALID_EVENT]: "Bilinmeyen hata!",
-        [FriendErrorType.ERR_CANNOT_ADD_SELF]: "Kendinle arkadaş olamazsın!",
-        [FriendErrorType.ERR_USER_NOT_FOUND]: "Kullanıcı bulunamadı!",
-        [FriendErrorType.ERR_INVALID_IDENTIFIER]: "Geçersiz tanımlayıcı!",
-        [FriendErrorType.ERR_FRIEND_REQUEST_EXISTS]: "Bu kullanıcıya zaten istek gönderdin!",
-        [FriendErrorType.ERR_FRIEND_REQUEST_NOT_EXISTS]: "Bu kullanıcıya istek göndermedin!",
-        [FriendErrorType.ERR_REQUEST_ALREADY_ACCEPTED]: "Bu isteği zaten kabul ettin!",
-        [FriendErrorType.ERR_NOT_FRIENDS]: "Bu kullanıcıyla arkadaş değilsin!",
-        [FriendErrorType.ERR_REQUEST_NOT_SENT]: "Bu kullanıcı sana istek göndermedi!",
-        [FriendErrorType.ERR_SUCCESS]: "İşlem başarıyla gerçekleştirildi!",
+        404: {
+          add_friend: "Eklemeye çalıştığın kullanıcı bulunamadı.",
+          accept_friend_request: "Kabul etmeye çalıştığın arkadaşlık isteği bulunamadı.",
+          remove_friend: "Çıkarmaya çalıştığın arkadaş bulunamadı.",
+          deny_friend_request: "Reddetmeye çalıştığın arkadaşlık isteği bulunamadı."
+        },
+        409: {
+          add_friend: "Bu kullanıcı zaten arkadaşınız.",
+          accept_friend_request: "Arkadaşlık isteği zaten kabul edildi ya da reddedildi.",
+          remove_friend: "Bu kullanıcıyı şu an çıkaramazsınız.",
+          deny_friend_request: "Arkadaşlık isteği zaten kabul edildi ya da reddedildi."
+        },
+        400: {
+          add_friend: "Geçersiz arkadaşlık isteği.",
+          remove_friend: "Geçersiz arkadaşlık çıkarma isteği."
+        },
+        500: {
+          default: "Sunucu hatası. Lütfen daha sonra tekrar deneyin."
+        },
         default: "Beklenmedik bir hata oluştu. Lütfen tekrar deneyin."
       },
     };

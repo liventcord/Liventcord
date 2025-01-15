@@ -34,6 +34,9 @@ namespace LiventCord.Controllers
             {
                 return BadRequest("Invalid request data.");
             }
+            if (string.IsNullOrEmpty(UserId))
+                return Unauthorized("User ID is missing.");
+
 
             var friend = await _dbContext
                 .Users.Where(u =>
