@@ -93,10 +93,10 @@ th {
     margin-left: -30px;
     cursor: pointer;
 }
-.guilds-list li img[src="/static/images/icons/icon.png"]:hover {
+.guilds-list li img[src="/images/icons/icon.png"]:hover {
     border: 10px solid #677bc4;
 }
-.guilds-list li img:not([src="/static/images/icons/icon.png"]):hover {
+.guilds-list li img:not([src="/images/icons/icon.png"]):hover {
     border-radius: 0px;
 }
 .guilds-list li:hover .white-rod {

@@ -261,7 +261,7 @@ apiClient.on("deny_friend_request", function (message) {
 
 apiClient.on("voice_users_response",function(data) {
     const channelId = data.channelId;
-    playAudio("/static/sounds/joinvoice.mp3");
+    playAudio("/sounds/joinvoice.mp3");
     clearVoiceChannel(currentVoiceChannelId);
     const sp = getId("sound-panel");
     sp.style.display = "flex";

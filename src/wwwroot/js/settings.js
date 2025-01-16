@@ -289,7 +289,7 @@ async function requestMicrophonePermissions() {
     try {
         const isNoMic = false;
         if(isNoMic) {
-            const response = await fetch("/static/notification.mp3");
+            const response = await fetch("/notification.mp3");
             const blob = await response.blob();
             const reader = new FileReader();
             reader.onload = function () {

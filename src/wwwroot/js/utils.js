@@ -19,7 +19,7 @@ function getMaskedEmail(email) {
 }
 
 
-let defaultProfileImageUrl = `/static/images/guest.png`;
+let defaultProfileImageUrl = `/images/guest.png`;
 function isValidFriendName(input) {
     const pattern = /^[^#]+#\d{4}$/;
     return pattern.test(input);

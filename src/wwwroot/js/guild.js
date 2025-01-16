@@ -48,8 +48,8 @@ function getManageableGuilds() {
 function createMainLogo() {
     const mainLogoImg = createEl("img", {
         id: "main-logo",
-        src: "/static/images/icons/icon.png",
-        "data-src": "/static/images/icons/icon.png",
+        src: "/images/icons/icon.png",
+        "data-src": "/images/icons/icon.png",
         style: "width: 30px; height: 30px; border: 10px solid rgb(49, 51, 56); user-select: none;"
     });
 

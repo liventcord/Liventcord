@@ -323,7 +323,7 @@ function updateUsersStatus(friend) {
     contentDiv.appendChild(nickHeading);
     contentDiv.appendChild(titleSpan);
 
-    const iconImg = createEl("img", { className: "activity-card-icon", src: "/static/images/defaultmediaimage.png" });
+    const iconImg = createEl("img", { className: "activity-card-icon", src: "/images/defaultmediaimage.png" });
 
     activityCard.appendChild(contentDiv);
     activityCard.appendChild(iconImg);
@@ -434,7 +434,7 @@ function displayWumpus() {
     if(friendsContainer.querySelector("#wumpusalone")) { return; }
     removeElement("addfriendmenu");
     friendsContainer.innerHTML = "";
-    const imgElement = createEl("img",{id:"wumpusalone",src:"/static/images/wumpusalone.png"});
+    const imgElement = createEl("img",{id:"wumpusalone",src:"/images/wumpusalone.png"});
     imgElement.style.userSelect = "none";
     disableElement("friendsTitleContainer");
     friendsContainer.appendChild(imgElement);

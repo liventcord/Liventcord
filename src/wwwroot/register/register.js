@@ -1,5 +1,5 @@
 
-import { initialisePage} from "/static/login/loginutils.js";
+import { initialisePage} from "/login/loginutils.js";
 
 let isFetching = false;
 let debounceTimer;

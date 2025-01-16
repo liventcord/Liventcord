@@ -397,7 +397,7 @@ function activateSoundOutput() {
 
 let isMicrophoneOpen = true;
 function setMicrophone() {
-    let imagePath = isMicrophoneOpen ? `/static/images/icons/whitemic.png` : `/static/images/icons/redmic.png`;
+    let imagePath = isMicrophoneOpen ? `/images/icons/whitemic.png` : `/images/icons/redmic.png`;
     microphoneButton.src = imagePath;
     isMicrophoneOpen = !isMicrophoneOpen;
     console.log("Set microphone! to " , isMicrophoneOpen);
@@ -405,7 +405,7 @@ function setMicrophone() {
 
 let isEarphonesOpen = true;
 function setEarphones() {
-    let imagePath = isEarphonesOpen ? `/static/images/icons/whiteearphones.png` : `/static/images/icons/redearphones.png`;
+    let imagePath = isEarphonesOpen ? `/images/icons/whiteearphones.png` : `/images/icons/redearphones.png`;
     earphoneButton.src = imagePath;
     isEarphonesOpen = !isEarphonesOpen;
     console.log("Set earphones! to " , isEarphonesOpen);
@@ -500,7 +500,7 @@ function activateMicAndCamera() {
 
 function closeCurrentCall() {
     currentAudioPlayer = getId("audio-player");
-    playAudio("/static/sounds/leavevoice.mp3");
+    playAudio("/sounds/leavevoice.mp3");
 
     const sp = getId("sound-panel");
     const oldVoiceId = currentVoiceChannelId;
@@ -555,10 +555,10 @@ function initializeMusic() {
     document.body.appendChild(modal);
 
     const songs = [
-        "/static/sounds/musics/2.mp3",
-        "/static/sounds/musics/1.mp3",
-        "/static/sounds/musics/3.mp3",
-        "/static/sounds/musics/4.mp3"
+        "/sounds/musics/2.mp3",
+        "/sounds/musics/1.mp3",
+        "/sounds/musics/3.mp3",
+        "/sounds/musics/4.mp3"
     ];
 
     let currentSongIndex = 0;

@@ -23,7 +23,7 @@ function enableLoadingScreen() {
     document.body.appendChild(loadingScreen);
     const loadingElement = createEl("img", { id: "loading-element" });
     loadingScreen.appendChild(loadingElement);
-    loadingElement.src = "/static/images/icons/icon.png";
+    loadingElement.src = "/images/icons/icon.png";
 }
 function isLoadingScreen() {
     if(!loadingScreen) {
@@ -126,12 +126,12 @@ function fillDropDownContent() {
 
 function setActiveIcon() {
     let favicon = getId("favicon");
-    let activeIconHref = "/static/images/icons/iconactive.png";
+    let activeIconHref = "/images/icons/iconactive.png";
     favicon.href = activeIconHref;
 }
 function setInactiveIcon() {
     let favicon = getId("favicon");
-    let activeIconHref =  "/static/images/icons/icon.png";
+    let activeIconHref =  "/images/icons/icon.png";
     favicon.href = activeIconHref;
 }
 
@@ -269,7 +269,7 @@ function clickMainLogo() {
     if(logoClicked >= 14) {
         logoClicked = 0;
         try {
-            let audio = new Audio("/static/liventocordolowpitch.mp3");
+            let audio = new Audio("/liventocordolowpitch.mp3");
             audio.play();
         }
         catch(error) {

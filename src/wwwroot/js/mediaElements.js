@@ -1,4 +1,4 @@
-let defaultMediaImageUrl = "/static/images/defaultmediaimage.png"
+let defaultMediaImageUrl = "/images/defaultmediaimage.png"
 
 
 
