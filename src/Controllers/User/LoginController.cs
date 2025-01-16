@@ -17,20 +17,9 @@ namespace LiventCord.Controllers
     public class LoginController : ControllerBase
     {
         private readonly AppDbContext _context;
-        private readonly string _secretKey;
-
-        public LoginController(AppDbContext context, IConfiguration configuration)
+        public LoginController(AppDbContext context)
         {
             _context = context;
-            var appSecretKey = configuration["AppSettings:SecretKey"];
-            _secretKey = appSecretKey ?? "DefaultSecretKey";
-
-            if (appSecretKey == null)
-            {
-                Console.WriteLine(
-                    "Using the default 'SecretKey' in AppSettings. This is not recommended for production."
-                );
-            }
         }
 
         [HttpPost("login")]

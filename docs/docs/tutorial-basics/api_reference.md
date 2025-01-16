@@ -1,4 +1,4 @@
-## Api Reference
+# Api Reference
 
 Access the Swagger REST API UI at:
 ## Route: **/docs**

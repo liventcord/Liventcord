@@ -23,7 +23,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
         docs: {
           routeBasePath: '/',
           sidebarPath: require.resolve('./sidebars.js'),
-          editUrl: 'https://github.com/LiventCord/liventcord/edit/main/Docs',
+          editUrl: 'https://github.com/LiventCord/liventcord/edit/dev/docs',
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),

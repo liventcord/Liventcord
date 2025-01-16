@@ -2,27 +2,35 @@
 sidebar_position: 1
 ---
 
-# Set enviroment variables
+# Set Enviroment Variables
 
 1. Create the `Properties/appsettings.json` file
 2. Add the following JSON configuration:
 
     ```json
     {
-      "ConnectionStrings": {
-        "RemoteConnection": "YOUR_CONNECTION_STRING",
-        "SqlitePath": "Data/database.db",
-      },
       "AppSettings": {
-        "SecretKey": "SECRET_KEY",
+        "Host": "127.0.0.1",
+        "Port" : "5005",
+        "RemoteConnection": "YOUR_CONNECTION_STRING",
         "DatabaseType": "DATABASE_TYPE",
-        "port" : "5005"
+        "SqlitePath": "Data/database.db"
       }
     }
     ```
-    Available Database Types:
-  - **PostgreSQL**
-  - **MySQL**
-  - **MariaDB**
-  - **SQLite**
-  Defaults to sqlite if none provided
+  - **Host**:
+    The hostname server will run at.
+  - **Port**:
+    The port server will run at.
+  - **RemoteConnection**:
+    The connection string for the database.
+
+  - **DatabaseType**:
+    Specifies the type of database server for data storage. Supported options:
+      - **PostgreSQL**
+      - **MySQL**
+      - **MariaDB**
+      - **SQLite**
+  - **SqlitePath**
+    The file sqlite will store data at.
+    Defaults to sqlite if none provided
