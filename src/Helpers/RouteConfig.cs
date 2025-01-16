@@ -1,7 +1,4 @@
-using System.Collections.Generic;
-using System.IO;
 using LiventCord.Helpers;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 
@@ -46,9 +43,9 @@ public static class RouteConfig
 
         MapRoute("/", "templates/index.html");
         MapRoute("/download", "templates/download.html");
-        MapRoute("/register", "static/register/register.html");
+        MapRoute("/register", "register/register.html");
 
-        MapRoute("favicon.ico", "static/images/icons/favicon.ico");
+        MapRoute("favicon.ico", "/images/icons/favicon.ico");
         MapRoute("/service-worker.js", "pwa/service-worker.js");
         MapRoute("/manifest.json", "pwa/manifest.json");
 
@@ -62,7 +59,6 @@ public static class RouteConfig
                 context.Response.ContentType = "text/html";
                 var filePath = Path.Combine(
                     app.Environment.WebRootPath,
-                    "static",
                     "404",
                     "404.html"
                 );
@@ -89,7 +85,6 @@ public static class RouteConfig
                 context.Response.ContentType = "text/html";
                 var filePath = Path.Combine(
                     app.Environment.WebRootPath,
-                    "static",
                     "login",
                     "login.html"
                 );
