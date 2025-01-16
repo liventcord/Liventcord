@@ -279,7 +279,7 @@ function initializeProfile() {
 
 function readCurrentMessages() {
     if (!currentChannelId ) { return; }
-    apiClient.send("read_message",{"channelId" : currentChannelId,"guildId" : currentGuildId});
+    apiClient.send(EventType.READ_MESSAGE,{"channelId" : currentChannelId,"guildId" : currentGuildId});
     getId("newMessagesBar").style.display = "none";
 }
 

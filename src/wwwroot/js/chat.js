@@ -551,7 +551,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             "guildId" : currentGuildId, 
             "channelId" : currentChannelId
         }
-        apiClient.send("get_message_date",data);
+        apiClient.send(EventType.GET_MESSAGE_DATE,data);
         return;
     }
     const messagesArray = Array.isArray(messages) ? messages : [messages];
@@ -567,7 +567,7 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
             guildId: currentGuildId,
             channelId: currentChannelId
         };
-        apiClient.send("get_bulk_reply", data);
+        apiClient.send(EventType.GET_BULK_REPLY, data);
     }
 }
 
@@ -641,7 +641,7 @@ function fetchMessagesFromServer(channelId, isDm = false) {
         hasJustFetchedMessages = null;
     }, 5000);
 
-    apiClient.send("get_history", requestData);
+    apiClient.send(EventType.GET_HISTORY, requestData);
 }
 
 

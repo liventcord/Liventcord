@@ -1,12 +1,15 @@
 const EventType = Object.freeze({
     CREATE_CHANNEL: "create_channel",
     JOIN_GUILD: "join_guild",
+    LEAVE_GUILD: "leave_guild",
     CREATE_GUILD: "create_guild",
     DELETE_GUILD: "delete_guild",
     DELETE_GUILD_IMAGE: "delete_guild_image",
-    NEW_MESSAGE: "new_message",
+    SEND_MESSAGE: "send__message",
     GET_MEMBERS: "get_members",
+    GET_MESSAGE_DATE: "get_message_date",
     GET_CHANNELS: "get_channels",
+    DELETE_CHANNEL: "delete_channel",
     GET_FRIENDS: "get_friends",
     GET_HISTORY: "get_history",
     GET_SCROLL_HISTORY: "get_old_history",
@@ -18,7 +21,12 @@ const EventType = Object.freeze({
     REMOVE_FRIEND: "remove_friend",
     ADD_FRIEND_ID: "add_friend_id",
     CHANGE_NICK: "change_nick",
-    ADD_DM: "add_dm"
+    ADD_DM: "add_dm",
+    LEAVE_VOICE_CHANNEL: "LEAVE_VOICE_CHANNEL",
+    JOIN_VOICE_CHANNEL: "JOIN_VOICE_CHANNEL",
+    GET_BULK_REPLY : "GET_BULK_REPLY",
+    CHANGE_GUILD_NAME : "CHANGE_GUILD_NAME"
+
 });
 
 const HttpMethod = Object.freeze({
@@ -31,11 +39,13 @@ const HttpMethod = Object.freeze({
 const EventHttpMethodMap = {
     [EventType.CREATE_CHANNEL]: HttpMethod.POST,
     [EventType.JOIN_GUILD]: HttpMethod.POST,
+    [EventType.LEAVE_GUILD]: HttpMethod.POST,
     [EventType.CREATE_GUILD]: HttpMethod.POST,
     [EventType.DELETE_GUILD]: HttpMethod.DELETE,
     [EventType.DELETE_GUILD_IMAGE]: HttpMethod.DELETE,
-    [EventType.NEW_MESSAGE]: HttpMethod.POST,
+    [EventType.SEND_MESSAGE]: HttpMethod.POST,
     [EventType.GET_MEMBERS]: HttpMethod.GET,
+    [EventType.GET_MESSAGE_DATE]: HttpMethod.GET,
     [EventType.GET_CHANNELS]: HttpMethod.GET,
     [EventType.GET_FRIENDS]: HttpMethod.GET,
     [EventType.GET_HISTORY]: HttpMethod.GET,
@@ -48,7 +58,9 @@ const EventHttpMethodMap = {
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
     [EventType.REMOVE_FRIEND]: HttpMethod.DELETE,
     [EventType.CHANGE_NICK]: HttpMethod.PUT,
-    [EventType.ADD_DM]: HttpMethod.POST
+    [EventType.ADD_DM]: HttpMethod.POST,
+    [EventType.GET_BULK_REPLY]: HttpMethod.GET,
+    [EventType.CHANGE_GUILD_NAME]: HttpMethod.PUT
 };
 
 const EventUrlMap = {
@@ -57,7 +69,7 @@ const EventUrlMap = {
     [EventType.CREATE_GUILD]: "/guilds",
     [EventType.DELETE_GUILD]: "/guilds/{guildId}",
     [EventType.DELETE_GUILD_IMAGE]: "/guilds/{guildId}/image",
-    [EventType.NEW_MESSAGE]: "/guilds/{guildId}/channels/{channelId}/messages",
+    [EventType.SEND_MESSAGE]: "/guilds/{guildId}/channels/{channelId}/messages",
     [EventType.GET_MEMBERS]: "/guilds/{guildId}/members",
     [EventType.GET_CHANNELS]: "/guilds/{guildId}/channels/",
     [EventType.GET_FRIENDS]: "/friends",
@@ -65,13 +77,17 @@ const EventUrlMap = {
     [EventType.GET_SCROLL_HISTORY]: "/guilds/{guildId}/channels/{channelId}/messages",
     [EventType.GET_GUILDS]: "/guilds",
     [EventType.GET_INVITES]: "/guilds/{guildId}/invites",
+    [EventType.GET_MESSAGE_DATE]: "/guilds/{guildId}/channels/{channelId}/messages/date",
     [EventType.START_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/start",
     [EventType.STOP_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/stop",
     [EventType.ADD_FRIEND]: "/friends",
     [EventType.ADD_FRIEND_ID]: "/friends",
     [EventType.REMOVE_FRIEND]: "/friends/{friendId}",
     [EventType.CHANGE_NICK]: "/nicks",
-    [EventType.ADD_DM]: "/dm/{friendId}"
+    [EventType.ADD_DM]: "/dm/{friendId}",
+    [EventType.GET_BULK_REPLY]: "/guilds/{guildId}/channels/{channelId}/messages/reply",
+    [EventType.CHANGE_GUILD_NAME]: "/guilds/{guildId}"
+
 };
 
 class ApiClient {

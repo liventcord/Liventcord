@@ -517,7 +517,7 @@ function closeCurrentCall() {
         "guildId" : currentVoiceChannelGuild,
         "channelId" : currentVoiceChannelId
     }
-    apiClient.send("leave_voice_channel",data)
+    apiClient.send(EventType.LEAVE_VOICE_CHANNEL,data)
 }
 function clearVoiceChannel(channelId) {
     const channelButton = channelsUl.querySelector(`li[id="${channelId}"]`);

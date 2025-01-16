@@ -68,7 +68,7 @@ function deleteMessage(messageId) {
   if (isOnGuild) {
     data["guildId"] = currentGuildId;
   }
-  apiClient.send("message_delete", data);
+  apiClient.send(EventType.DELETE_MESSAGE, data);
 }
 
 function inviteToGuild(userId) {
@@ -109,7 +109,7 @@ function inviteUser(userId, guildId) {
 }
 
 function removeFriend(userId) {
-  apiClient.send("friend_request_event", "remove_friend", { friend_id: userId });
+  apiClient.send(EventType.REMOVE_FRIEND, { friend_id: userId });
 }
 
 
@@ -128,7 +128,7 @@ function deleteChannel(channelId, guildId) {
     guildId: guildId,
     channelId: channelId,
   };
-  apiClient.send("remove_channel", data);
+  apiClient.send(EventType.DELETE_CHANNEL, data);
 }
 
 

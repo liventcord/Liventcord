@@ -1,5 +1,5 @@
 
-apiClient.on("deletion_message", data=> {
+apiClient.on(EventType.REMOVE_MESSAGE, data=> {
     deleteLocalMessage(data.messageId,data.guildId,data.channelId,data.isDm);
     guildCache.removeMessage(data.messageId,data.channelId,data.guildId);
     const msgdate = messages_raw_cache[data.messageId].date;

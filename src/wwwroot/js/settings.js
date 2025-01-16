@@ -271,7 +271,7 @@ function changeGuildName() {
     if (newGuildName !== "" && !changeGuildNameTimeout && newGuildName != currentGuildName) {
         console.log("Changed guild name to: " + newGuildName);
         const objecttosend = {"" : newGuildName,"guildId" : currentGuildId};
-        apiClient.send("set_guild_name", objecttosend);
+        apiClient.send(EventType.CHANGE_GUILD_NAME, objecttosend);
         const setInfoNick = getId("set-info-nick");
         if(setInfoNick) {
             setInfoNick.innerText = newGuildName;
