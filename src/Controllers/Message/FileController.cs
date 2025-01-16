@@ -83,7 +83,6 @@ namespace LiventCord.Controllers
                     FileSize = f.Content.Length,
                     f.Extension,
                     f.GuildId,
-                    ChannelId = (f is GuildFile guildFile) ? guildFile.ChannelId : null,
                     UserId = (f is GuildFile || f is AttachmentFile || f is ProfileFile)
                         ? ((dynamic)f).UserId
                         : null,

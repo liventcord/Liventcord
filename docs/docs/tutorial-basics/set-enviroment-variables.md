@@ -21,9 +21,11 @@ sidebar_position: 1
     ```
   - **Host**:
     Hostname the server will run at.
+    (defaults to 0.0.0.0)
 
   - **Port**:
     Port the server will run at.
+    (defaults to 5005)
 
   - **RemoteConnection**:
     Connection string for the database.
@@ -34,9 +36,11 @@ sidebar_position: 1
       - **MySQL**
       - **MariaDB**
       - **SQLite**
-      
+    (defaults to "sqlite" if not provided).
+
   - **SqlitePath**
-    File path where SQLite will store data (defaults to "sqlite" if not provided).
+    File path where SQLite will store data
+    (defaults to Data/liventcord.db)
   
   - **GifWorkerUrl**: 
     URL of the Cloudflare Worker for querying Tenor GIFs.

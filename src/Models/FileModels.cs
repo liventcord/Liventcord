@@ -67,15 +67,9 @@ public class GuildFile : FileBase
         string fileName,
         byte[] content,
         string extension,
-        string channelId,
-        string userId,
         string? guildId
     )
-        : base(fileId, fileName, content, extension, guildId)
-    {
-        ChannelId = channelId;
-        UserId = userId;
-    }
+        : base(fileId, fileName, content, extension, guildId) { }
 }
 
 public class ProfileFile : FileBase

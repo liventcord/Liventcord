@@ -9,7 +9,18 @@ namespace LiventCord.Controllers
 {
     public abstract class BaseController : ControllerBase
     {
-        protected string? UserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        protected string? UserId
+        {
+            get
+            {
+                var userId = User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated.");
+                }
+                return userId;
+            }
+        }
     }
 
     [Route("auth")]
@@ -17,6 +28,7 @@ namespace LiventCord.Controllers
     public class LoginController : ControllerBase
     {
         private readonly AppDbContext _context;
+
         public LoginController(AppDbContext context)
         {
             _context = context;

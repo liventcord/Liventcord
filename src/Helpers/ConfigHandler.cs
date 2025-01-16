@@ -12,7 +12,10 @@ public static class ConfigHandler
         int port = 5005;
         string host = "0.0.0.0";
 
-        if (int.TryParse(builder.Configuration["AppSettings:port"], out int configPort) && configPort > 0)
+        if (
+            int.TryParse(builder.Configuration["AppSettings:port"], out int configPort)
+            && configPort > 0
+        )
         {
             port = configPort;
         }
@@ -28,7 +31,9 @@ public static class ConfigHandler
         }
         else
         {
-            Console.WriteLine("Invalid or missing host in configuration. Using default host: 0.0.0.0");
+            Console.WriteLine(
+                "Invalid or missing host in configuration. Using default host: 0.0.0.0"
+            );
         }
 
         Console.WriteLine($"Running on host: {host}, port: {port}");
@@ -37,10 +42,15 @@ public static class ConfigHandler
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(restrictedToMinimumLevel: LogEventLevel.Information)
             .Filter.ByExcluding(logEvent =>
-                logEvent.Properties.TryGetValue("SourceContext", out var sourceContext) &&
-                (sourceContext.ToString().Contains("Microsoft.AspNetCore") ||
-                sourceContext.ToString().Contains("Microsoft.EntityFrameworkCore.Database.Command")) &&
-                logEvent.Level < LogEventLevel.Warning)
+                logEvent.Properties.TryGetValue("SourceContext", out var sourceContext)
+                && (
+                    sourceContext.ToString().Contains("Microsoft.AspNetCore")
+                    || sourceContext
+                        .ToString()
+                        .Contains("Microsoft.EntityFrameworkCore.Database.Command")
+                )
+                && logEvent.Level < LogEventLevel.Warning
+            )
             .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
             .CreateLogger();
 
@@ -49,18 +59,20 @@ public static class ConfigHandler
         HandleDatabase(builder);
     }
 
-
     static void HandleDatabase(WebApplicationBuilder builder)
     {
         var databaseType = builder.Configuration["AppSettings:DatabaseType"];
         var connectionString = builder.Configuration["RemoteConnection"];
-
-        if (string.IsNullOrEmpty(connectionString))
+        var sqlitePath = builder.Configuration["SqlitePath"];
+        if (
+            databaseType == null
+            || (databaseType.ToLower() != "sqlite" && string.IsNullOrEmpty(connectionString))
+        )
         {
             Console.WriteLine(
-                "Connection string is missing in the configuration. Defaulting to SQLite."
+                "Connection string is missing in the configuration and non-SQLite database type is selected. Defaulting to SQLite."
             );
-            connectionString = "Data/liventcord.db";
+            sqlitePath = "Data/liventcord.db";
         }
 
         Console.WriteLine(
@@ -84,7 +96,12 @@ public static class ConfigHandler
 
             case "sqlite":
             default:
-                var fullPath = Path.GetFullPath(connectionString);
+                if (sqlitePath == null)
+                {
+                    sqlitePath = "Data/liventcord.db";
+                }
+
+                var fullPath = Path.GetFullPath(sqlitePath);
                 var dataDirectory = Path.GetDirectoryName(fullPath);
                 if (!string.IsNullOrEmpty(dataDirectory) && !Directory.Exists(dataDirectory))
                 {

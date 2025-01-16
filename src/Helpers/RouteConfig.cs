@@ -57,11 +57,7 @@ public static class RouteConfig
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;
                 context.Response.ContentType = "text/html";
-                var filePath = Path.Combine(
-                    app.Environment.WebRootPath,
-                    "404",
-                    "404.html"
-                );
+                var filePath = Path.Combine(app.Environment.WebRootPath, "404", "404.html");
                 await context.Response.SendFileAsync(filePath);
             }
             else
@@ -83,11 +79,7 @@ public static class RouteConfig
                 }
 
                 context.Response.ContentType = "text/html";
-                var filePath = Path.Combine(
-                    app.Environment.WebRootPath,
-                    "login",
-                    "login.html"
-                );
+                var filePath = Path.Combine(app.Environment.WebRootPath, "login", "login.html");
                 await context.Response.SendFileAsync(filePath);
             }
         );

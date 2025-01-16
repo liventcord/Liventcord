@@ -30,7 +30,10 @@ namespace LiventCord.Controllers
         [HttpPost("")]
         public async Task<IActionResult> SendFriendRequest([FromRoute] SendFriendRequest request)
         {
-            var friend = await FindUserByFriendDetails(request.FriendName, request.FriendDiscriminator);
+            var friend = await FindUserByFriendDetails(
+                request.FriendName,
+                request.FriendDiscriminator
+            );
             if (friend == null)
             {
                 return NotFound("Friend not found.");
@@ -47,18 +50,21 @@ namespace LiventCord.Controllers
             return Ok("Friend request sent.");
         }
 
-       [HttpPut("accept/{friendId}")]
+        [HttpPut("accept/{friendId}")]
         public async Task<IActionResult> AcceptFriendRequest(string friendId)
         {
-            var friendship = await _dbContext.Friends
-                .Where(f => f.UserId == friendId && f.FriendId == UserId && f.Status == FriendStatus.Pending)
+            var friendship = await _dbContext
+                .Friends.Where(f =>
+                    f.UserId == friendId && f.FriendId == UserId && f.Status == FriendStatus.Pending
+                )
                 .FirstOrDefaultAsync();
 
             if (friendship == null)
             {
                 return NotFound("Friend request not found.");
             }
-            if(UserId == null) {
+            if (UserId == null)
+            {
                 return Unauthorized();
             }
 
@@ -81,8 +87,9 @@ namespace LiventCord.Controllers
         [HttpDelete("{friendId}")]
         public async Task<IActionResult> RemoveFriend(string friendId)
         {
-            var friendship = await _dbContext.Friends
-                .FirstOrDefaultAsync(f => f.UserId == UserId && f.FriendId == friendId);
+            var friendship = await _dbContext.Friends.FirstOrDefaultAsync(f =>
+                f.UserId == UserId && f.FriendId == friendId
+            );
 
             if (friendship == null)
             {
@@ -95,26 +102,30 @@ namespace LiventCord.Controllers
             return Ok("Friend removed.");
         }
 
-
-
-        private async Task<User?> FindUserByFriendDetails(string friendName, string friendDiscriminator)
+        private async Task<User?> FindUserByFriendDetails(
+            string friendName,
+            string friendDiscriminator
+        )
         {
-            return await _dbContext.Users
-                .Where(u => u.Nickname == friendName && u.Discriminator == friendDiscriminator)
+            return await _dbContext
+                .Users.Where(u =>
+                    u.Nickname == friendName && u.Discriminator == friendDiscriminator
+                )
                 .FirstOrDefaultAsync();
         }
 
         private async Task<bool> CheckExistingFriendship(string friendUserId)
         {
             return await _dbContext.Friends.AnyAsync(f =>
-                (f.UserId == UserId && f.FriendId == friendUserId) ||
-                (f.UserId == friendUserId && f.FriendId == UserId)
+                (f.UserId == UserId && f.FriendId == friendUserId)
+                || (f.UserId == friendUserId && f.FriendId == UserId)
             );
         }
 
         private async Task CreateFriendship(string friendUserId, FriendStatus status)
         {
-            if(UserId == null) {
+            if (UserId == null)
+            {
                 return;
             }
 
@@ -138,8 +149,6 @@ namespace LiventCord.Controllers
             await _dbContext.SaveChangesAsync();
         }
 
-
-
         [NonAction]
         public async Task<List<PublicUserWithStatus>> GetFriendsStatus(string userId)
         {
@@ -157,15 +166,17 @@ namespace LiventCord.Controllers
                         {
                             PublicUser = user.GetPublicUser(),
                             Status = friend.Status,
-                            IsFriendsRequestToUser = _dbContext.Friends
-                                .Any(fr => fr.UserId == userId && fr.FriendId == user.UserId && fr.Status == FriendStatus.Pending)
+                            IsFriendsRequestToUser = _dbContext.Friends.Any(fr =>
+                                fr.UserId == userId
+                                && fr.FriendId == user.UserId
+                                && fr.Status == FriendStatus.Pending
+                            ),
                         }
                 )
                 .ToListAsync();
 
             return friends;
         }
-
 
         public class PublicUserWithStatus
         {
@@ -178,9 +189,10 @@ namespace LiventCord.Controllers
 
 public class FriendRequest
 {
-    [IdLengthValidation] 
+    [IdLengthValidation]
     public required string FriendId { get; set; }
 }
+
 public class SendFriendRequest
 {
     public required string FriendName { get; set; }

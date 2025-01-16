@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using LiventCord.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LiventCord.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("")]
     public class UploadController : BaseController
     {
@@ -20,10 +20,8 @@ namespace LiventCord.Controllers
         }
 
         [HttpPost("/api/upload_img")]
-        [Authorize]
         public async Task<IActionResult> UploadImage(IFormFile photo, string? guildId = null)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (photo == null || photo.Length == 0)
                 return BadRequest("No file uploaded.");
 
@@ -56,7 +54,7 @@ namespace LiventCord.Controllers
                     photo.FileName,
                     content,
                     extension,
-                    userId,
+                    UserId,
                     fileId
                 );
             }

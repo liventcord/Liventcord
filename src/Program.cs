@@ -42,6 +42,7 @@ builder
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
         options.LoginPath = "/auth/login";
+        options.LogoutPath = "/auth/logout";
     });
 
 builder
