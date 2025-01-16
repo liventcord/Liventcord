@@ -58,6 +58,9 @@ namespace LiventCord.Controllers
             {
                 return NotFound("Friend request not found.");
             }
+            if(UserId == null) {
+                return Unauthorized();
+            }
 
             friendship.Status = FriendStatus.Accepted;
 
@@ -111,6 +114,10 @@ namespace LiventCord.Controllers
 
         private async Task CreateFriendship(string friendUserId, FriendStatus status)
         {
+            if(UserId == null) {
+                return;
+            }
+
             var newFriendship = new Friend
             {
                 UserId = UserId,
