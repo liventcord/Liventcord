@@ -12,25 +12,31 @@ sidebar_position: 1
       "AppSettings": {
         "Host": "127.0.0.1",
         "Port" : "5005",
-        "RemoteConnection": "YOUR_CONNECTION_STRING",
+        "RemoteConnection": "CONNECTION_STRING",
         "DatabaseType": "DATABASE_TYPE",
-        "SqlitePath": "Data/database.db"
+        "SqlitePath": "Data/database.db",
+        "GifWorkerUrl": "WORKER_URL"
       }
     }
     ```
   - **Host**:
-    The hostname server will run at.
+    Hostname the server will run at.
+
   - **Port**:
-    The port server will run at.
+    Port the server will run at.
+
   - **RemoteConnection**:
-    The connection string for the database.
+    Connection string for the database.
 
   - **DatabaseType**:
-    Specifies the type of database server for data storage. Supported options:
+    Type of database server for data storage. Supported options:
       - **PostgreSQL**
       - **MySQL**
       - **MariaDB**
       - **SQLite**
+      
   - **SqlitePath**
-    The file sqlite will store data at.
-    Defaults to sqlite if none provided
+    File path where SQLite will store data (defaults to "sqlite" if not provided).
+  
+  - **GifWorkerUrl**: 
+    URL of the Cloudflare Worker for querying Tenor GIFs.

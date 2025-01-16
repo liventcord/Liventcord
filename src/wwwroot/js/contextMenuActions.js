@@ -334,26 +334,26 @@ function createMessageContext(messageId, userId) {
   }
 
   context[MessagesActionType.REPLY] = {
-    label: MessagesActionType.REPLY,  // Use the constant key for translation
+    label: MessagesActionType.REPLY,
     action: () => showReplyMenu(messageId, userId),
   };
 
   context[MessagesActionType.MARK_AS_UNREAD] = {
-    label: MessagesActionType.MARK_AS_UNREAD,  // Use the constant key for translation
+    label: MessagesActionType.MARK_AS_UNREAD,
     action: () => markAsUnread(messageId),
   };
 
   if (isOnDm) {
     if (userId === currentUserId) {
       context[MessagesActionType.DELETE_MESSAGE] = {
-        label: MessagesActionType.DELETE_MESSAGE,  // Use the constant key for translation
+        label: MessagesActionType.DELETE_MESSAGE,
         action: () => deleteMessage(messageId),
       };
     }
   } else {
     if (permissionManager.canManageMessages())
       context[MessagesActionType.DELETE_MESSAGE] = {
-        label: MessagesActionType.DELETE_MESSAGE,  // Use the constant key for translation
+        label: MessagesActionType.DELETE_MESSAGE,
         action: () => deleteMessage(messageId),
       };
   }
