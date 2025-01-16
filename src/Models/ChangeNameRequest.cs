@@ -6,6 +6,4 @@ public class ChangeNicknameRequest
     [MinLength(1, ErrorMessage = "Nickname must be at least 1 character long.")]
     public required string NewNickname { get; set; }
 
-    [Required]
-    public int UserId { get; set; }
 }

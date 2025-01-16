@@ -237,7 +237,7 @@ function isDefined(variable) {
 function initializeGuild() {
     initialiseMe();
     let {isValid,initialGuildId,initialChannelId,initialFriendId} = router.validateRoute();
-    console.warn(isValid,initialGuildId,initialChannelId);
+
     if(isValid) {
         loadGuild(initialGuildId, initialChannelId,null,false,true);
     } else {

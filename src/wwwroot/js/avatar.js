@@ -2,8 +2,11 @@ let lastConfirmedProfileImg;
 let lastConfirmedGuildImg;
 
 async function setPicture(imgToUpdate, srcId, isProfile, isTimestamp) {
-    if (!srcId) return;
-    if(!imgToUpdate) return;
+    if (!srcId) {
+        imgToUpdate.src = isProfile ? defaultProfileImageUrl : blackImage;
+        return;
+    }
+    if (!imgToUpdate) return;
 
     if (srcId == CLYDE_ID) {
         imgToUpdate.src = clydeSrc;

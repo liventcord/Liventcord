@@ -15,6 +15,7 @@ const EventType = Object.freeze({
     START_TYPING: "start_typing",
     STOP_TYPING: "stop_typing",
     ADD_FRIEND: "add_friend",
+    REMOVE_FRIEND: "remove_friend",
     ADD_FRIEND_ID: "add_friend_id",
     CHANGE_NICK: "change_nick",
     ADD_DM: "add_dm"
@@ -45,6 +46,7 @@ const EventHttpMethodMap = {
     [EventType.STOP_TYPING]: HttpMethod.POST,
     [EventType.ADD_FRIEND]: HttpMethod.POST,
     [EventType.ADD_FRIEND_ID]: HttpMethod.POST,
+    [EventType.REMOVE_FRIEND]: HttpMethod.DELETE,
     [EventType.CHANGE_NICK]: HttpMethod.PUT,
     [EventType.ADD_DM]: HttpMethod.POST
 };
@@ -67,8 +69,9 @@ const EventUrlMap = {
     [EventType.STOP_TYPING]: "/guilds/{guildId}/channels/{channelId}/typing/stop",
     [EventType.ADD_FRIEND]: "/friends",
     [EventType.ADD_FRIEND_ID]: "/friends",
+    [EventType.REMOVE_FRIEND]: "/friends/{friendId}",
     [EventType.CHANGE_NICK]: "/nicks",
-    [EventType.ADD_DM]: "/dm/friendId={friendId}"
+    [EventType.ADD_DM]: "/dm/{friendId}"
 };
 
 class ApiClient {

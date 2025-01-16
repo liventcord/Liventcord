@@ -477,8 +477,8 @@ function populateFriendsContainer(friends, isPending) {
                 filterFriends();
             }, 10);
             for (const friend of friends) {
-                const { userId, nickName, discriminator, isOnline } = friend.publicUser;
-                createFriendCard(userId, nickName, discriminator, isOnline, isPending, friendsContainer);
+                const { userId, nickName, discriminator, isOnline,isFriendsRequestToUser } = friend.publicUser;
+                createFriendCard(userId, nickName, discriminator, isOnline, isPending,isFriendsRequestToUser, friendsContainer);
                 if (friend.activity) {
                     updateUsersStatus(friend);
                 }
@@ -490,7 +490,7 @@ function populateFriendsContainer(friends, isPending) {
         console.error("Error populating friends container:", error);
     }
 }
-function createFriendCard(userId, nickName, discriminator, isOnline, isPending, friendsContainer) {
+function createFriendCard(userId, nickName, discriminator, isOnline, isPending,isFriendsRequestToUser, friendsContainer) {
     const friendCard = createEl("div", { className: "friend-card", id: userId });
     const img = createEl("img");
     setProfilePic(img, userId);
@@ -509,9 +509,10 @@ function createFriendCard(userId, nickName, discriminator, isOnline, isPending, 
     const friendInfo = createEl("div", { className: "friend-info" });
     friendInfo.appendChild(createEl("div", { className: "friend-name", textContent: nickName }));
     friendInfo.appendChild(createEl("div", { className: "friend-discriminator", textContent: `#${discriminator}` }));
-    const onlineStatus = isPending ? 
-        (isOnline ? translations.getTranslation("incoming-friend-request") : translations.getTranslation("outgoing-friend-request")) :
-        (isOnline ? translations.getTranslation("online") : translations.getTranslation("offline"));
+    const onlineStatus = translations.getTranslation(isPending 
+        ? (isFriendsRequestToUser ? "incoming-friend-request" : "outgoing-friend-request") 
+        : (isOnline ? "online" : "offline"));
+    
     friendInfo.appendChild(createEl("div", { className: "friend-status", textContent: onlineStatus }));
 
     const friendButton = createEl("div", { className: "friend-button" });

@@ -24,7 +24,7 @@ namespace LiventCord.Controllers
                 return Unauthorized("User ID is missing.");
 
             var publicDmUsers = await _dbContext
-                .Friends.Where(f => f.UserId == UserId && f.Status == FriendStatus.Accepted)
+                .UserDms.Where(d => d.UserId == UserId)
                 .Join(
                     _dbContext.Users,
                     friend => friend.FriendId,
@@ -38,7 +38,7 @@ namespace LiventCord.Controllers
 
         [HttpPost("")]
         public async Task<IActionResult> AddDmEndpoint(
-            [FromBody] [IdLengthValidation] string friendId
+            [FromRoute] [IdLengthValidation] string friendId
         )
         {
             var result = await AddDmUser(UserId!, friendId);
@@ -47,16 +47,17 @@ namespace LiventCord.Controllers
 
         private async Task<IActionResult> AddDmUser(string userId, string friendId)
         {
+            // # TODO: add to dm users
             var friend = await _dbContext
                 .Users.Where(u => u.UserId == friendId)
                 .Select(u => new { u.UserId })
                 .FirstOrDefaultAsync();
 
             if (friend == null)
-                return NotFound("Friend not found."); // 404 Not Found
+                return NotFound("Friend not found.");
 
             if (friend.UserId == userId)
-                return BadRequest("You cannot add yourself as a friend."); // 400 Bad Request
+                return BadRequest("You cannot add yourself as a friend.");
 
             var existingFriendship = await _dbContext.Friends.AnyAsync(f =>
                 (f.UserId == userId && f.FriendId == friend.UserId)
@@ -64,7 +65,7 @@ namespace LiventCord.Controllers
             );
 
             if (existingFriendship)
-                return Conflict("You are already friends with this user."); // 409 Conflict
+                return Conflict("You are already friends with this user.");
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {

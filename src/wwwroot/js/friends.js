@@ -202,7 +202,7 @@ function updateFriendsList(friends, isPending) {
 
 function addPendingButtons(friendButton, friend) {
   //TODO: fix isFriendsRequestsToUser
-  let isFriendsRequestsToUser = false;
+  let isFriendsRequestsToUser = true;
   if(isFriendsRequestsToUser) {
     const acceptButton = createButtonWithBubblesImg(
       friendButton,
@@ -223,9 +223,7 @@ function addPendingButtons(friendButton, friend) {
     closeButton.addEventListener("click", (event) =>
       handleButtonClick(
         event,
-        isFriendsRequestsToUser
-          ? EventType.ADD_FRIEND
-          : EventType.ADD_FRIEND_ID,
+        EventType.REMOVE_FRIEND,
         friend,
       ),
     );

@@ -240,19 +240,19 @@ apiClient.on("users_data_response", data => {
 });
 
 //friend
-apiClient.on("add_friend", function (message) {
+apiClient.on(EventType.ADD_FRIEND, function (message) {
     handleFriendEventResponse(message);
 });
 
-apiClient.on("accept_friend_request", function (message) {
+apiClient.on(EventType.ACCEPT_FRIEND_REQUEST, function (message) {
     handleFriendEventResponse(message);
 });
 
-apiClient.on("remove_friend", function (message) {
+apiClient.on(EventType.REMOVE_FRIEND, function (message) {
     handleFriendEventResponse(message);
 });
 
-apiClient.on("deny_friend_request", function (message) {
+apiClient.on(EventType.deny_friend_request, function (message) {
     handleFriendEventResponse(message);
 });
 

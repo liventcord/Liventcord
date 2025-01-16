@@ -136,7 +136,10 @@ function createChannelsPop() {
     document.body.appendChild(newPopOuterParent);
 }
 function drawProfilePop(userData) {
-    console.log(userData);
+    if(!userData) {
+        console.error("Null user data requested profile draw",userData);
+        return;
+    }
     const profileContainer = createEl("div",{id:"profile-container"});
 
     const discriminator = userData.discriminator;
