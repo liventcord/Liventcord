@@ -24,7 +24,7 @@ builder.Services.AddScoped<SSEManager>();
 builder.Services.AddSingleton<FileExtensionContentTypeProvider>();
 builder.Services.AddScoped<GuildController>();
 builder.Services.AddScoped<PermissionsController>();
-builder.Services.AddScoped<UploadController>();
+builder.Services.AddScoped<ImageController>();
 builder.Services.AddScoped<InviteController>();
 builder.Services.AddScoped<LoginController>();
 builder.Services.AddHttpClient();

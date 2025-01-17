@@ -13,13 +13,13 @@ namespace LiventCord.Controllers
     public class ChannelController : BaseController
     {
         private readonly AppDbContext _dbContext;
-        private readonly UploadController _uploadController;
+        private readonly ImageController _uploadController;
         private readonly MembersController _membersController;
         private readonly PermissionsController _permissionsController;
 
         public ChannelController(
             AppDbContext dbContext,
-            UploadController uploadController,
+            ImageController uploadController,
             MessageController messageController,
             MembersController membersController,
             PermissionsController permissionsController

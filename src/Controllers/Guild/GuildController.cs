@@ -14,13 +14,13 @@ namespace LiventCord.Controllers
     {
         private string DEFAULT_CHANNEL_NAME = "general";
         private readonly AppDbContext _dbContext;
-        private readonly UploadController _uploadController;
+        private readonly ImageController _uploadController;
         private readonly MembersController _membersController;
         private readonly PermissionsController _permissionsController;
 
         public GuildController(
             AppDbContext dbContext,
-            UploadController uploadController,
+            ImageController uploadController,
             MessageController messageController,
             MembersController membersController,
             PermissionsController permissionsController
@@ -56,8 +56,10 @@ namespace LiventCord.Controllers
             {
                 var uploadResult = await _uploadController.UploadImage(
                     request.Photo,
+                    UserId!,
                     newGuild.GuildId
                 );
+
                 if (uploadResult is not OkObjectResult uploadResultOk)
                     return uploadResult;
 
@@ -85,6 +87,7 @@ namespace LiventCord.Controllers
 
             return CreatedAtAction(nameof(CreateGuild), new { id = guildDto.GuildId }, guildDto);
         }
+
 
         private async Task<Guild> CreateGuild(
             string ownerId,
