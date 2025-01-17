@@ -45,10 +45,6 @@ public static class RouteConfig
         MapRoute("/download", "templates/download.html");
         MapRoute("/register", "register/register.html");
 
-        MapRoute("favicon.ico", "/images/icons/favicon.ico");
-        MapRoute("/service-worker.js", "pwa/service-worker.js");
-        MapRoute("/manifest.json", "pwa/manifest.json");
-
         app.MapFallback(async context =>
         {
             var acceptHeader = context.Request.Headers["Accept"].ToString();
