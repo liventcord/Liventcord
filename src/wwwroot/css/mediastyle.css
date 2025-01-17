@@ -286,7 +286,7 @@
     background-color: rgb(218,224,246);
     font-weight: bold;
     text-indent: -2px;
-    right: 650px;
+    right: 630px;
     border-radius: 2px;
     bottom: 12px;
     width: 25px; height: 25px;
@@ -306,14 +306,14 @@
     100% { transform:  rotate(0deg); }
 }
 
-.gifbtn-user-list-open {
-    right: 360px;
+#gifbtn.gifbtn-user-list-open {
+    right: 390px; 
 }
-.emojibtn-user-list-open {
-    right: 400px;
+#emojibtn.emojibtn-user-list-open {
+    right: 344px;
 }
 #emojibtn {
-    right: 595px;
+    right: 584px;
     bottom: 0px;
     width: 48px;
     height: 48px;

@@ -574,12 +574,12 @@ function fetchReplies(messages, repliesList=null,goToOld=false) {
 function updateChatWidth() {
     if (getId("user-list").style.display == "none") {
         getId("user-input").classList.add("user-list-hidden");
-        getId("gifbtn").classList.add("gifbtn-user-list-hidden");
-        getId("emojibtn").classList.add("emojibtn-user-list-hidden");
+        getId("gifbtn").classList.add("gifbtn-user-list-open");
+        getId("emojibtn").classList.add("emojibtn-user-list-open");
     } else {
         getId("user-input").classList.remove("user-list-hidden");
-        getId("gifbtn").classList.remove("gifbtn-user-list-hidden");
-        getId("emojibtn").classList.remove("emojibtn-user-list-hidden");
+        getId("gifbtn").classList.remove("gifbtn-user-list-open");
+        getId("emojibtn").classList.remove("emojibtn-user-list-open");
     }
 }
 
