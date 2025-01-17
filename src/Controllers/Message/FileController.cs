@@ -24,6 +24,18 @@ namespace LiventCord.Controllers
             _env = env;
         }
 
+        [HttpGet("guilds/{guildId}")]
+        public async Task<IActionResult> GetGuildFile(string guildId)
+        {
+            guildId = RemoveFileExtension(guildId);
+
+            var file = await _context.GuildFiles.FirstOrDefaultAsync(f => f.GuildId == guildId);
+            if (file == null)
+                return NotFound(new { Error = "Guild file not found." });
+
+            return GetFileResult(file);
+        }
+
         [HttpGet("profiles/{userId}")]
         public async Task<IActionResult> GetProfileFile(string userId)
         {

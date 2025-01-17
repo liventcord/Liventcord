@@ -88,7 +88,6 @@ namespace LiventCord.Controllers
             return CreatedAtAction(nameof(CreateGuild), new { id = guildDto.GuildId }, guildDto);
         }
 
-
         private async Task<Guild> CreateGuild(
             string ownerId,
             string guildName,

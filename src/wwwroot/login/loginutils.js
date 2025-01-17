@@ -16,7 +16,8 @@ const translations = {
         registerPrompt: "Need an account?",
         loginPrompt: "Already have an account?",
         emailExists: "Email is already registered",
-        maxNickReached: "This nickname has exceeded the maximum number of available discriminators."
+        maxNickReached: "This nickname has exceeded the maximum number of available discriminators.",
+        successRegister : "Succesfully registered!"
     },
     tr: {
         emailInvalid: "Geçerli bir e-posta adresi girin.",
@@ -31,7 +32,9 @@ const translations = {
         forgotPassword: "Şifrenizi mi unuttunuz?",
         registerPrompt: "Hesabınız yok mu?",
         loginPrompt: "Zaten hesabın var mı?",
-        emailExists: "Bu takma ad, mevcut tanımlayıcı sayısının maksimum sınırını aşmış durumda",
+        maxNickReached: "Bu takma ad, mevcut tanımlayıcı sayısının maksimum sınırını aşmış durumda",
+        emailExists: "Bu e posta adresi zaten kayıtlı",
+        successRegister : "Başarıyla kayıt olundu!"
     },
 };
 function updateDOM() {
@@ -175,7 +178,14 @@ function submitForm(event, isRegister) {
         }
     })
     .then(() => {
-        window.location.href = "/app";
+        if(isRegister) {
+            setTimeout(() => {
+                alertUser(getTranslation(""))
+                window.location.href = "/app";
+            }, 5000);
+        } else {
+            window.location.href = "/app";
+        }
     })
     .catch(error => {
         console.error("Error:", error);

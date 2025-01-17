@@ -312,13 +312,13 @@ function createMessageContext(messageId, userId) {
   let context = {};
 
   context[MessagesActionType.ADD_REACTION] = {
-    label: MessagesActionType.ADD_REACTION,  // Use the constant key for translation
+    label: MessagesActionType.ADD_REACTION, 
     action: () => openReactionMenu(messageId),
   };
 
   if (userId === currentUserId) {
     context[MessagesActionType.EDIT_MESSAGE] = {
-      label: MessagesActionType.EDIT_MESSAGE,  // Use the constant key for translation
+      label: MessagesActionType.EDIT_MESSAGE,
       action: () => openEditMessage(messageId),
     };
   }
@@ -328,7 +328,7 @@ function createMessageContext(messageId, userId) {
     (isOnDm && userId === currentUserId)
   ) {
     context[MessagesActionType.PIN_MESSAGE] = {
-      label: MessagesActionType.PIN_MESSAGE,  // Use the constant key for translation
+      label: MessagesActionType.PIN_MESSAGE, 
       action: () => pinMessage(messageId),
     };
   }
