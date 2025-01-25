@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunklivent_cord_docs=self.webpackChunklivent_cord_docs||[]).push([[144],{1314:l=>{l.exports=JSON.parse('{"allTagsPath":"/Docs/blog/tags","slug":"/Docs/blog/tags/hello","name":"hello","count":2,"permalink":"/Docs/blog/tags/hello"}')}}]);

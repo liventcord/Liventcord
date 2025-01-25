@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklivent_cord_docs=self.webpackChunklivent_cord_docs||[]).push([[811],{1771:e=>{e.exports=JSON.parse('{"allTagsPath":"/LiventCord/blog/tags","slug":"/LiventCord/blog/tags/hello","name":"hello","count":2,"permalink":"/LiventCord/blog/tags/hello"}')}}]);

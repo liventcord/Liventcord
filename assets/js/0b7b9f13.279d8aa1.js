@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklivent_cord_docs=self.webpackChunklivent_cord_docs||[]).push([[651],{9510:o=>{o.exports=JSON.parse('{"allTagsPath":"/LiventCord/blog/tags","slug":"/LiventCord/blog/tags/facebook","name":"facebook","count":1,"permalink":"/LiventCord/blog/tags/facebook"}')}}]);

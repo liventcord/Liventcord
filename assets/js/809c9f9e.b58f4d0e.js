@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunklivent_cord_docs=self.webpackChunklivent_cord_docs||[]).push([[984],{5099:s=>{s.exports=JSON.parse('{"allTagsPath":"/LiventCord/blog/tags","slug":"/LiventCord/blog/tags/docusaurus","name":"docusaurus","count":4,"permalink":"/LiventCord/blog/tags/docusaurus"}')}}]);

@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunklivent_cord_docs=self.webpackChunklivent_cord_docs||[]).push([[643],{4540:o=>{o.exports=JSON.parse('{"allTagsPath":"/Docs/blog/tags","slug":"/Docs/blog/tags/facebook","name":"facebook","count":1,"permalink":"/Docs/blog/tags/facebook"}')}}]);
